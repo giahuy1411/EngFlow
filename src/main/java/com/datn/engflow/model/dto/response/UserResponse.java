@@ -1,0 +1,26 @@
+package com.datn.engflow.model.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UserResponse {
+    private Long id;
+    private String username;
+    private String email;
+    private String fullName;
+    private String avatarUrl;
+    private String role;
+    private String currentLevel;
+    private Integer totalPoints;
+    private Integer currentStreak;
+    private String lastStudyDate;
+    private String token;
+}

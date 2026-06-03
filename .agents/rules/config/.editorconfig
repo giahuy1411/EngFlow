@@ -1,0 +1,41 @@
+# .editorconfig — English Learning Platform
+# https://editorconfig.org
+
+root = true
+
+[*]
+charset                  = utf-8
+end_of_line              = lf
+indent_style             = space
+insert_final_newline     = true
+trim_trailing_whitespace = true
+
+# Java
+[*.java]
+indent_size = 4
+max_line_length = 120
+
+# Vue / JavaScript / TypeScript
+[*.{vue,js,ts}]
+indent_size = 2
+max_line_length = 100
+
+# CSS / SCSS
+[*.{css,scss}]
+indent_size = 2
+
+# XML / Maven
+[*.{xml,pom}]
+indent_size = 4
+
+# YAML / Docker Compose
+[*.{yml,yaml}]
+indent_size = 2
+
+# SQL
+[*.sql]
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false

@@ -1,0 +1,177 @@
+<template>
+  <div class="quiz-game w-full max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-180px)] flex items-center">
+    <div class="relative w-full aspect-video bg-gradient-to-br from-gray-50 to-gray-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+      <!-- Top bar -->
+      <div class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-6 py-3 z-10">
+        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-gray-500 hover:text-black uppercase border-b-2 border-transparent hover:border-black transition-colors">
+          &larr; Quit Session
+        </button>
+        <div class="font-black text-base sm:text-lg bg-green-300 border-2 border-black rounded-full px-4 py-1" v-if="questions.length">
+          {{ currentIndex + 1 }} / {{ questions.length }}
+        </div>
+      </div>
+
+      <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
+        <div class="animate-spin inline-block w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+      </div>
+
+      <div v-else-if="!sessionComplete && questions.length > 0" class="absolute inset-0 flex flex-col px-6 sm:px-10 pt-16 pb-4 sm:pb-6">
+        <!-- Word card -->
+        <div class="flex-1 flex items-center justify-center min-h-0 mb-3">
+          <div class="w-full bg-white border-4 border-black rounded-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-center py-5 sm:py-6 px-4">
+            <h2 class="text-3xl sm:text-5xl font-black break-words leading-tight">{{ currentQuestion.word }}</h2>
+            <p class="text-base sm:text-xl font-bold text-gray-500 font-mono mt-1">{{ currentQuestion.pronunciation }}</p>
+          </div>
+        </div>
+
+        <!-- Options grid -->
+        <div class="flex-1 min-h-0 flex items-center justify-center">
+          <div class="grid grid-cols-2 gap-2 sm:gap-3 w-full">
+            <button 
+              v-for="(option, index) in currentQuestion.options" :key="index"
+              @click="selectOption(option)"
+              class="flex items-center justify-center px-3 sm:px-5 py-3 sm:py-4 text-center border-4 border-black rounded-xl font-bold text-sm sm:text-lg leading-tight transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              :class="getOptionClass(option, index)"
+              :disabled="selectedOption !== null"
+            >
+              {{ option }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- Next button -->
+        <div v-if="selectedOption !== null" class="flex-none mt-2 animate-fade-in-up">
+          <button @click="nextQuestion" class="w-full py-2.5 bg-black text-white font-black text-sm sm:text-base uppercase border-4 border-black rounded-xl hover:bg-gray-800 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5">
+            {{ currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz' }}
+          </button>
+        </div>
+      </div>
+
+      <div v-else-if="sessionComplete" class="absolute inset-0 flex items-center justify-center">
+        <GameResult 
+          :correct="correctAnswers" 
+          :total="questions.length" 
+          :coins="earnedCoins"
+          @continue="loadQuiz" 
+          @back="$router.push(`/decks/${deckId}`)" 
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import gameService from '@/services/gameService'
+import GameResult from '@/components/bauhaus/GameResult.vue'
+import { useToast } from '@/composables/useToast'
+
+const route = useRoute()
+const deckId = route.params.id
+const toast = useToast()
+
+const questions = ref([])
+const currentIndex = ref(0)
+const selectedOption = ref(null)
+const correctAnswers = ref(0)
+const loading = ref(true)
+const sessionComplete = ref(false)
+const earnedCoins = ref(0)
+const sessionId = ref(null)
+
+const currentQuestion = computed(() => questions.value[currentIndex.value])
+
+const optionColors = [
+  'bg-pink-300 hover:bg-pink-400',
+  'bg-blue-300 hover:bg-blue-400',
+  'bg-amber-300 hover:bg-amber-400',
+  'bg-teal-300 hover:bg-teal-400',
+  'bg-purple-300 hover:bg-purple-400',
+  'bg-orange-300 hover:bg-orange-400'
+]
+
+onMounted(() => {
+  loadQuiz()
+})
+
+const loadQuiz = async () => {
+  loading.value = true
+  sessionComplete.value = false
+  currentIndex.value = 0
+  correctAnswers.value = 0
+  selectedOption.value = null
+  
+  try {
+    const response = await gameService.getQuizData(deckId)
+    questions.value = response.data
+    sessionId.value = response.sessionId
+  } catch (error) {
+    console.error("Error loading quiz", error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const selectOption = (option) => {
+  if (selectedOption.value !== null) return
+  
+  selectedOption.value = option
+  if (option === currentQuestion.value.answer) {
+    correctAnswers.value++
+  }
+}
+
+const getOptionClass = (option, index) => {
+  if (selectedOption.value === null) {
+    return `${optionColors[index % optionColors.length]} hover:-translate-y-1 hover:shadow-[6px_10px_0px_0px_rgba(0,0,0,1)]`
+  }
+  
+  if (option === currentQuestion.value.answer) {
+    return 'bg-green-500 text-white shadow-none translate-y-1 border-green-600'
+  }
+  
+  if (selectedOption.value === option) {
+    return 'bg-red-500 text-white shadow-none translate-y-1 border-red-600'
+  }
+  
+  return `${optionColors[index % optionColors.length]} opacity-40 shadow-none translate-y-1`
+}
+
+const nextQuestion = () => {
+  if (currentIndex.value < questions.length - 1) {
+    currentIndex.value++
+    selectedOption.value = null
+  } else {
+    finishQuiz()
+  }
+}
+
+const finishQuiz = async () => {
+  try {
+    const result = await gameService.submitResult(sessionId.value, correctAnswers.value)
+    earnedCoins.value = result.earnedCoins
+  } catch (error) {
+    console.error("Error submitting result", error)
+    toast.error('Không thể lưu kết quả. Vui lòng thử lại.')
+  }
+  sessionComplete.value = true
+}
+</script>
+
+<style scoped>
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

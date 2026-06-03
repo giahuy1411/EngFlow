@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle config — English Learning Platform
+    Add to pom.xml:
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-checkstyle-plugin</artifactId>
+      <version>3.3.0</version>
+      <configuration>
+        <configLocation>checkstyle.xml</configLocation>
+        <failsOnError>true</failsOnError>
+      </configuration>
+    </plugin>
+-->
+
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- File-level -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+    <module name="NewlineAtEndOfFile"/>
+
+    <module name="TreeWalker">
+
+        <!-- ===================== NAMING ===================== -->
+        <module name="TypeName"/>
+        <!-- PascalCase: classes, interfaces, enums -->
+
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <module name="ParameterName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <module name="LocalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <module name="ConstantName">
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+        </module>
+
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+
+        <!-- ===================== SIZE ===================== -->
+        <module name="MethodLength">
+            <property name="max" value="50"/>
+            <property name="countEmpty" value="false"/>
+        </module>
+
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+
+        <!-- ===================== WHITESPACE ===================== -->
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+        </module>
+
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+
+        <!-- ===================== IMPORTS ===================== -->
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+
+        <module name="AvoidStarImport">
+            <property name="allowStaticMemberImports" value="true"/>
+        </module>
+
+        <!-- ===================== BLOCKS ===================== -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+
+        <!-- ===================== CODING ===================== -->
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected|ignore"/>
+        </module>
+
+        <module name="FallThrough"/>
+
+        <module name="MultipleVariableDeclarations"/>
+
+        <module name="StringLiteralEquality"/>
+        <!-- Cấm so sánh String bằng == -->
+
+        <module name="EqualsHashCode"/>
+        <!-- Nếu override equals phải override hashCode -->
+
+        <!-- ===================== JAVADOC ===================== -->
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+            <property name="tokens" value="METHOD_DEF"/>
+            <!-- Chỉ enforce trên Interface methods — bỏ annotation class -->
+        </module>
+
+        <!-- ===================== MISC ===================== -->
+        <module name="UpperEll"/>
+        <!-- Dùng 1L thay vì 1l -->
+
+        <module name="ArrayTypeStyle"/>
+        <!-- String[] args, không phải String args[] -->
+
+        <module name="OuterTypeFilename"/>
+        <!-- Tên file phải trùng tên class public -->
+
+    </module>
+
+    <!-- Line length — không quá 120 ký tự -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    </module>
+
+</module>

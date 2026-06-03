@@ -1,0 +1,6 @@
+import{h as v,b as l,l as y,u as r}from"./index-BbPtoJ8c.js";/**
+ * @license lucide-vue-next v0.368.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const g=v("ClockIcon",[["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}],["polyline",{points:"12 6 12 12 16 14",key:"68esgv"}]]),i={getAll:()=>l.get("/api/lessons").then(e=>e.data),getById:e=>l.get(`/api/lessons/${e}`).then(s=>s.data),create:e=>l.post("/api/lessons",e).then(s=>s.data),update:(e,s)=>l.put(`/api/lessons/${e}`,s).then(a=>a.data),remove:e=>l.delete(`/api/lessons/${e}`).then(s=>s.data)},L=y("lesson",()=>{const e=r([]),s=r(null),a=r(!1),t=r(null);async function d(){var o,n;a.value=!0,t.value=null;try{e.value=await i.getAll()}catch(c){t.value=((n=(o=c.response)==null?void 0:o.data)==null?void 0:n.error)||"Lỗi tải danh sách bài học"}finally{a.value=!1}}async function h(o){var n,c;a.value=!0,t.value=null;try{s.value=await i.getById(o)}catch(u){throw t.value=((c=(n=u.response)==null?void 0:n.data)==null?void 0:c.error)||"Lỗi tải chi tiết bài học",u}finally{a.value=!1}}function p(){s.value=null}return{lessons:e,currentLesson:s,loading:a,error:t,fetchLessons:d,fetchLessonById:h,clearCurrentLesson:p}});export{g as C,L as u};

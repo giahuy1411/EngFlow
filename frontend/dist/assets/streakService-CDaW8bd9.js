@@ -1,0 +1,1 @@
+import{b as a}from"./index-BbPtoJ8c.js";const n={checkin:(t=0,e=0,r=0)=>a.post("/api/streak/checkin",{wordsStudied:t,gamesPlayed:e,coinsEarned:r}).then(s=>s.data),getHistory:(t=30)=>a.get(`/api/streak/history?days=${t}`).then(e=>e.data),getCurrentStreak:()=>a.get("/api/streak/current").then(t=>t.data)};export{n as s};
