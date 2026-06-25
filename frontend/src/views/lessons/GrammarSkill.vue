@@ -10,6 +10,7 @@
           <h3 class="font-black text-lg uppercase">Grammar</h3>
         </div>
         <div class="p-6">
+          <div v-if="quizData.videoHtml" v-html="quizData.videoHtml" class="mb-6"></div>
           <div v-html="quizData.staticHtml" class="skill-html"></div>
         </div>
       </div>

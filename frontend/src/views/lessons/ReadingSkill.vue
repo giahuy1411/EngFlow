@@ -10,6 +10,7 @@
           <h3 class="font-black text-lg uppercase">Reading</h3>
         </div>
         <div class="p-6">
+          <div v-if="readingData.videoHtml" v-html="readingData.videoHtml" class="mb-6"></div>
           <div v-html="readingData.staticHtml" class="skill-html"></div>
         </div>
       </div>

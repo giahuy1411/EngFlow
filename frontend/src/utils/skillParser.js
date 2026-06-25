@@ -1,15 +1,39 @@
+const VIDEO_SELECTORS = '#mediaplayer, #mediaplayer1, video, iframe[src*="youtube"], iframe[src*="mp4"], embed[src*="mp4"], object[type*="video"]'
+
+function extractVideoHtml(doc) {
+  const el = doc.querySelector(VIDEO_SELECTORS)
+  if (!el) return ''
+  if (el.tagName === 'VIDEO' || el.tagName === 'AUDIO') {
+    el.querySelectorAll('source[src]').forEach(s => {
+      let src = s.getAttribute('src') || ''
+      if (src.startsWith('//')) src = 'https:' + src
+      s.setAttribute('src', src)
+    })
+    let src = el.getAttribute('src') || ''
+    if (src.startsWith('//')) src = 'https:' + src
+    el.setAttribute('src', src)
+    el.setAttribute('controls', '')
+    el.setAttribute('style', 'width:100%;max-height:400px')
+  }
+  return el.outerHTML
+}
+
+function removeAll(container, selectors) {
+  container.querySelectorAll(selectors).forEach(el => el.remove())
+}
+
 export function parseQuizContent(html) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
 
+  const videoHtml = extractVideoHtml(doc)
+
   const clone = doc.body.cloneNode(true)
-  const quizBoxes = clone.querySelectorAll('.qz_box')
-  quizBoxes.forEach(el => el.remove())
+  removeAll(clone, VIDEO_SELECTORS + ', .qz_box')
   const staticHtml = clone.innerHTML
 
   const questions = []
-  const quizContents = doc.querySelectorAll('.qz_content')
-  quizContents.forEach((el, idx) => {
+  doc.querySelectorAll('.qz_content').forEach((el, idx) => {
     const titleEl = el.querySelector('.qz_st1')
     const options = []
     el.querySelectorAll('.qz_st2_item.qz_radio').forEach((optEl, oidx) => {
@@ -25,14 +49,31 @@ export function parseQuizContent(html) {
     }
   })
 
-  return { staticHtml, questions }
+  return { staticHtml, videoHtml, questions }
+}
+
+export function parseListeningContent(html) {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+
+  const videoHtml = extractVideoHtml(doc)
+
+  const clone = doc.body.cloneNode(true)
+  removeAll(clone, VIDEO_SELECTORS + ', .qz_box')
+  const staticHtml = clone.innerHTML
+
+  return { staticHtml, videoHtml }
 }
 
 export function parseReadingContent(html) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
 
-  const staticHtml = doc.body.innerHTML
+  const videoHtml = extractVideoHtml(doc)
+
+  const clone = doc.body.cloneNode(true)
+  removeAll(clone, VIDEO_SELECTORS)
+  const staticHtml = clone.innerHTML
 
   const questions = []
   doc.querySelectorAll('.tanc_read_item_ques').forEach((item, idx) => {
@@ -49,20 +90,5 @@ export function parseReadingContent(html) {
     questions.push({ index: idx, options, textInputs })
   })
 
-  return { staticHtml, questions }
-}
-
-export function parseListeningContent(html) {
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(html, 'text/html')
-
-  const videoEl = doc.querySelector('#mediaplayer, #mediaplayer1')
-  const videoHtml = videoEl ? videoEl.outerHTML : ''
-
-  const clone = doc.body.cloneNode(true)
-  const players = clone.querySelectorAll('#mediaplayer, #mediaplayer1')
-  players.forEach(el => el.remove())
-  const staticHtml = clone.innerHTML
-
-  return { staticHtml, videoHtml }
+  return { staticHtml, videoHtml, questions }
 }
