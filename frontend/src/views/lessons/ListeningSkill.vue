@@ -1,0 +1,45 @@
+<template>
+  <div class="listening-skill">
+    <div v-if="!skillContent" class="bg-white border-4 border-black rounded-xl p-8 text-center">
+      <p class="font-bold text-lg">No listening content available for this lesson.</p>
+    </div>
+
+    <div v-else>
+      <div class="bg-white border-4 border-black rounded-xl shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden mb-8">
+        <div class="bg-black text-white px-6 py-3">
+          <h3 class="font-black text-lg uppercase">Listening</h3>
+        </div>
+        <div class="p-6">
+          <div v-if="listeningData.videoHtml" v-html="listeningData.videoHtml" class="mb-6"></div>
+          <div v-html="listeningData.staticHtml" class="skill-html"></div>
+        </div>
+      </div>
+
+      <QuizEngine
+        v-if="quizQuestions.length"
+        :questions="quizQuestions"
+        :lesson-id="lesson.id"
+        skill-code="lis"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { parseListeningContent, parseQuizContent } from '@/utils/skillParser'
+import QuizEngine from '@/components/lessons/QuizEngine.vue'
+
+const props = defineProps({
+  lesson: { type: Object, required: true },
+  skills: { type: Array, required: true },
+})
+
+const skillContent = computed(() => props.skills.find(s => s.skillType === 'LISTENING'))
+const listeningData = computed(() => skillContent.value ? parseListeningContent(skillContent.value.content) : { staticHtml: '', videoHtml: '' })
+const quizQuestions = computed(() => {
+  if (!skillContent.value) return []
+  const parsed = parseQuizContent(skillContent.value.content)
+  return parsed.questions
+})
+</script>
