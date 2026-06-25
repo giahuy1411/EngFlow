@@ -5,7 +5,14 @@
     </div>
 
     <div v-else>
-      <div v-html="quizData.staticHtml" class="mb-8 skill-html"></div>
+      <div class="bg-white border-4 border-black rounded-xl shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden mb-8">
+        <div class="bg-black text-white px-6 py-3">
+          <h3 class="font-black text-lg uppercase">Vocabulary</h3>
+        </div>
+        <div class="p-6">
+          <div v-html="quizData.staticHtml" class="skill-html"></div>
+        </div>
+      </div>
 
       <QuizEngine
         v-if="quizData.questions.length"
