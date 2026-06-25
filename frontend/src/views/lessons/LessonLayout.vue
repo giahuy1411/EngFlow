@@ -22,12 +22,6 @@
       </section>
 
       <div class="max-w-6xl mx-auto py-8 px-4">
-        <SkillNav
-          :active-skill="currentSkill"
-          :lesson-id="lesson.id"
-          @navigate="navigateToSkill"
-        />
-
         <RouterView
           :lesson="lesson"
           :skills="lessonSkills"
@@ -39,38 +33,16 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import lessonService from '@/services/lessonService'
-import SkillNav from '@/components/lessons/SkillNav.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const lesson = ref(null)
 const loading = ref(true)
 const error = ref(null)
 
 const lessonSkills = computed(() => lesson.value?.lessonSkills || [])
-
-const currentSkill = computed(() => {
-  const name = route.name || ''
-  if (name === 'LessonOverview') return 'OVERVIEW'
-  return name.replace('Lesson', '').toUpperCase()
-})
-
-function navigateToSkill(code) {
-  const routes = {
-    OVERVIEW: 'LessonOverview',
-    VOCABULARY: 'LessonVocab',
-    GRAMMAR: 'LessonGrammar',
-    LISTENING: 'LessonListening',
-    READING: 'LessonReading',
-    WRITING: 'LessonWriting',
-    SPEAKING: 'LessonSpeaking',
-  }
-  const target = routes[code]
-  if (target) router.push({ name: target, params: { id: route.params.id } })
-}
 
 onMounted(async () => {
   try {
