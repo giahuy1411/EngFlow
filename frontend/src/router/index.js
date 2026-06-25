@@ -20,6 +20,12 @@ const routes = [
     meta: { guestOnly: true }
   },
   {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPassword.vue'),
+    meta: { guestOnly: true }
+  },
+  {
     path: '/lessons',
     name: 'Lessons',
     component: () => import('@/views/Lessons.vue'),
@@ -27,9 +33,17 @@ const routes = [
   },
   {
     path: '/lessons/:id',
-    name: 'LessonDetail',
-    component: () => import('@/views/LessonDetail.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('@/views/lessons/LessonLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      { path: '', name: 'LessonOverview', component: () => import('@/views/lessons/LessonOverview.vue') },
+      { path: 'vocabulary', name: 'LessonVocab', component: () => import('@/views/lessons/VocabularySkill.vue') },
+      { path: 'grammar', name: 'LessonGrammar', component: () => import('@/views/lessons/GrammarSkill.vue') },
+      { path: 'listening', name: 'LessonListening', component: () => import('@/views/lessons/ListeningSkill.vue') },
+      { path: 'reading', name: 'LessonReading', component: () => import('@/views/lessons/ReadingSkill.vue') },
+      { path: 'writing', name: 'LessonWriting', component: () => import('@/views/lessons/WritingSkill.vue') },
+      { path: 'speaking', name: 'LessonSpeaking', component: () => import('@/views/lessons/SpeakingSkill.vue') },
+    ]
   },
   {
     path: '/profile',
@@ -101,6 +115,35 @@ const routes = [
     component: () => import('@/views/luyentu/AiVocabGenerator.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/decks/create',
+    name: 'DeckCreate',
+    component: () => import('@/views/luyentu/DeckCreate.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/shop',
+    name: 'Shop',
+    component: () => import('@/views/Shop.vue'),
+    meta: { requiresAuth: true }
+  },
+  // Admin routes
+  {
+    path: '/admin',
+    component: () => import('@/layouts/AdminLayout.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      { path: '', redirect: '/admin/dashboard' },
+      { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/views/admin/AdminDashboard.vue') },
+      { path: 'lessons', name: 'AdminLessons', component: () => import('@/views/admin/AdminLessons.vue') },
+      { path: 'vocabulary', name: 'AdminVocabulary', component: () => import('@/views/admin/AdminVocabulary.vue') },
+      { path: 'exercises', name: 'AdminExercises', component: () => import('@/views/admin/AdminExercises.vue') },
+      { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/AdminUsers.vue') },
+      { path: 'shop', name: 'AdminShop', component: () => import('@/views/admin/AdminShop.vue') },
+      { path: 'achievements', name: 'AdminAchievements', component: () => import('@/views/admin/AdminAchievements.vue') },
+      { path: 'submissions', name: 'AdminSubmissions', component: () => import('@/views/admin/AdminSubmissions.vue') }
+    ]
+  },
   // Redirect any other path to home
   {
     path: '/:pathMatch(.*)*',
@@ -120,6 +163,8 @@ router.beforeEach((to, from, next) => {
     next('/login')
   } else if (to.meta.guestOnly && auth.isLoggedIn) {
     next('/lessons')
+  } else if (to.meta.requiresAdmin && !auth.isAdmin) {
+    next('/')
   } else {
     next()
   }
