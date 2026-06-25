@@ -38,54 +38,97 @@
     @apply top-4;
   }
 
-  /* Skill HTML content — imported from tienganh123 */
+  /* ── Skill HTML Content — imported from tienganh123 ── */
   .skill-html {
-    @apply text-foreground leading-relaxed;
+    @apply text-foreground leading-relaxed text-base;
   }
 
-  .skill-html p {
-    @apply mb-4 text-base;
+  /* Typography */
+  .skill-html h1 { @apply text-3xl font-black uppercase mb-6 mt-2; }
+  .skill-html h2 { @apply text-2xl font-black uppercase mb-4 mt-8; }
+  .skill-html h3 { @apply text-xl font-bold uppercase mb-3 mt-6; }
+  .skill-html h4 { @apply text-lg font-bold uppercase mb-2 mt-4; }
+  .skill-html p { @apply mb-5 leading-relaxed; }
+  .skill-html a { @apply text-primary-red font-bold underline decoration-2 underline-offset-2 hover:no-underline; }
+  .skill-html em, .skill-html i { @apply italic; }
+  .skill-html strong, .skill-html b { @apply font-black; }
+
+  /* Lists */
+  .skill-html ul, .skill-html ol { @apply pl-6 mb-5 space-y-2; }
+  .skill-html li { @apply leading-relaxed; }
+  .skill-html ul li { @apply list-disc; }
+  .skill-html ol li { @apply list-decimal; }
+
+  /* Blockquote — callout style */
+  .skill-html blockquote {
+    @apply border-l-4 border-yellow-400 bg-yellow-50 pl-5 pr-4 py-4 my-6 text-base rounded-r-lg;
   }
 
+  /* Horizontal rule */
+  .skill-html hr {
+    @apply border-t-2 border-black/20 my-8;
+  }
+
+  /* Images */
   .skill-html img {
-    @apply max-w-full h-auto border-4 border-black rounded-xl my-4;
+    @apply max-w-full h-auto border-4 border-black rounded-xl my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
   }
 
+  .skill-html .mc_content_imgbox {
+    @apply border-4 border-black rounded-xl overflow-hidden my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
+  }
+  .skill-html .mc_content_imgbox img {
+    @apply border-0 rounded-none my-0 shadow-none;
+  }
+
+  /* Tables */
   .skill-html table {
-    @apply w-full border-collapse mb-6;
+    @apply w-full border-collapse mb-6 border-2 border-black rounded-xl overflow-hidden;
   }
-
   .skill-html td, .skill-html th {
-    @apply border-2 border-black px-4 py-3 text-left font-medium;
+    @apply border border-black/20 px-4 py-3 text-left;
   }
-
   .skill-html th {
-    @apply bg-black text-white font-bold uppercase text-sm;
+    @apply bg-black text-white font-bold uppercase text-sm tracking-wider;
+  }
+  .skill-html tr:nth-child(even) td {
+    @apply bg-gray-50;
+  }
+  .skill-html tr:hover td {
+    @apply bg-yellow-50;
   }
 
-  .skill-html video, .skill-html .mediaplayer, .skill-html #mediaplayer, .skill-html #mediaplayer1 {
-    @apply w-full border-4 border-black rounded-xl my-4;
-    max-height: 400px;
+  /* Video & Audio */
+  .skill-html video, .skill-html .mediaplayer,
+  .skill-html #mediaplayer, .skill-html #mediaplayer1 {
+    @apply w-full border-4 border-black rounded-xl my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
+    max-height: 450px;
   }
-
   .skill-html audio {
     @apply w-full my-4;
   }
 
+  /* ── Quiz Boxes (original tienganh123 structure) ── */
   .skill-html .qz_box {
-    @apply border-2 border-black rounded-xl mb-6 overflow-hidden;
+    @apply border-2 border-black rounded-xl mb-6 overflow-hidden
+           shadow-[4px_4px_0px_0px_rgba(0,0,0,1)];
   }
 
   .skill-html .qz_content {
-    @apply p-4;
+    @apply p-5;
   }
 
   .skill-html .qz_st1 {
-    @apply block font-bold text-base mb-4 uppercase tracking-tight;
+    @apply block font-bold text-base mb-5 uppercase tracking-tight
+           pb-3 border-b-2 border-black/10;
   }
 
   .skill-html .qz_st2_item.qz_radio {
-    @apply flex items-center gap-3 px-4 py-3 mb-2 border-2 border-black rounded-lg font-medium cursor-pointer transition-all hover:bg-yellow-50 hover:-translate-y-0.5;
+    @apply flex items-center gap-3 px-4 py-3 mb-2
+           border-2 border-black rounded-lg font-medium
+           cursor-pointer select-none
+           transition-all duration-150 ease-out
+           hover:bg-yellow-50 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)];
   }
 
   .skill-html .qz_st2_item.qz_radio .qz_st2_text {
@@ -94,11 +137,13 @@
 
   .skill-html .qz_st2_item.qz_radio input[type="radio"],
   .skill-html .qz_st2_item.qz_radio input[type="checkbox"] {
-    @apply w-5 h-5 border-2 border-black accent-yellow-400;
+    @apply w-5 h-5 border-2 border-black accent-yellow-400 cursor-pointer;
   }
 
+  /* ── Reading Questions ── */
   .skill-html .tanc_read_item_ques {
-    @apply border-2 border-black rounded-xl p-5 mb-4;
+    @apply border-2 border-black rounded-xl p-5 mb-4
+           shadow-[3px_3px_0px_0px_rgba(0,0,0,1)];
   }
 
   .skill-html .tanc_read_item_ques > div:first-child {
@@ -106,58 +151,32 @@
   }
 
   .skill-html .tanc_read_radio_r {
-    @apply inline-flex items-center gap-2 px-4 py-2 mb-1 border-2 border-black rounded-lg font-medium cursor-pointer transition-all hover:bg-yellow-50;
-    display: inline-flex;
+    @apply inline-flex items-center gap-2 px-4 py-2 mb-1.5
+           border-2 border-black rounded-lg font-medium
+           cursor-pointer select-none
+           transition-all duration-150
+           hover:bg-yellow-50 hover:-translate-y-0.5;
   }
 
   .skill-html .tanc_read_radio_r input[type="radio"] {
-    @apply w-4 h-4 border-2 border-black accent-yellow-400;
+    @apply w-4 h-4 border-2 border-black accent-yellow-400 cursor-pointer;
   }
 
   .skill-html .tanc_part_blank {
-    @apply border-2 border-black rounded-lg px-3 py-2 font-medium focus:outline-none focus:border-yellow-400;
-    min-width: 120px;
+    @apply border-2 border-black rounded-lg px-3 py-2 font-medium
+           transition-all duration-150
+           focus:outline-none focus:border-yellow-400 focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)];
+    min-width: 140px;
   }
 
-  .skill-html ul, .skill-html ol {
-    @apply pl-6 mb-4 space-y-1;
+  /* ── Inline code / keyboard ── */
+  .skill-html code, .skill-html kbd {
+    @apply bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-sm font-mono;
   }
 
-  .skill-html li {
-    @apply text-base;
-  }
-
-  .skill-html h1 { @apply text-3xl font-black uppercase mb-4; }
-  .skill-html h2 { @apply text-2xl font-black uppercase mb-3; }
-  .skill-html h3 { @apply text-xl font-black uppercase mb-3; }
-  .skill-html h4 { @apply text-lg font-bold uppercase mb-2; }
-
-  .skill-html a {
-    @apply text-primary-red font-bold underline hover:no-underline;
-  }
-
-  .skill-html em, .skill-html i {
-    @apply italic;
-  }
-
-  .skill-html strong, .skill-html b {
-    @apply font-black;
-  }
-
-  .skill-html blockquote {
-    @apply border-l-4 border-black pl-4 italic my-4 text-base;
-  }
-
-  .skill-html hr {
-    @apply border-t-2 border-black my-6;
-  }
-
-  .skill-html .mc_content_imgbox {
-    @apply border-4 border-black rounded-xl overflow-hidden my-4;
-  }
-
-  .skill-html .mc_content_imgbox img {
-    @apply border-0 rounded-none my-0;
+  /* ── Small print ── */
+  .skill-html small {
+    @apply text-sm text-gray-500;
   }
 
   /* Flashcard 3D styles */
