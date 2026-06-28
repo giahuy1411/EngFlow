@@ -1,113 +1,126 @@
 <template>
-  <div class="deck-detail max-w-5xl mx-auto px-4 py-8">
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin inline-block w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <div v-if="loading" class="text-center py-24">
+      <div class="animate-spin inline-block w-10 h-10 border-4 border-black border-t-primary-red"></div>
     </div>
 
-    <div v-else-if="error" class="text-center py-20 bg-red-50 border-4 border-red-500 rounded-xl">
-      <div class="text-6xl mb-6">😵</div>
-      <h2 class="text-3xl font-black uppercase mb-4">Không thể tải deck</h2>
-      <p class="font-bold text-gray-600 mb-8">{{ error }}</p>
-      <button @click="loadDeck" class="px-8 py-3 bg-red-400 text-black font-black uppercase border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-red-500 hover:translate-y-1 hover:shadow-none transition-all">
+    <div v-else-if="error" class="text-center py-20 bg-white border-4 border-black shadow-hard-lg max-w-lg mx-auto">
+      <div class="w-16 h-16 bg-primary-red border-4 border-black flex items-center justify-center mx-auto mb-6 rotate-12">
+        <span class="text-4xl font-black text-white">!</span>
+      </div>
+      <h2 class="font-black text-3xl uppercase mb-4">Không thể tải deck</h2>
+      <p class="font-bold text-gray-500 uppercase text-sm tracking-wider mb-8">{{ error }}</p>
+      <button @click="loadDeck" class="px-8 py-3 bg-primary-red text-white font-black uppercase text-sm tracking-wider border-4 border-black shadow-hard-sm hover:-translate-y-1 hover:shadow-hard-md active:translate-x-1 active:translate-y-1 active:shadow-none transition-all duration-200">
         Thử lại
       </button>
     </div>
     
     <div v-else-if="deck">
-      <button @click="$router.push('/decks')" class="mb-6 font-bold text-gray-500 hover:text-black uppercase flex items-center">
-        &larr; Back to Decks
+      <button @click="$router.push('/decks')" class="mb-8 font-bold uppercase text-sm tracking-wider text-gray-500 hover:text-foreground flex items-center gap-2">
+        <span class="text-lg">&larr;</span> Back to Decks
       </button>
       
-      <div class="bg-blue-300 border-4 border-black rounded-2xl p-8 mb-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
-        <div class="absolute -right-20 -top-20 w-64 h-64 bg-yellow-300 rounded-full border-4 border-black opacity-50 z-0"></div>
+      <div class="bg-primary-blue border-4 border-black shadow-hard-lg p-8 mb-12 relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-48 h-48 bg-primary-yellow border-4 border-black rounded-full opacity-40"></div>
+        <div class="absolute -bottom-8 -left-8 w-24 h-24 bg-primary-red border-4 border-black rotate-45 opacity-30"></div>
         
         <div class="relative z-10">
-          <div class="flex flex-wrap gap-2 mb-4">
-             <span class="px-3 py-1 bg-white text-black font-bold text-sm uppercase border-2 border-black rounded-full">
+          <div class="flex flex-wrap gap-3 mb-4">
+            <span v-if="deck.source" class="px-3 py-1 bg-white text-foreground font-bold text-xs uppercase tracking-wider border-2 border-black">
               {{ deck.source }}
             </span>
-            <span class="px-3 py-1 bg-pink-400 text-black font-bold text-sm uppercase border-2 border-black rounded-full" v-if="deck.cefrLevel">
+            <span v-if="deck.cefrLevel" class="px-3 py-1 bg-primary-yellow text-foreground font-bold text-xs uppercase tracking-wider border-2 border-black">
               {{ deck.cefrLevel }}
             </span>
           </div>
           
-          <h1 class="text-5xl font-black uppercase text-black mb-4">{{ deck.name }}</h1>
-          <p class="text-xl font-bold text-gray-800 max-w-2xl">{{ deck.description }}</p>
+          <h1 class="font-black text-5xl md:text-6xl uppercase text-white tracking-tighter mb-4">{{ deck.name }}</h1>
+          <p class="font-bold text-lg text-white/80 max-w-2xl">{{ deck.description }}</p>
         </div>
       </div>
       
-      <h2 class="text-3xl font-black uppercase mb-6">Choose a Game</h2>
+      <h2 class="font-black text-3xl uppercase tracking-tight mb-8">Chọn Chế Độ Chơi</h2>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        <!-- Flashcard / Review Mode -->
         <div 
-          class="game-card bg-orange-300 border-4 border-black rounded-xl p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-          @click="startGame('flashcard')"
-        >
+          class="bg-primary-yellow border-4 border-black shadow-hard-lg p-6 hover:-translate-y-2 hover:shadow-hard-xl transition-all duration-300 cursor-pointer flex flex-col justify-between relative group"
+          @click="startGame('flashcard')">
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-red border-2 border-black rounded-full"></div>
           <div>
-            <div class="text-4xl mb-2">🃏</div>
-            <h3 class="text-2xl font-black uppercase mb-2">Flashcards</h3>
-            <p class="font-bold text-gray-800">Learn new words or review with Spaced Repetition (SM-2).</p>
+            <div class="w-12 h-12 bg-foreground border-4 border-black flex items-center justify-center mb-4 -rotate-6">
+              <div class="w-4 h-6 bg-white border-2 border-black"></div>
+            </div>
+            <h3 class="font-black text-2xl uppercase mb-2">Flashcards</h3>
+            <p class="font-bold text-sm text-gray-700">Học từ mới với Spaced Repetition (SM-2).</p>
           </div>
         </div>
         
-        <!-- Quiz Mode -->
         <div 
-          class="game-card bg-green-300 border-4 border-black rounded-xl p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-          @click="startGame('quiz')"
-        >
+          class="bg-primary-red border-4 border-black shadow-hard-lg p-6 hover:-translate-y-2 hover:shadow-hard-xl transition-all duration-300 cursor-pointer flex flex-col justify-between relative group"
+          @click="startGame('quiz')">
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-yellow border-2 border-black rotate-12"></div>
           <div>
-            <div class="text-4xl mb-2">📝</div>
-            <h3 class="text-2xl font-black uppercase mb-2">Multiple Choice</h3>
-            <p class="font-bold text-gray-800">Test your knowledge by choosing the correct meaning.</p>
+            <div class="w-12 h-12 bg-white border-4 border-black flex items-center justify-center mb-4 rotate-6">
+              <span class="font-black text-lg">?</span>
+            </div>
+            <h3 class="font-black text-2xl uppercase mb-2 text-white">Trắc Nghiệm</h3>
+            <p class="font-bold text-sm text-white/80">Chọn đáp án đúng trong 4 lựa chọn.</p>
           </div>
         </div>
         
-        <!-- Memory Match -->
         <div 
-          class="game-card bg-purple-300 border-4 border-black rounded-xl p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-          @click="startGame('memory')"
-        >
+          class="bg-foreground border-4 border-black shadow-hard-lg p-6 hover:-translate-y-2 hover:shadow-hard-xl transition-all duration-300 cursor-pointer flex flex-col justify-between relative group"
+          @click="startGame('memory')">
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-yellow border-2 border-black rounded-full"></div>
           <div>
-            <div class="text-4xl mb-2">🧠</div>
-            <h3 class="text-2xl font-black uppercase mb-2">Memory Match</h3>
-            <p class="font-bold text-gray-800">Match the word to its definition in this classic game.</p>
+            <div class="w-12 h-12 bg-primary-blue border-4 border-black flex items-center justify-center mb-4 rotate-12">
+              <div class="w-6 h-6 border-2 border-white rotate-45">
+                <div class="w-2 h-2 bg-white mt-1 ml-1"></div>
+              </div>
+            </div>
+            <h3 class="font-black text-2xl uppercase mb-2 text-white">Memory Match</h3>
+            <p class="font-bold text-sm text-white/60">Ghép từ với định nghĩa trong trò chơi kinh điển.</p>
           </div>
         </div>
 
-        <!-- Typing -->
         <div 
-          class="game-card bg-pink-300 border-4 border-black rounded-xl p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-          @click="startGame('typing')"
-        >
+          class="bg-primary-blue border-4 border-black shadow-hard-lg p-6 hover:-translate-y-2 hover:shadow-hard-xl transition-all duration-300 cursor-pointer flex flex-col justify-between relative group"
+          @click="startGame('typing')">
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-yellow border-2 border-black rotate-12"></div>
           <div>
-            <div class="text-4xl mb-2">⌨️</div>
-            <h3 class="text-2xl font-black uppercase mb-2">Typing Practice</h3>
-            <p class="font-bold text-gray-800">Type the correct word based on its meaning.</p>
+            <div class="w-12 h-12 bg-white border-4 border-black flex items-center justify-center mb-4">
+              <span class="font-black text-sm uppercase">Aa</span>
+            </div>
+            <h3 class="font-black text-2xl uppercase mb-2 text-white">Gõ Chữ</h3>
+            <p class="font-bold text-sm text-white/80">Gõ từ đúng dựa vào nghĩa tiếng Việt.</p>
           </div>
         </div>
 
-        <!-- Listening -->
         <div 
-          class="game-card bg-yellow-300 border-4 border-black rounded-xl p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-          @click="startGame('listening')"
-        >
+          class="bg-primary-yellow border-4 border-black shadow-hard-lg p-6 hover:-translate-y-2 hover:shadow-hard-xl transition-all duration-300 cursor-pointer flex flex-col justify-between relative group"
+          @click="startGame('listening')">
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-red border-2 border-black rounded-full"></div>
           <div>
-            <div class="text-4xl mb-2">🎧</div>
-            <h3 class="text-2xl font-black uppercase mb-2">Listening</h3>
-            <p class="font-bold text-gray-800">Listen to the word and identify it correctly.</p>
+            <div class="w-12 h-12 bg-foreground border-4 border-black flex items-center justify-center mb-4 -rotate-6">
+              <div class="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[16px] border-b-white"></div>
+            </div>
+            <h3 class="font-black text-2xl uppercase mb-2">Nghe</h3>
+            <p class="font-bold text-sm text-gray-700">Nghe từ và chọn đáp án đúng.</p>
           </div>
         </div>
 
-        <!-- Mixed -->
         <div 
-          class="game-card bg-teal-300 border-4 border-black rounded-xl p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer flex flex-col justify-between"
-          @click="startGame('mixed')"
-        >
+          class="bg-primary-red border-4 border-black shadow-hard-lg p-6 hover:-translate-y-2 hover:shadow-hard-xl transition-all duration-300 cursor-pointer flex flex-col justify-between relative group"
+          @click="startGame('mixed')">
+          <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-yellow border-2 border-black rotate-12"></div>
           <div>
-            <div class="text-4xl mb-2">🌪️</div>
-            <h3 class="text-2xl font-black uppercase mb-2">Mixed Mode</h3>
-            <p class="font-bold text-gray-800">The ultimate challenge mixing all game types.</p>
+            <div class="w-12 h-12 bg-white border-4 border-black flex items-center justify-center mb-4 rotate-45">
+              <div class="-rotate-45">
+                <span class="font-black text-lg">+</span>
+              </div>
+            </div>
+            <h3 class="font-black text-2xl uppercase mb-2 text-white">Kết Hợp</h3>
+            <p class="font-bold text-sm text-white/80">Thử thách tối thượng kết hợp tất cả chế độ.</p>
           </div>
         </div>
       </div>

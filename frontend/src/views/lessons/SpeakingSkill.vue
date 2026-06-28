@@ -1,13 +1,13 @@
 <template>
   <div class="speaking-skill space-y-8">
-    <div v-if="!skillContent" class="bg-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-10 text-center">
+    <div v-if="!skillContent" class="bg-white border-4 border-black shadow-hard-lg p-10 text-center">
       <div class="text-6xl mb-4 opacity-30">S</div>
       <p class="font-bold text-xl uppercase">No speaking content yet</p>
-      <p class="text-gray-500 mt-2">This lesson doesn't have speaking exercises.</p>
+      <p class="font-bold text-xs uppercase tracking-wider text-foreground/60 mt-2">This lesson doesn't have speaking exercises.</p>
     </div>
 
     <div v-else>
-      <div class="bg-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+      <div class="bg-white border-4 border-black shadow-hard-lg">
         <div class="bg-black text-white px-6 py-4 flex items-center gap-3">
           <span class="w-8 h-8 bg-yellow-400 text-black rounded-full flex items-center justify-center font-black text-sm">S</span>
           <h3 class="font-black text-xl uppercase tracking-tight">Speaking</h3>

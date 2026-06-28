@@ -34,4 +34,19 @@ build/
 
 # Secrets
 .env
+.env.*.local
+src/main/resources/application.properties
 
+# Node.js / VueJS (Frontend & Crawler)
+node_modules/
+dist/
+frontend/dist/
+
+# Logs
+*.log
+*.err
+vite-*.txt
+
+# Temporary & Debug Files
+.brave-debug-user-data/
+chrome-wrapper.*

@@ -1,6 +1,6 @@
 <template>
   <div class="vocabulary-skill space-y-8">
-    <div v-if="!skillContent" class="bg-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-10 text-center">
+    <div v-if="!skillContent" class="bg-white border-4 border-black shadow-hard-lg p-10 text-center">
       <div class="text-6xl mb-4 opacity-30">V</div>
       <p class="font-bold text-xl uppercase">No vocabulary content yet</p>
       <p class="text-gray-500 mt-2">This lesson doesn't have vocabulary exercises.</p>
@@ -8,7 +8,7 @@
 
     <div v-else>
       <!-- Video -->
-      <div v-if="quizData.videoHtml" class="bg-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+      <div v-if="quizData.videoHtml" class="bg-white border-4 border-black shadow-hard-lg">
         <div class="bg-red-600 text-white px-5 py-2 flex items-center gap-2">
           <span class="w-3 h-3 bg-white rounded-full"></span>
           <span class="font-bold text-sm uppercase tracking-wider">Video</span>
@@ -17,7 +17,7 @@
       </div>
 
       <!-- Content -->
-      <div class="bg-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+      <div class="bg-white border-4 border-black shadow-hard-lg">
         <div class="bg-black text-white px-6 py-4 flex items-center gap-3">
           <span class="w-8 h-8 bg-yellow-400 text-black rounded-full flex items-center justify-center font-black text-sm">V</span>
           <h3 class="font-black text-xl uppercase tracking-tight">Vocabulary</h3>

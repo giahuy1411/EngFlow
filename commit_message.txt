@@ -1,0 +1,11 @@
+fix: xử lý lỗi 500 đăng ký, lỗi Unicode và refactor giao diện Header/Admin
+
+- **Backend Fixes & Improvements:**
+  - Bổ sung HttpMessageNotReadableException vào GlobalExceptionHandler để trả về HTTP 400 thay vì HTTP 500 khi payload JSON (như API Đăng ký) bị lỗi định dạng.
+  - Thêm annotation @Nationalized vào trường title của LessonSection để hỗ trợ lưu trữ Unicode (tiếng Việt có dấu) trên SQL Server, khắc phục tình trạng lỗi font.
+  - Tối ưu lại JsonDataSeeder: Thay thế câu lệnh xóa cứng bằng cơ chế kiểm tra findByTitle để không làm mất bài học tự tạo của user; sửa vòng lặp đọc file JSON để đảm bảo clone đầy đủ mọi kỹ năng của bài học mà không bị ghi đè hay trùng lặp.
+
+- **Frontend UI Updates:**
+  - Header.vue: Loại bỏ class floating, khôi phục chiều cao tiêu chuẩn, dọn dẹp không gian thừa và tích hợp logic chuyển hướng đến Dashboard/Profile thẳng vào avatar người dùng.
+  - AdminLessonBuilder.vue: Mở rộng chiều cao thẻ nhập liệu (min-h-[400px]) và thêm font chữ monospace để Admin dễ dàng chỉnh sửa nội dung mã HTML hơn.
+  - Cập nhật Gitignore và dọn dẹp các file rác/logs toàn dự án.

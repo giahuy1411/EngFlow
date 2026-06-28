@@ -26,10 +26,12 @@ public class LessonRequest {
     private Integer durationMinutes;
 
     private String thumbnailUrl;
-    
+
     private String audioUrl;
-    
+
     private Integer orderIndex;
+
+    private String skillType;
     
     private Boolean isPublished;
 }

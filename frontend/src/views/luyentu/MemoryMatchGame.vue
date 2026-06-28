@@ -1,18 +1,18 @@
 <template>
   <div class="memory-game w-full max-w-4xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-180px)] flex items-center">
-    <div class="relative w-full min-h-[500px] sm:min-h-[700px] bg-gradient-to-br from-purple-50 to-purple-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+    <div class="relative w-full min-h-[500px] sm:min-h-[700px] bg-background border-4 border-foreground shadow-hard-lg overflow-hidden">
       <!-- Top bar -->
       <div class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-6 py-3 z-10">
-        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-gray-500 hover:text-black uppercase border-b-2 border-transparent hover:border-black transition-colors">
+        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-foreground/50 hover:text-foreground uppercase border-b-2 border-transparent hover:border-foreground transition-colors">
           &larr; Quit Session
         </button>
-        <div class="font-black text-base sm:text-lg bg-purple-300 border-2 border-black rounded-full px-4 py-1">
+        <div class="font-black text-base sm:text-lg bg-primary-yellow border-2 border-foreground px-4 py-1">
           Matches: {{ matchedPairs }} / {{ totalPairs }}
         </div>
       </div>
 
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
-        <div class="animate-spin inline-block w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+        <div class="animate-spin inline-block w-12 h-12 border-4 border-foreground border-t-primary-red"></div>
       </div>
 
       <div v-else-if="!sessionComplete && cards.length > 0" class="absolute inset-0 grid grid-cols-4 gap-2 sm:gap-4 p-4 sm:p-8 pt-16 sm:pt-20 content-center justify-items-center">
@@ -25,13 +25,13 @@
             class="card-inner w-full h-full transition-transform duration-500 transform-style-preserve-3d relative"
             :class="{ 'rotate-y-180': card.flipped || card.matched }"
           >
-            <div class="absolute w-full h-full backface-hidden bg-gradient-to-br from-purple-400 to-purple-600 border-4 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-2xl sm:text-4xl hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
-              🧠
+            <div class="absolute w-full h-full backface-hidden bg-foreground border-4 border-foreground shadow-hard-sm flex items-center justify-center text-2xl sm:text-4xl hover:shadow-hard-sm hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+              <div class="w-8 h-8 bg-primary-yellow border-2 border-white rotate-45"></div>
             </div>
             
-            <div class="absolute w-full h-full backface-hidden bg-white border-4 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center p-1 rotate-y-180 transition-colors duration-300"
-                 :class="{'bg-green-200 border-green-500': card.matched, 'bg-red-200 border-red-500': card.error}">
-              <p class="font-bold text-center break-words leading-tight" :class="card.type === 'meaning' ? 'text-[0.5rem] sm:text-base' : 'text-xs sm:text-xl'">
+            <div class="absolute w-full h-full backface-hidden bg-white border-4 border-foreground shadow-hard-sm flex items-center justify-center p-1 rotate-y-180 transition-colors duration-300"
+                 :class="{'bg-primary-blue border-primary-blue': card.matched, 'bg-primary-red border-primary-red': card.error}">
+              <p class="font-bold text-center break-words leading-tight" :class="[card.type === 'meaning' ? 'text-[0.5rem] sm:text-base' : 'text-xs sm:text-xl', (card.matched || card.error) ? 'text-white' : 'text-foreground']">
                 {{ card.content }}
               </p>
             </div>

@@ -47,7 +47,8 @@ const { toasts, remove, toastBackground } = useToast()
 
 const showNavigation = computed(() => {
   const authRoutes = ['/login', '/register']
-  return !authRoutes.includes(route.path)
+  const isAdminRoute = route.path.startsWith('/admin')
+  return !authRoutes.includes(route.path) && !isAdminRoute
 })
 </script>
 

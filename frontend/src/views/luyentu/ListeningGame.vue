@@ -1,34 +1,34 @@
 <template>
   <div class="listening-game w-full max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-180px)] flex items-center">
-    <div class="relative w-full aspect-video bg-gradient-to-br from-yellow-50 to-yellow-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+    <div class="relative w-full aspect-video bg-background border-4 border-foreground shadow-hard-lg overflow-hidden">
       <!-- Top bar -->
       <div class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-6 py-3 z-10">
-        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-gray-500 hover:text-black uppercase border-b-2 border-transparent hover:border-black transition-colors">
+        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-foreground/50 hover:text-foreground uppercase border-b-2 border-transparent hover:border-foreground transition-colors">
           &larr; Quit Session
         </button>
-        <div class="font-black text-base sm:text-lg bg-yellow-300 border-2 border-black rounded-full px-4 py-1" v-if="questions.length">
+        <div class="font-black text-base sm:text-lg bg-primary-yellow border-2 border-foreground px-4 py-1" v-if="questions.length">
           {{ currentIndex + 1 }} / {{ questions.length }}
         </div>
       </div>
 
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
-        <div class="animate-spin inline-block w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+        <div class="animate-spin inline-block w-12 h-12 border-4 border-foreground border-t-primary-red"></div>
       </div>
 
       <div v-else-if="!sessionComplete && questions.length > 0" class="absolute inset-0 flex flex-col items-center justify-center px-6 sm:px-12 pt-14 pb-4 sm:pb-6">
         <!-- Status text -->
-        <h2 class="text-base sm:text-xl font-black mb-3 uppercase text-gray-500 flex-none">Listen and type</h2>
+        <h2 class="text-base sm:text-xl font-black mb-3 uppercase text-foreground/50 flex-none">Listen and type</h2>
 
         <!-- Audio button -->
         <button 
           @click="playWordAudio" 
-          class="flex-none p-6 sm:p-8 bg-yellow-400 text-black rounded-full border-4 border-black hover:bg-yellow-500 transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 mb-3"
+          class="flex-none p-6 sm:p-8 bg-primary-yellow text-foreground border-4 border-foreground hover:bg-primary-yellow/90 transition-all shadow-hard-lg hover:shadow-hard-sm hover:translate-x-1 hover:translate-y-1 mb-3"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 sm:h-16 sm:w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6.5 14h-3a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5h3l4-4v12l-4-4z" />
           </svg>
         </button>
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex-none">Click to hear again</p>
+        <p class="text-xs font-bold text-foreground/40 uppercase tracking-wider mb-3 flex-none">Click to hear again</p>
 
         <!-- Input -->
         <div class="w-full max-w-xl flex-none">
@@ -38,7 +38,7 @@
             ref="inputField"
             type="text" 
             placeholder="Type what you hear..." 
-            class="w-full px-4 sm:px-6 py-3 sm:py-4 text-lg sm:text-2xl font-black text-center bg-white border-4 border-black rounded-xl focus:outline-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+            class="w-full px-4 sm:px-6 py-3 sm:py-4 text-lg sm:text-2xl font-black text-center bg-white border-4 border-foreground shadow-hard-sm transition-all"
             :class="inputClass"
             :disabled="isChecking"
             autocomplete="off"
@@ -47,17 +47,17 @@
         
         <!-- Result feedback -->
         <div v-if="isChecking" class="mt-3 w-full max-w-xl animate-fade-in-up flex-none">
-          <p class="text-lg sm:text-xl font-black mb-1 text-center" :class="isCorrect ? 'text-green-500' : 'text-red-500'">
+          <p class="text-lg sm:text-xl font-black mb-1 text-center" :class="isCorrect ? 'text-primary-blue' : 'text-primary-red'">
             {{ isCorrect ? 'Correct!' : 'Incorrect!' }}
           </p>
           <div v-if="!isCorrect" class="text-base sm:text-lg font-bold mb-2 text-center">
-            <span class="text-gray-500 line-through mr-2">{{ userInput }}</span>
-            <span class="text-black">{{ currentQuestion.word }}</span>
+            <span class="text-foreground/50 line-through mr-2">{{ userInput }}</span>
+            <span class="text-foreground">{{ currentQuestion.word }}</span>
           </div>
           
-          <p class="text-gray-600 font-bold mb-2 text-sm sm:text-base text-center">{{ currentQuestion.definitionVi }}</p>
+          <p class="text-foreground/60 font-bold mb-2 text-sm sm:text-base text-center">{{ currentQuestion.definitionVi }}</p>
           
-          <button @click="nextQuestion" class="w-full py-3 bg-black text-white font-black text-sm sm:text-base uppercase border-4 border-black rounded-xl hover:bg-gray-800 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5">
+          <button @click="nextQuestion" class="w-full py-3 bg-foreground text-white font-black text-sm sm:text-base uppercase border-4 border-foreground shadow-hard-sm hover:-translate-y-0.5 hover:shadow-hard-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all">
             {{ currentIndex < questions.length - 1 ? 'Next Word' : 'Finish Game' }}
           </button>
         </div>
@@ -103,8 +103,8 @@ let currentAudio = null // Singleton audio (H11)
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 
 const inputClass = computed(() => {
-  if (!isChecking.value) return 'focus:ring-4 focus:ring-yellow-300'
-  return isCorrect.value ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500'
+  if (!isChecking.value) return 'focus-visible:ring-2 focus-visible:ring-primary-yellow focus-visible:ring-offset-2'
+  return isCorrect.value ? 'bg-primary-blue/10 border-primary-blue' : 'bg-primary-red/10 border-primary-red'
 })
 
 onMounted(() => {

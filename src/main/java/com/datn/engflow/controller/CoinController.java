@@ -39,38 +39,4 @@ public class CoinController {
         coinService.earnCoins(userPrincipal.getId(), amountObj);
         return ResponseEntity.ok(Map.of("message", "Coins earned successfully"));
     }
-
-    @GetMapping("/shop/items")
-    public ResponseEntity<?> getShopItems() {
-        return ResponseEntity.ok(coinService.getAvailableShopItems());
-    }
-
-    @PostMapping("/shop/buy/{itemId}")
-    public ResponseEntity<?> buyItem(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable Long itemId) {
-        if (userPrincipal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok(coinService.buyItem(userPrincipal.getId(), itemId));
-    }
-
-    @GetMapping("/shop/owned")
-    public ResponseEntity<?> getOwnedItems(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        if (userPrincipal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok(coinService.getOwnedItems(userPrincipal.getId()));
-    }
-    
-    @PostMapping("/shop/equip/{itemId}")
-    public ResponseEntity<?> equipItem(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable Long itemId) {
-        if (userPrincipal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        coinService.equipItem(userPrincipal.getId(), itemId);
-        return ResponseEntity.ok(Map.of("message", "Item equipped successfully"));
-    }
 }

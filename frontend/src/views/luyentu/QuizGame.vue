@@ -1,26 +1,26 @@
 <template>
   <div class="quiz-game w-full max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-180px)] flex items-center">
-    <div class="relative w-full aspect-video bg-gradient-to-br from-gray-50 to-gray-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+    <div class="relative w-full aspect-video bg-background border-4 border-foreground shadow-hard-lg overflow-hidden">
       <!-- Top bar -->
       <div class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-6 py-3 z-10">
-        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-gray-500 hover:text-black uppercase border-b-2 border-transparent hover:border-black transition-colors">
+        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-foreground/50 hover:text-foreground uppercase border-b-2 border-transparent hover:border-foreground transition-colors">
           &larr; Quit Session
         </button>
-        <div class="font-black text-base sm:text-lg bg-green-300 border-2 border-black rounded-full px-4 py-1" v-if="questions.length">
+        <div class="font-black text-base sm:text-lg bg-primary-yellow border-2 border-foreground px-4 py-1" v-if="questions.length">
           {{ currentIndex + 1 }} / {{ questions.length }}
         </div>
       </div>
 
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
-        <div class="animate-spin inline-block w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+        <div class="animate-spin inline-block w-12 h-12 border-4 border-foreground border-t-primary-red"></div>
       </div>
 
       <div v-else-if="!sessionComplete && questions.length > 0" class="absolute inset-0 flex flex-col px-6 sm:px-10 pt-16 pb-4 sm:pb-6">
         <!-- Word card -->
         <div class="flex-1 flex items-center justify-center min-h-0 mb-3">
-          <div class="w-full bg-white border-4 border-black rounded-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-center py-5 sm:py-6 px-4">
+          <div class="w-full bg-white border-4 border-foreground shadow-hard-md text-center py-5 sm:py-6 px-4">
             <h2 class="text-3xl sm:text-5xl font-black break-words leading-tight">{{ currentQuestion.word }}</h2>
-            <p class="text-base sm:text-xl font-bold text-gray-500 font-mono mt-1">{{ currentQuestion.pronunciation }}</p>
+            <p class="text-base sm:text-xl font-bold text-foreground/50 font-mono mt-1">{{ currentQuestion.pronunciation }}</p>
           </div>
         </div>
 
@@ -30,7 +30,7 @@
             <button 
               v-for="(option, index) in currentQuestion.options" :key="index"
               @click="selectOption(option)"
-              class="flex items-center justify-center px-3 sm:px-5 py-3 sm:py-4 text-center border-4 border-black rounded-xl font-bold text-sm sm:text-lg leading-tight transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              class="flex items-center justify-center px-3 sm:px-5 py-3 sm:py-4 text-center border-4 border-foreground font-bold text-sm sm:text-lg leading-tight transition-all shadow-hard-sm"
               :class="getOptionClass(option, index)"
               :disabled="selectedOption !== null"
             >
@@ -41,7 +41,7 @@
         
         <!-- Next button -->
         <div v-if="selectedOption !== null" class="flex-none mt-2 animate-fade-in-up">
-          <button @click="nextQuestion" class="w-full py-2.5 bg-black text-white font-black text-sm sm:text-base uppercase border-4 border-black rounded-xl hover:bg-gray-800 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5">
+          <button @click="nextQuestion" class="w-full py-2.5 bg-foreground text-white font-black text-sm sm:text-base uppercase border-4 border-foreground shadow-hard-sm hover:-translate-y-0.5 hover:shadow-hard-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all">
             {{ currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz' }}
           </button>
         </div>
@@ -83,12 +83,12 @@ const sessionId = ref(null)
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 
 const optionColors = [
-  'bg-pink-300 hover:bg-pink-400',
-  'bg-blue-300 hover:bg-blue-400',
-  'bg-amber-300 hover:bg-amber-400',
-  'bg-teal-300 hover:bg-teal-400',
-  'bg-purple-300 hover:bg-purple-400',
-  'bg-orange-300 hover:bg-orange-400'
+  'bg-primary-red text-white hover:bg-primary-red/90',
+  'bg-primary-blue text-white hover:bg-primary-blue/90',
+  'bg-primary-yellow text-foreground hover:bg-primary-yellow/90',
+  'bg-foreground text-white hover:bg-foreground/90',
+  'bg-primary-red text-white hover:bg-primary-red/90',
+  'bg-primary-blue text-white hover:bg-primary-blue/90'
 ]
 
 onMounted(() => {
@@ -124,15 +124,15 @@ const selectOption = (option) => {
 
 const getOptionClass = (option, index) => {
   if (selectedOption.value === null) {
-    return `${optionColors[index % optionColors.length]} hover:-translate-y-1 hover:shadow-[6px_10px_0px_0px_rgba(0,0,0,1)]`
+    return `${optionColors[index % optionColors.length]} hover:-translate-y-1 hover:shadow-hard-md`
   }
   
   if (option === currentQuestion.value.answer) {
-    return 'bg-green-500 text-white shadow-none translate-y-1 border-green-600'
+    return 'bg-primary-blue text-white shadow-none translate-y-1'
   }
   
   if (selectedOption.value === option) {
-    return 'bg-red-500 text-white shadow-none translate-y-1 border-red-600'
+    return 'bg-primary-red text-white shadow-none translate-y-1'
   }
   
   return `${optionColors[index % optionColors.length]} opacity-40 shadow-none translate-y-1`

@@ -57,6 +57,9 @@ public class Exercise {
     @Column(length = 20)
     private String difficulty;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @Column(name = "audio_url", length = 500)
     private String audioUrl;
 

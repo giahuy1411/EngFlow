@@ -1,0 +1,21 @@
+package com.datn.engflow.model.dto.response;
+
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AdminUserDTO {
+    private Long id;
+    private String username;
+    private String email;
+    private String fullName;
+    private Boolean isAdmin;
+    private Boolean isActive;
+    private Integer totalPoints;
+    private Integer currentStreak;
+    private LocalDateTime createdAt;
+}

@@ -4,7 +4,7 @@
       <h1 class="font-black text-5xl md:text-6xl uppercase tracking-tight mb-4">
         Bảng <span class="text-primary-red">Xếp Hạng</span>
       </h1>
-      <p class="font-medium text-base text-gray-600">Cùng đua top với các thành viên khác nhé!</p>
+      <p class="font-bold text-sm uppercase tracking-wider text-foreground/60">Cùng đua top với các thành viên khác nhé!</p>
     </div>
 
     <!-- Loading State -->
@@ -15,7 +15,7 @@
     <!-- Empty State -->
     <div v-else-if="leaderboard.length === 0" class="border-4 border-black border-dashed bg-white p-12 text-center">
       <p class="font-black text-2xl uppercase mb-4">Chưa có dữ liệu</p>
-      <p class="text-base text-gray-500">Hãy tích lũy điểm để xuất hiện trên bảng xếp hạng!</p>
+      <p class="font-bold text-sm uppercase tracking-wider text-foreground/60">Hãy tích lũy điểm để xuất hiện trên bảng xếp hạng!</p>
     </div>
 
     <!-- Leaderboard List -->
@@ -31,10 +31,10 @@
       >
         <!-- Rank -->
         <div class="flex-shrink-0">
-          <span v-if="user.rank === 1" class="text-4xl">👑</span>
-          <span v-else-if="user.rank === 2" class="text-4xl">🥈</span>
-          <span v-else-if="user.rank === 3" class="text-4xl">🥉</span>
-          <div v-else class="w-10 h-10 border-2 border-black bg-gray-100 flex items-center justify-center font-black text-lg">
+          <span v-if="user.rank === 1" class="w-10 h-10 bg-primary-yellow border-2 border-black flex items-center justify-center font-black text-lg rotate-6">1</span>
+          <span v-else-if="user.rank === 2" class="w-10 h-10 bg-foreground/10 border-2 border-black flex items-center justify-center font-black text-lg rotate-3">2</span>
+          <span v-else-if="user.rank === 3" class="w-10 h-10 bg-primary-red/20 border-2 border-black flex items-center justify-center font-black text-lg -rotate-3">3</span>
+          <div v-else class="w-10 h-10 border-2 border-black bg-background flex items-center justify-center font-black text-lg">
             {{ user.rank }}
           </div>
         </div>
@@ -44,7 +44,7 @@
           <img :src="user.avatarUrl || 'https://api.dicebear.com/7.x/thumbs/svg?seed=default'" class="w-12 h-12 border-2 border-black object-cover flex-shrink-0" alt="avatar" />
           <div class="min-w-0">
             <div class="font-bold text-base uppercase truncate">{{ user.fullName || user.username }}</div>
-            <div class="text-sm text-gray-500 flex items-center gap-1.5">
+            <div class="text-sm font-bold text-foreground/60 flex items-center gap-1.5">
               @{{ user.username }}
               <span v-if="isCurrentUser(user.userId)" class="bg-primary-blue text-white text-xs font-bold px-2 py-0.5 border-2 border-black">
                 Bạn
@@ -54,13 +54,13 @@
         </div>
 
         <!-- Level -->
-        <div class="flex-shrink-0 bg-gray-100 border-2 border-black px-2 py-0.5 text-xs font-bold uppercase">
+        <div class="flex-shrink-0 bg-background border-2 border-black px-2 py-0.5 text-xs font-bold uppercase">
           {{ user.currentLevel }}
         </div>
 
         <!-- Streak -->
-        <div class="flex-shrink-0 font-bold whitespace-nowrap">
-          🔥 {{ user.currentStreak }} ngày
+        <div class="flex-shrink-0 font-bold uppercase tracking-wider bg-primary-red/10 border-2 border-black px-3 py-1 whitespace-nowrap">
+          <span class="text-primary-red">Lửa {{ user.currentStreak }} ngày</span>
         </div>
 
         <!-- Points -->

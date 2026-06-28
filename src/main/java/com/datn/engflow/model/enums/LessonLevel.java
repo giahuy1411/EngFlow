@@ -1,7 +1,8 @@
 package com.datn.engflow.model.enums;
 
 public enum LessonLevel {
-    BEGINNER,
+    ELEMENTARY,
+    PRE_INTERMEDIATE,
     INTERMEDIATE,
-    ADVANCED
+    UPPER_INTERMEDIATE
 }

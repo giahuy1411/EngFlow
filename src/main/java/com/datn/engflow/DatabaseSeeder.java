@@ -30,6 +30,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        dropCurrentLevelCheckConstraint();
+        migrateLegacyEnumValues();
         if (userRepository.count() == 0) {
             log.info("Database is empty. Executing data.sql to seed initial data...");
             try {
@@ -54,12 +56,40 @@ public class DatabaseSeeder implements CommandLineRunner {
         ensureDefaultUsers();
     }
 
+    private void dropCurrentLevelCheckConstraint() {
+        try {
+            String sql = "DECLARE @constraintName NVARCHAR(128) = (SELECT cc.name FROM sys.check_constraints cc " +
+                "JOIN sys.columns c ON cc.parent_column_id = c.column_id AND cc.parent_object_id = c.object_id " +
+                "WHERE OBJECT_NAME(cc.parent_object_id) = 'users' AND c.name = 'current_level'); " +
+                "IF @constraintName IS NOT NULL EXEC('ALTER TABLE users DROP CONSTRAINT ' + @constraintName)";
+            jdbcTemplate.update(sql);
+            log.info("Dropped CHECK constraint on users.current_level");
+        } catch (Exception e) {
+            log.info("No CHECK constraint found on users.current_level: {}", e.getMessage());
+        }
+    }
+
+    private void migrateLegacyEnumValues() {
+        try {
+            int updated = jdbcTemplate.update("UPDATE users SET current_level = 'ELEMENTARY' WHERE current_level = 'BEGINNER'");
+            if (updated > 0) log.info("Migrated {} user(s) from BEGINNER to ELEMENTARY", updated);
+            updated = jdbcTemplate.update("UPDATE users SET current_level = 'UPPER_INTERMEDIATE' WHERE current_level = 'ADVANCED'");
+            if (updated > 0) log.info("Migrated {} user(s) from ADVANCED to UPPER_INTERMEDIATE", updated);
+            updated = jdbcTemplate.update("UPDATE lessons SET level = 'ELEMENTARY' WHERE level = 'BEGINNER'");
+            if (updated > 0) log.info("Migrated {} lesson(s) from BEGINNER to ELEMENTARY", updated);
+            updated = jdbcTemplate.update("UPDATE lessons SET level = 'UPPER_INTERMEDIATE' WHERE level = 'ADVANCED'");
+            if (updated > 0) log.info("Migrated {} lesson(s) from ADVANCED to UPPER_INTERMEDIATE", updated);
+        } catch (Exception e) {
+            log.warn("Failed to migrate legacy enum values: {}", e.getMessage());
+        }
+    }
+
     private void ensureDefaultUsers() {
         ensureUserExists("user@gmail.com", "student", "123456", "Học Viên Mẫu", 
-                com.datn.engflow.model.enums.UserRole.USER, com.datn.engflow.model.enums.LessonLevel.BEGINNER, 
+                com.datn.engflow.model.enums.UserRole.USER, com.datn.engflow.model.enums.LessonLevel.ELEMENTARY, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=student");
         ensureUserExists("admin@gmail.com", "administrator", "123456", "Quản Trị Viên", 
-                com.datn.engflow.model.enums.UserRole.ADMIN, com.datn.engflow.model.enums.LessonLevel.ADVANCED, 
+                com.datn.engflow.model.enums.UserRole.ADMIN, com.datn.engflow.model.enums.LessonLevel.UPPER_INTERMEDIATE, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=admin");
     }
 

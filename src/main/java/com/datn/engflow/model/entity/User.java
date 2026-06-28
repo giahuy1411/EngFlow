@@ -44,6 +44,10 @@ public class User {
     @Column(length = 20)
     private UserRole role;
 
+    @Builder.Default
+    @Column(name = "is_admin")
+    private Boolean isAdmin = false;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "current_level", length = 20)
     private LessonLevel currentLevel;

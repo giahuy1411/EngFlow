@@ -15,6 +15,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findByIsPublishedTrueOrderByOrderIndexAsc();
     List<Lesson> findByLevelAndIsPublishedTrue(LessonLevel level);
     long countByIsPublishedTrue();
+    Optional<Lesson> findByTitle(String title);
 
     @Query("SELECT DISTINCT l FROM Lesson l " +
            "LEFT JOIN FETCH l.vocabularies " +

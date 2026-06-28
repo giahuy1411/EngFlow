@@ -51,6 +51,10 @@ public class Lesson {
     @Column(name = "audio_url", length = 500)
     private String audioUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "skill_type", length = 20)
+    private com.datn.engflow.model.enums.SkillType skillType;
+
     @Column(name = "order_index")
     private Integer orderIndex;
 

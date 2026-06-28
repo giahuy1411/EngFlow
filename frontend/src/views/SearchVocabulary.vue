@@ -1,5 +1,5 @@
 <template>
-  <div class="px-4 py-12 max-w-7xl mx-auto font-sans">
+  <div class="px-4 py-12 max-w-7xl mx-auto">
     <div class="mb-12 text-center">
       <h1 class="font-black text-5xl uppercase tracking-tight mb-8">
         Tra Cứu <span class="text-primary-red">Từ Vựng</span>
@@ -18,7 +18,7 @@
           Tìm kiếm
         </BauhausButton>
       </div>
-      <p class="font-sans text-base mt-4" v-if="hasSearched && results.length > 0">
+      <p class="font-bold text-sm uppercase tracking-wider mt-4" v-if="hasSearched && results.length > 0">
         Tìm thấy <strong>{{ results.length }}</strong> kết quả cho "{{ lastKeyword }}"
       </p>
     </div>
@@ -41,7 +41,7 @@
             <span class="bg-gray-100 border-2 border-black px-2 py-0.5 text-xs font-bold uppercase inline-block">{{ vocab.wordType }}</span>
           </div>
           <BauhausButton variant="outline" size="sm" @click="speakWord(vocab.word)" title="Phát âm">
-            🔊
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg>
           </BauhausButton>
         </div>
 
@@ -64,20 +64,20 @@
     <!-- Initial State (Before Search) -->
     <div v-else-if="!hasSearched && !loading" class="border-4 border-black border-dashed bg-white p-12 text-center">
       <p class="font-black text-2xl uppercase mb-2">Nhập từ vựng để tra cứu</p>
-      <p class="font-sans text-base">Gõ từ khóa và nhấn Enter hoặc Tìm kiếm</p>
+      <p class="font-bold text-sm uppercase tracking-wider">Gõ từ khóa và nhấn Enter hoặc Tìm kiếm</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="searchError && !loading" class="bg-primary-red text-white p-8 border-4 border-black shadow-hard-lg text-center">
-      <p class="font-black text-2xl uppercase mb-2">⚠️ Lỗi kết nối</p>
-      <p class="font-sans text-base">{{ searchError }}</p>
+      <p class="font-black text-2xl uppercase mb-2">Lỗi kết nối</p>
+      <p class="font-bold text-sm uppercase tracking-wider">{{ searchError }}</p>
       <BauhausButton variant="yellow" size="sm" class="mt-4" @click="performSearch">Thử lại</BauhausButton>
     </div>
 
     <!-- Empty State (After Search) -->
     <div v-else-if="hasSearched && !loading" class="border-4 border-black border-dashed bg-white p-12 text-center">
       <p class="font-black text-2xl uppercase mb-2">Không tìm thấy kết quả</p>
-      <p class="font-sans text-base">Thử một từ khóa khác xem sao!</p>
+      <p class="font-bold text-sm uppercase tracking-wider">Thử một từ khóa khác xem sao!</p>
     </div>
 
     <!-- Details Modal -->
@@ -111,8 +111,8 @@
               </div>
             </div>
 
-            <BauhausButton variant="outline" size="sm" shape="pill" @click="speakWord(selectedVocab.word)" title="Phát âm" class="flex-shrink-0">
-              🔊
+            <BauhausButton variant="outline" size="sm" @click="speakWord(selectedVocab.word)" title="Phát âm" class="flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg>
             </BauhausButton>
           </div>
 
@@ -130,7 +130,7 @@
                 @click="playAudio(phonetic.audio)"
                 title="Nghe phát âm"
               >
-                🔊
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg>
               </button>
             </div>
           </div>
@@ -278,12 +278,10 @@ const filteredPhonetics = computed(() => {
 
 .modal-body-content::-webkit-scrollbar-track {
   background: #e0e0e0;
-  border-radius: 4px;
 }
 
 .modal-body-content::-webkit-scrollbar-thumb {
   background: #121212;
-  border-radius: 4px;
 }
 
 .modal-body-content::-webkit-scrollbar-thumb:hover {

@@ -19,11 +19,15 @@
 
           <div class="relative z-10 p-6 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10">
             <!-- Avatar -->
-            <div class="relative flex-shrink-0">
+            <div class="relative flex-shrink-0 group">
               <div class="w-24 h-24 sm:w-28 sm:h-28 border-4 border-black overflow-hidden bg-white">
                 <img :src="auth.user?.avatarUrl || 'https://api.dicebear.com/7.x/thumbs/svg?seed=default'"
                      class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="avatar" />
               </div>
+              <button @click="showAvatarModal = true"
+                      class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity border-4 border-black cursor-pointer">
+                <span class="text-white font-black text-xs uppercase tracking-wider bg-primary-red px-2 py-1 border-2 border-white">Đổi</span>
+              </button>
               <div class="absolute -top-2 -right-2 w-6 h-6 bg-primary-red border-2 border-black rotate-12"></div>
             </div>
 
@@ -84,7 +88,7 @@
             <div class="absolute top-0 right-0 w-12 h-12 bg-primary-yellow clip-corner"></div>
             <div class="relative z-10">
               <div class="text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1">Streak hiện tại</div>
-              <div class="text-3xl sm:text-4xl font-black flex items-center gap-2">🔥{{ currentStreak }}</div>
+              <div class="text-3xl sm:text-4xl font-black flex items-center gap-2">{{ currentStreak }}</div>
               <div class="text-sm font-bold mt-1 text-foreground/60">{{ streakMessage }}</div>
             </div>
           </div>
@@ -113,7 +117,7 @@
               <div class="flex items-center justify-between mb-6">
                 <h3 class="font-black text-xl sm:text-2xl uppercase tracking-tight">Điểm 7 ngày</h3>
                 <div class="flex gap-2">
-                  <span class="w-3 h-3 bg-indigo-500 border border-black"></span>
+                  <span class="w-3 h-3 bg-primary-blue border border-black"></span>
                   <span class="text-xs font-bold uppercase tracking-wider text-foreground/50">Points</span>
                 </div>
               </div>
@@ -165,8 +169,8 @@
 
               <div v-if="!progressSummary?.unlockedAchievements?.length"
                    class="border-2 border-black border-dashed bg-background p-6 text-center">
-                <div class="text-4xl mb-3">🏆</div>
-                <h5 class="font-bold text-sm uppercase mb-1">Chưa có huy hiệu</h5>
+    <div class="w-12 h-12 bg-primary-yellow border-2 border-black flex items-center justify-center mx-auto mb-3 rotate-12"><span class="font-black text-lg">★</span></div>
+    <h5 class="font-bold text-sm uppercase mb-1">Chưa có huy hiệu</h5>
                 <p class="text-xs font-bold text-foreground/50 mb-4">Làm bài tập để mở khóa!</p>
                 <router-link to="/lessons"
                   class="inline-block px-5 py-2 bg-primary-red text-white font-black text-xs uppercase tracking-wider border-2 border-black shadow-hard-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all">
@@ -187,6 +191,59 @@
         </div>
       </div>
     </div>
+
+    <!-- ====== AVATAR MODAL ====== -->
+    <div v-if="showAvatarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div class="bg-white border-4 border-black w-full max-w-lg shadow-hard-xl">
+        <div class="bg-foreground border-b-4 border-black px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-primary-yellow rotate-45"></div>
+            <h3 class="font-black text-lg uppercase tracking-tight text-white">Chọn ảnh đại diện</h3>
+          </div>
+          <button @click="showAvatarModal = false"
+                  class="w-8 h-8 flex items-center justify-center border-2 border-white text-white font-black hover:bg-white hover:text-foreground transition-colors">&times;</button>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <div>
+            <label class="block font-bold text-xs uppercase tracking-wider text-foreground/60 mb-2">Tải ảnh từ máy tính</label>
+            <div class="flex items-center justify-center w-full">
+              <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-black border-dashed rounded-lg cursor-pointer bg-background hover:bg-gray-50">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click để chọn file</span> hoặc kéo thả vào đây</p>
+                  <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 2MB)</p>
+                </div>
+                <input ref="fileInput" type="file" class="hidden" accept="image/*" @change="handleFileChange" />
+              </label>
+            </div>
+          </div>
+
+          <div v-if="selectedFilePreview" class="flex items-center gap-4 p-4 border-2 border-black bg-background mt-6">
+            <div class="w-16 h-16 border-2 border-black bg-white flex-shrink-0">
+              <img :src="selectedFilePreview" class="w-full h-full object-cover" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-black text-sm uppercase tracking-wide truncate">Preview</p>
+              <p class="font-bold text-[10px] text-foreground/50 uppercase tracking-wider truncate">{{ selectedFileName }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t-4 border-black px-6 py-4 flex justify-end gap-4">
+          <button @click="showAvatarModal = false"
+                  class="px-6 py-3 border-2 border-black font-bold uppercase text-sm tracking-wider hover:bg-gray-100 transition-colors">Hủy</button>
+          <button @click="saveAvatar"
+                  :disabled="avatarSaving"
+                  class="px-6 py-3 bg-primary-red text-white font-bold uppercase text-sm tracking-wider border-2 border-black shadow-hard-sm
+                         hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50">
+            {{ avatarSaving ? 'Đang lưu...' : 'Lưu lại' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -197,6 +254,7 @@ import { useProgressStore } from '@/store/modules/progress'
 import dashboardService from '@/services/dashboardService'
 import streakService from '@/services/streakService'
 import coinService from '@/services/coinService'
+import authService from '@/services/authService'
 import StreakCalendar from '@/components/bauhaus/StreakCalendar.vue'
 import CoinDisplay from '@/components/bauhaus/CoinDisplay.vue'
 
@@ -210,17 +268,65 @@ const loading = ref(true)
 const streakHistory = ref([])
 const currentStreak = ref(0)
 const balance = ref(0)
+const showAvatarModal = ref(false)
+const avatarSaving = ref(false)
+const fileInput = ref(null)
+const selectedFile = ref(null)
+const selectedFilePreview = ref(null)
+const selectedFileName = ref('')
 
 const streakMessage = computed(() => {
   if (currentStreak.value === 0) return 'Bắt đầu học ngay!'
   if (currentStreak.value < 3) return 'Đang vào guồng!'
   if (currentStreak.value < 7) return 'Đang có đà!'
   if (currentStreak.value < 30) return 'Rất ấn tượng!'
-  return 'Huyền thoại! 🔥'
+  return 'Huyền thoại!'
 })
 
 function progressPercent(value, total) {
   return Math.min(100, Math.round((value / Math.max(total, 1)) * 100))
+}
+
+function handleFileChange(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  if (file.size > 2 * 1024 * 1024) {
+    alert('File ảnh không được vượt quá 2MB')
+    return
+  }
+
+  selectedFile.value = file
+  selectedFileName.value = file.name
+  selectedFilePreview.value = URL.createObjectURL(file)
+}
+
+function clearFileSelection() {
+  selectedFile.value = null
+  selectedFileName.value = ''
+  if (selectedFilePreview.value) {
+    URL.revokeObjectURL(selectedFilePreview.value)
+    selectedFilePreview.value = null
+  }
+}
+
+async function saveAvatar() {
+  if (!selectedFile.value) return
+  avatarSaving.value = true
+  try {
+    const data = await authService.uploadAvatarFile(selectedFile.value)
+    
+    if (auth.user) {
+      auth.user.avatarUrl = data.avatarUrl
+      localStorage.setItem('user', JSON.stringify(auth.user))
+    }
+    showAvatarModal.value = false
+    clearFileSelection()
+  } catch (e) {
+    alert('Lỗi cập nhật ảnh đại diện')
+  } finally {
+    avatarSaving.value = false
+  }
 }
 
 onMounted(async () => {
@@ -300,11 +406,8 @@ function drawChart() {
     ctx.roundRect(x + 3, y + 3, barWidth, barH, r)
     ctx.fill()
 
-    // Bar gradient
-    const grad = ctx.createLinearGradient(0, y, 0, H - pad.bottom)
-    grad.addColorStop(0, '#6366f1')
-    grad.addColorStop(1, '#1040C0')
-    ctx.fillStyle = grad
+    // Bar fill
+    ctx.fillStyle = '#1040C0'
     ctx.beginPath()
     ctx.roundRect(x, y, barWidth, barH, r)
     ctx.fill()

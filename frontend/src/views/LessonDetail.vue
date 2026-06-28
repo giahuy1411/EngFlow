@@ -1,8 +1,14 @@
 <template>
   <div class="max-w-6xl mx-auto px-4 py-10" v-if="lesson">
-    <router-link to="/lessons" class="inline-flex items-center gap-2 font-sans font-bold text-sm uppercase tracking-wider text-foreground hover:text-primary-red mb-6">
-      ← Quay lại danh sách bài học
-    </router-link>
+    <div class="flex items-center gap-6 mb-6">
+      <router-link to="/lessons" class="inline-flex items-center gap-2 font-sans font-bold text-sm uppercase tracking-wider text-foreground hover:text-primary-red">
+        ← Quay lại danh sách bài học
+      </router-link>
+      
+      <button @click="activeTab = 'practice'" class="bg-primary-red text-white border-2 border-black font-bold uppercase text-xs tracking-wider px-4 py-2 shadow-hard-sm hover:bg-primary-red/90 transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+        Chuyển đến Bài tập 🏆
+      </button>
+    </div>
 
     <!-- Header -->
     <BauhausCard decoration decorationColor="yellow" decorationShape="square" class="mb-6">
@@ -66,10 +72,10 @@
                       🔊
                     </BauhausButton>
                   </div>
-                  <h4 class="font-sans font-bold text-lg mb-4 px-4 text-foreground/80">{{ vocabDetail.meaning }}</h4>
+                  <div class="font-sans font-bold text-lg mb-4 px-4 text-foreground/80 bauhaus-markdown" v-html="parseMarkdown(vocabDetail.meaning)"></div>
                   <div v-if="vocabDetail.exampleSentence" class="bg-white/50 border-2 border-black p-4 text-left w-full">
                     <span class="font-sans font-bold text-sm uppercase tracking-wider text-foreground/70">Ví dụ:</span>
-                    <p class="font-sans italic text-foreground mb-0 mt-1">"{{ vocabDetail.exampleSentence }}"</p>
+                    <div class="font-sans text-foreground mb-0 mt-1 bauhaus-markdown" v-html="parseMarkdown(vocabDetail.exampleSentence)"></div>
                   </div>
                 </div>
               </div>
@@ -115,20 +121,17 @@
         <div v-else v-for="gram in lesson.grammars" :key="gram.id">
           <BauhausCard class="p-6">
             <h4 class="font-bold text-2xl mb-4">{{ gram.title }}</h4>
-            <p class="font-sans text-foreground/70 mb-6">{{ gram.explanation }}</p>
+            <div class="bauhaus-markdown mb-6" v-html="parseMarkdown(gram.explanation)"></div>
 
-            <div class="bg-black/5 border-2 border-black p-5 mb-6">
+            <div v-if="gram.formula" class="bg-black/5 border-2 border-black p-5 mb-6">
               <h5 class="font-sans font-bold text-sm uppercase tracking-wider text-foreground/70 mb-2">Công thức:</h5>
-              <pre class="font-mono text-lg text-foreground mb-0 whitespace-pre-wrap">{{ gram.formula }}</pre>
+              <div class="bauhaus-markdown mb-0" v-html="parseMarkdown('```\n' + gram.formula + '\n```')"></div>
             </div>
 
-            <h5 class="font-sans font-bold text-sm uppercase tracking-wider text-foreground/70 mb-3">Ví dụ minh họa:</h5>
-            <ul class="space-y-2">
-              <li v-for="(ex, index) in (gram.examples || '').split('\n')" :key="index"
-                  class="font-sans text-foreground/70 border-b-2 border-black pb-2 list-none pl-0">
-                {{ ex }}
-              </li>
-            </ul>
+            <div v-if="gram.examples">
+              <h5 class="font-sans font-bold text-sm uppercase tracking-wider text-foreground/70 mb-3">Ví dụ minh họa:</h5>
+              <div class="bauhaus-markdown" v-html="parseMarkdown(gram.examples)"></div>
+            </div>
           </BauhausCard>
         </div>
       </div>
@@ -146,7 +149,7 @@
                 <span class="bg-foreground/10 text-foreground font-bold text-xs uppercase tracking-wider px-3 py-1 border-2 border-black">+{{ ex.points }} điểm</span>
               </div>
 
-              <h5 class="font-bold text-xl mb-5">{{ ex.question }}</h5>
+              <div class="bauhaus-markdown mb-5" v-html="parseMarkdown(ex.question)"></div>
 
               <!-- Audio Player -->
               <div v-if="ex.audioUrl" class="mb-5">
@@ -192,7 +195,7 @@
                   </div>
                   <div class="bg-black/5 border-2 border-black p-4">
                     <span class="font-sans font-bold text-sm uppercase tracking-wider text-foreground/70">Giải thích:</span>
-                    <p class="font-sans text-foreground/80 mb-0 mt-1">{{ ex.explanation }}</p>
+                    <div class="font-sans text-foreground/80 mb-0 mt-1 bauhaus-markdown" v-html="parseMarkdown(ex.explanation)"></div>
                   </div>
                 </div>
               </div>
@@ -219,6 +222,7 @@ import { useToast } from '@/composables/useToast'
 import BauhausButton from '@/components/bauhaus/BauhausButton.vue'
 import BauhausCard from '@/components/bauhaus/BauhausCard.vue'
 import { Loader2 as LoaderIcon, Clock as ClockIcon } from 'lucide-vue-next'
+import { parseMarkdown } from '@/utils/markdown'
 
 const route = useRoute()
 const lessonStore = useLessonStore()

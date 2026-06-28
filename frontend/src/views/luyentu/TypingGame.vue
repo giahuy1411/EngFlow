@@ -1,31 +1,31 @@
 <template>
   <div class="typing-game w-full max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-180px)] flex items-center">
-    <div class="relative w-full aspect-video bg-gradient-to-br from-blue-50 to-blue-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+    <div class="relative w-full aspect-video bg-background border-4 border-foreground shadow-hard-lg overflow-hidden">
       <!-- Top bar -->
       <div class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-6 py-3 z-10">
-        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-gray-500 hover:text-black uppercase border-b-2 border-transparent hover:border-black transition-colors">
+        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-foreground/50 hover:text-foreground uppercase border-b-2 border-transparent hover:border-foreground transition-colors">
           &larr; Quit Session
         </button>
-        <div class="font-black text-base sm:text-lg bg-blue-300 border-2 border-black rounded-full px-4 py-1">
+        <div class="font-black text-base sm:text-lg bg-primary-yellow border-2 border-foreground px-4 py-1">
           {{ currentIndex + 1 }} / {{ questions.length }}
         </div>
       </div>
 
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
-        <div class="animate-spin inline-block w-12 h-12 border-4 border-black border-t-transparent rounded-full"></div>
+        <div class="animate-spin inline-block w-12 h-12 border-4 border-foreground border-t-primary-red"></div>
       </div>
 
       <div v-else-if="!sessionComplete && questions.length > 0" class="absolute inset-0 flex flex-col items-center justify-center px-6 sm:px-12 pt-14 pb-4 sm:pb-6">
         <!-- Progress bar -->
-        <div class="w-full max-w-xl h-2 bg-white border-2 border-black rounded-full mb-4 overflow-hidden flex-none">
-          <div class="h-full bg-green-400 transition-all duration-300" :style="{ width: `${(currentIndex / questions.length) * 100}%` }"></div>
+        <div class="w-full max-w-xl h-2 bg-white border-2 border-foreground mb-4 overflow-hidden flex-none">
+          <div class="h-full bg-primary-blue transition-all duration-300" :style="{ width: `${(currentIndex / questions.length) * 100}%` }"></div>
         </div>
 
         <!-- Word meaning card -->
-        <div class="flex-none bg-white border-4 border-black rounded-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] text-center w-full max-w-xl py-3 px-4 mb-4">
-          <p class="text-lg sm:text-2xl font-bold text-gray-500">Type the word for:</p>
+        <div class="flex-none bg-white border-4 border-foreground shadow-hard-md text-center w-full max-w-xl py-3 px-4 mb-4">
+          <p class="text-lg sm:text-2xl font-bold text-foreground/50">Type the word for:</p>
           <h2 class="text-2xl sm:text-4xl font-black mt-1">{{ currentQuestion.meaning }}</h2>
-          <p class="text-xs sm:text-sm font-mono text-gray-400 mt-1 italic" v-if="currentQuestion.hint">{{ currentQuestion.hint }}</p>
+          <p class="text-xs sm:text-sm font-mono text-foreground/40 mt-1 italic" v-if="currentQuestion.hint">{{ currentQuestion.hint }}</p>
         </div>
 
         <!-- Input & submit -->
@@ -35,14 +35,14 @@
             v-model="userInput"
             @keyup.enter="checkAnswer"
             placeholder="Type the word..."
-            class="w-full p-3 border-4 border-black rounded-xl font-bold text-base sm:text-lg outline-none focus:border-blue-500 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            class="w-full p-3 border-4 border-foreground font-bold text-base sm:text-lg outline-none shadow-hard-sm transition-colors"
             :class="inputClass"
             :disabled="isChecking"
           />
 
           <button 
             @click="checkAnswer"
-            class="w-full py-3 bg-blue-500 text-white font-black text-sm sm:text-base uppercase border-4 border-black rounded-xl hover:bg-blue-600 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
+            class="w-full py-3 bg-foreground text-white font-black text-sm sm:text-base uppercase border-4 border-foreground shadow-hard-sm hover:-translate-y-0.5 hover:shadow-hard-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
             :disabled="!userInput.trim() || isChecking"
           >
             Submit
@@ -50,13 +50,13 @@
 
           <!-- Result feedback -->
           <div v-if="isChecking" class="animate-fade-in-up text-center">
-            <div v-if="isCorrect" class="bg-green-200 border-4 border-green-500 rounded-xl py-2">
+            <div v-if="isCorrect" class="bg-primary-blue text-white border-4 border-foreground py-2">
               <p class="font-black text-base">Correct! +10 coins</p>
             </div>
-            <div v-else class="bg-red-200 border-4 border-red-500 rounded-xl py-2">
-              <p class="font-black text-base">Answer: <span class="text-green-700">{{ currentQuestion.word }}</span></p>
+            <div v-else class="bg-primary-red text-white border-4 border-foreground py-2">
+              <p class="font-black text-base">Answer: <span class="font-bold underline">{{ currentQuestion.word }}</span></p>
             </div>
-            <button @click="nextQuestion" class="mt-2 w-full py-2 bg-black text-white font-black text-sm uppercase border-4 border-black rounded-xl hover:bg-gray-800 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5">
+            <button @click="nextQuestion" class="mt-2 w-full py-2 bg-foreground text-white font-black text-sm uppercase border-4 border-foreground shadow-hard-sm hover:-translate-y-0.5 hover:shadow-hard-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all">
               {{ currentIndex < questions.length - 1 ? 'Next Word' : 'Finish Typing' }}
             </button>
           </div>
@@ -103,8 +103,8 @@ const sessionId = ref(null)
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 
 const inputClass = computed(() => {
-  if (!isChecking.value) return 'focus:ring-4 focus:ring-pink-300'
-  return isCorrect.value ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500 text-red-500 line-through'
+  if (!isChecking.value) return 'focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2'
+  return isCorrect.value ? 'bg-primary-blue/10 border-primary-blue' : 'bg-primary-red/10 border-primary-red text-primary-red line-through'
 })
 
 onMounted(() => {
