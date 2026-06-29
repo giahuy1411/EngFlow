@@ -1,7 +1,5 @@
 package com.datn.engflow.model.dto.response;
 
-import com.datn.engflow.model.entity.Exercise;
-import com.datn.engflow.model.entity.Grammar;
 import com.datn.engflow.model.entity.Vocabulary;
 import lombok.*;
 
@@ -29,6 +27,4 @@ public class LessonResponse {
     private BigDecimal completionPercentage;
 
     private List<VocabularyDTO> vocabularies;
-    private List<GrammarDTO> grammars;
-    private List<ExerciseDTO> exercises;
 }

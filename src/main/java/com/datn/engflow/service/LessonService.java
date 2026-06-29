@@ -2,8 +2,6 @@ package com.datn.engflow.service;
 
 import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.request.LessonRequest;
-import com.datn.engflow.model.dto.response.ExerciseDTO;
-import com.datn.engflow.model.dto.response.GrammarDTO;
 import com.datn.engflow.model.dto.response.LessonResponse;
 import com.datn.engflow.model.dto.response.VocabularyDTO;
 import com.datn.engflow.model.entity.Lesson;
@@ -109,15 +107,6 @@ public class LessonService {
                             .meaning(v.getMeaning()).exampleSentence(v.getExampleSentence())
                             .audioUrl(v.getAudioUrl()).imageUrl(v.getImageUrl()).wordType(v.getWordType())
                             .build()).collect(Collectors.toList()))
-                    .grammars(lesson.getGrammars().stream().map(g -> GrammarDTO.builder()
-                            .id(g.getId()).title(g.getTitle()).explanation(g.getExplanation())
-                            .formula(g.getFormula()).examples(g.getExamples()).level(g.getLevel())
-                            .build()).collect(Collectors.toList()))
-                    .exercises(lesson.getExercises().stream().map(e -> ExerciseDTO.builder()
-                            .id(e.getId()).title(e.getTitle()).question(e.getQuestion())
-                            .exerciseType(e.getExerciseType()).options(e.getOptions())
-                            .points(e.getPoints()).difficulty(e.getDifficulty()).audioUrl(e.getAudioUrl())
-                            .build()).collect(Collectors.toList()))
                     .build();
         }
 
@@ -152,15 +141,6 @@ public class LessonService {
                         .id(v.getId()).word(v.getWord()).pronunciation(v.getPronunciation())
                         .meaning(v.getMeaning()).exampleSentence(v.getExampleSentence())
                         .audioUrl(v.getAudioUrl()).imageUrl(v.getImageUrl()).wordType(v.getWordType())
-                        .build()).collect(Collectors.toList()))
-                .grammars(lesson.getGrammars().stream().map(g -> GrammarDTO.builder()
-                        .id(g.getId()).title(g.getTitle()).explanation(g.getExplanation())
-                        .formula(g.getFormula()).examples(g.getExamples()).level(g.getLevel())
-                        .build()).collect(Collectors.toList()))
-                .exercises(lesson.getExercises().stream().map(e -> ExerciseDTO.builder()
-                        .id(e.getId()).title(e.getTitle()).question(e.getQuestion())
-                        .exerciseType(e.getExerciseType()).options(e.getOptions())
-                        .points(e.getPoints()).difficulty(e.getDifficulty()).audioUrl(e.getAudioUrl())
                         .build()).collect(Collectors.toList()))
                 .build();
     }

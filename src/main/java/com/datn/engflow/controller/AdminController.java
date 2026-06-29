@@ -1,7 +1,6 @@
 package com.datn.engflow.controller;
 
 import com.datn.engflow.model.dto.request.AchievementRequest;
-import com.datn.engflow.model.dto.request.ExerciseRequest;
 import com.datn.engflow.model.dto.request.LessonRequest;
 import com.datn.engflow.model.dto.VocabularyRequest;
 import com.datn.engflow.model.dto.response.AdminStatsDTO;
@@ -97,28 +96,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // --- Exercises ---
-    @GetMapping("/exercises")
-    public ResponseEntity<List<Exercise>> getAllExercises() {
-        return ResponseEntity.ok(adminService.getAllExercises());
-    }
-
-    @PostMapping("/exercises")
-    public ResponseEntity<Exercise> createExercise(@Valid @RequestBody ExerciseRequest request) {
-        return ResponseEntity.ok(adminService.createExercise(request));
-    }
-
-    @PutMapping("/exercises/{id}")
-    public ResponseEntity<Exercise> updateExercise(@PathVariable Long id, @Valid @RequestBody ExerciseRequest request) {
-        return ResponseEntity.ok(adminService.updateExercise(id, request));
-    }
-
-    @DeleteMapping("/exercises/{id}")
-    public ResponseEntity<Void> deleteExercise(@PathVariable Long id) {
-        adminService.deleteExercise(id);
-        return ResponseEntity.noContent().build();
-    }
-
+    // (Exercises removed)
     // --- Achievements ---
     @GetMapping("/achievements")
     public ResponseEntity<List<Achievement>> getAllAchievements() {

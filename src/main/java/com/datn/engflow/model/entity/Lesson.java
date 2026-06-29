@@ -75,16 +75,4 @@ public class Lesson {
     @org.hibernate.annotations.BatchSize(size = 20)
     @Builder.Default
     private List<Vocabulary> vocabularies = new ArrayList<>();
-
-    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @org.hibernate.annotations.BatchSize(size = 20)
-    @Builder.Default
-    private List<Grammar> grammars = new ArrayList<>();
-
-    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @org.hibernate.annotations.BatchSize(size = 20)
-    @Builder.Default
-    private List<Exercise> exercises = new ArrayList<>();
 }

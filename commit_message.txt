@@ -1,11 +1,12 @@
-fix: xử lý lỗi 500 đăng ký, lỗi Unicode và refactor giao diện Header/Admin
+refactor: dọn dẹp thực thể cũ và squash database migration V1
 
-- **Backend Fixes & Improvements:**
-  - Bổ sung HttpMessageNotReadableException vào GlobalExceptionHandler để trả về HTTP 400 thay vì HTTP 500 khi payload JSON (như API Đăng ký) bị lỗi định dạng.
-  - Thêm annotation @Nationalized vào trường title của LessonSection để hỗ trợ lưu trữ Unicode (tiếng Việt có dấu) trên SQL Server, khắc phục tình trạng lỗi font.
-  - Tối ưu lại JsonDataSeeder: Thay thế câu lệnh xóa cứng bằng cơ chế kiểm tra findByTitle để không làm mất bài học tự tạo của user; sửa vòng lặp đọc file JSON để đảm bảo clone đầy đủ mọi kỹ năng của bài học mà không bị ghi đè hay trùng lặp.
+- **Dọn dẹp mã nguồn Java (Code Cleanup):**
+  - Xóa bỏ hoàn toàn các thực thể cũ không dùng tới: Grammar, Exercise và ExerciseSubmission (đã được thay thế bởi cấu trúc LessonSection & LessonBlock động).
+  - Loại bỏ các Service, Controller, Repository và Request/Response DTO liên quan đến Grammar/Exercise để dọn sạch code chết (dead code).
+  - Cập nhật Lesson.java, LessonService.java và LessonResponse.java để loại bỏ các trường và logic ánh xạ của Grammar/Exercise.
 
-- **Frontend UI Updates:**
-  - Header.vue: Loại bỏ class floating, khôi phục chiều cao tiêu chuẩn, dọn dẹp không gian thừa và tích hợp logic chuyển hướng đến Dashboard/Profile thẳng vào avatar người dùng.
-  - AdminLessonBuilder.vue: Mở rộng chiều cao thẻ nhập liệu (min-h-[400px]) và thêm font chữ monospace để Admin dễ dàng chỉnh sửa nội dung mã HTML hơn.
-  - Cập nhật Gitignore và dọn dẹp các file rác/logs toàn dự án.
+- **Tối ưu hóa Database Migration (Flyway Squash):**
+  - Gộp (Squash) toàn bộ các file migration từ V2 đến V5 vào duy nhất file `V1__init_schema.sql` để tạo bản thiết kế database gốc chuẩn chỉnh nhất.
+  - Loại bỏ định nghĩa các bảng cũ (`grammar`, `exercises`, `exercise_submissions`) khỏi schema gốc.
+  - Bổ sung định nghĩa các bảng cấu trúc mới (`lesson_skills`, `lesson_snapshots`, `lesson_sections`, `lesson_blocks`) cùng các index tối ưu hiệu năng vào V1.
+  - Xóa bỏ các file migration thừa (V2, V3, V4, V5) để làm sạch thư mục `db/migration`.

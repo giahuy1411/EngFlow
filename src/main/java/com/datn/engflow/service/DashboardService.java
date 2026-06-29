@@ -9,9 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +21,7 @@ public class DashboardService {
     private final ProgressRepository progressRepository;
     private final LessonRepository lessonRepository;
     private final VocabularyRepository vocabularyRepository;
-    private final ExerciseRepository exerciseRepository;
-    private final ExerciseSubmissionRepository submissionRepository;
+
 
     @Transactional(readOnly = true)
     public DashboardStatsDTO getDashboardStats(String email) {
@@ -36,28 +32,8 @@ public class DashboardService {
         Long completedLessons = progressRepository.countByUserIdAndIsCompletedTrue(user.getId());
 
         Long totalVocabulary = vocabularyRepository.count();
-        Long totalExercises = exerciseRepository.count();
-        Long correctExercises = submissionRepository.countCorrectByUserId(user.getId());
 
         List<DashboardStatsDTO.DailyPointEntry> dailyPoints = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
-
-        for (int i = 6; i >= 0; i--) {
-            LocalDate date = today.minusDays(i);
-            LocalDateTime startOfDay = date.atStartOfDay();
-            LocalDateTime endOfDay = date.atTime(23, 59, 59);
-
-            Integer pointsForDay = submissionRepository.findCorrectByUserIdBetween(user.getId(), startOfDay, endOfDay)
-                    .stream()
-                    .mapToInt(s -> s.getPointsEarned() != null ? s.getPointsEarned() : 0)
-                    .sum();
-
-            dailyPoints.add(DashboardStatsDTO.DailyPointEntry.builder()
-                    .date(date.format(formatter))
-                    .points(pointsForDay)
-                    .build());
-        }
 
         return DashboardStatsDTO.builder()
                 .totalLessons(totalLessons.intValue())
@@ -65,8 +41,8 @@ public class DashboardService {
                 .totalPoints(user.getTotalPoints())
                 .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)
                 .totalVocabulary(totalVocabulary.intValue())
-                .totalExercises(totalExercises.intValue())
-                .correctExercises(correctExercises.intValue())
+                .totalExercises(0)
+                .correctExercises(0)
                 .dailyPoints(dailyPoints)
                 .build();
     }

@@ -46,34 +46,15 @@ CREATE TABLE vocabulary (
     CONSTRAINT fk_vocabulary_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
 );
 
--- Grammar Table
-CREATE TABLE grammar (
-    grammar_id BIGINT PRIMARY KEY IDENTITY(1,1),
-    lesson_id BIGINT,
-    title NVARCHAR(200) NOT NULL,
-    explanation NVARCHAR(MAX),
-    formula NVARCHAR(500),
-    examples NVARCHAR(MAX),
-    level NVARCHAR(20),
+-- Lesson Skills Table (replaces legacy vocabulary/grammar/exercises)
+CREATE TABLE lesson_skills (
+    id BIGINT PRIMARY KEY IDENTITY(1,1),
+    lesson_id BIGINT NOT NULL,
+    skill_type NVARCHAR(50) NOT NULL,
+    content NVARCHAR(MAX),
     created_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT fk_grammar_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
-);
-
--- Exercises Table
-CREATE TABLE exercises (
-    exercise_id BIGINT PRIMARY KEY IDENTITY(1,1),
-    lesson_id BIGINT,
-    title NVARCHAR(200) NOT NULL,
-    question NVARCHAR(MAX) NOT NULL,
-    exercise_type NVARCHAR(50) NOT NULL,
-    options NVARCHAR(MAX), -- JSON string of options
-    correct_answer NVARCHAR(MAX) NOT NULL,
-    explanation NVARCHAR(MAX),
-    points INT DEFAULT 10,
-    difficulty NVARCHAR(20),
-    audio_url NVARCHAR(500),
-    created_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT fk_exercises_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
+    updated_at DATETIME2 DEFAULT GETDATE(),
+    CONSTRAINT fk_lesson_skills_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
 );
 
 -- User Progress Table
@@ -90,17 +71,14 @@ CREATE TABLE user_progress (
     CONSTRAINT fk_user_progress_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
 );
 
--- Exercise Submissions Table
-CREATE TABLE exercise_submissions (
-    submission_id BIGINT PRIMARY KEY IDENTITY(1,1),
-    user_id BIGINT,
-    exercise_id BIGINT,
-    user_answer NVARCHAR(MAX),
-    is_correct BIT,
-    points_earned INT DEFAULT 0,
-    submitted_at DATETIME2 DEFAULT GETDATE(),
-    CONSTRAINT fk_submissions_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_submissions_exercise FOREIGN KEY (exercise_id) REFERENCES exercises(exercise_id) ON DELETE CASCADE
+-- Lesson Snapshots Table
+CREATE TABLE lesson_snapshots (
+    snapshot_id BIGINT PRIMARY KEY IDENTITY(1,1),
+    lesson_id BIGINT NOT NULL,
+    snapshot NVARCHAR(MAX) NOT NULL,
+    created_by BIGINT,
+    created_at DATETIME2 DEFAULT GETDATE(),
+    CONSTRAINT fk_snapshots_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
 );
 
 -- Achievements Table
@@ -125,16 +103,39 @@ CREATE TABLE user_achievements (
     CONSTRAINT fk_user_achievements_achievement FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id) ON DELETE CASCADE
 );
 
+-- Lesson Sections Table
+CREATE TABLE lesson_sections (
+    section_id BIGINT PRIMARY KEY IDENTITY(1,1),
+    lesson_id BIGINT NOT NULL,
+    title NVARCHAR(255) NOT NULL,
+    order_index INT,
+    created_at DATETIME2 DEFAULT GETDATE(),
+    updated_at DATETIME2 DEFAULT GETDATE(),
+    CONSTRAINT fk_lesson_sections_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
+);
+
+-- Lesson Blocks Table
+CREATE TABLE lesson_blocks (
+    block_id BIGINT PRIMARY KEY IDENTITY(1,1),
+    section_id BIGINT NOT NULL,
+    block_type NVARCHAR(50) NOT NULL,
+    data NVARCHAR(MAX),
+    order_index INT,
+    created_at DATETIME2 DEFAULT GETDATE(),
+    updated_at DATETIME2 DEFAULT GETDATE(),
+    CONSTRAINT fk_lesson_blocks_section FOREIGN KEY (section_id) REFERENCES lesson_sections(section_id) ON DELETE CASCADE
+);
+
 -- Indexes for performance optimization
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_lessons_level ON lessons(level);
 CREATE INDEX idx_lessons_category ON lessons(category);
 CREATE INDEX idx_vocabulary_lesson ON vocabulary(lesson_id);
-CREATE INDEX idx_grammar_lesson ON grammar(lesson_id);
-CREATE INDEX idx_exercises_lesson ON exercises(lesson_id);
+CREATE INDEX idx_lesson_skills_lesson ON lesson_skills(lesson_id);
+CREATE INDEX idx_lesson_snapshots_lesson ON lesson_snapshots(lesson_id);
 CREATE INDEX idx_user_progress_user ON user_progress(user_id);
 CREATE INDEX idx_user_progress_lesson ON user_progress(lesson_id);
 CREATE INDEX idx_user_progress_user_lesson ON user_progress(user_id, lesson_id);
-CREATE INDEX idx_submissions_user ON exercise_submissions(user_id);
-CREATE INDEX idx_submissions_exercise ON exercise_submissions(exercise_id);
+CREATE INDEX idx_lesson_sections_lesson ON lesson_sections(lesson_id);
+CREATE INDEX idx_lesson_blocks_section ON lesson_blocks(section_id);

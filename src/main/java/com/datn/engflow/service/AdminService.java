@@ -2,7 +2,6 @@ package com.datn.engflow.service;
 
 import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.request.AchievementRequest;
-import com.datn.engflow.model.dto.request.ExerciseRequest;
 import com.datn.engflow.model.dto.request.LessonRequest;
 import com.datn.engflow.model.dto.VocabularyRequest;
 import com.datn.engflow.model.dto.response.AdminStatsDTO;
@@ -25,8 +24,6 @@ public class AdminService {
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
     private final VocabularyRepository vocabularyRepository;
-    private final ExerciseRepository exerciseRepository;
-    private final ExerciseSubmissionRepository submissionRepository;
     private final AchievementRepository achievementRepository;
 
     public AdminStatsDTO getDashboardStats() {
@@ -34,8 +31,6 @@ public class AdminService {
         long totalUsers = userRepository.count();
         long totalLessons = lessonRepository.count();
         long totalVocabulary = vocabularyRepository.count();
-        long totalExercises = exerciseRepository.count();
-        long totalSubmissions = submissionRepository.count();
         long totalAchievements = achievementRepository.count();
         
         List<User> users = userRepository.findAll();
@@ -46,8 +41,6 @@ public class AdminService {
                 .totalUsers(totalUsers)
                 .totalLessons(totalLessons)
                 .totalVocabulary(totalVocabulary)
-                .totalExercises(totalExercises)
-                .totalSubmissions(totalSubmissions)
                 .totalAchievements(totalAchievements)
                 .activeUsers(activeUsers)
                 .recentUsers(recentUsers)
@@ -215,64 +208,7 @@ public class AdminService {
         vocabularyRepository.delete(vocabulary);
     }
 
-    // Exercises
-    public List<Exercise> getAllExercises() {
-        return exerciseRepository.findAll();
-    }
-
-    @Transactional
-    public Exercise createExercise(ExerciseRequest request) {
-        Lesson lesson = null;
-        if (request.getLessonId() != null) {
-            lesson = lessonRepository.findById(request.getLessonId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", request.getLessonId()));
-        }
-        Exercise exercise = Exercise.builder()
-                .lesson(lesson)
-                .title(request.getTitle())
-                .question(request.getQuestion())
-                .options(request.getOptions())
-                .correctAnswer(request.getCorrectAnswer())
-                .explanation(request.getExplanation())
-                .exerciseType(com.datn.engflow.model.enums.ExerciseType.valueOf(request.getExerciseType().toUpperCase()))
-                .difficulty(request.getDifficulty() != null ? request.getDifficulty().toUpperCase() : null)
-                .points(request.getPoints() != null ? request.getPoints() : 10)
-                .audioUrl(request.getAudioUrl())
-                .imageUrl(request.getImageUrl())
-                .build();
-        return exerciseRepository.save(exercise);
-    }
-
-    @Transactional
-    public Exercise updateExercise(Long id, ExerciseRequest request) {
-        Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Exercise", "id", id));
-        Lesson lesson = null;
-        if (request.getLessonId() != null) {
-            lesson = lessonRepository.findById(request.getLessonId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", request.getLessonId()));
-        }
-        exercise.setLesson(lesson);
-        exercise.setTitle(request.getTitle());
-        exercise.setQuestion(request.getQuestion());
-        exercise.setOptions(request.getOptions());
-        exercise.setCorrectAnswer(request.getCorrectAnswer());
-        exercise.setExplanation(request.getExplanation());
-        exercise.setExerciseType(com.datn.engflow.model.enums.ExerciseType.valueOf(request.getExerciseType().toUpperCase()));
-        exercise.setDifficulty(request.getDifficulty() != null ? request.getDifficulty().toUpperCase() : null);
-        if (request.getPoints() != null) exercise.setPoints(request.getPoints());
-        exercise.setAudioUrl(request.getAudioUrl());
-        exercise.setImageUrl(request.getImageUrl());
-        return exerciseRepository.save(exercise);
-    }
-
-    @Transactional
-    public void deleteExercise(Long id) {
-        Exercise exercise = exerciseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Exercise", "id", id));
-        exerciseRepository.delete(exercise);
-    }
-
+    // (Exercises section removed)
     // Achievements
     public List<Achievement> getAllAchievements() {
         return achievementRepository.findAll();
