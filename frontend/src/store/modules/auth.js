@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Getters
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const isAdmin = computed(() => user.value?.isAdmin)
 
   // Actions
   async function login(credentials) {
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
         email: data.email,
         fullName: data.fullName,
         avatarUrl: data.avatarUrl,
-        role: data.role,
+        isAdmin: data.isAdmin,
         currentLevel: data.currentLevel,
         totalPoints: data.totalPoints,
         currentStreak: data.currentStreak
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
           email: data.email,
           fullName: data.fullName,
           avatarUrl: data.avatarUrl,
-          role: data.role,
+          isAdmin: data.isAdmin,
           currentLevel: data.currentLevel,
           totalPoints: data.totalPoints,
           currentStreak: data.currentStreak
@@ -96,7 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
         email: data.email,
         fullName: data.fullName,
         avatarUrl: data.avatarUrl,
-        role: data.role,
+        isAdmin: data.isAdmin,
         currentLevel: data.currentLevel,
         totalPoints: data.totalPoints,
         currentStreak: data.currentStreak

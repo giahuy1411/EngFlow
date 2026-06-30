@@ -123,7 +123,7 @@ public class UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
-                .role(Boolean.TRUE.equals(user.getIsAdmin()) ? "ADMIN" : "USER")
+                .isAdmin(Boolean.TRUE.equals(user.getIsAdmin()))
                 .currentLevel(user.getCurrentLevel().name())
                 .totalPoints(user.getTotalPoints())
                 .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)
