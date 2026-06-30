@@ -12,6 +12,11 @@ DROP TABLE IF EXISTS exercises;
 DROP TABLE IF EXISTS exercise_submissions;
 DROP TABLE IF EXISTS grammar;
 
+-- 2b. Drop Docker orphan tables (Phase 2) — order: dependent tables first
+DROP TABLE IF EXISTS user_shop_items;
+DROP TABLE IF EXISTS skill_submissions;
+DROP TABLE IF EXISTS shop_items;
+
 -- 3. Fix nullable FKs that should always have values
 ALTER TABLE user_progress ALTER COLUMN user_id BIGINT NOT NULL;
 ALTER TABLE user_progress ALTER COLUMN lesson_id BIGINT NOT NULL;
