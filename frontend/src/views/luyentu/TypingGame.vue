@@ -51,7 +51,7 @@
           <!-- Result feedback -->
           <div v-if="isChecking" class="animate-fade-in-up text-center">
             <div v-if="isCorrect" class="bg-primary-blue text-white border-4 border-foreground py-2">
-              <p class="font-black text-base">Correct! +10 coins</p>
+              <p class="font-black text-base">Correct!</p>
             </div>
             <div v-else class="bg-primary-red text-white border-4 border-foreground py-2">
               <p class="font-black text-base">Answer: <span class="font-bold underline">{{ currentQuestion.word }}</span></p>
@@ -67,7 +67,6 @@
         <GameResult 
           :correct="correctAnswers" 
           :total="questions.length" 
-          :coins="earnedCoins"
           @continue="loadGame" 
           @back="$router.push(`/decks/${deckId}`)" 
         />
@@ -96,7 +95,7 @@ const isCorrect = ref(false)
 const correctAnswers = ref(0)
 const loading = ref(true)
 const sessionComplete = ref(false)
-const earnedCoins = ref(0)
+
 const inputField = ref(null)
 const sessionId = ref(null)
 
@@ -161,8 +160,7 @@ const nextQuestion = () => {
 
 const finishGame = async () => {
   try {
-    const result = await gameService.submitResult(sessionId.value, correctAnswers.value)
-    earnedCoins.value = result.earnedCoins
+    await gameService.submitResult(sessionId.value, correctAnswers.value)
   } catch (error) {
     console.error("Error submitting result", error)
     toast.error('Không thể lưu kết quả. Vui lòng thử lại.')

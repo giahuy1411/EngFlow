@@ -8,22 +8,11 @@
       <h2 class="text-4xl font-black mb-2 uppercase">Complete!</h2>
       <p class="text-xl font-bold text-gray-600 mb-8">Great job on your practice</p>
       
-      <div class="grid grid-cols-2 gap-4 mb-8">
+      <div class="flex justify-center mb-8">
         <!-- Score Card -->
-        <div class="bg-blue-100 border-4 border-black rounded-xl p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div class="bg-blue-100 border-4 border-black rounded-xl p-4 px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] min-w-[150px]">
           <p class="font-bold uppercase text-sm mb-1">Score</p>
           <p class="text-3xl font-black">{{ correct }}/{{ total }}</p>
-        </div>
-        
-        <!-- Coins Card -->
-        <div class="bg-yellow-100 border-4 border-black rounded-xl p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center">
-          <p class="font-bold uppercase text-sm mb-1">Earned</p>
-          <p class="text-3xl font-black text-yellow-600 flex items-center">
-            +{{ coins }} 
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-1" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-            </svg>
-          </p>
         </div>
       </div>
       
@@ -48,10 +37,6 @@ defineProps({
   total: {
     type: Number,
     required: true
-  },
-  coins: {
-    type: Number,
-    default: 0
   }
 })
 defineEmits(['continue', 'back'])

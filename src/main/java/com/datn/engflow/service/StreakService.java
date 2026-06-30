@@ -19,7 +19,7 @@ public class StreakService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserStreak checkin(Long userId, int wordsStudied, int gamesPlayed, int coinsEarned) {
+    public UserStreak checkin(Long userId, int wordsStudied, int gamesPlayed) {
         User user = userRepository.findById(userId).orElseThrow();
         LocalDate today = LocalDate.now();
 
@@ -39,13 +39,11 @@ public class StreakService {
                             .studyDate(today)
                             .wordsStudied(0)
                             .gamesPlayed(0)
-                            .coinsEarned(0)
                             .build();
                 });
 
         todayStreak.setWordsStudied(todayStreak.getWordsStudied() + wordsStudied);
         todayStreak.setGamesPlayed(todayStreak.getGamesPlayed() + gamesPlayed);
-        todayStreak.setCoinsEarned(todayStreak.getCoinsEarned() + coinsEarned);
 
         return streakRepository.save(todayStreak);
     }

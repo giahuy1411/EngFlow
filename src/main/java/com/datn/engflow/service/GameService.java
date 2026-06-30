@@ -2,19 +2,19 @@ package com.datn.engflow.service;
 
 import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.exception.ResourceNotFoundException;
+import com.datn.engflow.model.dto.GameSessionRedisDTO;
 import com.datn.engflow.model.entity.DeckWord;
-import com.datn.engflow.model.entity.GameSession;
 import com.datn.engflow.model.entity.Vocabulary;
 import com.datn.engflow.repository.DeckWordRepository;
-import com.datn.engflow.repository.GameSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,18 +24,22 @@ public class GameService {
 
     private final DeckWordRepository deckWordRepository;
     private final StreakService streakService;
-    private final CoinService coinService;
-    private final GameSessionRepository gameSessionRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    private GameSession createSession(Long userId, Long deckId, String gameType, int totalQuestions) {
-        GameSession session = GameSession.builder()
+    private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions) {
+        String sessionId = UUID.randomUUID().toString();
+        GameSessionRedisDTO session = GameSessionRedisDTO.builder()
+                .sessionId(sessionId)
                 .userId(userId)
                 .deckId(deckId)
                 .gameType(gameType)
                 .totalQuestions(totalQuestions)
-                .isActive(true)
                 .build();
-        return gameSessionRepository.save(session);
+        
+        String key = "game:session:" + sessionId;
+        redisTemplate.opsForValue().set(key, session, 24, TimeUnit.HOURS);
+        log.info("Created temporary game session in Redis: {}", sessionId);
+        return session;
     }
 
     @Transactional
@@ -69,7 +73,7 @@ public class GameService {
         Collections.shuffle(quiz);
         List<Map<String, Object>> finalData = quiz.size() > 10 ? quiz.subList(0, 10) : quiz;
 
-        GameSession session = createSession(userId, deckId, "QUIZ", finalData.size());
+        GameSessionRedisDTO session = createSession(userId, deckId, "QUIZ", finalData.size());
 
         Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getSessionId());
@@ -104,7 +108,7 @@ public class GameService {
         }
         Collections.shuffle(cards);
 
-        GameSession session = createSession(userId, deckId, "MEMORY_MATCH", pairs);
+        GameSessionRedisDTO session = createSession(userId, deckId, "MEMORY_MATCH", pairs);
 
         Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getSessionId());
@@ -143,7 +147,7 @@ public class GameService {
         Collections.shuffle(result);
         List<Map<String, Object>> finalData = result.size() > 10 ? result.subList(0, 10) : result;
 
-        GameSession session = createSession(userId, deckId, gameType, finalData.size());
+        GameSessionRedisDTO session = createSession(userId, deckId, gameType, finalData.size());
 
         Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getSessionId());
@@ -153,40 +157,31 @@ public class GameService {
 
     @Transactional
     public Map<String, Object> submitGameResult(Long userId, String sessionId, int correctAnswers) {
-        GameSession session = gameSessionRepository.findBySessionIdAndUserIdAndIsActiveTrue(sessionId, userId)
-                .orElseThrow(() -> new BadRequestException("Session kh\u00f4ng h\u1ee3p l\u1ec7 ho\u1eb7c \u0111\u00e3 h\u1ebft h\u1ea1n"));
+        String key = "game:session:" + sessionId;
+        GameSessionRedisDTO redisSession = (GameSessionRedisDTO) redisTemplate.opsForValue().get(key);
 
-        if (correctAnswers > session.getTotalQuestions() || correctAnswers < 0) {
-            throw new BadRequestException("S\u1ed1 c\u00e2u tr\u1ea3 l\u1eddi \u0111\u00fang kh\u00f4ng h\u1ee3p l\u1ec7");
+        if (redisSession == null) {
+            throw new BadRequestException("Session không hợp lệ hoặc đã hết hạn");
         }
 
-        session.setIsActive(false);
-        gameSessionRepository.save(session);
+        if (!redisSession.getUserId().equals(userId)) {
+            throw new BadRequestException("Session không thuộc về người dùng này");
+        }
 
-        String gameType = session.getGameType();
-        int coinsPerCorrect = 2;
-        if (gameType.equals("MEMORY_MATCH")) coinsPerCorrect = 1;
-        if (gameType.equals("LISTENING") || gameType.equals("TYPING")) coinsPerCorrect = 3;
+        if (correctAnswers > redisSession.getTotalQuestions() || correctAnswers < 0) {
+            throw new BadRequestException("Số câu trả lời đúng không hợp lệ");
+        }
 
-        int earnedCoins = correctAnswers * coinsPerCorrect;
-        coinService.earnCoins(userId, earnedCoins);
-        streakService.checkin(userId, session.getTotalQuestions(), 1, earnedCoins);
+        streakService.checkin(userId, redisSession.getTotalQuestions(), 1);
+
+        // Xóa session khỏi Redis
+        redisTemplate.delete(key);
+        log.info("Submitted game session results and cleared Redis key: {}", sessionId);
 
         Map<String, Object> result = new HashMap<>();
         result.put("correctAnswers", correctAnswers);
-        result.put("totalQuestions", session.getTotalQuestions());
-        result.put("earnedCoins", earnedCoins);
+        result.put("totalQuestions", redisSession.getTotalQuestions());
 
         return result;
-    }
-
-    @Scheduled(cron = "0 0 3 * * ?")
-    @Transactional
-    public void cleanupExpiredSessions() {
-        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
-        int deleted = gameSessionRepository.deleteByStartTimeBeforeAndIsActiveTrue(cutoff);
-        if (deleted > 0) {
-            log.info("Cleaned up {} expired game sessions", deleted);
-        }
     }
 }

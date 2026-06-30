@@ -51,7 +51,6 @@
         <GameResult 
           :correct="correctAnswers" 
           :total="questions.length" 
-          :coins="earnedCoins"
           @continue="loadQuiz" 
           @back="$router.push(`/decks/${deckId}`)" 
         />
@@ -77,7 +76,7 @@ const selectedOption = ref(null)
 const correctAnswers = ref(0)
 const loading = ref(true)
 const sessionComplete = ref(false)
-const earnedCoins = ref(0)
+
 const sessionId = ref(null)
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
@@ -149,8 +148,7 @@ const nextQuestion = () => {
 
 const finishQuiz = async () => {
   try {
-    const result = await gameService.submitResult(sessionId.value, correctAnswers.value)
-    earnedCoins.value = result.earnedCoins
+    await gameService.submitResult(sessionId.value, correctAnswers.value)
   } catch (error) {
     console.error("Error submitting result", error)
     toast.error('Không thể lưu kết quả. Vui lòng thử lại.')

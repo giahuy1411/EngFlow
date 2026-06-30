@@ -48,9 +48,8 @@
               </div>
             </div>
 
-            <!-- Coin + Streak -->
+            <!-- Streak only -->
             <div class="flex items-center gap-4 flex-shrink-0">
-              <CoinDisplay :amount="balance" />
               <div class="bg-white border-2 border-black px-4 py-2 text-center shadow-hard-sm">
                 <div class="text-xs font-bold uppercase tracking-wider text-foreground/60">Streak</div>
                 <div class="text-2xl font-black text-primary-red">{{ currentStreak }}</div>
@@ -253,10 +252,8 @@ import { useAuthStore } from '@/store/modules/auth'
 import { useProgressStore } from '@/store/modules/progress'
 import dashboardService from '@/services/dashboardService'
 import streakService from '@/services/streakService'
-import coinService from '@/services/coinService'
 import authService from '@/services/authService'
 import StreakCalendar from '@/components/bauhaus/StreakCalendar.vue'
-import CoinDisplay from '@/components/bauhaus/CoinDisplay.vue'
 
 const auth = useAuthStore()
 const progressStore = useProgressStore()
@@ -267,7 +264,6 @@ const chartCanvas = ref(null)
 const loading = ref(true)
 const streakHistory = ref([])
 const currentStreak = ref(0)
-const balance = ref(0)
 const showAvatarModal = ref(false)
 const avatarSaving = ref(false)
 const fileInput = ref(null)
@@ -333,16 +329,14 @@ onMounted(async () => {
   try {
     await auth.fetchUser()
     await progressStore.fetchProgressSummary()
-    const [stats, historyData, streakData, coinData] = await Promise.all([
+    const [stats, historyData, streakData] = await Promise.all([
       dashboardService.getStats(),
       streakService.getHistory(30),
-      streakService.getCurrentStreak(),
-      coinService.getBalance()
+      streakService.getCurrentStreak()
     ])
     dashboardStats.value = stats
     streakHistory.value = historyData
     currentStreak.value = streakData.currentStreak
-    balance.value = coinData.coins
   } catch (e) {
     console.error('Lỗi tải dữ liệu dashboard:', e)
     dashboardStats.value = null

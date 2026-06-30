@@ -43,7 +43,6 @@
         <GameResult 
           :correct="totalPairs" 
           :total="totalPairs" 
-          :coins="earnedCoins"
           @continue="loadGame" 
           @back="$router.push(`/decks/${deckId}`)" 
         />
@@ -67,7 +66,7 @@ const cards = ref([])
 const flippedCards = ref([])
 const loading = ref(true)
 const sessionComplete = ref(false)
-const earnedCoins = ref(0)
+
 const sessionId = ref(null)
 
 const totalPairs = computed(() => Math.floor(cards.value.length / 2))
@@ -137,8 +136,7 @@ const checkMatch = () => {
 const finishGame = async () => {
   if (!cards.value.length) return
   try {
-    const result = await gameService.submitResult(sessionId.value, matchedPairs.value)
-    earnedCoins.value = result.earnedCoins
+    await gameService.submitResult(sessionId.value, matchedPairs.value)
   } catch (error) {
     console.error("Error submitting result", error)
     toast.error('Không thể lưu kết quả. Vui lòng thử lại.')

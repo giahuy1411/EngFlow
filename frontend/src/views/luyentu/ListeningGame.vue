@@ -67,7 +67,6 @@
         <GameResult 
           :correct="correctAnswers" 
           :total="questions.length" 
-          :coins="earnedCoins"
           @continue="loadGame" 
           @back="$router.push(`/decks/${deckId}`)" 
         />
@@ -95,7 +94,7 @@ const isCorrect = ref(false)
 const correctAnswers = ref(0)
 const loading = ref(true)
 const sessionComplete = ref(false)
-const earnedCoins = ref(0)
+
 const inputField = ref(null)
 const sessionId = ref(null)
 let currentAudio = null // Singleton audio (H11)
@@ -187,8 +186,7 @@ const nextQuestion = () => {
 
 const finishGame = async () => {
   try {
-    const result = await gameService.submitResult(sessionId.value, correctAnswers.value)
-    earnedCoins.value = result.earnedCoins
+    await gameService.submitResult(sessionId.value, correctAnswers.value)
   } catch (error) {
     console.error("Error submitting result", error)
     toast.error('Không thể lưu kết quả. Vui lòng thử lại.')

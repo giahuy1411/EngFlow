@@ -26,15 +26,14 @@ public class StreakController {
         }
         int words = payload.getOrDefault("wordsStudied", 0);
         int games = payload.getOrDefault("gamesPlayed", 0);
-        int coins = payload.getOrDefault("coinsEarned", 0);
-        if (words < 0 || games < 0 || coins < 0) {
+        if (words < 0 || games < 0) {
             return ResponseEntity.badRequest().body(Map.of("error", "Giá trị không được âm"));
         }
-        if (words > 1000 || games > 100 || coins > 10000) {
+        if (words > 1000 || games > 100) {
             return ResponseEntity.badRequest().body(Map.of("error", "Giá trị vượt quá giới hạn cho phép"));
         }
         
-        return ResponseEntity.ok(streakService.checkin(userPrincipal.getId(), words, games, coins));
+        return ResponseEntity.ok(streakService.checkin(userPrincipal.getId(), words, games));
     }
 
     @GetMapping("/history")

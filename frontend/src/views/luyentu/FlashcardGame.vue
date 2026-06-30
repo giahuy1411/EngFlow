@@ -63,7 +63,6 @@
         <GameResult 
           :correct="words.length" 
           :total="words.length" 
-          :coins="earnedCoins"
           @continue="loadDueWords" 
           @back="$router.push(`/decks/${deckId}`)" 
         />
@@ -102,7 +101,7 @@ const currentIndex = ref(0)
 const isFlipped = ref(false)
 const loading = ref(true)
 const sessionComplete = ref(false)
-const earnedCoins = ref(0)
+
 
 const currentWord = computed(() => words.value[currentIndex.value])
 
@@ -115,7 +114,7 @@ const loadDueWords = async () => {
   sessionComplete.value = false
   currentIndex.value = 0
   isFlipped.value = false
-  earnedCoins.value = 0
+
   
   try {
     const data = await srsService.getDueWords(deckId)
@@ -146,11 +145,8 @@ const rateWord = async (quality) => {
 }
 
 const finishSession = async () => {
-  const coins = Math.max(5, words.value.length)
-  earnedCoins.value = coins
-  
   try {
-    await streakService.checkin(words.value.length, 1, coins)
+    await streakService.checkin(words.value.length, 1)
   } catch (error) {
     console.error("Error checking in", error)
   }

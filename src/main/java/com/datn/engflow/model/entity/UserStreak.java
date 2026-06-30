@@ -39,9 +39,6 @@ public class UserStreak {
     @Column(name = "games_played")
     private Integer gamesPlayed = 0;
 
-    @Builder.Default
-    @Column(name = "coins_earned")
-    private Integer coinsEarned = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
