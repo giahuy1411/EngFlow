@@ -8,7 +8,6 @@ import com.datn.engflow.model.dto.request.RegisterRequest;
 import com.datn.engflow.model.dto.response.UserResponse;
 import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.enums.LessonLevel;
-import com.datn.engflow.model.enums.UserRole;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,7 @@ public class UserService {
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
-                .role(UserRole.USER)
+                .isAdmin(false)
                 .currentLevel(LessonLevel.ELEMENTARY)
                 .avatarUrl("https://api.dicebear.com/7.x/adventurer/svg?seed=" + request.getUsername())
                 .totalPoints(0)
@@ -60,7 +59,7 @@ public class UserService {
         User savedUser = userRepository.save(user);
         log.info("\u0110\u0103ng k\u00fd th\u00e0nh c\u00f4ng user: id={}, t\u1ef1 \u0111\u1ed9ng t\u1ea1o token \u0111\u0103ng nh\u1eadp", savedUser.getId());
 
-        String jwt = tokenProvider.generateToken(savedUser.getEmail(), savedUser.getRole().name());
+        String jwt = tokenProvider.generateToken(savedUser.getEmail(), Boolean.TRUE.equals(savedUser.getIsAdmin()) ? "ADMIN" : "USER");
         return mapToUserResponse(savedUser, jwt);
     }
 
@@ -76,9 +75,9 @@ public class UserService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
 
-        String jwt = tokenProvider.generateToken(user.getEmail(), user.getRole().name());
+        String jwt = tokenProvider.generateToken(user.getEmail(), Boolean.TRUE.equals(user.getIsAdmin()) ? "ADMIN" : "USER");
 
-        log.info("\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng cho user: id={}, role={}", user.getId(), user.getRole());
+        log.info("\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng cho user: id={}, isAdmin={}", user.getId(), user.getIsAdmin());
         return mapToUserResponse(user, jwt);
     }
 
@@ -124,7 +123,7 @@ public class UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
-                .role(user.getRole().name())
+                .role(Boolean.TRUE.equals(user.getIsAdmin()) ? "ADMIN" : "USER")
                 .currentLevel(user.getCurrentLevel().name())
                 .totalPoints(user.getTotalPoints())
                 .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)

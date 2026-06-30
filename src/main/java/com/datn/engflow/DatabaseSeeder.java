@@ -86,15 +86,15 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private void ensureDefaultUsers() {
         ensureUserExists("user@gmail.com", "student", "123456", "Học Viên Mẫu", 
-                com.datn.engflow.model.enums.UserRole.USER, com.datn.engflow.model.enums.LessonLevel.ELEMENTARY, 
+                false, com.datn.engflow.model.enums.LessonLevel.ELEMENTARY, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=student");
         ensureUserExists("admin@gmail.com", "administrator", "123456", "Quản Trị Viên", 
-                com.datn.engflow.model.enums.UserRole.ADMIN, com.datn.engflow.model.enums.LessonLevel.UPPER_INTERMEDIATE, 
+                true, com.datn.engflow.model.enums.LessonLevel.UPPER_INTERMEDIATE, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=admin");
     }
 
     private void ensureUserExists(String email, String username, String password, String fullName, 
-                                  com.datn.engflow.model.enums.UserRole role, 
+                                  boolean isAdmin, 
                                   com.datn.engflow.model.enums.LessonLevel level, 
                                   String avatarUrl) {
         userRepository.findByEmail(email).ifPresentOrElse(
@@ -103,7 +103,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 user.setPasswordHash(passwordEncoder.encode(password));
                 user.setUsername(username);
                 user.setFullName(fullName);
-                user.setRole(role);
+                user.setIsAdmin(isAdmin);
                 user.setCurrentLevel(level);
                 user.setAvatarUrl(avatarUrl);
                 userRepository.save(user);
@@ -116,7 +116,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .passwordHash(passwordEncoder.encode(password))
                         .fullName(fullName)
                         .avatarUrl(avatarUrl)
-                        .role(role)
+                        .isAdmin(isAdmin)
                         .currentLevel(level)
                         .totalPoints(0)
                         .isActive(true)

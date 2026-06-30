@@ -23,7 +23,7 @@ public class UserPrincipal implements UserDetails {
         this.password = user.getPasswordHash();
         this.active = user.getIsActive();
         this.authorities = Collections.singletonList(
-            new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+            new SimpleGrantedAuthority(Boolean.TRUE.equals(user.getIsAdmin()) ? "ROLE_ADMIN" : "ROLE_USER")
         );
     }
 

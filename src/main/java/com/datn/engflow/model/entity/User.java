@@ -1,7 +1,6 @@
 package com.datn.engflow.model.entity;
 
 import com.datn.engflow.model.enums.LessonLevel;
-import com.datn.engflow.model.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,12 +36,8 @@ public class User {
     @Column(name = "full_name", length = 100)
     private String fullName;
 
-    @Column(name = "avatar_url", length = 500)
+    @Column(name = "avatar_url", length = 300)
     private String avatarUrl;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private UserRole role;
 
     @Builder.Default
     @Column(name = "is_admin")
@@ -56,9 +51,6 @@ public class User {
     @Column(name = "total_points")
     private Integer totalPoints = 0;
 
-    @Builder.Default
-    @Column(name = "coins")
-    private Integer coins = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

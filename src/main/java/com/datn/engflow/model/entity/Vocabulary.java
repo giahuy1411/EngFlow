@@ -30,7 +30,7 @@ public class Vocabulary {
     private String word;
 
     @org.hibernate.annotations.Nationalized
-    @Column(length = 100)
+    @Column(length = 50)
     private String pronunciation;
 
     @org.hibernate.annotations.Nationalized
