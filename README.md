@@ -19,12 +19,12 @@ Mở terminal tại thư mục gốc của dự án và chạy lệnh sau để 
 ```bash
 docker-compose up -d
 ```
-*Lưu ý: SQL Server sẽ chạy trên port `1433` và Redis chạy trên port `6379`.*
+*Lưu ý: SQL Server sẽ chạy trên port `1434` (host) và Redis chạy trên port `6379`.*
 
 ### Bước 2: Tạo Cơ Sở Dữ Liệu `english_learning`
 Do SQL Server JDBC không tự động tạo database mới, bạn cần kết nối vào SQL Server và tạo cơ sở dữ liệu tên là `english_learning`.
 Bạn có thể dùng công cụ như Azure Data Studio, DBeaver hoặc SSMS kết nối bằng thông tin sau:
-- **Host:** `localhost,1433`
+- **Host:** `localhost,1434`
 - **Username:** `sa`
 - **Password:** `YourPassword123`
 

@@ -47,6 +47,9 @@ frontend/dist/
 *.err
 vite-*.txt
 
+# Docs
+docs/
+
 # Temporary & Debug Files
 .brave-debug-user-data/
 chrome-wrapper.*
