@@ -87,7 +87,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Check as CheckIcon } from 'lucide-vue-next'
 import srsService from '@/services/srsService'
-import streakService from '@/services/streakService'
 import FlashcardFlip from '@/components/bauhaus/FlashcardFlip.vue'
 import GameResult from '@/components/bauhaus/GameResult.vue'
 import { useToast } from '@/composables/useToast'
@@ -145,12 +144,6 @@ const rateWord = async (quality) => {
 }
 
 const finishSession = async () => {
-  try {
-    await streakService.checkin(words.value.length, 1)
-  } catch (error) {
-    console.error("Error checking in", error)
-  }
-  
   sessionComplete.value = true
 }
 </script>

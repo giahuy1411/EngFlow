@@ -69,7 +69,7 @@ const calendarDays = computed(() => {
 
 const isStudied = (date) => {
   const dateStr = date.toISOString().split('T')[0]
-  return props.history.some(h => h?.studyDate?.startsWith(dateStr) && h.wordsStudied > 0)
+  return props.history.includes(dateStr)
 }
 
 const isPast = (date) => {

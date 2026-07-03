@@ -17,25 +17,6 @@ public class StreakController {
 
     private final StreakService streakService;
 
-    @PostMapping("/checkin")
-    public ResponseEntity<?> checkin(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestBody Map<String, Integer> payload) {
-        if (userPrincipal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        int words = payload.getOrDefault("wordsStudied", 0);
-        int games = payload.getOrDefault("gamesPlayed", 0);
-        if (words < 0 || games < 0) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Giá trị không được âm"));
-        }
-        if (words > 1000 || games > 100) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Giá trị vượt quá giới hạn cho phép"));
-        }
-        
-        return ResponseEntity.ok(streakService.checkin(userPrincipal.getId(), words, games));
-    }
-
     @GetMapping("/history")
     public ResponseEntity<?> getStreakHistory(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -43,7 +24,7 @@ public class StreakController {
         if (userPrincipal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(streakService.getStreakHistory(userPrincipal.getId(), days));
+        return ResponseEntity.ok(streakService.getLoginDays(userPrincipal.getId(), days));
     }
 
     @GetMapping("/current")

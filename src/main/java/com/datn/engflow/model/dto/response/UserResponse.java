@@ -21,6 +21,6 @@ public class UserResponse {
     private String currentLevel;
     private Integer totalPoints;
     private Integer currentStreak;
-    private String lastStudyDate;
+    private String lastLoginAt;
     private String token;
 }

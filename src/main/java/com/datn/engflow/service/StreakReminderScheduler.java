@@ -24,7 +24,7 @@ public class StreakReminderScheduler {
     public void sendDailyStreakReminders() {
         log.info("Starting daily streak reminder job...");
 
-        List<User> usersToRemind = streakService.getUsersWhoDidNotStudyToday();
+        List<User> usersToRemind = streakService.getUsersWhoHaveNotLoggedInFor24Hours();
         
         if (usersToRemind.isEmpty()) {
             log.info("No users need reminding today. Everyone studied! Awesome.");

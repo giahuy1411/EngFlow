@@ -29,6 +29,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final StreakService streakService;
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -77,18 +78,25 @@ public class UserService {
 
         String jwt = tokenProvider.generateToken(user.getEmail(), Boolean.TRUE.equals(user.getIsAdmin()) ? "ADMIN" : "USER");
 
+        streakService.recordAccess(user.getId());
+        user = userRepository.findById(user.getId()).orElse(user);
+
         log.info("\u0110\u0103ng nh\u1eadp th\u00e0nh c\u00f4ng cho user: id={}, isAdmin={}", user.getId(), user.getIsAdmin());
         return mapToUserResponse(user, jwt);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserResponse getProfile(String email) {
         log.info("L\u1ea5y th\u00f4ng tin profile cho email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         if (!user.getIsActive()) {
-            throw new BadRequestException("T\u00e0i kho\u1ea3n \u0111\u00e3 b\u1ecb v\u00f4 hi\u1ec7u h\u00f3a");
+            throw new BadRequestException("T\u00e0i kho\u1ea3n \u0111\u0103 b\u1ecb v\u00f4 hi\u1ec7u h\u00f3a");
         }
+        
+        streakService.recordAccess(user.getId());
+        user = userRepository.findById(user.getId()).orElse(user);
+        
         return mapToUserResponse(user, null);
     }
 
@@ -127,7 +135,7 @@ public class UserService {
                 .currentLevel(user.getCurrentLevel().name())
                 .totalPoints(user.getTotalPoints())
                 .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)
-                .lastStudyDate(user.getLastStudyDate() != null ? user.getLastStudyDate().toString() : null)
+                .lastLoginAt(user.getLastStudyDate() != null ? user.getLastStudyDate().toString() : null)
                 .token(token)
                 .build();
     }

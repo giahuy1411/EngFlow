@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    // Get active users who have not studied today (lastStudyDate is null or before today)
-    @Query("SELECT u FROM User u WHERE u.isActive = true AND (u.lastStudyDate IS NULL OR u.lastStudyDate < :today)")
-    List<User> findUsersWhoDidNotStudyToday(@Param("today") LocalDate today);
+    // Get active users who have not logged in within the given time threshold
+    @Query("SELECT u FROM User u WHERE u.isActive = true AND (u.lastStudyDate IS NULL OR u.lastStudyDate < :threshold)")
+    List<User> findUsersWhoHaveNotLoggedInSince(@Param("threshold") LocalDate threshold);
 }
