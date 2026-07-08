@@ -1,85 +1,68 @@
 <template>
-  <div class="flex-grow flex items-center justify-center px-4 py-12 bg-background" style="min-height: calc(100vh - 5rem);">
-    <div class="w-full max-w-md">
-      <!-- Error message -->
-      <div v-if="error" class="bg-primary-red text-white font-bold text-sm uppercase tracking-wider px-4 py-3 border-2 border-black shadow-hard-sm mb-6" role="alert">
-        {{ error }}
-      </div>
+  <div class="min-h-screen bg-geo-bg flex items-center justify-center py-16 relative overflow-hidden">
+    <!-- Decorative shapes -->
+    <div class="absolute top-20 left-10 w-24 h-24 bg-accent/10 rounded-full border-2 border-foreground/10"></div>
+    <div class="absolute bottom-32 right-16 w-32 h-32 bg-tertiary/10 rounded-full border-2 border-foreground/10"></div>
+    <div class="absolute top-1/3 right-1/4 w-12 h-12 bg-secondary/10 rounded-md border-2 border-foreground/10 rotate-12"></div>
 
-      <div class="bg-white border-4 border-black shadow-hard-lg p-8 relative">
-        <!-- Geometric corner decoration -->
-        <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-yellow border-2 border-black rounded-full"></div>
-        <div class="absolute -bottom-3 -left-3 w-4 h-4 bg-primary-blue border-2 border-black"></div>
+    <div class="w-full max-w-md px-4 relative z-10">
+      <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-14 h-14 bg-accent rounded-full border-2 border-foreground mb-4 shadow-pop-sm animate-pop-in">
+            <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+          </div>
+          <h1 class="font-black text-3xl uppercase tracking-tight">Đăng nhập</h1>
+          <p class="font-medium text-sm text-muted-foreground mt-2">Chào mừng bạn trở lại!</p>
+        </div>
 
-        <h1 class="font-black text-4xl md:text-5xl uppercase tracking-tight mb-8">
-          Đăng<br />Nhập
-        </h1>
-
-        <form @submit.prevent="handleLogin" novalidate class="space-y-6">
-          <!-- Email field -->
+        <!-- Form -->
+        <form @submit.prevent="handleLogin" class="space-y-5">
           <div>
-            <label for="login-email" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Email
-            </label>
-            <input
-              id="login-email"
-              v-model="form.email"
-              type="email"
-              autocomplete="email"
-              :class="[
-                'w-full px-4 py-3 border-2 border-black bg-background font-sans text-base',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2',
-                errors.email ? 'bg-red-50 border-primary-red' : ''
-              ]"
-              placeholder="email@domain.com"
-              @input="errors.email = ''"
-              @blur="validateField('email')"
+            <label for="login-email" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Email</label>
+            <input id="login-email" v-model="email" type="email" placeholder="your@email.com" required
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
             />
-            <p v-if="errors.email" class="mt-1 text-primary-red font-bold text-xs uppercase tracking-wider">{{ errors.email }}</p>
+          </div>
+          <div>
+            <label for="login-password" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Mật khẩu</label>
+            <input id="login-password" v-model="password" type="password" placeholder="••••••••" required
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            />
           </div>
 
-          <!-- Password field -->
-          <div>
-            <label for="login-password" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Mật khẩu
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" v-model="remember" class="w-4 h-4 border-2 border-foreground rounded-sm accent-accent" />
+              <span class="font-bold text-xs uppercase tracking-wider">Ghi nhớ</span>
             </label>
-            <input
-              id="login-password"
-              v-model="form.password"
-              type="password"
-              autocomplete="current-password"
-              :class="[
-                'w-full px-4 py-3 border-2 border-black bg-background font-sans text-base',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2',
-                errors.password ? 'bg-red-50 border-primary-red' : ''
-              ]"
-              placeholder="••••••••"
-              @input="errors.password = ''"
-              @blur="validateField('password')"
-            />
-            <p v-if="errors.password" class="mt-1 text-primary-red font-bold text-xs uppercase tracking-wider">{{ errors.password }}</p>
+            <router-link to="/forgot-password" class="font-bold text-xs uppercase tracking-wider text-accent hover:underline">
+              Quên mật khẩu?
+            </router-link>
           </div>
 
-          <!-- Submit button -->
-          <BauhausButton
-            variant="primary"
-            shape="square"
-            size="lg"
-            type="submit"
-            :disabled="loading"
-            class="w-full justify-center text-lg"
+          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-secondary text-center">{{ error }}</p>
+
+          <button type="submit" :disabled="loading"
+            class="w-full py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <span v-if="loading" class="animate-spin mr-2 inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
-            {{ loading ? 'ĐANG XỬ LÝ...' : 'ĐĂNG NHẬP' }}
-          </BauhausButton>
+            <span v-if="loading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span v-else>Đăng nhập</span>
+          </button>
         </form>
 
-        <!-- Footer link -->
-        <p class="mt-6 text-center font-bold text-sm uppercase tracking-wider text-foreground/60">
+        <!-- Divider -->
+        <div class="flex items-center gap-3 my-6">
+          <div class="flex-1 h-0.5 bg-border"></div>
+          <span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Hoặc</span>
+          <div class="flex-1 h-0.5 bg-border"></div>
+        </div>
+
+        <p class="text-center font-bold text-sm text-muted-foreground">
           Chưa có tài khoản?
-          <router-link to="/register" class="text-primary-red hover:text-primary-red/80 underline decoration-2 underline-offset-2 ml-1">
-            Đăng ký ngay
-          </router-link>
+          <router-link to="/register" class="text-accent hover:underline">Đăng ký</router-link>
         </p>
       </div>
     </div>
@@ -87,70 +70,26 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
-import BauhausButton from '@/components/bauhaus/BauhausButton.vue'
+import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const auth = useAuthStore()
-
+const router = useRouter()
+const email = ref('')
+const password = ref('')
+const remember = ref(false)
 const loading = ref(false)
-const error = ref(null)
-const form = reactive({ email: '', password: '' })
-const errors = reactive({ email: '', password: '' })
-
-function validateField(field) {
-  if (field === 'email') {
-    if (!form.email) {
-      errors.email = 'Email không được để trống'
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      errors.email = 'Email không đúng định dạng'
-    } else {
-      errors.email = ''
-    }
-  }
-  if (field === 'password') {
-    if (form.password.length < 6) {
-      errors.password = 'Mật khẩu phải chứa ít nhất 6 ký tự'
-    } else {
-      errors.password = ''
-    }
-  }
-}
-
-function validate() {
-  let valid = true
-
-  if (!form.email) {
-    errors.email = 'Email không được để trống'
-    valid = false
-  } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-    errors.email = 'Email không đúng định dạng'
-    valid = false
-  } else {
-    errors.email = ''
-  }
-
-  if (form.password.length < 6) {
-    errors.password = 'Mật khẩu phải chứa ít nhất 6 ký tự'
-    valid = false
-  } else {
-    errors.password = ''
-  }
-
-  return valid
-}
+const error = ref('')
 
 async function handleLogin() {
-  if (!validate()) return
+  error.value = ''
   loading.value = true
-  error.value = null
   try {
-    await auth.login(form)
+    await auth.login({ email: email.value, password: password.value, remember: remember.value })
     router.push('/lessons')
   } catch (e) {
-    error.value = e.response?.data?.error || 'Email hoặc mật khẩu không chính xác'
+    error.value = e.response?.data?.message || 'Đăng nhập thất bại'
   } finally {
     loading.value = false
   }

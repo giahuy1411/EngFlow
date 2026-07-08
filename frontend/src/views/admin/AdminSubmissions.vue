@@ -1,26 +1,27 @@
 <template>
   <div class="space-y-8">
     <!-- Header -->
-    <div class="bg-primary-blue border-4 border-black p-8 shadow-[6px_6px_0px_0px_black] text-white">
+    <div class="bg-secondary border-2 border-foreground p-8 shadow-pop-lg text-foreground rounded-md relative overflow-hidden">
+      <div class="absolute -right-6 -bottom-6 w-24 h-24 border-2 border-foreground/10 rounded-md pointer-events-none"></div>
       <h2 class="font-black text-4xl uppercase tracking-tighter mb-2">Chấm điểm bài học</h2>
-      <p class="font-bold text-sm uppercase bg-white text-black inline-block px-3 py-1 border-2 border-black">
+      <p class="font-black text-sm uppercase bg-white text-black inline-block px-3 py-1 border-2 border-black rounded-md">
         Quản lý bài nộp Viết & Nói của học viên
       </p>
     </div>
 
     <!-- Filter Tabs -->
-    <div class="flex gap-4 border-b-4 border-black pb-4">
+    <div class="flex gap-4 border-b-2 border-black pb-4">
       <button 
         @click="filterStatus = 'PENDING'"
-        class="px-6 py-3 border-4 border-black font-black uppercase text-sm tracking-wider transition-all duration-150"
-        :class="filterStatus === 'PENDING' ? 'bg-primary-yellow shadow-[4px_4px_0px_0px_black] -translate-y-1' : 'bg-white hover:bg-gray-100'"
+        class="px-6 py-3 border-2 border-foreground font-black uppercase text-sm tracking-wider rounded-md transition-all duration-150"
+        :class="filterStatus === 'PENDING' ? 'bg-tertiary shadow-pop -translate-y-1' : 'bg-white hover:bg-tertiary/20 hover:shadow-pop-sm'"
       >
         Chờ chấm điểm ({{ pendingSubmissions.length }})
       </button>
       <button 
         @click="filterStatus = 'GRADED'"
-        class="px-6 py-3 border-4 border-black font-black uppercase text-sm tracking-wider transition-all duration-150"
-        :class="filterStatus === 'GRADED' ? 'bg-primary-blue text-white shadow-[4px_4px_0px_0px_black] -translate-y-1' : 'bg-white hover:bg-gray-100'"
+        class="px-6 py-3 border-2 border-foreground font-black uppercase text-sm tracking-wider rounded-md transition-all duration-150"
+        :class="filterStatus === 'GRADED' ? 'bg-secondary text-foreground shadow-pop -translate-y-1' : 'bg-white hover:bg-secondary/20 hover:shadow-pop-sm'"
       >
         Đã chấm điểm ({{ gradedSubmissions.length }})
       </button>
@@ -31,12 +32,12 @@
       
       <!-- Submissions List (Left/Mid Column) -->
       <div class="lg:col-span-2 space-y-6">
-        <div v-if="loading" class="text-center py-12 bg-white border-4 border-black border-dashed">
-          <LoaderIcon class="w-10 h-10 animate-spin mx-auto text-primary-red mb-3" />
+        <div v-if="loading" class="text-center py-12 bg-white border-2 border-foreground border-dashed rounded-md shadow-pop">
+          <LoaderIcon class="w-10 h-10 animate-spin mx-auto text-accent mb-3" />
           <p class="font-bold uppercase tracking-wider text-sm">Đang tải danh sách...</p>
         </div>
 
-        <div v-else-if="filteredSubmissions.length === 0" class="text-center py-12 bg-white border-4 border-black border-dashed">
+        <div v-else-if="filteredSubmissions.length === 0" class="text-center py-12 bg-white border-2 border-foreground border-dashed rounded-md shadow-pop">
           <p class="font-bold uppercase tracking-wider text-sm text-gray-500 mb-0">Không có bài nộp nào phù hợp.</p>
         </div>
 
@@ -44,12 +45,12 @@
           <div 
             v-for="sub in filteredSubmissions" 
             :key="sub.id"
-            class="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_black] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_black] transition-all cursor-pointer relative"
-            :class="{ 'border-primary-red': selectedSubmission && selectedSubmission.id === sub.id }"
+            class="bg-white border-2 border-foreground p-6 shadow-pop hover:-translate-y-1 hover:shadow-pop-lg rounded-md transition-all cursor-pointer relative"
+            :class="{ 'border-accent shadow-pop-lg bg-accent/5': selectedSubmission && selectedSubmission.id === sub.id }"
             @click="selectSubmission(sub)"
           >
             <!-- Badge -->
-            <span class="absolute top-4 right-4 border-2 border-black px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider" :class="skillBadgeClass(sub.skillType)">
+            <span class="absolute top-4 right-4 text-xs font-black uppercase tracking-wider px-2.5 py-0.5" :class="skillBadgeClass(sub.skillType)">
               {{ sub.skillType === 'WRITING' ? 'VIẾT' : 'NÓI' }}
             </span>
 
@@ -58,10 +59,10 @@
             
             <div class="flex justify-between items-end border-t-2 border-black pt-4">
               <span class="font-mono text-xs text-gray-500 font-bold">{{ formatDate(sub.createdAt) }}</span>
-              <span v-if="sub.status === 'GRADED'" class="font-black text-sm uppercase text-foreground bg-primary-yellow/20 border-2 border-black px-2 py-1">
+              <span v-if="sub.status === 'GRADED'" class="font-black text-sm uppercase text-foreground bg-tertiary/30 border-2 border-black px-2.5 py-1 rounded-md">
                 ĐÃ CHẤM: {{ sub.score }}/10
               </span>
-              <span v-else class="font-black text-sm uppercase text-foreground bg-primary-red/10 border-2 border-black px-2 py-1">
+              <span v-else class="font-black text-sm uppercase text-foreground bg-accent/20 border-2 border-black px-2.5 py-1 rounded-md">
                 CHỜ CHẤM ĐIỂM
               </span>
             </div>
@@ -70,8 +71,8 @@
       </div>
 
       <!-- Grading Detail / Form (Right Column) -->
-      <div class="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_black] relative h-fit">
-        <h3 class="font-black text-2xl uppercase tracking-tighter mb-6 border-b-4 border-black pb-3">Chi tiết chấm điểm</h3>
+      <div class="bg-white border-2 border-foreground p-6 shadow-pop-lg relative h-fit rounded-md overflow-hidden">
+        <h3 class="font-black text-2xl uppercase tracking-tighter mb-6 border-b-2 border-black pb-3">Chi tiết chấm điểm</h3>
 
         <div v-if="!selectedSubmission" class="text-center py-12 text-gray-500 font-bold uppercase text-xs">
           Chọn một bài nộp bên trái để chấm điểm
@@ -87,13 +88,13 @@
           <div>
             <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-1">Bài học & Kỹ năng</span>
             <p class="font-bold text-sm mb-1">{{ selectedSubmission.lessonTitle }}</p>
-            <span class="border-2 border-black px-2 py-0.5 text-xs font-black uppercase" :class="skillBadgeClass(selectedSubmission.skillType)">
+            <span class="text-xs font-black uppercase px-2 py-0.5" :class="skillBadgeClass(selectedSubmission.skillType)">
               {{ selectedSubmission.skillType }}
             </span>
           </div>
 
           <!-- Submitted Content Display -->
-          <div class="border-4 border-black p-4 bg-gray-50">
+          <div class="border-2 border-foreground p-4 bg-accent/10 rounded-md">
             <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-2">Nội dung học viên nộp</span>
             
             <!-- Writing Content -->
@@ -103,18 +104,18 @@
 
             <!-- Speaking Content (Audio Player) -->
             <div v-if="selectedSubmission.skillType === 'SPEAKING' && selectedSubmission.audioUrl" class="space-y-3">
-              <div class="flex items-center gap-3 bg-white p-3 border-2 border-black shadow-[2px_2px_0px_0px_black]">
+              <div class="flex items-center gap-3 bg-white p-3 border-2 border-foreground shadow-pop-sm rounded-md">
                 <button 
                   @click="playSpeaking" 
-                  class="w-10 h-10 flex items-center justify-center bg-primary-red border-2 border-black text-white font-black text-lg hover:scale-105 active:scale-95 transition-transform"
+                  class="w-10 h-10 flex items-center justify-center bg-accent border-2 border-foreground text-white font-black text-lg rounded-md shadow-pop-sm hover:scale-105 active:scale-95 transition-transform shrink-0"
                 >
                     <span v-if="playing" class="w-4 h-0.5 bg-white"></span>
                     <span v-else class="w-0 h-0 border-l-[10px] border-l-white border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent ml-0.5"></span>
                 </button>
                 <div class="flex-1 min-w-0">
                   <div class="font-bold text-xs uppercase tracking-wider truncate mb-1">Bản ghi giọng nói</div>
-                  <div class="w-full h-1.5 bg-gray-200 border border-black cursor-pointer relative" @click="seekAudio">
-                    <div class="h-full bg-primary-yellow border-r border-black" :style="{ width: audioProgress + '%' }"></div>
+                  <div class="w-full h-1.5 bg-gray-200 border-2 border-black rounded-full cursor-pointer relative overflow-hidden" @click="seekAudio">
+                    <div class="h-full bg-tertiary border-r-2 border-black" :style="{ width: audioProgress + '%' }"></div>
                   </div>
                 </div>
               </div>
@@ -122,7 +123,7 @@
           </div>
 
           <!-- Grading Form -->
-          <form @submit.prevent="submitGrade" class="space-y-4 border-t-4 border-black pt-4">
+          <form @submit.prevent="submitGrade" class="space-y-4 border-t-2 border-black pt-4">
             <div>
               <label class="block text-xs font-black uppercase tracking-wider mb-2">Điểm số (0.0 - 10.0)</label>
               <input 
@@ -132,7 +133,7 @@
                 max="10" 
                 v-model.number="gradeScore"
                 required
-                class="w-full p-3 border-4 border-black font-black text-lg focus:outline-none focus:ring-0 shadow-[3px_3px_0px_0px_black]"
+                class="w-full p-3 border-2 border-foreground font-black text-lg focus:outline-none focus:ring-0 shadow-pop-sm rounded-md focus:bg-accent/5"
                 placeholder="Nhập điểm..."
               />
             </div>
@@ -142,7 +143,7 @@
               <textarea 
                 rows="4" 
                 v-model="gradeFeedback"
-                class="w-full p-3 border-4 border-black font-medium text-sm focus:outline-none focus:ring-0 shadow-[3px_3px_0px_0px_black]"
+                class="w-full p-3 border-2 border-foreground font-medium text-sm focus:outline-none focus:ring-0 shadow-pop-sm rounded-md focus:bg-accent/5"
                 placeholder="Nhập nhận xét..."
               ></textarea>
             </div>
@@ -150,7 +151,7 @@
             <button 
               type="submit" 
               :disabled="grading"
-              class="w-full py-4 bg-primary-red text-white border-4 border-black font-black uppercase tracking-widest text-sm hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_black] active:translate-y-0.5 active:shadow-none transition-all shadow-[2px_2px_0px_0px_black] disabled:opacity-50"
+              class="w-full py-4 bg-accent text-white border-2 border-foreground font-black uppercase tracking-widest text-sm rounded-md hover:-translate-y-0.5 hover:shadow-pop active:translate-y-0.5 active:shadow-none transition-all shadow-pop-sm disabled:opacity-50"
             >
               {{ grading ? 'ĐANG LƯU...' : 'XÁC NHẬN CHẤM ĐIỂM' }}
             </button>
@@ -290,7 +291,7 @@ const stopAudio = () => {
 }
 
 const skillBadgeClass = (skillType) => {
-  return skillType === 'WRITING' ? 'bg-primary-blue/15 text-primary-blue' : 'bg-primary-red/15 text-primary-red'
+  return skillType === 'WRITING' ? 'bg-secondary border-2 border-black text-foreground rounded-lg' : 'bg-accent border-2 border-black text-white rounded-lg'
 }
 
 const formatDate = (dateStr) => {

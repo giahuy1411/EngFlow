@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 bg-primary-yellow border-4 border-foreground flex items-center justify-center">
+        <div class="w-10 h-10 bg-tertiary border-2 border-foreground flex items-center justify-center rounded-md">
           <BookOpenIcon class="w-5 h-5 text-foreground" />
         </div>
         <div>
@@ -11,38 +11,38 @@
         </div>
       </div>
       <button @click="openModal()"
-              class="flex items-center gap-2 bg-primary-yellow border-4 border-foreground px-5 py-3 font-bold uppercase text-sm tracking-wider text-foreground
-                     shadow-[4px_4px_0px_0px_black] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_black]
-                     active:translate-x-1 active:translate-y-1 active:shadow-none transition-all duration-200">
+              class="flex items-center gap-2 bg-tertiary border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-foreground rounded-md
+                     shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
+                     active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
         <PlusIcon class="w-4 h-4" />
         Thêm Bài Học
       </button>
     </div>
 
     <!-- Level filter -->
-    <div class="flex flex-wrap gap-2 px-6 py-3 bg-white border-4 border-foreground border-b-0 shadow-[8px_8px_0px_0px_black]">
+    <div class="flex flex-wrap gap-2 px-6 py-3 bg-white border-2 border-foreground border-b-0 shadow-pop-lg rounded-t-3xl">
       <button @click="levelFilter = ''"
-              class="px-3 py-1 border-2 border-foreground font-bold uppercase text-xs tracking-wider transition-all"
-              :class="levelFilter === '' ? 'bg-foreground text-white' : 'bg-white hover:bg-gray-100'">
+              class="px-3 py-1.5 border-2 border-foreground rounded-md font-bold uppercase text-xs tracking-wider transition-all shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+              :class="levelFilter === '' ? 'bg-foreground text-white' : 'bg-white hover:bg-tertiary/20'">
         Tất cả
       </button>
       <button v-for="lv in levels" :key="lv"
               @click="levelFilter = lv"
-              class="px-3 py-1 border-2 border-foreground font-bold uppercase text-xs tracking-wider transition-all"
-              :class="levelFilter === lv ? 'bg-foreground text-white' : 'bg-white hover:bg-gray-100'">
+              class="px-3 py-1.5 border-2 border-foreground rounded-md font-bold uppercase text-xs tracking-wider transition-all shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+              :class="levelFilter === lv ? 'bg-foreground text-white' : 'bg-white hover:bg-tertiary/20'">
         {{ displayLevel(lv) }}
       </button>
     </div>
 
-    <div class="border-4 border-foreground bg-white shadow-[8px_8px_0px_0px_black] overflow-hidden" style="border-top:0">
-      <div class="bg-foreground border-b-4 border-foreground px-6 py-3 flex items-center gap-3">
-        <div class="w-2 h-2 bg-primary-yellow rotate-45"></div>
+    <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-b-3xl overflow-hidden" style="border-top:0">
+      <div class="bg-foreground border-b-2 border-foreground px-6 py-3 flex items-center gap-3">
+        <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
         <span class="font-bold text-xs uppercase tracking-widest text-white/60">{{ filteredLessons.length }} bài học</span>
       </div>
 
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-gray-100 border-b-4 border-foreground font-bold uppercase text-xs tracking-wider">
+          <tr class="bg-accent/20 border-b-2 border-foreground font-black uppercase text-xs tracking-wider">
             <th class="p-4 border-r-2 border-foreground">Tiêu đề</th>
             <th class="p-4 border-r-2 border-foreground">Mô tả</th>
             <th class="p-4 border-r-2 border-foreground">Nội dung</th>
@@ -55,7 +55,7 @@
           <tr v-if="loading" class="border-b-2 border-foreground">
             <td colspan="6" class="p-12 text-center">
               <div class="flex items-center justify-center gap-3">
-                <div class="w-5 h-5 border-2 border-foreground border-t-primary-yellow rounded-full animate-spin"></div>
+                <div class="w-5 h-5 border-2 border-foreground border-t-tertiary rounded-full animate-spin"></div>
                 <span class="font-bold uppercase text-sm tracking-wider">Đang tải...</span>
               </div>
             </td>
@@ -64,7 +64,7 @@
             <td colspan="6" class="p-12 text-center font-bold uppercase text-sm tracking-wider text-gray-400">Chưa có bài học</td>
           </tr>
           <tr v-for="lesson in filteredLessons" :key="lesson.id"
-              class="border-b-2 border-foreground hover:bg-gray-50 transition-colors duration-150">
+              class="border-b-2 border-foreground hover:bg-accent/5 transition-colors duration-150">
             <td class="p-4 border-r-2 border-foreground font-bold">{{ lesson.title }}</td>
             <td class="p-4 border-r-2 border-foreground text-sm text-gray-500 truncate max-w-xs">{{ lesson.description || '—' }}</td>
             <td class="p-4 border-r-2 border-foreground text-sm text-gray-500 max-w-xs">
@@ -72,65 +72,65 @@
               <span v-else class="text-gray-300 italic">Trống</span>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
-              <span class="inline-block px-2 py-1 border-2 border-foreground text-xs font-bold uppercase tracking-wider"
+              <span class="inline-block px-2 py-1 border-2 border-foreground text-xs font-black uppercase tracking-wider"
                     :class="levelBadge(lesson.level)">{{ displayLevel(lesson.level) }}</span>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
-              <span :class="['inline-block px-3 py-1 border-2 border-foreground text-xs font-bold uppercase tracking-wider',
-                            lesson.isPublished ? 'bg-primary-blue text-white' : 'bg-foreground/10 text-foreground/70']">
+              <span :class="['inline-block px-3 py-1 border-2 border-foreground text-xs font-black uppercase tracking-wider rounded-md shadow-pop-sm',
+                            lesson.isPublished ? 'bg-quaternary text-foreground' : 'bg-foreground/10 text-foreground/70']">
                 {{ lesson.isPublished ? 'Có' : 'Không' }}
               </span>
             </td>
              <td class="p-4 text-center">
-               <div class="flex items-center justify-center gap-2">
-                  <button @click="$router.push('/admin/' + lesson.id + '/build')" aria-label="Xây dựng bài học"
-                          class="w-9 h-9 flex items-center justify-center bg-primary-yellow text-foreground border-2 border-foreground
-                                 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_black] transition-all duration-200
-                                 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                          title="Xây dựng nội dung">
-                    <LayersIcon class="w-4 h-4" />
-                 </button>
-                 <button @click="openModal(lesson)" aria-label="Sửa bài học"
-                          class="w-9 h-9 flex items-center justify-center bg-primary-blue text-white border-2 border-foreground
-                                 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_black] transition-all duration-200
-                                 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
-                    <EditIcon class="w-4 h-4" />
-                 </button>
-                 <button @click="deleteLesson(lesson.id)" aria-label="Xóa bài học"
-                          class="w-9 h-9 flex items-center justify-center bg-primary-red text-white border-2 border-foreground
-                                 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_black] transition-all duration-200
-                                 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
-                    <TrashIcon class="w-4 h-4" />
-                 </button>
-               </div>
+                <div class="flex items-center justify-center gap-2">
+                   <button @click="$router.push('/admin/' + lesson.id + '/build')" aria-label="Xây dựng bài học"
+                           class="w-9 h-9 flex items-center justify-center bg-tertiary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
+                                  hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
+                                  active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                           title="Xây dựng nội dung">
+                     <LayersIcon class="w-4 h-4" />
+                  </button>
+                  <button @click="openModal(lesson)" aria-label="Sửa bài học"
+                           class="w-9 h-9 flex items-center justify-center bg-secondary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
+                                  hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
+                                  active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                     <EditIcon class="w-4 h-4" />
+                  </button>
+                  <button @click="deleteLesson(lesson.id)" aria-label="Xóa bài học"
+                           class="w-9 h-9 flex items-center justify-center bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm
+                                  hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
+                                  active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                     <TrashIcon class="w-4 h-4" />
+                  </button>
+                </div>
              </td>
           </tr>
         </tbody>
       </table>
 
-      <div class="bg-gray-100 border-t-4 border-foreground px-6 py-3 flex justify-between items-center">
+      <div class="bg-accent/10 border-t-2 border-foreground px-6 py-3 flex justify-between items-center">
         <span class="font-bold text-xs uppercase tracking-wider text-gray-500">Tổng số: {{ lessons.length }}</span>
         <div class="flex gap-1">
-          <div class="w-2 h-2 bg-primary-yellow rotate-45"></div>
-          <div class="w-2 h-2 rounded-full bg-primary-red"></div>
-          <div class="w-2 h-2 bg-primary-blue"></div>
+          <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="w-2 h-2 bg-secondary rounded"></div>
         </div>
       </div>
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div class="bg-white border-4 border-foreground w-full max-w-lg shadow-[10px_10px_0px_0px_black] flex flex-col max-h-[90vh]">
-        <div class="bg-primary-yellow border-b-4 border-foreground p-5 flex items-center justify-between">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4">
+      <div class="bg-white border-2 border-foreground w-full max-w-lg shadow-pop-xl rounded-md flex flex-col max-h-[90vh] overflow-hidden">
+        <div class="bg-tertiary border-b-2 border-foreground p-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-foreground rotate-45"></div>
+            <div class="w-3 h-3 bg-foreground rotate-45 rounded"></div>
             <h3 class="font-black text-xl uppercase tracking-tighter text-foreground">
               {{ editingLesson ? 'Sửa Bài Học' : 'Thêm Bài Học Mới' }}
             </h3>
           </div>
           <button @click="closeModal"
-                  class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-foreground/10 text-foreground font-black text-lg
-                         hover:bg-foreground hover:text-white transition-colors">&times;</button>
+                  class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-white text-foreground font-black text-lg rounded-md shadow-pop-sm
+                         hover:bg-accent hover:text-white transition-colors">&times;</button>
         </div>
 
         <div class="p-6 overflow-y-auto">
@@ -138,12 +138,12 @@
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Tiêu đề *</label>
               <input v-model="formData.title" type="text" required
-                     class="w-full border-2 border-foreground p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-primary-blue focus:bg-white transition-all" />
+                     class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
             </div>
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Mô tả</label>
               <textarea v-model="formData.description" rows="3"
-                        class="w-full border-2 border-foreground p-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary-blue focus:bg-white transition-all"></textarea>
+                        class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all"></textarea>
             </div>
             
             <div>
@@ -152,13 +152,13 @@
                 <span class="text-[10px] lowercase text-gray-500 font-medium ml-2">(Chỉ dùng cho bài học cũ/clone)</span>
               </label>
               <textarea v-model="formData.content" rows="6" placeholder="<p>Nhập mã HTML tại đây...</p>"
-                        class="w-full border-2 border-foreground p-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary-blue focus:bg-white transition-all font-mono text-sm"></textarea>
+                        class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all font-mono text-sm"></textarea>
             </div>
 
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Cấp độ *</label>
               <select v-model="formData.level" required
-                      class="w-full border-2 border-foreground p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-primary-blue focus:bg-white transition-all appearance-none">
+                      class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all appearance-none">
                 <option value="ELEMENTARY">Elementary</option>
                 <option value="PRE_INTERMEDIATE">Pre-Intermediate</option>
                 <option value="INTERMEDIATE">Intermediate</option>
@@ -169,22 +169,21 @@
             <div class="flex items-center justify-between py-2">
               <label class="font-bold uppercase text-xs tracking-wider cursor-pointer">Xuất bản</label>
               <button type="button" @click="formData.isPublished = !formData.isPublished"
-                      class="relative w-12 h-7 border-2 border-foreground transition-colors duration-200"
-                      :class="formData.isPublished ? 'bg-primary-blue' : 'bg-foreground/10'">
-                <div :class="['absolute top-0.5 w-5 h-5 bg-white border-2 border-foreground transition-transform duration-200',
-                              formData.isPublished ? 'translate-x-6 left-0.5' : 'translate-x-0.5 left-0']"></div>
+                      class="relative w-12 h-7 border-2 border-foreground rounded-full transition-colors duration-200"
+                      :class="formData.isPublished ? 'bg-quaternary' : 'bg-foreground/10'">
+                <div :class="['absolute top-0.5 w-5 h-5 bg-white border-2 border-foreground rounded-full transition-transform duration-200',
+                              formData.isPublished ? 'translate-x-5 left-0.5' : 'translate-x-0.5 left-0']"></div>
               </button>
             </div>
 
-            <div class="flex justify-end gap-4 pt-6 border-t-4 border-foreground">
+            <div class="flex justify-end gap-4 pt-6 border-t-2 border-foreground">
               <button type="button" @click="closeModal"
-                      class="px-8 py-3 border-2 border-foreground font-bold uppercase text-sm tracking-wider hover:bg-gray-200 transition-colors">
+                      class="px-8 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                 Hủy
               </button>
               <button type="submit" :disabled="saving"
-                      class="px-8 py-3 bg-foreground text-white border-2 border-foreground font-bold uppercase text-sm tracking-wider
-                             shadow-[4px_4px_0px_0px_black] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_black]
-                             active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
+                      class="px-8 py-3 bg-quaternary text-foreground border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
+                             shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
                              transition-all duration-200 disabled:opacity-50">
                 {{ saving ? 'Đang lưu...' : 'Lưu lại' }}
               </button>
@@ -220,11 +219,11 @@ const displayLevel = (lv) => ({
 }[lv] || lv)
 
 const levelBadge = (lv) => ({
-  ELEMENTARY: 'bg-primary-blue text-white',
-  PRE_INTERMEDIATE: 'bg-primary-yellow text-foreground',
-  INTERMEDIATE: 'bg-primary-red text-white',
-  UPPER_INTERMEDIATE: 'bg-foreground text-white'
-}[lv] || 'bg-foreground/10')
+  ELEMENTARY: 'bg-secondary text-foreground rounded-md border-2 border-foreground',
+  PRE_INTERMEDIATE: 'bg-tertiary text-foreground rounded-md border-2 border-foreground',
+  INTERMEDIATE: 'bg-accent text-white rounded-md border-2 border-foreground',
+  UPPER_INTERMEDIATE: 'bg-secondary text-white rounded-md border-2 border-foreground'
+}[lv] || 'bg-foreground/10 border-2 border-foreground')
 
 const filteredLessons = computed(() =>
   levelFilter.value ? lessons.value.filter(l => l.level === levelFilter.value) : lessons.value

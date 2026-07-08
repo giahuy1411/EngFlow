@@ -1,59 +1,57 @@
 <template>
-  <div class="quiz-game w-full max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-180px)] flex items-center">
-    <div class="relative w-full aspect-video bg-background border-4 border-foreground shadow-hard-lg overflow-hidden">
-      <!-- Top bar -->
-      <div class="absolute top-0 left-0 right-0 flex justify-between items-center px-4 sm:px-6 py-3 z-10">
-        <button @click="$router.push(`/decks/${deckId}`)" class="text-sm sm:text-base font-bold text-foreground/50 hover:text-foreground uppercase border-b-2 border-transparent hover:border-foreground transition-colors">
-          &larr; Quit Session
-        </button>
-        <div class="font-black text-base sm:text-lg bg-primary-yellow border-2 border-foreground px-4 py-1" v-if="questions.length">
-          {{ currentIndex + 1 }} / {{ questions.length }}
+  <div class="bg-geo-bg min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Back -->
+      <router-link :to="'/decks/' + deckId"
+        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors mb-6"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Quay lại
+      </router-link>
+
+      <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-tertiary border-2 border-foreground rounded-full mb-6 shadow-pop-sm">
+          <HelpCircle class="w-8 h-8 text-foreground" />
         </div>
-      </div>
+        <h1 class="font-black text-3xl uppercase tracking-tight mb-2">Trắc nghiệm</h1>
+        <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-8">{{ words.length }} câu hỏi</p>
 
-      <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
-        <div class="animate-spin inline-block w-12 h-12 border-4 border-foreground border-t-primary-red"></div>
-      </div>
-
-      <div v-else-if="!sessionComplete && questions.length > 0" class="absolute inset-0 flex flex-col px-6 sm:px-10 pt-16 pb-4 sm:pb-6">
-        <!-- Word card -->
-        <div class="flex-1 flex items-center justify-center min-h-0 mb-3">
-          <div class="w-full bg-white border-4 border-foreground shadow-hard-md text-center py-5 sm:py-6 px-4">
-            <h2 class="text-3xl sm:text-5xl font-black break-words leading-tight">{{ currentQuestion.word }}</h2>
-            <p class="text-base sm:text-xl font-bold text-foreground/50 font-mono mt-1">{{ currentQuestion.pronunciation }}</p>
+        <!-- Progress -->
+        <div class="max-w-md mx-auto mb-8">
+          <div class="flex justify-between text-xs font-bold uppercase tracking-wider mb-2">
+            <span class="text-muted-foreground">{{ currentIndex + 1 }}/{{ words.length }}</span>
+            <span class="text-accent">{{ correct }}/{{ total }} đúng</span>
+          </div>
+          <div class="w-full h-2 border-2 border-foreground bg-muted rounded-full overflow-hidden">
+            <div class="h-full bg-accent rounded-full transition-all duration-500" :style="{ width: `${(currentIndex / words.length) * 100}%` }"></div>
           </div>
         </div>
 
-        <!-- Options grid -->
-        <div class="flex-1 min-h-0 flex items-center justify-center">
-          <div class="grid grid-cols-2 gap-2 sm:gap-3 w-full">
-            <button 
-              v-for="(option, index) in currentQuestion.options" :key="index"
-              @click="selectOption(option)"
-              class="flex items-center justify-center px-3 sm:px-5 py-3 sm:py-4 text-center border-4 border-foreground font-bold text-sm sm:text-lg leading-tight transition-all shadow-hard-sm"
-              :class="getOptionClass(option, index)"
-              :disabled="selectedOption !== null"
-            >
-              {{ option }}
-            </button>
+        <!-- Question -->
+        <div v-if="currentWord" class="mb-8">
+          <p class="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Từ này nghĩa là gì?</p>
+          <h2 class="font-black text-4xl uppercase tracking-tight mb-8">{{ currentWord.word }}</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+            <button v-for="(opt, oi) in currentWord.options" :key="oi"
+              @click="selectAnswer(oi)"
+              class="p-4 border-2 border-foreground rounded-md font-bold text-base transition-all duration-300"
+              :class="answerState(oi)"
+              :disabled="answered"
+            >{{ opt }}</button>
           </div>
         </div>
-        
-        <!-- Next button -->
-        <div v-if="selectedOption !== null" class="flex-none mt-2 animate-fade-in-up">
-          <button @click="nextQuestion" class="w-full py-2.5 bg-foreground text-white font-black text-sm sm:text-base uppercase border-4 border-foreground shadow-hard-sm hover:-translate-y-0.5 hover:shadow-hard-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all">
-            {{ currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz' }}
-          </button>
-        </div>
-      </div>
 
-      <div v-else-if="sessionComplete" class="absolute inset-0 flex items-center justify-center">
-        <GameResult 
-          :correct="correctAnswers" 
-          :total="questions.length" 
-          @continue="loadQuiz" 
-          @back="$router.push(`/decks/${deckId}`)" 
-        />
+        <!-- Score -->
+        <div v-if="currentIndex >= words.length" class="py-8">
+          <div class="inline-flex items-center justify-center w-20 h-20 bg-quaternary border-2 border-foreground rounded-full mb-6 shadow-pop-sm">
+            <Check class="w-10 h-10 text-white" />
+          </div>
+          <h2 class="font-black text-3xl uppercase tracking-tight mb-2">Hoàn thành!</h2>
+          <p class="font-black text-5xl text-accent mb-4">{{ correct }}/{{ total }}</p>
+          <router-link :to="'/decks/' + deckId"
+            class="inline-flex px-8 py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+          >Quay lại</router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -62,114 +60,57 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import gameService from '@/services/gameService'
-import GameResult from '@/components/bauhaus/GameResult.vue'
-import { useToast } from '@/composables/useToast'
+import deckService from '@/services/deckService'
+import { HelpCircle, Check } from 'lucide-vue-next'
 
 const route = useRoute()
 const deckId = route.params.id
-const toast = useToast()
-
-const questions = ref([])
+const deck = ref(null)
+const words = ref([])
 const currentIndex = ref(0)
-const selectedOption = ref(null)
-const correctAnswers = ref(0)
-const loading = ref(true)
-const sessionComplete = ref(false)
+const correct = ref(0)
+const total = ref(0)
+const answered = ref(false)
+const selectedAnswer = ref(null)
 
-const sessionId = ref(null)
+const currentWord = computed(() => words.value[currentIndex.value])
 
-const currentQuestion = computed(() => questions.value[currentIndex.value])
-
-const optionColors = [
-  'bg-primary-red text-white hover:bg-primary-red/90',
-  'bg-primary-blue text-white hover:bg-primary-blue/90',
-  'bg-primary-yellow text-foreground hover:bg-primary-yellow/90',
-  'bg-foreground text-white hover:bg-foreground/90',
-  'bg-primary-red text-white hover:bg-primary-red/90',
-  'bg-primary-blue text-white hover:bg-primary-blue/90'
-]
-
-onMounted(() => {
-  loadQuiz()
+onMounted(async () => {
+  try {
+    const data = await deckService.getDeckById(deckId)
+    deck.value = data
+    words.value = (data.words || []).map(w => ({
+      ...w,
+      options: w.options || [w.meaning, ...(w.distractors || [])].sort(() => Math.random() - 0.5)
+    }))
+  } catch (e) { console.error(e) }
 })
 
-const loadQuiz = async () => {
-  loading.value = true
-  sessionComplete.value = false
-  currentIndex.value = 0
-  correctAnswers.value = 0
-  selectedOption.value = null
-  
-  try {
-    const response = await gameService.getQuizData(deckId)
-    questions.value = response.data
-    sessionId.value = response.sessionId
-  } catch (error) {
-    console.error("Error loading quiz", error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const selectOption = (option) => {
-  if (selectedOption.value !== null) return
-  
-  selectedOption.value = option
-  if (option === currentQuestion.value.answer) {
-    correctAnswers.value++
-  }
-}
-
-const getOptionClass = (option, index) => {
-  if (selectedOption.value === null) {
-    return `${optionColors[index % optionColors.length]} hover:-translate-y-1 hover:shadow-hard-md`
-  }
-  
-  if (option === currentQuestion.value.answer) {
-    return 'bg-primary-blue text-white shadow-none translate-y-1'
-  }
-  
-  if (selectedOption.value === option) {
-    return 'bg-primary-red text-white shadow-none translate-y-1'
-  }
-  
-  return `${optionColors[index % optionColors.length]} opacity-40 shadow-none translate-y-1`
-}
-
-const nextQuestion = () => {
-  if (currentIndex.value < questions.length - 1) {
-    currentIndex.value++
-    selectedOption.value = null
+function selectAnswer(idx) {
+  if (answered.value) return
+  answered.value = true
+  selectedAnswer.value = idx
+  total.value++
+  if (currentWord.value.options[idx] === currentWord.value.meaning) {
+    correct.value++
+    setTimeout(nextWord, 1000)
   } else {
-    finishQuiz()
+    setTimeout(nextWord, 1500)
   }
 }
 
-const finishQuiz = async () => {
-  try {
-    await gameService.submitResult(sessionId.value, correctAnswers.value)
-  } catch (error) {
-    console.error("Error submitting result", error)
-    toast.error('Không thể lưu kết quả. Vui lòng thử lại.')
-  }
-  sessionComplete.value = true
+function answerState(idx) {
+  if (!answered.value) return 'bg-card hover:bg-tertiary/10'
+  const word = currentWord.value.options[idx]
+  const correctAnswer = currentWord.value.meaning
+  if (word === correctAnswer) return 'bg-quaternary/20 border-quaternary text-quaternary'
+  if (idx === selectedAnswer.value) return 'bg-secondary/20 border-secondary text-secondary'
+  return 'opacity-50'
+}
+
+function nextWord() {
+  currentIndex.value++
+  answered.value = false
+  selectedAnswer.value = null
 }
 </script>
-
-<style scoped>
-.animate-fade-in-up {
-  animation: fadeInUp 0.3s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

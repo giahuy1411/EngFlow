@@ -1,174 +1,140 @@
 <template>
-  <div class="space-y-8">
-    <div v-if="loading" class="text-center py-12">
-      <div class="animate-spin inline-block w-10 h-10 border-4 border-black border-t-transparent rounded-full"></div>
-      <p class="font-bold uppercase mt-4 tracking-wider">Đang tải bài tập...</p>
+  <div>
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center py-16">
+      <div class="w-10 h-10 border-2 border-foreground border-t-accent rounded-full animate-spin"></div>
     </div>
 
-    <div v-else-if="exercises.length === 0" class="bg-white border-4 border-black shadow-hard-lg p-12 text-center">
-      <p class="font-black text-xl uppercase">Chưa có bài tập cho bài học này</p>
-      <p class="font-bold text-xs uppercase tracking-wider text-foreground/60 mt-2">Admin có thể thêm bài tập ở trang quản trị</p>
+    <div v-else-if="exercises.length === 0" class="bg-card border-2 border-foreground shadow-pop-lg p-12 text-center rounded-md">
+      <p class="font-black text-xl uppercase">Chưa có bài tập</p>
     </div>
 
-    <template v-else>
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="font-black text-2xl uppercase">Bài tập tương tác</h3>
-        <span class="font-bold text-sm uppercase bg-black text-white px-4 py-2">{{ currentIndex + 1 }} / {{ exercises.length }}</span>
+    <div v-else>
+      <!-- Progress -->
+      <div class="flex items-center gap-4 mb-6">
+        <span class="font-bold text-sm uppercase bg-foreground text-white px-4 py-2 rounded-full">{{ currentIndex + 1 }} / {{ exercises.length }}</span>
+        <span class="px-3 py-1 bg-tertiary text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-foreground">{{ currentExercise.exerciseType }}</span>
+        <span v-if="currentExercise.difficulty === 'EASY'" class="text-quaternary font-bold text-xs uppercase">Dễ</span>
+        <span v-else-if="currentExercise.difficulty === 'MEDIUM'" class="text-tertiary font-bold text-xs uppercase">TB</span>
+        <span v-else class="text-accent font-bold text-xs uppercase">Khó</span>
       </div>
 
-      <div class="bg-white border-4 border-black shadow-hard-lg">
-        <div class="bg-black text-white px-6 py-3 flex items-center gap-3 border-b-4 border-black">
-          <span class="px-3 py-1 bg-yellow-400 text-black font-bold text-xs uppercase tracking-wider">{{ currentExercise.exerciseType }}</span>
-          <span class="font-medium text-sm">{{ currentExercise.title }}</span>
-          <span class="ml-auto font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-            <span v-if="currentExercise.difficulty === 'EASY'" class="text-green-400">Dễ</span>
-            <span v-else-if="currentExercise.difficulty === 'MEDIUM'" class="text-yellow-400">TB</span>
-            <span v-else class="text-red-400">Khó</span>
-          </span>
-        </div>
+      <!-- Exercise Card -->
+      <div class="bg-card border-2 border-foreground shadow-pop-lg rounded-md overflow-hidden">
+        <div class="p-6">
+          <!-- Image -->
+          <img v-if="currentExercise.imageUrl" :src="currentExercise.imageUrl" class="w-full max-w-md mx-auto border-2 border-foreground rounded-md mb-4" alt="Exercise image" />
 
-        <div class="p-6 sm:p-8">
-          <div v-if="currentExercise.imageUrl" class="mb-6">
-            <img :src="currentExercise.imageUrl" class="w-full max-w-md mx-auto border-4 border-black" alt="Exercise image" />
+          <!-- Audio -->
+          <div v-if="currentExercise.exerciseType === 'LISTENING' && currentExercise.audioUrl" class="mb-6 bg-secondary/10 border-2 border-foreground p-4 rounded-md">
+            <p class="font-bold text-xs uppercase tracking-wider text-secondary mb-3">Nghe & trả lời</p>
+            <audio :src="currentExercise.audioUrl" controls class="w-full geo-audio"></audio>
           </div>
 
-          <div v-if="currentExercise.exerciseType === 'LISTENING' && currentExercise.audioUrl" class="mb-6 bg-primary-blue/5 border-2 border-black p-4">
-            <p class="font-bold uppercase text-xs tracking-wider mb-3 text-primary-blue">Nghe và trả lời</p>
-            <audio :src="currentExercise.audioUrl" controls class="w-full"></audio>
-          </div>
+          <!-- Question -->
+          <div class="geo-markdown mb-5" v-html="parseMarkdown(currentExercise.question)"></div>
 
-          <p class="font-bold text-lg mb-6">{{ currentExercise.question }}</p>
-
-          <div v-if="submitResult === null">
-            <div v-if="currentExercise.exerciseType === 'MULTIPLE_CHOICE' && optionsList.length > 0" class="space-y-3">
-              <button v-for="(opt, idx) in optionsList" :key="idx"
-                      @click="selectedAnswer = String(idx)"
-                      class="w-full text-left p-4 border-2 font-medium transition-all"
-                      :class="selectedAnswer === String(idx)
-                        ? 'border-primary-blue bg-primary-blue/10 shadow-hard-sm'
-                        : 'border-black hover:bg-background hover:shadow-hard-sm'">
-                {{ String.fromCharCode(65 + idx) }}. {{ opt }}
-              </button>
-            </div>
-
-            <div v-else>
-              <input v-model="textAnswer" type="text"
-                     placeholder="Nhập câu trả lời..."
-                     class="w-full border-4 border-black p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all" />
-            </div>
-
-            <button @click="submitAnswer"
-                    :disabled="!canSubmit"
-                    class="mt-6 px-8 py-4 bg-black text-white font-black uppercase text-sm tracking-wider border-4 border-black
-                           shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
-                           active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200
-                           disabled:opacity-30 disabled:cursor-not-allowed">
-              KIỂM TRA
+          <!-- Options -->
+          <div v-if="currentExercise.options" class="space-y-3">
+            <button v-for="(opt, idx) in currentExercise.options" :key="idx"
+              @click="selectOption(idx)"
+              class="w-full text-left p-4 border-2 font-medium transition-all rounded-md"
+              :class="getOptionClass(idx)"
+            >
+              {{ opt }}
             </button>
           </div>
 
-          <div v-else class="space-y-6">
-            <div class="p-6 border-4 font-bold text-lg"
-                 :class="submitResult
-                   ? 'bg-primary-blue/10 border-primary-blue text-primary-blue'
-                   : 'bg-primary-red/10 border-primary-red text-primary-red'">
-              <p class="uppercase tracking-wider text-sm mb-2">{{ submitResult ? 'Chính xác!' : 'Sai rồi!' }}</p>
-              <p v-if="!submitResult && currentExercise.exerciseType === 'MULTIPLE_CHOICE' && optionsList.length > parseInt(currentExercise.correctAnswer)">
-                Đáp án đúng: <span class="underline">{{ String.fromCharCode(65 + parseInt(currentExercise.correctAnswer)) }}. {{ optionsList[parseInt(currentExercise.correctAnswer)] }}</span>
-              </p>
-              <p v-if="!submitResult && currentExercise.exerciseType !== 'MULTIPLE_CHOICE'">
-                Đáp án đúng: <span class="underline">{{ currentExercise.correctAnswer }}</span>
-              </p>
-            </div>
-            <div v-if="currentExercise.explanation" class="p-4 bg-background border-2 border-black text-sm">
-              <p class="font-bold uppercase text-xs tracking-wider mb-1">Giải thích:</p>
-              <p>{{ currentExercise.explanation }}</p>
-            </div>
+          <!-- Text input -->
+          <input v-else v-model="userAnswer" type="text" placeholder="Nhập câu trả lời..."
+            class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm"
+          />
+        </div>
 
-            <button @click="nextExercise"
-                    class="px-8 py-4 bg-black text-white font-black uppercase text-sm tracking-wider border-4 border-black
-                           shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
-                           active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
-              {{ currentIndex < exercises.length - 1 ? 'Câu tiếp theo →' : 'Hoàn thành' }}
-            </button>
-          </div>
+        <div class="px-6 pb-6">
+          <button @click="submitAnswer" :disabled="answered"
+            class="px-8 py-4 bg-accent text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >{{ answered ? 'Đã trả lời' : 'Kiểm tra' }}</button>
+        </div>
+
+        <!-- Feedback -->
+        <div v-if="answered && feedbackMessage"
+          class="p-6 border-t-2 border-foreground font-bold text-lg"
+          :class="isCorrect ? 'bg-quaternary/10 border-quaternary text-quaternary' : 'bg-accent/10 border-accent text-accent'"
+        >{{ feedbackMessage }}</div>
+
+        <!-- Explanation -->
+        <div v-if="answered && currentExercise.explanation" class="p-4 bg-muted border-t-2 border-foreground text-sm rounded-md">
+          <div class="geo-markdown" v-html="parseMarkdown(currentExercise.explanation)"></div>
+        </div>
+
+        <!-- Next -->
+        <div v-if="answered" class="border-t-2 border-foreground p-4 text-center">
+          <button @click="nextExercise" v-if="currentIndex < exercises.length - 1"
+            class="px-8 py-3 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all"
+          >Câu tiếp theo →</button>
+          <p v-else class="font-black text-sm uppercase text-quaternary">Hoàn thành!</p>
         </div>
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import lessonService from '@/services/lessonService'
-import exerciseService from '@/services/exerciseService'
+import { ref, computed } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
-const props = defineProps({
-  lesson: { type: Object, required: true },
-})
-
-const exercises = ref([])
-const loading = ref(true)
+const props = defineProps({ exercises: { type: Array, default: () => [] } })
 const currentIndex = ref(0)
-const selectedAnswer = ref(null)
-const textAnswer = ref('')
-const submitResult = ref(null)
-const submitting = ref(false)
+const selectedOption = ref(null)
+const userAnswer = ref('')
+const answered = ref(false)
+const isCorrect = ref(false)
+const feedbackMessage = ref('')
 
-const currentExercise = computed(() => exercises.value[currentIndex.value] || {})
-const optionsList = computed(() => {
-  try {
-    const opts = currentExercise.value.options
-    if (!opts) return []
-    return JSON.parse(opts)
-  } catch { return [] }
-})
-const canSubmit = computed(() => {
-  if (submitResult.value !== null) return false
-  if (currentExercise.value.exerciseType === 'MULTIPLE_CHOICE') return selectedAnswer.value !== null
-  return textAnswer.value.trim().length > 0
-})
+const currentExercise = computed(() => props.exercises[currentIndex.value])
 
-watch(() => props.lesson?.id, async (id) => {
-  if (!id) return
-  loading.value = true
-  try {
-    exercises.value = await lessonService.getExercises(id)
-    currentIndex.value = 0
-    resetForm()
-  } catch { exercises.value = [] }
-  finally { loading.value = false }
-}, { immediate: true })
-
-function resetForm() {
-  selectedAnswer.value = null
-  textAnswer.value = ''
-  submitResult.value = null
-  submitting.value = false
+function parseMarkdown(md) {
+  if (!md) return ''
+  return DOMPurify.sanitize(marked.parse(md))
 }
 
-async function submitAnswer() {
-  if (!canSubmit.value || submitting.value) return
-  submitting.value = true
-  try {
-    const answer = currentExercise.value.exerciseType === 'MULTIPLE_CHOICE' ? selectedAnswer.value : textAnswer.value.trim()
-    const res = await exerciseService.submit({ exerciseId: currentExercise.value.id, userAnswer: answer })
-    submitResult.value = res.isCorrect
-  } catch {
-    // If submission fails (e.g. exercise not configured for scoring), do local comparison
-    if (currentExercise.value.exerciseType === 'MULTIPLE_CHOICE') {
-      submitResult.value = selectedAnswer.value === currentExercise.value.correctAnswer
-    } else {
-      submitResult.value = textAnswer.value.trim().toLowerCase() === currentExercise.value.correctAnswer.toLowerCase()
-    }
+function selectOption(idx) {
+  if (answered.value) return
+  selectedOption.value = idx
+}
+
+function getOptionClass(idx) {
+  if (!answered.value) return selectedOption.value === idx ? 'border-accent bg-accent/10' : 'border-foreground hover:bg-tertiary/10'
+  if (idx === currentExercise.value.correctIndex) return 'border-quaternary bg-quaternary/10 text-quaternary'
+  if (idx === selectedOption.value) return 'border-accent bg-accent/10 text-accent'
+  return 'opacity-50 border-foreground'
+}
+
+function submitAnswer() {
+  if (answered.value) return
+  answered.value = true
+  if (currentExercise.value.options) {
+    isCorrect.value = selectedOption.value === currentExercise.value.correctIndex
+  } else {
+    isCorrect.value = userAnswer.value.trim().toLowerCase() === (currentExercise.value.correctAnswer || '').toLowerCase()
   }
-  finally { submitting.value = false }
+  feedbackMessage.value = isCorrect.value ? 'Chính xác!' : 'Sai rồi!'
 }
 
 function nextExercise() {
-  if (currentIndex.value < exercises.value.length - 1) {
+  if (currentIndex.value < props.exercises.length - 1) {
     currentIndex.value++
-    resetForm()
+    selectedOption.value = null
+    userAnswer.value = ''
+    answered.value = false
+    isCorrect.value = false
+    feedbackMessage.value = ''
   }
 }
 </script>
+
+<style scoped>
+audio.geo-audio { border-radius: 8px; }
+</style>

@@ -2,7 +2,7 @@
   <div class="space-y-8">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 bg-primary-yellow border-4 border-foreground flex items-center justify-center rotate-3">
+        <div class="w-10 h-10 bg-tertiary border-2 border-foreground flex items-center justify-center rotate-3 rounded-md">
           <TrophyIcon class="w-5 h-5 text-foreground" />
         </div>
         <div>
@@ -11,23 +11,23 @@
         </div>
       </div>
       <button @click="openModal()"
-              class="flex items-center gap-2 bg-primary-yellow border-4 border-foreground px-5 py-3 font-bold uppercase text-sm tracking-wider text-foreground
-                     shadow-[4px_4px_0px_0px_black] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_black]
-                     active:translate-x-1 active:translate-y-1 active:shadow-none transition-all duration-200">
+              class="flex items-center gap-2 bg-tertiary border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-foreground rounded-md
+                     shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
+                     active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
         <PlusIcon class="w-4 h-4" />
         Thêm Thành Tích
       </button>
     </div>
 
-    <div class="border-4 border-foreground bg-white shadow-[8px_8px_0px_0px_black] overflow-hidden">
-      <div class="bg-foreground border-b-4 border-foreground px-6 py-3 flex items-center gap-3">
-        <div class="w-2 h-2 bg-primary-yellow rotate-45"></div>
+    <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-md overflow-hidden">
+      <div class="bg-foreground border-b-2 border-foreground px-6 py-3 flex items-center gap-3">
+        <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
         <span class="font-bold text-xs uppercase tracking-widest text-white/60">{{ achievements.length }} thành tích</span>
       </div>
 
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-gray-100 border-b-4 border-foreground font-bold uppercase text-xs tracking-wider">
+          <tr class="bg-accent/20 border-b-2 border-foreground font-black uppercase text-xs tracking-wider">
             <th class="p-4 border-r-2 border-foreground w-16 text-center">Icon</th>
             <th class="p-4 border-r-2 border-foreground">Tên</th>
             <th class="p-4 border-r-2 border-foreground text-center w-28">Huy hiệu</th>
@@ -39,7 +39,7 @@
           <tr v-if="loading" class="border-b-2 border-foreground">
             <td colspan="5" class="p-12 text-center">
               <div class="flex items-center justify-center gap-3">
-                <div class="w-5 h-5 border-2 border-foreground border-t-primary-red rounded-full animate-spin"></div>
+                <div class="w-5 h-5 border-2 border-foreground border-t-accent rounded-full animate-spin"></div>
                 <span class="font-bold uppercase text-sm tracking-wider">Đang tải...</span>
               </div>
             </td>
@@ -48,7 +48,7 @@
             <td colspan="5" class="p-12 text-center font-bold uppercase text-sm tracking-wider text-gray-400">Chưa có thành tích</td>
           </tr>
           <tr v-for="ach in achievements" :key="ach.id"
-              class="border-b-2 border-foreground hover:bg-gray-50 transition-colors duration-150">
+              class="border-b-2 border-foreground hover:bg-accent/5 transition-colors duration-150">
             <td class="p-4 border-r-2 border-foreground text-center">
               <div class="w-10 h-10 border-2 border-foreground bg-background flex items-center justify-center mx-auto rounded-full">
                 <img v-if="ach.iconUrl" :src="ach.iconUrl" class="w-8 h-8 object-contain" />
@@ -60,7 +60,7 @@
               <p class="text-xs text-gray-500 font-medium">{{ ach.description }}</p>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
-              <span class="inline-block px-3 py-1 border-2 border-foreground text-xs font-bold uppercase tracking-wider bg-primary-yellow/30">
+              <span class="inline-block px-3 py-1 border-2 border-foreground text-xs font-black uppercase tracking-wider bg-tertiary/30 rounded-md">
                 {{ ach.badgeType || '—' }}
               </span>
             </td>
@@ -68,14 +68,14 @@
             <td class="p-4 text-center">
               <div class="flex items-center justify-center gap-2">
                 <button @click="openModal(ach)" aria-label="Sửa thành tích"
-                         class="w-9 h-9 flex items-center justify-center bg-primary-blue text-white border-2 border-foreground
-                                hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_black] transition-all
+                         class="w-9 h-9 flex items-center justify-center bg-secondary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
+                                hover:-translate-y-0.5 hover:shadow-pop transition-all
                                 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                    <EditIcon class="w-4 h-4" />
                  </button>
                  <button @click="deleteAchievement(ach.id)" aria-label="Xóa thành tích"
-                         class="w-9 h-9 flex items-center justify-center bg-primary-red text-white border-2 border-foreground
-                                hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_black] transition-all
+                         class="w-9 h-9 flex items-center justify-center bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm
+                                hover:-translate-y-0.5 hover:shadow-pop transition-all
                                 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                    <TrashIcon class="w-4 h-4" />
                  </button>
@@ -85,27 +85,27 @@
         </tbody>
       </table>
 
-      <div class="bg-gray-100 border-t-4 border-foreground px-6 py-3 flex justify-between items-center">
+      <div class="bg-accent/10 border-t-2 border-foreground px-6 py-3 flex justify-between items-center">
         <span class="font-bold text-xs uppercase tracking-wider text-gray-500">Tổng số: {{ achievements.length }}</span>
         <div class="flex gap-1">
-          <div class="w-2 h-2 bg-primary-yellow rotate-45"></div>
-          <div class="w-2 h-2 rounded-full bg-primary-red"></div>
-          <div class="w-2 h-2 bg-foreground"></div>
+          <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="w-2 h-2 bg-foreground rounded"></div>
         </div>
       </div>
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div class="bg-white border-4 border-foreground w-full max-w-lg shadow-[10px_10px_0px_0px_black] flex flex-col max-h-[90vh]">
-        <div class="bg-primary-yellow border-b-4 border-foreground p-5 flex items-center justify-between">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4">
+      <div class="bg-white border-2 border-foreground w-full max-w-lg shadow-pop-xl rounded-md flex flex-col max-h-[90vh] overflow-hidden">
+        <div class="bg-tertiary border-b-2 border-foreground p-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-3 h-3 bg-foreground rotate-45"></div>
+            <div class="w-3 h-3 bg-foreground rotate-45 rounded"></div>
             <h3 class="font-black text-xl uppercase tracking-tighter text-foreground">{{ editingAchievement ? 'Sửa Thành Tích' : 'Thêm Thành Tích Mới' }}</h3>
           </div>
           <button @click="closeModal"
-                  class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-foreground/10 text-foreground font-black text-lg
-                         hover:bg-foreground hover:text-white transition-colors">&times;</button>
+                  class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-white text-foreground font-black text-lg rounded-md shadow-pop-sm
+                         hover:bg-accent hover:text-white transition-colors">&times;</button>
         </div>
 
         <div class="p-6 overflow-y-auto">
@@ -113,39 +113,38 @@
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Tên *</label>
               <input v-model="formData.name" type="text" required
-                     class="w-full border-2 border-foreground p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-primary-red focus:bg-white transition-all" />
+                     class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
             </div>
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Mô tả</label>
               <textarea v-model="formData.description" rows="2"
-                        class="w-full border-2 border-foreground p-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary-red focus:bg-white transition-all"></textarea>
+                        class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-5">
               <div>
                 <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Huy hiệu</label>
                 <input v-model="formData.badgeType" type="text" placeholder="VD: BRONZE, SILVER"
-                       class="w-full border-2 border-foreground p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-primary-red focus:bg-white transition-all" />
+                       class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
               </div>
               <div>
                 <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Điểm yêu cầu *</label>
                 <input v-model.number="formData.pointsRequired" type="number" required
-                       class="w-full border-2 border-foreground p-3 bg-background font-bold text-lg focus:outline-none focus:ring-2 focus:ring-primary-red focus:bg-white transition-all" />
+                       class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold text-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
               </div>
             </div>
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Icon URL</label>
                <input v-model="formData.iconUrl" type="url"
-                      class="w-full border-2 border-foreground p-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary-red focus:bg-white transition-all" />
+                      class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
             </div>
-            <div class="flex justify-end gap-4 pt-6 border-t-4 border-foreground">
+            <div class="flex justify-end gap-4 pt-6 border-t-2 border-foreground">
               <button type="button" @click="closeModal"
-                      class="px-8 py-3 border-2 border-foreground font-bold uppercase text-sm tracking-wider hover:bg-gray-200 transition-colors">
+                      class="px-8 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                 Hủy
               </button>
               <button type="submit" :disabled="saving"
-                      class="px-8 py-3 bg-foreground text-white border-2 border-foreground font-bold uppercase text-sm tracking-wider
-                             shadow-[4px_4px_0px_0px_black] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_black]
-                             active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
+                      class="px-8 py-3 bg-quaternary text-foreground border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
+                             shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
                              transition-all duration-200 disabled:opacity-50">
                 {{ saving ? 'Đang lưu...' : 'Lưu lại' }}
               </button>

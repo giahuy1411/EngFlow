@@ -1,10 +1,10 @@
 <template>
-  <div class="streak-calendar bg-white border-4 border-black rounded-xl p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+  <div class="streak-calendar bg-white border-4 border-black rounded-xl p-6 shadow-pop-lg">
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-2xl font-black uppercase">Study Streak</h3>
       <div class="flex items-center space-x-2">
         <span class="text-3xl">🔥</span>
-        <span class="text-3xl font-black text-orange-500">{{ currentStreak }}</span>
+        <span class="text-3xl font-black text-playful-coral">{{ currentStreak }}</span>
         <span class="text-lg font-bold text-gray-500">Days</span>
       </div>
     </div>
@@ -17,12 +17,12 @@
       <div 
         v-for="(date, i) in calendarDays" 
         :key="i"
-        class="aspect-square rounded-md border-2 border-black flex items-center justify-center transition-colors"
+        class="aspect-square border-2 border-black flex items-center justify-center transition-all duration-200"
         :class="{
-          'bg-orange-400 text-white font-bold': isStudied(date),
-          'bg-gray-100': !isStudied(date) && isPast(date),
-          'bg-white opacity-50': !isPast(date),
-          'ring-2 ring-blue-500 ring-offset-2': isToday(date)
+          'bg-playful-coral text-black font-bold rounded-blob scale-105': isStudied(date),
+          'bg-gray-100 rounded-md': !isStudied(date) && isPast(date),
+          'bg-white opacity-50 rounded-md': !isPast(date),
+          'ring-2 ring-playful-sky ring-offset-2': isToday(date)
         }"
         :title="formatDate(date)"
       >

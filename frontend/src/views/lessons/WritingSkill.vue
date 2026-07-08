@@ -1,90 +1,36 @@
 <template>
-  <div class="writing-skill space-y-8">
-    <div v-if="!skillContent" class="bg-white border-4 border-black shadow-hard-lg p-10 text-center">
-      <div class="text-6xl mb-4 opacity-30">W</div>
-      <p class="font-bold text-xl uppercase">No writing content yet</p>
-      <p class="font-bold text-xs uppercase tracking-wider text-foreground/60 mt-2">This lesson doesn't have writing exercises.</p>
+  <div>
+    <!-- Writing prompt -->
+    <div class="border-2 border-foreground rounded-md p-6 shadow-pop-lg mb-6">
+      <div class="geo-markdown text-lg font-bold mb-4" v-html="parseMarkdown(prompt)"></div>
     </div>
-
-    <div v-else>
-      <!-- Content + Writing form -->
-      <div class="bg-white border-4 border-black shadow-hard-lg">
-        <div class="bg-black text-white px-6 py-4 flex items-center gap-3">
-          <span class="w-8 h-8 bg-yellow-400 text-black rounded-full flex items-center justify-center font-black text-sm">W</span>
-          <h3 class="font-black text-xl uppercase tracking-tight">Writing</h3>
-        </div>
-        <div class="px-6 py-6">
-          <div v-html="skillContent.content" class="skill-html mb-8"></div>
-
-          <div class="border-t-4 border-black pt-6">
-            <h4 class="font-black text-base uppercase mb-4 flex items-center gap-2">
-              <span class="w-6 h-6 bg-yellow-400 border-2 border-black rounded flex items-center justify-center font-black text-xs">!</span>
-              Your Answer
-            </h4>
-
-            <div class="space-y-4">
-              <div v-for="(area, idx) in textareas" :key="idx">
-                <label class="block font-bold text-sm uppercase mb-1.5 text-foreground/60">{{ area.label }}</label>
-                <textarea
-                  v-model="area.value"
-                  :rows="area.rows"
-                  class="w-full px-4 py-3 border-3 border-black rounded-xl font-medium focus:outline-none focus:border-yellow-400 focus:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all resize-vertical"
-                  :placeholder="area.placeholder"
-                ></textarea>
-              </div>
-            </div>
-
-            <button
-              @click="submitWriting"
-              :disabled="submitting || submitted"
-              class="w-full mt-6 py-3.5 bg-yellow-400 text-black font-black uppercase text-lg border-4 border-black rounded-xl shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <span v-if="submitting">Submitting...</span>
-              <span v-else-if="submitted">Submitted ✓</span>
-              <span v-else>Submit Writing</span>
-            </button>
-
-            <div v-if="submitted" class="mt-4 p-4 bg-green-100 border-2 border-green-400 rounded-lg text-green-700 font-bold text-center">
-              Your writing has been submitted for review.
-            </div>
-          </div>
-        </div>
-      </div>
+    <div>
+      <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Bài viết của bạn</label>
+      <textarea v-model="answer" rows="6" placeholder="Viết câu trả lời của bạn..."
+        class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+      ></textarea>
+    </div>
+    <div v-if="modelAnswer" class="mt-6 p-6 bg-card border-2 border-foreground rounded-md shadow-pop-lg">
+      <p class="font-black text-sm uppercase tracking-wider text-accent mb-2">Gợi ý</p>
+      <div class="geo-markdown" v-html="parseMarkdown(modelAnswer)"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { submissionService } from '@/services/submissionService'
+import { ref } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
-  lesson: { type: Object, required: true },
-  skills: { type: Array, required: true },
+  prompt: { type: String, default: '' },
+  modelAnswer: { type: String, default: '' },
 })
 
-const submitting = ref(false)
-const submitted = ref(false)
+const answer = ref('')
 
-const skillContent = computed(() => props.skills.find(s => s.skillType === 'WRITING'))
-
-const textareas = ref([
-  { label: 'Answer 1', rows: 6, value: '', placeholder: 'Write your answer here...' },
-  { label: 'Answer 2', rows: 6, value: '', placeholder: 'Write your answer here...' },
-  { label: 'Answer 3', rows: 6, value: '', placeholder: 'Write your answer here...' },
-  { label: 'Answer 4', rows: 6, value: '', placeholder: 'Write your answer here...' },
-])
-
-async function submitWriting() {
-  submitting.value = true
-  try {
-    const submissionText = textareas.value.map(a => a.value).join('\n---\n')
-    await submissionService.submitLessonSkill(props.lesson.id, 'WRITING', submissionText)
-    submitted.value = true
-  } catch (e) {
-    console.error('Submission failed', e)
-  } finally {
-    submitting.value = false
-  }
+function parseMarkdown(md) {
+  if (!md) return ''
+  return DOMPurify.sanitize(marked.parse(md))
 }
 </script>

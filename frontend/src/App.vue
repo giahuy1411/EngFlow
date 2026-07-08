@@ -20,7 +20,7 @@
           v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'pointer-events-auto border-2 border-black p-4 font-bold uppercase tracking-wider text-sm shadow-hard-md',
+            'pointer-events-auto border-2 border-black p-4 font-bold uppercase tracking-wider text-sm shadow-pop',
             toastBackground(toast.type)
           ]"
           role="alert"

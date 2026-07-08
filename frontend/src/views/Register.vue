@@ -1,150 +1,70 @@
 <template>
-  <div class="flex-grow flex items-center justify-center px-4 py-12 bg-background" style="min-height: calc(100vh - 5rem);">
-    <div class="w-full max-w-md">
-      <!-- Success message -->
-      <div v-if="success" class="bg-primary-blue text-white font-bold text-sm uppercase tracking-wider px-4 py-3 border-2 border-black shadow-hard-sm mb-6" role="alert">
-        Đăng ký thành công! Đang chuyển hướng...
-      </div>
+  <div class="min-h-screen bg-geo-bg flex items-center justify-center py-16 relative overflow-hidden">
+    <!-- Decorative shapes -->
+    <div class="absolute bottom-32 left-16 w-28 h-28 bg-secondary/10 rounded-full border-2 border-foreground/10"></div>
+    <div class="absolute top-20 right-10 w-36 h-36 bg-tertiary/10 rounded-full border-2 border-foreground/10"></div>
+    <div class="absolute bottom-1/3 left-1/4 w-16 h-16 bg-accent/10 rounded-md border-2 border-foreground/10 rotate-12"></div>
 
-      <!-- Error message -->
-      <div v-if="error" class="bg-primary-red text-white font-bold text-sm uppercase tracking-wider px-4 py-3 border-2 border-black shadow-hard-sm mb-6" role="alert">
-        {{ error }}
-      </div>
+    <div class="w-full max-w-md px-4 relative z-10">
+      <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-14 h-14 bg-secondary rounded-full border-2 border-foreground mb-4 shadow-pop-sm animate-pop-in">
+            <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h1 class="font-black text-3xl uppercase tracking-tight">Đăng ký</h1>
+          <p class="font-medium text-sm text-muted-foreground mt-2">Bắt đầu hành trình học ngay!</p>
+        </div>
 
-      <div class="bg-white border-4 border-black shadow-hard-lg p-8 relative">
-        <!-- Geometric corner decorations -->
-        <div class="absolute -top-3 -right-3 w-6 h-6 bg-primary-blue border-2 border-black rotate-12"></div>
-        <div class="absolute -bottom-3 -left-3 w-5 h-5 bg-primary-yellow border-2 border-black rounded-full"></div>
-
-        <h1 class="font-black text-4xl md:text-5xl uppercase tracking-tight mb-8">
-          Đăng<br />Ký
-        </h1>
-
-        <form @submit.prevent="handleRegister" novalidate class="space-y-5">
-          <!-- Full name -->
+        <!-- Form -->
+        <form @submit.prevent="handleRegister" class="space-y-4">
           <div>
-            <label for="reg-fullname" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Họ và tên
-            </label>
-            <input
-              id="reg-fullname"
-              v-model="form.fullName"
-              type="text"
-              autocomplete="name"
-              class="w-full px-4 py-3 border-2 border-black bg-background font-sans text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2"
-              placeholder="Nguyễn Văn A"
-              @input="error = null"
+            <label for="reg-username" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Tên đăng nhập</label>
+            <input id="reg-username" v-model="username" type="text" placeholder="yourname" required
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <div>
+            <label for="reg-email" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Email</label>
+            <input id="reg-email" v-model="email" type="email" placeholder="your@email.com" required
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <div>
+            <label for="reg-password" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Mật khẩu</label>
+            <input id="reg-password" v-model="password" type="password" placeholder="••••••••" required minlength="6"
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <div>
+            <label for="reg-confirm" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Xác nhận mật khẩu</label>
+            <input id="reg-confirm" v-model="confirmPassword" type="password" placeholder="••••••••" required minlength="6"
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
             />
           </div>
 
-          <!-- Username -->
-          <div>
-            <label for="reg-username" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Tên đăng nhập
-            </label>
-            <input
-              id="reg-username"
-              v-model="form.username"
-              type="text"
-              autocomplete="username"
-              :class="[
-                'w-full px-4 py-3 border-2 border-black bg-background font-sans text-base',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2',
-                errors.username ? 'bg-red-50 border-primary-red' : ''
-              ]"
-              placeholder="nguyenvana"
-              @input="errors.username = ''"
-              @blur="validateField('username')"
-            />
-            <p v-if="errors.username" class="mt-1 text-primary-red font-bold text-xs uppercase tracking-wider">{{ errors.username }}</p>
-          </div>
+          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-secondary text-center">{{ error }}</p>
 
-          <!-- Email -->
-          <div>
-            <label for="reg-email" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Email
-            </label>
-            <input
-              id="reg-email"
-              v-model="form.email"
-              type="email"
-              autocomplete="email"
-              :class="[
-                'w-full px-4 py-3 border-2 border-black bg-background font-sans text-base',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2',
-                errors.email ? 'bg-red-50 border-primary-red' : ''
-              ]"
-              placeholder="email@domain.com"
-              @input="errors.email = ''"
-              @blur="validateField('email')"
-            />
-            <p v-if="errors.email" class="mt-1 text-primary-red font-bold text-xs uppercase tracking-wider">{{ errors.email }}</p>
-          </div>
-
-          <!-- Password -->
-          <div>
-            <label for="reg-password" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Mật khẩu
-            </label>
-            <input
-              id="reg-password"
-              v-model="form.password"
-              type="password"
-              autocomplete="new-password"
-              :class="[
-                'w-full px-4 py-3 border-2 border-black bg-background font-sans text-base',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2',
-                errors.password ? 'bg-red-50 border-primary-red' : ''
-              ]"
-              placeholder="••••••••"
-              @input="errors.password = ''"
-              @blur="validateField('password')"
-            />
-            <p v-if="errors.password" class="mt-1 text-primary-red font-bold text-xs uppercase tracking-wider">{{ errors.password }}</p>
-          </div>
-
-          <!-- Confirm Password -->
-          <div>
-            <label for="reg-confirm-password" class="block font-bold text-sm uppercase tracking-wider mb-2">
-              Xác nhận mật khẩu
-            </label>
-            <input
-              id="reg-confirm-password"
-              v-model="form.confirmPassword"
-              type="password"
-              autocomplete="new-password"
-              :class="[
-                'w-full px-4 py-3 border-2 border-black bg-background font-sans text-base',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-red focus-visible:ring-offset-2',
-                errors.confirmPassword ? 'bg-red-50 border-primary-red' : ''
-              ]"
-              placeholder="••••••••"
-              @input="errors.confirmPassword = ''"
-              @blur="validateField('confirmPassword')"
-            />
-            <p v-if="errors.confirmPassword" class="mt-1 text-primary-red font-bold text-xs uppercase tracking-wider">{{ errors.confirmPassword }}</p>
-          </div>
-
-          <!-- Submit button -->
-          <BauhausButton
-            variant="secondary"
-            shape="square"
-            size="lg"
-            type="submit"
-            :disabled="loading"
-            class="w-full justify-center text-lg"
+          <button type="submit" :disabled="loading"
+            class="w-full py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <span v-if="loading" class="animate-spin mr-2 inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
-            {{ loading ? 'ĐANG XỬ LÝ...' : 'ĐĂNG KÝ' }}
-          </BauhausButton>
+            <span v-if="loading" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span v-else>Tạo tài khoản</span>
+          </button>
         </form>
 
-        <!-- Footer link -->
-        <p class="mt-6 text-center font-bold text-sm uppercase tracking-wider text-foreground/60">
+        <!-- Divider -->
+        <div class="flex items-center gap-3 my-6">
+          <div class="flex-1 h-0.5 bg-border"></div>
+          <span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Hoặc</span>
+          <div class="flex-1 h-0.5 bg-border"></div>
+        </div>
+
+        <p class="text-center font-bold text-sm text-muted-foreground">
           Đã có tài khoản?
-          <router-link to="/login" class="text-primary-blue hover:text-primary-blue/80 underline decoration-2 underline-offset-2 ml-1">
-            Đăng nhập
-          </router-link>
+          <router-link to="/login" class="text-accent hover:underline">Đăng nhập</router-link>
         </p>
       </div>
     </div>
@@ -152,91 +72,31 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
-import BauhausButton from '@/components/bauhaus/BauhausButton.vue'
+import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const auth = useAuthStore()
-
+const router = useRouter()
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
 const loading = ref(false)
-const success = ref(false)
-const error = ref(null)
-const form = reactive({ username: '', email: '', password: '', confirmPassword: '', fullName: '' })
-const errors = reactive({ username: '', email: '', password: '', confirmPassword: '' })
+const error = ref('')
 
-function validateField(field) {
-  if (field === 'username') {
-    errors.username = form.username.length < 3 ? 'Tên đăng nhập tối thiểu 3 ký tự' : ''
+async function handleRegister() {
+  error.value = ''
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Mật khẩu không khớp'
+    return
   }
-  if (field === 'email') {
-    if (!form.email) {
-      errors.email = 'Email không được để trống'
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      errors.email = 'Email không đúng định dạng'
-    } else {
-      errors.email = ''
-    }
-  }
-  if (field === 'password') {
-    errors.password = form.password.length < 6 ? 'Mật khẩu tối thiểu 6 ký tự' : ''
-  }
-  if (field === 'confirmPassword') {
-    errors.confirmPassword = form.confirmPassword !== form.password ? 'Mật khẩu xác nhận không khớp' : ''
-  }
-}
-
-function validate() {
-  let valid = true
-
-  if (form.username.length < 3) {
-    errors.username = 'Tên đăng nhập tối thiểu 3 ký tự'
-    valid = false
-  } else {
-    errors.username = ''
-  }
-
-  if (!form.email) {
-    errors.email = 'Email không được để trống'
-    valid = false
-  } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-    errors.email = 'Email không đúng định dạng'
-    valid = false
-  } else {
-    errors.email = ''
-  }
-
-  if (form.password.length < 6) {
-    errors.password = 'Mật khẩu tối thiểu 6 ký tự'
-    valid = false
-  } else {
-    errors.password = ''
-  }
-
-  if (form.confirmPassword !== form.password) {
-    errors.confirmPassword = 'Mật khẩu xác nhận không khớp'
-    valid = false
-  } else {
-    errors.confirmPassword = ''
-  }
-
-  return valid
-}
-
-  async function handleRegister() {
-    if (!validate()) return
-    loading.value = true
-    error.value = null
-    try {
-      const { confirmPassword, ...payload } = form
-      await auth.register(payload)
-    success.value = true
-    setTimeout(() => {
-      router.push('/login')
-    }, 2000)
+  loading.value = true
+  try {
+    await auth.register({ username: username.value, email: email.value, password: password.value })
+    router.push('/lessons')
   } catch (e) {
-    error.value = e.response?.data?.error || 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.'
+    error.value = e.response?.data?.message || 'Đăng ký thất bại'
   } finally {
     loading.value = false
   }

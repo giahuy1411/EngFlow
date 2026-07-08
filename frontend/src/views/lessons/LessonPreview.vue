@@ -1,31 +1,32 @@
 <template>
-  <div class="max-w-4xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-2">{{ lesson?.title }}</h1>
-    <p class="text-gray-500 mb-6">{{ lesson?.description }}</p>
-    <LessonBlockRenderer v-if="sections.length" :sections="sections" />
-    <p v-else class="text-gray-400 italic">Bài học chưa có nội dung.</p>
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <router-link :to="'/lessons/' + lessonId"
+      class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Quay lại bài học
+    </router-link>
+    <div class="flex items-center gap-3">
+      <div class="w-2.5 h-2.5 bg-accent rounded-full"></div>
+      <span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Preview</span>
+    </div>
+  </div>
+  <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
+    <div class="geo-markdown" v-html="parseMarkdown(content)"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import lessonService from '../../services/lessonService';
-import lessonStructureService from '../../services/lessonStructureService';
-import LessonBlockRenderer from '../../components/lessons/block-renderer/LessonBlockRenderer.vue';
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
-const route = useRoute();
-const lessonId = Number(route.params.id);
-const lesson = ref(null);
-const sections = ref([]);
+defineProps({
+  lessonId: { type: [String, Number], required: true },
+  content: { type: String, default: '' },
+})
 
-onMounted(async () => {
-  try {
-    const lessons = await lessonService.getAll();
-    lesson.value = lessons.find(l => l.id === lessonId);
-  } catch {}
-  try {
-    sections.value = await lessonStructureService.getStructure(lessonId);
-  } catch {}
-});
+function parseMarkdown(md) {
+  if (!md) return ''
+  return DOMPurify.sanitize(marked.parse(md))
+}
 </script>

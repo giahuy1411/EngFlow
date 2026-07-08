@@ -1,93 +1,72 @@
 <template>
-  <div class="ai-generator max-w-4xl mx-auto px-4 py-8">
-    <div class="flex items-center mb-8">
-      <button @click="$router.push('/decks')" class="font-bold text-gray-500 hover:text-black uppercase mr-4">
-        &larr; Back
-      </button>
-      <h1 class="text-4xl font-black uppercase text-black">✨ AI Deck Generator</h1>
-    </div>
-
-    <div class="bg-indigo-100 border-4 border-black rounded-2xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden mb-8">
-      <div class="absolute -right-10 -bottom-10 text-9xl opacity-20">🤖</div>
-      
-      <div class="relative z-10 max-w-xl">
-        <p class="text-xl font-bold mb-6">Create a custom vocabulary deck on any topic instantly using NVIDIA Nemotron AI.</p>
-        
-        <div class="space-y-4 mb-6">
-          <div>
-            <label class="block font-black uppercase mb-2">Topic</label>
-            <input 
-              v-model="topic" 
-              type="text" 
-              placeholder="e.g. Artificial Intelligence, Space Travel, Business Negotiations" 
-              class="w-full px-4 py-3 bg-white border-4 border-black rounded-xl font-bold focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all"
-              :disabled="loading"
-            >
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block font-black uppercase mb-2">CEFR Level</label>
-              <select v-model="level" class="w-full px-4 py-3 bg-white border-4 border-black rounded-xl font-bold focus:outline-none appearance-none" :disabled="loading">
-                <option value="A1">A1 Beginner</option>
-                <option value="A2">A2 Elementary</option>
-                <option value="B1">B1 Intermediate</option>
-                <option value="B2">B2 Upper Intermediate</option>
-                <option value="C1">C1 Advanced</option>
-                <option value="C2">C2 Mastery</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block font-black uppercase mb-2">Word Count</label>
-              <input v-model="count" type="number" min="5" max="20" class="w-full px-4 py-3 bg-white border-4 border-black rounded-xl font-bold focus:outline-none" :disabled="loading">
-            </div>
-          </div>
-        </div>
-        
-        <button 
-          @click="generateDeck" 
-          :disabled="!topic || loading"
-          class="w-full sm:w-auto px-8 py-4 bg-indigo-500 text-white font-black uppercase border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-indigo-600 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  <div class="bg-geo-bg min-h-screen py-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="flex items-center gap-4 mb-10">
+        <router-link to="/decks"
+          class="w-10 h-10 border-2 border-foreground rounded-full flex items-center justify-center bg-card hover:bg-tertiary/20 transition-all"
         >
-          <span v-if="loading" class="animate-spin h-5 w-5 mr-3 border-4 border-white border-t-transparent rounded-full"></span>
-          {{ loading ? 'Generating...' : 'Generate Deck' }}
-        </button>
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </router-link>
+        <div>
+          <h1 class="font-black text-3xl uppercase tracking-tight">AI Generator</h1>
+          <p class="font-bold text-xs uppercase tracking-wider text-muted-foreground mt-1">Tự động sinh từ vựng</p>
+        </div>
       </div>
-    </div>
-    
-    <!-- Generated Result -->
-    <div v-if="generatedWords.length > 0 && !loading" class="animate-fade-in-up">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-black uppercase">Generated Words ({{ generatedWords.length }})</h2>
-        <button @click="saveDeck" class="px-6 py-2 bg-green-400 text-black font-black uppercase border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-green-500 hover:translate-y-1 hover:shadow-none transition-all" :disabled="saving">
-          {{ saving ? 'Saving...' : 'Save to My Decks' }}
-        </button>
-      </div>
-      
-      <div class="space-y-4">
-        <div v-for="(word, index) in generatedWords" :key="index" class="bg-white border-4 border-black rounded-xl p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <h3 class="text-2xl font-black inline-block mr-2">{{ word.word }}</h3>
-              <span class="text-gray-500 font-bold font-mono">{{ word.pronunciation }}</span>
-            </div>
-            <span class="px-2 py-1 bg-black text-white text-xs font-bold uppercase rounded-md">{{ word.wordType }}</span>
+
+      <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
+        <form @submit.prevent="generate" class="space-y-6">
+          <div>
+            <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Chủ đề</label>
+            <input v-model="topic" placeholder="e.g. Environment, Technology, Travel..." required
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            />
           </div>
-          
-          <div class="grid sm:grid-cols-2 gap-4 mt-4">
-            <div class="bg-blue-50 border-2 border-black rounded-lg p-3">
-              <p class="font-bold text-xs uppercase mb-1 text-gray-500">English</p>
-              <p class="font-bold">{{ word.definitionEn }}</p>
-            </div>
-            <div class="bg-green-50 border-2 border-black rounded-lg p-3">
-              <p class="font-bold text-xs uppercase mb-1 text-gray-500">Vietnamese</p>
-              <p class="font-bold">{{ word.definitionVi }}</p>
-            </div>
+
+          <div>
+            <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">CEFR Level</label>
+            <select v-model="level"
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none"
+            >
+              <option v-for="lv in ['A1','A2','B1','B2','C1','C2']" :key="lv" :value="lv">{{ lv }}</option>
+            </select>
           </div>
-          <div class="mt-4 bg-yellow-50 border-2 border-black rounded-lg p-3">
-             <p class="font-bold text-xs uppercase mb-1 text-gray-500">Example</p>
-             <p class="italic">"{{ word.exampleSentence }}"</p>
+
+          <div>
+            <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Số lượng từ</label>
+            <input v-model.number="count" type="number" min="3" max="20" required
+              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none"
+            />
+          </div>
+
+          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ error }}</p>
+
+          <button type="submit" :disabled="generating"
+            class="w-full py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <span v-if="generating" class="flex items-center justify-center gap-2">
+              <span class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Đang sinh...
+            </span>
+            <span v-else>Sinh từ vựng</span>
+          </button>
+        </form>
+
+        <!-- Results -->
+        <div v-if="generatedWords.length > 0" class="mt-10 space-y-4">
+          <h2 class="font-black text-xl uppercase tracking-tight">Kết quả</h2>
+          <div v-for="(w, i) in generatedWords" :key="i"
+            class="border-2 border-foreground rounded-md p-5 shadow-pop-lg"
+          >
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-black text-lg uppercase">{{ w.word }}</h3>
+                <p class="font-bold text-xs text-muted-foreground">{{ w.phonetic }}</p>
+              </div>
+              <span class="px-2 py-0.5 bg-accent/10 border-2 border-foreground rounded-full text-xs font-bold">{{ w.type }}</span>
+            </div>
+            <p class="font-medium text-foreground mt-2">{{ w.meaning }}</p>
+            <p v-if="w.example" class="text-sm text-muted-foreground italic mt-1">"{{ w.example }}"</p>
           </div>
         </div>
       </div>
@@ -97,103 +76,26 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import aiService from '@/services/aiService'
-import deckService from '@/services/deckService'
 import vocabularyService from '@/services/vocabularyService'
-import { useToast } from '@/composables/useToast'
-
-const router = useRouter()
-const toast = useToast()
 
 const topic = ref('')
-const level = ref('B2')
+const level = ref('B1')
 const count = ref(10)
-
-const loading = ref(false)
-const saving = ref(false)
+const generating = ref(false)
+const error = ref('')
 const generatedWords = ref([])
 
-const generateDeck = async () => {
-  if (!topic.value) return
-  
-  loading.value = true
+async function generate() {
+  error.value = ''
+  generating.value = true
   generatedWords.value = []
-  
   try {
-    const data = await aiService.generateVocab(topic.value, level.value, count.value)
-    generatedWords.value = data
-    toast.success('Successfully generated vocabulary!')
-  } catch (error) {
-    console.error("AI Generation failed", error)
-    toast.error(error.response?.data?.message || 'Failed to generate vocabulary. Please try again.')
+    const result = await vocabularyService.generateByAi({ topic: topic.value, level: level.value, count: count.value })
+    generatedWords.value = result.words || []
+  } catch (e) {
+    error.value = e.response?.data?.message || 'Sinh từ thất bại'
   } finally {
-    loading.value = false
-  }
-}
-
-const saveDeck = async () => {
-  if (generatedWords.value.length === 0) return
-  
-  saving.value = true
-  let deck = null
-  try {
-    // 1. Create deck
-    deck = await deckService.createDeck({
-      name: `${topic.value} (${level.value})`,
-      description: `AI generated vocabulary deck about ${topic.value} at ${level.value} level.`,
-      isPublic: false,
-      cefrLevel: level.value,
-      source: 'AI_GENERATED'
-    })
-    
-    // 2. Save each generated word and add to deck
-    const createdVocabIds = []
-    for (const word of generatedWords.value) {
-      const vocab = await vocabularyService.create({
-        word: word.word,
-        pronunciation: word.pronunciation,
-        meaning: word.definitionVi,
-        definitionEn: word.definitionEn,
-        exampleSentence: word.exampleSentence,
-        wordType: word.wordType,
-        cefrLevel: level.value,
-        source: 'AI_GENERATED'
-      })
-      createdVocabIds.push(vocab.id)
-      await deckService.addWordToDeck(deck.id, vocab.id)
-    }
-    
-    toast.success('Deck saved successfully!')
-    router.push(`/decks/${deck.id}`)
-  } catch (error) {
-    console.error("Failed to save deck", error)
-    if (deck) {
-      await deckService.deleteDeck(deck.id).catch(() => {})
-    }
-    for (const vocabId of createdVocabIds) {
-      await vocabularyService.delete(vocabId).catch(() => {})
-    }
-    toast.error('Failed to save the deck. Changes rolled back.')
-  } finally {
-    saving.value = false
+    generating.value = false
   }
 }
 </script>
-
-<style scoped>
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

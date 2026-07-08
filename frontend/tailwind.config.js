@@ -7,22 +7,121 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Be Vietnam Pro"', 'sans-serif'],
+        sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
       },
       colors: {
-        background: '#F0F0F0',
-        foreground: '#121212',
-        'primary-red': '#D02020',
-        'primary-blue': '#1040C0',
-        'primary-yellow': '#F0C020',
-        border: '#121212',
-        muted: '#E0E0E0'
+        geo: {
+          bg: '#FFFDF5',
+          fg: '#1E293B',
+          muted: '#F1F5F9',
+          'muted-fg': '#64748B',
+          accent: '#8B5CF6',
+          'accent-fg': '#FFFFFF',
+          secondary: '#F472B6',
+          tertiary: '#FBBF24',
+          quaternary: '#34D399',
+          border: '#E2E8F0',
+          input: '#FFFFFF',
+          card: '#FFFFFF',
+          ring: '#8B5CF6',
+        },
+        // Legacy aliases for backward compatibility during migration
+        playful: {
+          coral: '#8B5CF6',     // accent
+          pink: '#F472B6',      // secondary
+          yellow: '#FBBF24',    // tertiary
+          sky: '#F472B6',       // mapped to secondary
+          lime: '#34D399',      // quaternary
+        },
+        accent: '#8B5CF6',
+        secondary: '#F472B6',
+        tertiary: '#FBBF24',
+        quaternary: '#34D399',
+        background: '#FFFDF5',
+        foreground: '#1E293B',
+        muted: '#F1F5F9',
+        'muted-foreground': '#64748B',
+        border: '#E2E8F0',
+        input: '#FFFFFF',
+        card: '#FFFFFF',
+        ring: '#8B5CF6',
+      },
+      fontFamily: {
+        sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+        heading: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        // Major Third scale (1.25)
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        base: ['1rem', { lineHeight: '1.75rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '1.5rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.25rem' }],
+        '5xl': ['3rem', { lineHeight: '1.1' }],
+        '6xl': ['3.75rem', { lineHeight: '1.1' }],
+      },
+      borderRadius: {
+        blob: '0.5rem',
+        'blob-sm': '0.375rem',
+        'blob-lg': '0.75rem',
+        'blob-xl': '1rem',
+        'blob-speech': '1rem 1rem 1rem 0.25rem',
+        'blob-arch': '9999px 9999px 0 0',
+        sm: '8px',
+        md: '16px',
+        lg: '24px',
+        full: '9999px',
+        'blob': '24px 24px 24px 0',
+        'blob-2': '30% 70% 70% 30% / 30% 30% 70% 70%',
+        'blob-3': '9999px 9999px 0 0',
       },
       boxShadow: {
-        'hard-sm': '4px 4px 0px 0px rgba(18, 18, 18, 1)',
-        'hard-md': '6px 6px 0px 0px rgba(18, 18, 18, 1)',
-        'hard-lg': '8px 8px 0px 0px rgba(18, 18, 18, 1)',
-      }
+        'pop': '4px 4px 0px 0px #1E293B',
+        'pop-sm': '2px 2px 0px 0px #1E293B',
+        'pop-lg': '6px 6px 0px 0px #1E293B',
+        'pop-xl': '8px 8px 0px 0px #E2E8F0',
+        'pop-hover': '6px 6px 0px 0px #1E293B',
+        'pop-active': '2px 2px 0px 0px #1E293B',
+        'pop-accent': '4px 4px 0px 0px #8B5CF6',
+        'pop-featured': '8px 8px 0px 0px #F472B6',
+        'pop-pink': '4px 4px 0px 0px #F472B6',
+        'inner-pop': 'inset 2px 2px 0px 0px #1E293B',
+      },
+      borderWidth: {
+        DEFAULT: '2px',
+      },
+      transitionTimingFunction: {
+        'bounce': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
+      keyframes: {
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(3deg)' },
+          '75%': { transform: 'rotate(-3deg)' },
+        },
+        'pop-in': {
+          '0%': { transform: 'scale(0)', opacity: '0' },
+          '60%': { transform: 'scale(1.1)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      },
+      animation: {
+        wiggle: 'wiggle 0.3s ease-in-out',
+        'pop-in': 'pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        marquee: 'marquee 30s linear infinite',
+        float: 'float 3s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

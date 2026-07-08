@@ -25,6 +25,7 @@ public class GameService {
     private final DeckWordRepository deckWordRepository;
     private final StreakService streakService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final com.datn.engflow.repository.UserRepository userRepository;
 
     private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions) {
         String sessionId = UUID.randomUUID().toString();
@@ -173,6 +174,12 @@ public class GameService {
         }
 
         streakService.checkin(userId, redisSession.getTotalQuestions(), 1);
+
+        // Cập nhật điểm cho user
+        com.datn.engflow.model.entity.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        user.setTotalPoints(user.getTotalPoints() + correctAnswers);
+        userRepository.save(user);
 
         // Xóa session khỏi Redis
         redisTemplate.delete(key);

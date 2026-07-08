@@ -1,60 +1,87 @@
 <template>
-  <div class="vocabulary-skill space-y-8">
-    <div v-if="!skillContent" class="bg-white border-4 border-black shadow-hard-lg p-10 text-center">
-      <div class="text-6xl mb-4 opacity-30">V</div>
-      <p class="font-bold text-xl uppercase">No vocabulary content yet</p>
-      <p class="text-gray-500 mt-2">This lesson doesn't have vocabulary exercises.</p>
+  <div>
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <router-link :to="'/lessons/' + lessonId"
+        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Quay lại
+      </router-link>
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 bg-accent rounded-full"></div>
+        <span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">{{ skill?.name || 'Kỹ năng' }}</span>
+      </div>
     </div>
 
-    <div v-else>
-      <!-- Video -->
-      <div v-if="quizData.videoHtml" class="bg-white border-4 border-black shadow-hard-lg">
-        <div class="bg-red-600 text-white px-5 py-2 flex items-center gap-2">
-          <span class="w-3 h-3 bg-white rounded-full"></span>
-          <span class="font-bold text-sm uppercase tracking-wider">Video</span>
-        </div>
-        <div class="p-4" v-html="quizData.videoHtml"></div>
-      </div>
+    <!-- Content Area -->
+    <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
+      <!-- Skill Content -->
+      <div v-if="content" class="geo-markdown" v-html="parseMarkdown(content)"></div>
 
-      <!-- Content -->
-      <div class="bg-white border-4 border-black shadow-hard-lg">
-        <div class="bg-black text-white px-6 py-4 flex items-center gap-3">
-          <span class="w-8 h-8 bg-yellow-400 text-black rounded-full flex items-center justify-center font-black text-sm">V</span>
-          <h3 class="font-black text-xl uppercase tracking-tight">Vocabulary</h3>
+      <!-- Exercises -->
+      <div v-if="exercises.length > 0" class="mt-8 space-y-6">
+        <h3 class="font-black text-xl uppercase tracking-tight mb-4">Bài tập</h3>
+        <div v-for="(ex, idx) in exercises" :key="idx"
+          class="border-2 border-foreground rounded-md p-6 shadow-pop-lg"
+        >
+          <div class="geo-markdown text-lg font-bold mb-4" v-html="parseMarkdown(ex.question)"></div>
+          <div v-if="ex.options" class="space-y-2">
+            <label v-for="(opt, oi) in ex.options" :key="oi"
+              class="flex items-center gap-3 p-3 border-2 border-foreground rounded-md cursor-pointer transition-all"
+              :class="answers[idx] === oi ? 'bg-accent/10 border-accent' : 'hover:bg-tertiary/10'"
+            >
+              <input type="radio" :name="'skill-q-' + idx" :value="oi" v-model="answers[idx]" class="geo-radio" />
+              <span class="font-medium">{{ opt }}</span>
+            </label>
+          </div>
         </div>
-        <div class="px-6 py-6">
-          <div v-html="quizData.staticHtml" class="skill-html"></div>
-        </div>
-      </div>
-
-      <!-- Quiz -->
-      <div v-if="quizData.questions.length">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="h-px flex-1 bg-black/20"></div>
-          <span class="font-black text-sm uppercase tracking-widest text-gray-500">Practice</span>
-          <div class="h-px flex-1 bg-black/20"></div>
-        </div>
-
-        <QuizEngine
-          :questions="quizData.questions"
-          :lesson-id="lesson.id"
-          skill-code="vcb"
-        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { parseQuizContent } from '@/utils/skillParser'
-import QuizEngine from '@/components/lessons/QuizEngine.vue'
+import { ref, onMounted } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
-  lesson: { type: Object, required: true },
-  skills: { type: Array, required: true },
+  lessonId: { type: [String, Number], required: true },
+  skill: { type: Object, default: null },
+  content: { type: String, default: '' },
+  exercises: { type: Array, default: () => [] },
 })
 
-const skillContent = computed(() => props.skills.find(s => s.skillType === 'VOCABULARY'))
-const quizData = computed(() => skillContent.value ? parseQuizContent(skillContent.value.content) : { staticHtml: '', videoHtml: '', questions: [] })
+const answers = ref([])
+
+onMounted(() => {
+  answers.value = exercises.value.map(() => null)
+})
+
+function parseMarkdown(md) {
+  if (!md) return ''
+  return DOMPurify.sanitize(marked.parse(md))
+}
 </script>
+
+<style scoped>
+input.geo-radio {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #1E293B;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+input.geo-radio:checked {
+  border-color: #8B5CF6;
+  background: #8B5CF6;
+  box-shadow: inset 0 0 0 3px white;
+}
+</style>

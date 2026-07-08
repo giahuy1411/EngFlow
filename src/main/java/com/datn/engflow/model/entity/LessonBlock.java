@@ -1,6 +1,7 @@
 package com.datn.engflow.model.entity;
 
 import com.datn.engflow.model.enums.BlockType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,6 +24,7 @@ public class LessonBlock {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     private LessonSection section;
 
     @Enumerated(EnumType.STRING)

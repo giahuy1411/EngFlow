@@ -24,7 +24,6 @@ public class LessonSection {
     @ToString.Exclude
     private Lesson lesson;
 
-    @org.hibernate.annotations.Nationalized
     @Column(nullable = false)
     private String title;
 

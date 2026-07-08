@@ -1,8 +1,8 @@
 <template>
   <button 
     @click.stop="playAudio" 
-    class="audio-button p-2 bg-blue-400 text-white rounded-full border-2 border-black hover:bg-blue-500 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
-    :class="{'animate-pulse bg-blue-600': isPlaying}"
+    class="audio-button p-2 bg-playful-sky text-black rounded-blob border-2 border-black transition-all duration-200 shadow-pop-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+    :class="{'animate-pulse bg-playful-lavender': isPlaying}"
     title="Listen"
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="{'hidden': isPlaying}" fill="none" viewBox="0 0 24 24" stroke="currentColor">

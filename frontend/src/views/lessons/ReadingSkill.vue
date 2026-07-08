@@ -1,69 +1,60 @@
 <template>
-  <div class="reading-skill space-y-8">
-    <div v-if="!skillContent" class="bg-white border-4 border-black shadow-hard-lg p-10 text-center">
-      <div class="text-6xl mb-4 opacity-30">R</div>
-      <p class="font-bold text-xl uppercase">No reading content yet</p>
-      <p class="font-bold text-xs uppercase tracking-wider text-foreground/60 mt-2">This lesson doesn't have reading exercises.</p>
-    </div>
-
-    <div v-else>
-      <!-- Video -->
-      <div v-if="readingData.videoHtml" class="bg-white border-4 border-black shadow-hard-lg">
-        <div class="bg-red-600 text-white px-5 py-2 flex items-center gap-2">
-          <span class="w-3 h-3 bg-white rounded-full"></span>
-          <span class="font-bold text-sm uppercase tracking-wider">Video</span>
+  <div>
+    <div v-if="readingContent" class="geo-markdown" v-html="parseMarkdown(readingContent)"></div>
+    <div v-if="questions.length > 0" class="mt-8 space-y-6">
+      <div v-for="(q, idx) in questions" :key="idx"
+        class="border-2 border-foreground rounded-md p-6 shadow-pop-lg"
+      >
+        <div class="geo-markdown text-lg font-bold mb-4" v-html="parseMarkdown(q.question)"></div>
+        <div v-if="q.options" class="space-y-2">
+          <label v-for="(opt, oi) in q.options" :key="oi"
+            class="flex items-center gap-3 p-3 border-2 border-foreground rounded-md cursor-pointer transition-all"
+            :class="answers[idx] === oi ? 'bg-accent/10 border-accent' : 'hover:bg-tertiary/10'"
+          >
+            <input type="radio" :name="'read-q-' + idx" :value="oi" v-model="answers[idx]" class="geo-radio" />
+            <span class="font-medium">{{ opt }}</span>
+          </label>
         </div>
-        <div class="p-4" v-html="readingData.videoHtml"></div>
-      </div>
-
-      <!-- Content -->
-      <div class="bg-white border-4 border-black shadow-hard-lg">
-        <div class="bg-black text-white px-6 py-4 flex items-center gap-3">
-          <span class="w-8 h-8 bg-yellow-400 text-black rounded-full flex items-center justify-center font-black text-sm">R</span>
-          <h3 class="font-black text-xl uppercase tracking-tight">Reading</h3>
-        </div>
-        <div class="px-6 py-6">
-          <div v-html="readingData.staticHtml" class="skill-html"></div>
-        </div>
-      </div>
-
-      <!-- Questions -->
-      <div v-if="readingData.questions.length">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="h-px flex-1 bg-black/20"></div>
-          <span class="font-black text-sm uppercase tracking-widest text-gray-500">Questions</span>
-          <div class="h-px flex-1 bg-black/20"></div>
-        </div>
-
-        <ReadingQuestions
-          :questions="readingData.questions"
-          :answer-key="answerKey"
-        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-import { parseReadingContent } from '@/utils/skillParser'
-import answerKeyService from '@/utils/answerKeyService'
-import ReadingQuestions from '@/components/lessons/ReadingQuestions.vue'
+import { ref, onMounted } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
-  lesson: { type: Object, required: true },
-  skills: { type: Array, required: true },
+  readingContent: { type: String, default: '' },
+  questions: { type: Array, default: () => [] },
 })
 
-const answerKey = ref({})
-const skillContent = computed(() => props.skills.find(s => s.skillType === 'READING'))
-const readingData = computed(() => skillContent.value ? parseReadingContent(skillContent.value.content) : { staticHtml: '', videoHtml: '', questions: [] })
+const answers = ref([])
+onMounted(() => { answers.value = questions.value.map(() => null) })
 
-onMounted(async () => {
-  try {
-    answerKey.value = await answerKeyService.getAnswers(props.lesson.id, 'rea')
-  } catch (e) {
-    console.error('Failed to load reading answer key', e)
-  }
-})
+function parseMarkdown(md) {
+  if (!md) return ''
+  return DOMPurify.sanitize(marked.parse(md))
+}
 </script>
+
+<style scoped>
+input.geo-radio {
+  appearance: none;
+  width: 20px; height: 20px;
+  border: 2px solid #1E293B;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+input.geo-radio:checked {
+  border-color: #8B5CF6;
+  background: #8B5CF6;
+  box-shadow: inset 0 0 0 3px white;
+}
+</style>
