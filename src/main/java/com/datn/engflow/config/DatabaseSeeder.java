@@ -1,4 +1,4 @@
-package com.datn.engflow;
+package com.datn.engflow.config;
 
 import com.datn.engflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

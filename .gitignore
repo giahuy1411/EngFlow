@@ -53,3 +53,10 @@ docs/
 # Temporary & Debug Files
 .brave-debug-user-data/
 chrome-wrapper.*
+
+# Agent / Extension caches
+.understand-anything/
+skills-lock.json
+
+# Runtime artifacts
+backend.pid
