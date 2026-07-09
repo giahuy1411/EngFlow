@@ -15,10 +15,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.datn.engflow.model.entity.Exercise;
 import com.datn.engflow.model.entity.Lesson;
 import com.datn.engflow.model.enums.LessonLevel;
 import com.datn.engflow.model.enums.SkillType;
+import com.datn.engflow.repository.ExerciseRepository;
 import com.datn.engflow.repository.LessonRepository;
+import com.datn.engflow.service.HtmlParserService;
 import com.datn.engflow.service.AnswerKeyService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +39,8 @@ public class JsonDataSeeder implements CommandLineRunner {
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
     private final AnswerKeyService answerKeyService;
+    private final HtmlParserService htmlParserService;
+    private final ExerciseRepository exerciseRepository;
 
     @Override
     @Transactional
@@ -127,6 +132,19 @@ public class JsonDataSeeder implements CommandLineRunner {
                                         .build();
 
                                 lessonRepository.save(lesson);
+
+                                // Parse exercises from content HTML
+                                try {
+                                    List<Exercise> parsed = htmlParserService.parseExercises(lesson, cleanHtml);
+                                    for (Exercise ex : parsed) {
+                                        if (exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lesson.getId())
+                                                .stream().noneMatch(e -> e.getQuestion().equals(ex.getQuestion()))) {
+                                            exerciseRepository.save(ex);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    log.warn("Could not parse exercises for lesson {}: {}", lesson.getId(), ex.getMessage());
+                                }
                             } else {
                                 log.info("Skipping existing lesson: {}", fullTitle);
                             }
