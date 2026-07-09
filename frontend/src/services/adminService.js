@@ -60,8 +60,12 @@ export const adminService = {
   },
 
   // Exercises
-  getAllExercises: async () => {
-    const response = await api.get('/api/admin/exercises');
+  getAllExercises: async (params = {}) => {
+    const response = await api.get('/api/admin/exercises', { params });
+    return response.data;
+  },
+  getExercise: async (id) => {
+    const response = await api.get(`/api/admin/exercises/${id}`);
     return response.data;
   },
   createExercise: async (exercise) => {

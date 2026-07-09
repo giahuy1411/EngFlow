@@ -80,7 +80,7 @@
           <tr v-for="ex in filteredExercises" :key="ex.id"
               class="border-b-2 border-foreground hover:bg-accent/5 transition-colors duration-150">
             <td class="p-4 border-r-2 border-foreground">
-              <p class="font-bold">{{ ex.title }}</p>
+              <p class="font-bold truncate max-w-sm">{{ ex.question || ex.title }}</p>
               <p class="text-xs text-gray-500 font-medium truncate max-w-sm">{{ ex.question }}</p>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
@@ -142,12 +142,6 @@
 
         <div class="p-6 overflow-y-auto" style="overscroll-behavior: contain;">
           <form @submit.prevent="saveExercise" class="space-y-5">
-            <div>
-              <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Tiêu đề <span class="text-accent">*</span></label>
-              <input v-model="formData.title" type="text" required
-                     class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
-            </div>
-
             <div>
               <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Câu hỏi <span class="text-accent">*</span></label>
               <textarea v-model="formData.question" required rows="3"
@@ -251,13 +245,7 @@
                         class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all resize-y"></textarea>
             </div>
 
-            <div class="grid grid-cols-2 gap-5">
-              <div>
-                <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Điểm</label>
-                <input v-model.number="formData.points" type="number" min="1"
-                       class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
-              </div>
-            </div>
+            <!-- Points removed — handled by grading system -->
 
             <!-- LISTENING: audio field -->
             <div v-if="formData.exerciseType === 'LISTENING'" class="border-2 border-secondary/30 bg-secondary/5 p-4 rounded-md">
@@ -325,7 +313,7 @@
           <h3 class="font-black text-lg uppercase tracking-tighter text-white">Xác nhận xóa</h3>
         </div>
         <div class="p-6">
-          <p class="font-bold mb-6">Bạn có chắc chắn muốn xóa bài tập <span class="text-accent">"{{ deleteTarget.title }}"</span>?</p>
+          <p class="font-bold mb-6">Bạn có chắc chắn muốn xóa bài tập <span class="text-accent">"{{ deleteTarget.question || deleteTarget.title }}"</span>?</p>
           <div class="flex justify-end gap-4">
             <button @click="deleteTarget = null"
                     class="px-6 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
@@ -376,7 +364,6 @@ const lessonSearch = ref('')
 const showLessonDropdown = ref(false)
 
 const initialForm = {
-  title: '',
   question: '',
   options: [],
   correctAnswer: '',
@@ -384,7 +371,6 @@ const initialForm = {
   exerciseType: 'MULTIPLE_CHOICE',
   difficulty: 'EASY',
   lessonId: null,
-  points: 10,
   audioUrl: '',
   imageUrl: ''
 }
@@ -513,7 +499,11 @@ function parseOptions(raw) {
 const fetchExercises = async () => {
   loading.value = true
   try {
-    const data = await adminService.getAllExercises()
+    const data = await adminService.getAllExercises({
+      lessonId: undefined,
+      type: filterType.value || undefined,
+      difficulty: filterDifficulty.value || undefined
+    })
     exercises.value = Array.isArray(data) ? data : data.content || []
   } catch { toast.showError('Không thể tải danh sách bài tập') }
   finally { loading.value = false }
@@ -531,7 +521,6 @@ const openModal = (ex = null) => {
   if (ex) {
     const options = parseOptions(ex.options)
     formData.value = {
-      title: ex.title || '',
       question: ex.question || '',
       options: options.length >= 2 ? options : ['', '', '', ''],
       correctAnswer: ex.correctAnswer || '',
@@ -539,7 +528,6 @@ const openModal = (ex = null) => {
       exerciseType: ex.exerciseType || 'MULTIPLE_CHOICE',
       difficulty: ex.difficulty || 'EASY',
       lessonId: ex.lesson?.id ?? null,
-      points: ex.points ?? 10,
       audioUrl: ex.audioUrl || '',
       imageUrl: ex.imageUrl || ''
     }
@@ -562,10 +550,18 @@ const saveExercise = async () => {
   saving.value = true
   try {
     const payload = {
-      ...formData.value,
+      lessonId: formData.value.lessonId,
+      question: formData.value.question,
       options: formData.value.exerciseType === 'MULTIPLE_CHOICE'
-        ? formData.value.options.filter(o => o.trim() !== '')
-        : formData.value.options
+        ? JSON.stringify(formData.value.options.filter(o => o.trim() !== ''))
+        : null,
+      correctAnswer: formData.value.correctAnswer,
+      exerciseType: formData.value.exerciseType,
+      difficulty: formData.value.difficulty || undefined,
+      explanation: formData.value.explanation || undefined,
+      imageUrl: formData.value.imageUrl || undefined,
+      audioUrl: formData.value.audioUrl || undefined,
+      orderIndex: undefined
     }
     if (editingExercise.value) {
       await adminService.updateExercise(editingExercise.value.id, payload)
