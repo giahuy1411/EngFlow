@@ -12,10 +12,13 @@ import com.datn.engflow.model.dto.request.GradeSubmissionRequest;
 import com.datn.engflow.model.dto.response.LessonSubmissionDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -24,6 +27,30 @@ public class AdminController {
 
     private final AdminService adminService;
     private final LessonSubmissionService lessonSubmissionService;
+
+    // Exercises (stub - backend implementation pending)
+    @GetMapping("/exercises")
+    public ResponseEntity<List<?>> getAllExercises() {
+        return ResponseEntity.ok(Collections.emptyList());
+    }
+
+    @PostMapping("/exercises")
+    public ResponseEntity<?> createExercise() {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body(Map.of("error", "Bài tập (Exercise) chưa được hỗ trợ trong backend."));
+    }
+
+    @PutMapping("/exercises/{id}")
+    public ResponseEntity<?> updateExercise(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body(Map.of("error", "Bài tập (Exercise) chưa được hỗ trợ trong backend."));
+    }
+
+    @DeleteMapping("/exercises/{id}")
+    public ResponseEntity<?> deleteExercise(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+                .body(Map.of("error", "Bài tập (Exercise) chưa được hỗ trợ trong backend."));
+    }
 
     // --- Stats ---
     @GetMapping("/stats")
