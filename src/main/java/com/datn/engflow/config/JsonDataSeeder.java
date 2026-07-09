@@ -146,7 +146,23 @@ public class JsonDataSeeder implements CommandLineRunner {
                                     log.warn("Could not parse exercises for lesson {}: {}", lesson.getId(), ex.getMessage());
                                 }
                             } else {
-                                log.info("Skipping existing lesson: {}", fullTitle);
+                                log.info("Found existing lesson: {}. Parsing exercises...", fullTitle);
+                                // Parse exercises for existing lessons too
+                                try {
+                                    Lesson lesson = lessonRepository.findByTitle(fullTitle).get();
+                                    if (lesson.getContent() != null && !lesson.getContent().isEmpty()) {
+                                        List<Exercise> parsed = htmlParserService.parseExercises(lesson, lesson.getContent());
+                                        for (Exercise ex : parsed) {
+                                            if (exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lesson.getId())
+                                                    .stream().noneMatch(e -> e.getQuestion().equals(ex.getQuestion()))) {
+                                                exerciseRepository.save(ex);
+                                            }
+                                        }
+                                        log.info("  Parsed {} exercises for existing lesson: {}", parsed.size(), fullTitle);
+                                    }
+                                } catch (Exception ex) {
+                                    log.warn("Could not parse exercises for existing lesson {}: {}", fullTitle, ex.getMessage());
+                                }
                             }
                         }
                     }
