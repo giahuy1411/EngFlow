@@ -43,7 +43,6 @@ public class JsonDataSeeder implements CommandLineRunner {
     private final ExerciseRepository exerciseRepository;
 
     @Override
-    @Transactional
     public void run(String... args) throws Exception {
         // Try reading from the crawler/data/ directory first, then fallback to single file
         File dataDir = new File("crawler/data");
