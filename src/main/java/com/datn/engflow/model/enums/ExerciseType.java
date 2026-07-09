@@ -2,7 +2,8 @@ package com.datn.engflow.model.enums;
 
 public enum ExerciseType {
     MULTIPLE_CHOICE,
-    FILL_IN_BLANK,
+    FILL_BLANK,
     LISTENING,
-    SPEAKING
+    MATCHING,
+    TRANSLATION
 }
