@@ -28,29 +28,7 @@ public class AdminController {
     private final AdminService adminService;
     private final LessonSubmissionService lessonSubmissionService;
 
-    // Exercises (stub - backend implementation pending)
-    @GetMapping("/exercises")
-    public ResponseEntity<List<?>> getAllExercises() {
-        return ResponseEntity.ok(Collections.emptyList());
-    }
-
-    @PostMapping("/exercises")
-    public ResponseEntity<?> createExercise() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body(Map.of("error", "Bài tập (Exercise) chưa được hỗ trợ trong backend."));
-    }
-
-    @PutMapping("/exercises/{id}")
-    public ResponseEntity<?> updateExercise(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body(Map.of("error", "Bài tập (Exercise) chưa được hỗ trợ trong backend."));
-    }
-
-    @DeleteMapping("/exercises/{id}")
-    public ResponseEntity<?> deleteExercise(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body(Map.of("error", "Bài tập (Exercise) chưa được hỗ trợ trong backend."));
-    }
+    // (Exercises moved to AdminExerciseController)
 
     // --- Stats ---
     @GetMapping("/stats")
