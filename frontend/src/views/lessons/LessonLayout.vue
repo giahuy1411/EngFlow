@@ -6,36 +6,26 @@
         <button @click="activeTab = 'overview'"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
           :class="activeTab === 'overview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
-          Tổng quan
+          Nội dung
         </button>
-        <button @click="activeTab = 'exercises'"
+        <button @click="activeTab = 'history'"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="activeTab === 'exercises' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
-          Bài tập
-        </button>
-        <button @click="activeTab = 'preview'"
-          class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="activeTab === 'preview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
-          Xem trước
+          :class="activeTab === 'history' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
+          Lịch sử
         </button>
       </nav>
 
       <LessonOverview v-if="activeTab === 'overview'" />
-      <LessonExercise v-if="activeTab === 'exercises'" />
-      <LessonPreview v-if="activeTab === 'preview'" />
+      <LessonHistory v-if="activeTab === 'history'" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 import StreakBanner from './StreakBanner.vue'
 import LessonOverview from './LessonOverview.vue'
-import LessonExercise from './LessonExercise.vue'
-import LessonPreview from './LessonPreview.vue'
+import LessonHistory from './LessonPreview.vue'
 
-const route = useRoute()
-const lessonId = route.params.id
 const activeTab = ref('overview')
 </script>
