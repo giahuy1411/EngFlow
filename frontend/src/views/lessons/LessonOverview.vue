@@ -50,17 +50,19 @@
           </div>
 
           <!-- Text input -->
-          <input v-else v-model="textAnswers[ex.id]" type="text" placeholder="Nhập câu trả lời..."
+          <input v-else v-model="textAnswers[ex.id]" type="text"
+            :aria-label="'Câu trả lời cho câu ' + (idx + 1)"
+            :placeholder="'Nhập câu trả lời...'"
             :disabled="cardStates[ex.id]?.revealed"
             class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
 
           <!-- Result badge (after check) -->
-          <div v-if="cardStates[ex.id]?.revealed" class="mt-4 p-4 rounded-md border-2"
+          <div v-if="cardStates[ex.id]?.revealed" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
             :class="cardStates[ex.id]?.isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
             <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
               <span>{{ cardStates[ex.id]?.isCorrect ? '✅ Đúng' : '❌ Sai' }}</span>
             </div>
-            <p class="font-bold text-sm text-foreground/70">Đáp án: <span class="text-quaternary">{{ ex.correctAnswer }}</span></p>
+            <p class="font-bold text-sm text-foreground/70">Đáp án: <span class="text-quaternary">{{ ex.correctAnswer || 'Chưa có đáp án' }}</span></p>
             <p v-if="ex.explanation" class="mt-2 text-sm text-foreground/60 italic">{{ ex.explanation }}</p>
           </div>
 
