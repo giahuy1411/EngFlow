@@ -2,34 +2,40 @@
   <div class="bg-geo-bg min-h-screen">
     <StreakBanner />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Tab Navigation -->
       <nav class="flex gap-4 border-b-2 border-gray-300 mb-6">
-        <router-link :to="`/lessons/${lessonId}`"
+        <button @click="activeTab = 'overview'"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="$route.name === 'LessonOverview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
+          :class="activeTab === 'overview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
           Tổng quan
-        </router-link>
-        <router-link :to="`/lessons/${lessonId}/exercises`"
+        </button>
+        <button @click="activeTab = 'exercises'"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="$route.name === 'LessonExercises' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
+          :class="activeTab === 'exercises' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
           Bài tập
-        </router-link>
-        <router-link :to="`/lessons/${lessonId}/preview`"
+        </button>
+        <button @click="activeTab = 'preview'"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="$route.name === 'LessonPreview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
+          :class="activeTab === 'preview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
           Xem trước
-        </router-link>
+        </button>
       </nav>
 
-      <router-view />
+      <LessonOverview v-if="activeTab === 'overview'" />
+      <LessonExercise v-if="activeTab === 'exercises'" />
+      <LessonPreview v-if="activeTab === 'preview'" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import StreakBanner from './StreakBanner.vue'
+import LessonOverview from './LessonOverview.vue'
+import LessonExercise from './LessonExercise.vue'
+import LessonPreview from './LessonPreview.vue'
 
 const route = useRoute()
 const lessonId = route.params.id
+const activeTab = ref('overview')
 </script>

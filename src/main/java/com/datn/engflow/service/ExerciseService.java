@@ -29,8 +29,30 @@ public class ExerciseService {
     // --- CRUD ---
 
     public List<ExerciseResponse> getExercisesByLesson(Long lessonId) {
-        return exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId)
-                .stream().map(this::toResponse).toList();
+        List<Exercise> exercises = exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
+        if (!exercises.isEmpty()) {
+            return exercises.stream().map(this::toResponse).toList();
+        }
+        // Fallback: parent lesson has no exercises — find sub-lesson by title
+        Lesson lesson = lessonRepository.findById(lessonId).orElse(null);
+        if (lesson != null && lesson.getTitle() != null) {
+            // Extract base topic: remove prefix and suffix
+            String base = lesson.getTitle()
+                    .replaceAll("^English (Grammar|Vocabulary|Reading|Listening|Speaking|Writing) Exercises for [A-Z][12] – ", "")
+                    .replaceAll(" - (GRAMMAR|VOCABULARY|LISTENING|READING|SPEAKING|WRITING|WORD_SKILLS)$", "")
+                    .trim();
+            if (!base.isEmpty()) {
+                List<Lesson> candidates = lessonRepository.findByTitleContainingIgnoreCase(base);
+                for (Lesson candidate : candidates) {
+                    if (candidate.getId().equals(lessonId)) continue;
+                    List<Exercise> candidateExercises = exerciseRepository.findByLessonIdOrderByOrderIndexAsc(candidate.getId());
+                    if (!candidateExercises.isEmpty()) {
+                        return candidateExercises.stream().map(this::toResponse).toList();
+                    }
+                }
+            }
+        }
+        return List.of();
     }
 
     public ExerciseResponse getExercise(Long id) {
