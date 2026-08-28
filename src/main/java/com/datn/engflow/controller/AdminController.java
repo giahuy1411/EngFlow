@@ -1,32 +1,29 @@
 package com.datn.engflow.controller;
 
-import com.datn.engflow.model.dto.request.AchievementRequest;
-import com.datn.engflow.model.dto.request.LessonRequest;
 import com.datn.engflow.model.dto.VocabularyRequest;
+import com.datn.engflow.model.dto.request.LessonRequest;
 import com.datn.engflow.model.dto.response.AdminStatsDTO;
 import com.datn.engflow.model.dto.response.AdminUserDTO;
-import com.datn.engflow.model.entity.*;
+import com.datn.engflow.model.dto.response.LessonSummaryDTO;
+import com.datn.engflow.model.entity.Lesson;
+import com.datn.engflow.model.entity.Vocabulary;
+import com.datn.engflow.model.enums.LessonLevel;
 import com.datn.engflow.service.AdminService;
-import com.datn.engflow.service.LessonSubmissionService;
-import com.datn.engflow.model.dto.request.GradeSubmissionRequest;
-import com.datn.engflow.model.dto.response.LessonSubmissionDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+/**
+ * class AdminController.
+ */
 public class AdminController {
 
     private final AdminService adminService;
-    private final LessonSubmissionService lessonSubmissionService;
 
     // (Exercises moved to AdminExerciseController)
 
@@ -38,8 +35,11 @@ public class AdminController {
 
     // --- Users ---
     @GetMapping("/users")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
+    public ResponseEntity<Page<AdminUserDTO>> getAllUsers(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(adminService.getAllUsers(q, page, size));
     }
 
     @PutMapping("/users/{id}/toggle-active")
@@ -52,10 +52,29 @@ public class AdminController {
         return ResponseEntity.ok(adminService.toggleUserAdmin(id));
     }
 
+    @PutMapping("/users/{id}/toggle-premium")
+    public ResponseEntity<AdminUserDTO> toggleUserPremium(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.toggleUserPremium(id));
+    }
+
+    @PutMapping("/users/{id}/revoke-premium")
+    public ResponseEntity<AdminUserDTO> revokeUserPremium(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.revokeUserPremium(id));
+    }
+
     // --- Lessons ---
     @GetMapping("/lessons")
-    public ResponseEntity<List<Lesson>> getAllLessons() {
-        return ResponseEntity.ok(adminService.getAllLessonsAdmin());
+    public ResponseEntity<Page<LessonSummaryDTO>> getAllLessons(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) LessonLevel level,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(adminService.getAllLessonsAdmin(q, level, page, size));
+    }
+
+    @GetMapping("/lessons/{id}")
+    public ResponseEntity<Lesson> getLesson(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.getLesson(id));
     }
 
     @PostMapping("/lessons")
@@ -81,8 +100,10 @@ public class AdminController {
 
     // --- Vocabulary ---
     @GetMapping("/vocabulary")
-    public ResponseEntity<List<Vocabulary>> getAllVocabulary() {
-        return ResponseEntity.ok(adminService.getAllVocabulary());
+    public ResponseEntity<Page<Vocabulary>> getAllVocabulary(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(adminService.getAllVocabulary(page, size));
     }
 
     @PostMapping("/vocabulary")
@@ -99,40 +120,5 @@ public class AdminController {
     public ResponseEntity<Void> deleteVocabulary(@PathVariable Long id) {
         adminService.deleteVocabulary(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // (Exercises removed)
-    // --- Achievements ---
-    @GetMapping("/achievements")
-    public ResponseEntity<List<Achievement>> getAllAchievements() {
-        return ResponseEntity.ok(adminService.getAllAchievements());
-    }
-
-    @PostMapping("/achievements")
-    public ResponseEntity<Achievement> createAchievement(@Valid @RequestBody AchievementRequest request) {
-        return ResponseEntity.ok(adminService.createAchievement(request));
-    }
-
-    @PutMapping("/achievements/{id}")
-    public ResponseEntity<Achievement> updateAchievement(@PathVariable Long id, @Valid @RequestBody AchievementRequest request) {
-        return ResponseEntity.ok(adminService.updateAchievement(id, request));
-    }
-
-    @DeleteMapping("/achievements/{id}")
-    public ResponseEntity<Void> deleteAchievement(@PathVariable Long id) {
-        adminService.deleteAchievement(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // --- Submissions ---
-    @GetMapping("/submissions")
-    public ResponseEntity<List<LessonSubmissionDTO>> getAllSubmissions() {
-        return ResponseEntity.ok(lessonSubmissionService.getAllSubmissionsForAdmin());
-    }
-
-    @PutMapping("/submissions/{id}/grade")
-    public ResponseEntity<LessonSubmissionDTO> gradeSubmission(@PathVariable Long id,
-                                                               @Valid @RequestBody GradeSubmissionRequest request) {
-        return ResponseEntity.ok(lessonSubmissionService.gradeSubmission(id, request.getScore(), request.getFeedback()));
     }
 }

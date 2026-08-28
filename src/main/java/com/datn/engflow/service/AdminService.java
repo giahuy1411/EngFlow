@@ -1,64 +1,95 @@
 package com.datn.engflow.service;
 
 import com.datn.engflow.exception.ResourceNotFoundException;
-import com.datn.engflow.model.dto.request.AchievementRequest;
-import com.datn.engflow.model.dto.request.LessonRequest;
 import com.datn.engflow.model.dto.VocabularyRequest;
+import com.datn.engflow.model.dto.request.LessonRequest;
 import com.datn.engflow.model.dto.response.AdminStatsDTO;
-import com.datn.engflow.model.enums.SkillType;
 import com.datn.engflow.model.dto.response.AdminUserDTO;
+import com.datn.engflow.model.dto.response.LessonSummaryDTO;
 import com.datn.engflow.model.entity.*;
+import com.datn.engflow.model.enums.LessonLevel;
+import com.datn.engflow.model.enums.SkillType;
 import com.datn.engflow.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * class AdminService.
+ */
 public class AdminService {
+
+    private static final int MAX_PAGE_SIZE = 100;
 
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
     private final VocabularyRepository vocabularyRepository;
-    private final AchievementRepository achievementRepository;
+    private final ExerciseRepository exerciseRepository;
+    private final LessonSubmissionRepository lessonSubmissionRepository;
+    private final LessonService lessonService;
 
     public AdminStatsDTO getDashboardStats() {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
         long totalUsers = userRepository.count();
         long totalLessons = lessonRepository.count();
         long totalVocabulary = vocabularyRepository.count();
-        long totalAchievements = achievementRepository.count();
-        
-        List<User> users = userRepository.findAll();
-        long activeUsers = users.stream().filter(u -> Boolean.TRUE.equals(u.getIsActive())).count();
-        long recentUsers = users.stream().filter(u -> u.getLastStudyDate() != null && u.getLastStudyDate().isAfter(sevenDaysAgo.toLocalDate())).count();
+        long activeUsers = userRepository.countByIsActiveTrue();
+        long recentUsers = userRepository.countByLastStudyDateAfter(sevenDaysAgo.toLocalDate());
+        long totalExercises = exerciseRepository.count();
+        long totalSubmissions = lessonSubmissionRepository.count();
 
         return AdminStatsDTO.builder()
                 .totalUsers(totalUsers)
                 .totalLessons(totalLessons)
                 .totalVocabulary(totalVocabulary)
-                .totalAchievements(totalAchievements)
                 .activeUsers(activeUsers)
                 .recentUsers(recentUsers)
+                .totalExercises(totalExercises)
+                .totalSubmissions(totalSubmissions)
                 .build();
     }
 
-    public List<AdminUserDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(u -> AdminUserDTO.builder()
-                .id(u.getId())
-                .username(u.getUsername())
-                .email(u.getEmail())
-                .fullName(u.getFullName())
-                .isAdmin(u.getIsAdmin())
-                .isActive(u.getIsActive())
-                .totalPoints(u.getTotalPoints())
-                .currentStreak(u.getCurrentStreak())
-                .createdAt(u.getCreatedAt())
-                .build()).collect(Collectors.toList());
+    public Page<AdminUserDTO> getAllUsers(String keyword, int page, int size) {
+        Pageable pageable = adminPageRequest(page, size, Sort.by("createdAt").descending().and(Sort.by("id")));
+        Page<User> users = (keyword == null || keyword.isBlank())
+                ? userRepository.findAll(pageable)
+                : userRepository.searchByKeywordPage(keyword.trim(), pageable);
+        return users.map(this::mapToAdminUserDTO);
+    }
+
+    @Transactional
+    public AdminUserDTO toggleUserPremium(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        boolean currentlyPremium = Boolean.TRUE.equals(user.getIsPremium());
+        if (currentlyPremium) {
+            user.setIsPremium(false);
+            user.setPremiumExpiry(null);
+        } else {
+            user.setIsPremium(true);
+            user.setPremiumExpiry(LocalDate.now().plusDays(30));
+        }
+        User saved = userRepository.save(user);
+        return mapToAdminUserDTO(saved);
+    }
+
+    @Transactional
+    public AdminUserDTO revokeUserPremium(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        user.setIsPremium(false);
+        user.setPremiumExpiry(null);
+        User saved = userRepository.save(user);
+        return mapToAdminUserDTO(saved);
     }
 
     @Transactional
@@ -90,12 +121,52 @@ public class AdminService {
                 .totalPoints(u.getTotalPoints())
                 .currentStreak(u.getCurrentStreak())
                 .createdAt(u.getCreatedAt())
+                .isPremium(Boolean.TRUE.equals(u.getIsPremium()))
+                .premiumExpiry(u.getPremiumExpiry())
                 .build();
     }
 
     // Lessons
-    public List<Lesson> getAllLessonsAdmin() {
-        return lessonRepository.findAll();
+    public Page<LessonSummaryDTO> getAllLessonsAdmin(String keyword, int page, int size) {
+        return getAllLessonsAdmin(keyword, null, page, size);
+    }
+
+    public Page<LessonSummaryDTO> getAllLessonsAdmin(String keyword, LessonLevel level, int page, int size) {
+        Pageable pageable = adminPageRequest(page, size, Sort.by("orderIndex").ascending().and(Sort.by("id")));
+        return getAllLessonsAdmin(keyword, level, pageable);
+    }
+
+    public Page<LessonSummaryDTO> getAllLessonsAdmin(String keyword, Pageable pageable) {
+        return getAllLessonsAdmin(keyword, null, pageable);
+    }
+
+    public Page<LessonSummaryDTO> getAllLessonsAdmin(String keyword, LessonLevel level, Pageable pageable) {
+        Page<Lesson> lessons = lessonRepository.findAdminPage(
+                (keyword == null || keyword.isBlank()) ? null : keyword.trim(),
+                level,
+                pageable);
+        return lessons.map(this::toSummary);
+    }
+
+    private LessonSummaryDTO toSummary(Lesson lesson) {
+        return LessonSummaryDTO.builder()
+                .id(lesson.getId())
+                .title(lesson.getTitle())
+                .description(lesson.getDescription())
+                .level(lesson.getLevel())
+                .category(lesson.getCategory())
+                .durationMinutes(lesson.getDurationMinutes())
+                .thumbnailUrl(lesson.getThumbnailUrl())
+                .skillType(lesson.getSkillType())
+                .orderIndex(lesson.getOrderIndex())
+                .isPublished(lesson.getIsPublished())
+                .createdAt(lesson.getCreatedAt())
+                .build();
+    }
+
+    public Lesson getLesson(Long id) {
+        return lessonRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", id));
     }
 
     @Transactional
@@ -137,9 +208,7 @@ public class AdminService {
 
     @Transactional
     public void deleteLesson(Long id) {
-        Lesson lesson = lessonRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", id));
-        lessonRepository.delete(lesson);
+        lessonService.deleteLesson(id);
     }
 
     @Transactional
@@ -151,8 +220,9 @@ public class AdminService {
     }
 
     // Vocabulary
-    public List<Vocabulary> getAllVocabulary() {
-        return vocabularyRepository.findAll();
+    public Page<Vocabulary> getAllVocabulary(int page, int size) {
+        Pageable pageable = adminPageRequest(page, size, Sort.by("id").ascending());
+        return vocabularyRepository.findAll(pageable);
     }
 
     @Transactional
@@ -208,40 +278,10 @@ public class AdminService {
         vocabularyRepository.delete(vocabulary);
     }
 
+    private Pageable adminPageRequest(int page, int size, Sort sort) {
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        return PageRequest.of(Math.max(page, 0), safeSize, sort);
+    }
+
     // (Exercises section removed)
-    // Achievements
-    public List<Achievement> getAllAchievements() {
-        return achievementRepository.findAll();
-    }
-
-    @Transactional
-    public Achievement createAchievement(AchievementRequest request) {
-        Achievement achievement = Achievement.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .badgeType(request.getBadgeType())
-                .iconUrl(request.getIconUrl())
-                .pointsRequired(request.getPointsRequired() != null ? request.getPointsRequired() : 0)
-                .build();
-        return achievementRepository.save(achievement);
-    }
-
-    @Transactional
-    public Achievement updateAchievement(Long id, AchievementRequest request) {
-        Achievement achievement = achievementRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Achievement", "id", id));
-        achievement.setName(request.getName());
-        achievement.setDescription(request.getDescription());
-        achievement.setBadgeType(request.getBadgeType());
-        achievement.setIconUrl(request.getIconUrl());
-        if (request.getPointsRequired() != null) achievement.setPointsRequired(request.getPointsRequired());
-        return achievementRepository.save(achievement);
-    }
-
-    @Transactional
-    public void deleteAchievement(Long id) {
-        Achievement achievement = achievementRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Achievement", "id", id));
-        achievementRepository.delete(achievement);
-    }
 }

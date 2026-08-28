@@ -8,8 +8,8 @@ export const adminService = {
   },
 
   // Users
-  getAllUsers: async () => {
-    const response = await api.get('/api/admin/users');
+  getAllUsers: async (params = {}) => {
+    const response = await api.get('/api/admin/users', { params });
     return response.data;
   },
   toggleUserActive: async (id) => {
@@ -20,10 +20,22 @@ export const adminService = {
     const response = await api.put(`/api/admin/users/${id}/toggle-admin`);
     return response.data;
   },
+  toggleUserPremium: async (id) => {
+    const response = await api.put(`/api/admin/users/${id}/toggle-premium`);
+    return response.data;
+  },
+  revokeUserPremium: async (id) => {
+    const response = await api.put(`/api/admin/users/${id}/revoke-premium`);
+    return response.data;
+  },
 
   // Lessons
-  getAllLessons: async () => {
-    const response = await api.get('/api/admin/lessons');
+  getAllLessons: async (params = {}) => {
+    const response = await api.get('/api/admin/lessons', { params });
+    return response.data;
+  },
+  getLesson: async (id) => {
+    const response = await api.get(`/api/admin/lessons/${id}`);
     return response.data;
   },
   createLesson: async (lesson) => {
@@ -43,8 +55,8 @@ export const adminService = {
   },
 
   // Vocabulary
-  getAllVocabulary: async () => {
-    const response = await api.get('/api/admin/vocabulary');
+  getAllVocabulary: async (params = {}) => {
+    const response = await api.get('/api/admin/vocabulary', { params });
     return response.data;
   },
   createVocabulary: async (vocabulary) => {
@@ -78,22 +90,5 @@ export const adminService = {
   },
   deleteExercise: async (id) => {
     await api.delete(`/api/admin/exercises/${id}`);
-  },
-
-  // Achievements
-  getAllAchievements: async () => {
-    const response = await api.get('/api/admin/achievements');
-    return response.data;
-  },
-  createAchievement: async (achievement) => {
-    const response = await api.post('/api/admin/achievements', achievement);
-    return response.data;
-  },
-  updateAchievement: async (id, achievement) => {
-    const response = await api.put(`/api/admin/achievements/${id}`, achievement);
-    return response.data;
-  },
-  deleteAchievement: async (id) => {
-    await api.delete(`/api/admin/achievements/${id}`);
   }
 };

@@ -11,6 +11,9 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+/**
+ * class StreakReminderScheduler.
+ */
 public class StreakReminderScheduler {
 
     private final StreakService streakService;

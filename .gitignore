@@ -60,3 +60,22 @@ skills-lock.json
 
 # Runtime artifacts
 backend.pid
+
+# Audit / tooling artifacts (not source)
+.ua/
+.playwright-mcp/
+frontend/.playwright-mcp/
+crawler/output/
+screenshots/
+compile_out.txt
+ui_report_utf8.md
+tmp_*.json
+tmp_*.txt
+diag_*.json
+mcp_*.json
+backup_*.out
+*.network-request
+*.network-response
+.agents/mcp_config.json
+scripts/
+uploads/

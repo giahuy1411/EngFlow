@@ -5,6 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
+/**
+ * class ExerciseGradeItem.
+ */
 public class ExerciseGradeItem {
     private Long exerciseId;
     private boolean correct;

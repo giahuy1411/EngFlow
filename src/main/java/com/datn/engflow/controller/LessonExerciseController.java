@@ -1,11 +1,10 @@
 package com.datn.engflow.controller;
 
 import com.datn.engflow.model.dto.request.GradeRequest;
-import com.datn.engflow.model.dto.response.AttemptDetailResponse;
-import com.datn.engflow.model.dto.response.AttemptHistoryResponse;
-import com.datn.engflow.model.dto.response.ExerciseResponse;
-import com.datn.engflow.model.dto.response.GradeResponse;
+import com.datn.engflow.model.dto.response.*;
 import com.datn.engflow.service.ExerciseService;
+import com.datn.engflow.service.LessonContentService;
+import com.datn.engflow.service.LessonContentService.LessonContentInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,14 +15,30 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/lessons/{lessonId}/exercises")
 @RequiredArgsConstructor
+/**
+ * class LessonExerciseController.
+ */
 public class LessonExerciseController {
 
     private final ExerciseService exerciseService;
+    private final LessonContentService lessonContentService;
 
     @GetMapping
     public ResponseEntity<List<ExerciseResponse>> getExercises(
             @PathVariable Long lessonId,
-            @RequestParam(defaultValue = "false") boolean includeAnswers) {
+            @RequestParam(defaultValue = "false") boolean includeAnswers,
+            Authentication authentication) {
+        if (includeAnswers) {
+            if (authentication == null) {
+                authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            }
+            boolean isAdmin = authentication != null && authentication.isAuthenticated()
+                    && authentication.getAuthorities() != null
+                    && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            if (!isAdmin) {
+                return ResponseEntity.status(403).build();
+            }
+        }
         List<ExerciseResponse> exercises = exerciseService.getExercisesByLesson(lessonId, includeAnswers);
         return ResponseEntity.ok(exercises);
     }
@@ -60,5 +75,15 @@ public class LessonExerciseController {
             Authentication authentication) {
         AttemptDetailResponse detail = exerciseService.getAttemptDetail(lessonId, attemptId, authentication.getName());
         return ResponseEntity.ok(detail);
+    }
+
+    /**
+     * Returns lesson content with Answer sections stripped + per-exercise HTML fragments.
+     */
+    @GetMapping("/content")
+    public ResponseEntity<LessonContentInfo> getCleanContent(
+            @PathVariable Long lessonId) {
+        LessonContentInfo info = exerciseService.getCleanContent(lessonId);
+        return ResponseEntity.ok(info);
     }
 }

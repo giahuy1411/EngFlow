@@ -19,16 +19,16 @@
         <h3 class="font-black text-2xl uppercase mb-2">
           {{ results.percentage >= 70 ? 'Hoàn thành!' : 'Cần cố gắng hơn' }}
         </h3>
-        <p class="font-bold text-gray-500 mb-6">{{ results.score }} / {{ results.total }} câu đúng</p>
+        <p class="font-bold text-muted-foreground mb-6">{{ results.score }} / {{ results.total }} câu đúng</p>
 
         <div class="space-y-3 text-left mb-6 max-w-lg mx-auto">
           <div v-for="r in results.results" :key="r.exerciseId"
             class="flex items-center gap-3 p-3 border-2 border-foreground rounded-md"
             :class="r.correct ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
-            <span class="text-lg">{{ r.correct ? '✅' : '❌' }}</span>
+            <span class="text-lg" aria-hidden="true">{{ r.correct ? '✓' : '✕' }}</span>
             <div>
               <p class="font-bold text-sm">Đáp án đúng: <span class="text-quaternary">{{ r.correctAnswer }}</span></p>
-              <p v-if="!r.correct" class="text-xs text-gray-500">Bạn trả lời: {{ r.userAnswer }}</p>
+              <p v-if="!r.correct" class="text-xs text-muted-foreground">Bạn trả lời: {{ r.userAnswer }}</p>
             </div>
           </div>
         </div>
@@ -44,7 +44,7 @@
     <div v-else>
       <div class="flex items-center gap-4 mb-6">
         <span class="font-bold text-sm uppercase bg-foreground text-white px-4 py-2 rounded-full">{{ currentIndex + 1 }} / {{ exercises.length }}</span>
-        <span class="px-3 py-1 bg-tertiary text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-foreground">{{ currentExercise.exerciseType }}</span>
+        <span class="px-3 py-1 bg-tertiary text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-foreground">{{ typeLabel(currentExercise.exerciseType) }}</span>
         <span v-if="currentExercise.difficulty === 'EASY'" class="text-quaternary font-bold text-xs uppercase">Dễ</span>
         <span v-else-if="currentExercise.difficulty === 'MEDIUM'" class="text-tertiary font-bold text-xs uppercase">TB</span>
         <span v-else class="text-accent font-bold text-xs uppercase">Khó</span>
@@ -59,36 +59,45 @@
             <audio :src="currentExercise.audioUrl" controls class="w-full"></audio>
           </div>
 
-          <div class="geo-markdown mb-5" v-html="parseMarkdown(currentExercise.question)"></div>
+          <!-- MATCHING: dedicated component -->
+          <MatchingExercise v-if="currentExercise.exerciseType === 'MATCHING'"
+            :exercise="currentExercise"
+            @answer="onMatchingAnswer"
+            @reveal="onMatchingReveal"
+          />
 
-          <div v-if="currentExercise.options" class="space-y-3">
-            <button v-for="(opt, idx) in parsedOptions" :key="idx"
-              @click="selectOption(idx)"
-              class="w-full text-left p-4 border-2 font-medium transition-all rounded-md"
-              :class="getOptionClass(idx)">
-              {{ opt }}
-            </button>
-          </div>
+          <template v-else>
+            <div class="geo-markdown mb-5" v-html="parseMarkdown(currentExercise.question)"></div>
 
-          <input v-else v-model="userAnswer" type="text" placeholder="Nhập câu trả lời..."
-            class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
+            <!-- Options (multiple choice, listening) -->
+            <div v-if="hasOptionChoices(currentExercise)" class="space-y-3">
+              <button v-for="(opt, idx) in parsedOptionsFor(currentExercise)" :key="idx"
+                @click="selectOption(idx)"
+                class="w-full text-left p-4 border-2 font-medium transition-all rounded-md"
+                :class="getOptionClass(idx)">
+                {{ opt }}
+              </button>
+            </div>
+
+            <!-- Text input (fill blank, translation) -->
+            <input v-else v-model="userAnswer" type="text"
+              :placeholder="getInputPlaceholder(currentExercise)"
+              class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
+          </template>
         </div>
 
         <div class="px-6 pb-6 flex gap-3">
-          <!-- Go to previous -->
           <button v-if="currentIndex > 0" @click="goTo(currentIndex - 1)"
             class="px-6 py-4 border-2 border-foreground font-black text-sm tracking-wider rounded-full transition-all">
-            ← Trước
+            Trước
           </button>
-          <!-- Submit all -->
-          <button @click="submitAll"
+          <button @click="submitAll" :disabled="submitting"
             class="flex-1 px-8 py-4 bg-accent text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
-            Nộp tất cả ({{ exercises.length }} câu)
+            {{ submitting ? 'Đang nộp...' : `Nộp tất cả (${exercises.length} câu)` }}
           </button>
-          <!-- Go to next -->
           <button v-if="currentIndex < exercises.length - 1" @click="goTo(currentIndex + 1)"
             class="px-6 py-4 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all">
-            Tiếp →
+            Tiếp
           </button>
         </div>
       </div>
@@ -102,6 +111,7 @@ import { useRoute } from 'vue-router'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import lessonService from '@/services/lessonService'
+import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
 
 const route = useRoute()
 const lessonId = Number(route.params.id)
@@ -118,13 +128,34 @@ const submitting = ref(false)
 
 const currentExercise = computed(() => exercises.value[currentIndex.value] || {})
 
-const parsedOptions = computed(() => {
-  const opts = currentExercise.value.options
+function typeLabel(type) {
+  const map = { MULTIPLE_CHOICE: 'Trắc nghiệm', FILL_BLANK: 'Điền từ', LISTENING: 'Nghe', MATCHING: 'Nối từ', TRANSLATION: 'Dịch' }
+  return map[type] || type
+}
+
+function parseOpts(ex) {
+  const opts = ex.options
   if (!opts) return null
   if (Array.isArray(opts)) return opts
   try { return JSON.parse(opts) }
   catch { return null }
-})
+}
+
+function parsedOptionsFor(ex) {
+  return parseOpts(ex)
+}
+
+function hasOptionChoices(ex) {
+  const choiceTypes = ['MULTIPLE_CHOICE', 'LISTENING']
+  if (!choiceTypes.includes(ex.exerciseType)) return false
+  const opts = parseOpts(ex)
+  return Array.isArray(opts) && opts.length > 0
+}
+
+function getInputPlaceholder(ex) {
+  const placeholders = { FILL_BLANK: 'Điền vào chỗ trống...', TRANSLATION: 'Nhập bản dịch...' }
+  return placeholders[ex.exerciseType] || 'Nhập câu trả lời...'
+}
 
 function parseMarkdown(md) {
   if (!md) return ''
@@ -133,14 +164,14 @@ function parseMarkdown(md) {
 
 function selectOption(idx) {
   selectedOption.value = idx
-  const opts = parsedOptions.value
+  const opts = parseOpts(currentExercise.value)
   if (opts && opts[idx]) {
     answersMap.value[currentExercise.value.id] = opts[idx]
   }
 }
 
 function getOptionClass(idx) {
-  const opts = parsedOptions.value
+  const opts = parseOpts(currentExercise.value)
   if (!opts) return 'border-foreground hover:bg-tertiary/10'
   const selected = selectedOption.value === idx
   return selected ? 'border-accent bg-accent/10' : 'border-foreground hover:bg-tertiary/10'
@@ -150,6 +181,14 @@ function goTo(idx) {
   currentIndex.value = idx
   selectedOption.value = null
   userAnswer.value = ''
+}
+
+function onMatchingAnswer(answer) {
+  answersMap.value[currentExercise.value.id] = answer
+}
+
+function onMatchingReveal(answer) {
+  // Answer already stored in answersMap
 }
 
 async function submitAll() {
@@ -193,3 +232,4 @@ onMounted(async () => {
 <style scoped>
 audio { border-radius: 8px; }
 </style>
+

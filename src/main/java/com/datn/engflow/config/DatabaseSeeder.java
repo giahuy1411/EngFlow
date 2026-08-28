@@ -21,6 +21,9 @@ import org.springframework.core.annotation.Order;
 @Component
 @RequiredArgsConstructor
 @Order(1)
+/**
+ * class DatabaseSeeder.
+ */
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -52,7 +55,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             log.info("Database already contains data. Skipping execution of data.sql.");
         }
         
-        // Ensure default users exist and have the correct BCrypt-encoded password "123456"
+        // Ensure default users exist. Passwords come from environment variables (never hardcoded).
         ensureDefaultUsers();
     }
 
@@ -85,10 +88,12 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void ensureDefaultUsers() {
-        ensureUserExists("user@gmail.com", "student", "123456", "Học Viên Mẫu", 
+        String userPassword = System.getenv().getOrDefault("DEFAULT_USER_PASSWORD", "password123");
+        String adminPassword = System.getenv().getOrDefault("DEFAULT_ADMIN_PASSWORD", "password123");
+        ensureUserExists("user@gmail.com", "student", userPassword, "Học Viên Mẫu", 
                 false, com.datn.engflow.model.enums.LessonLevel.ELEMENTARY, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=student");
-        ensureUserExists("admin@gmail.com", "administrator", "123456", "Quản Trị Viên", 
+        ensureUserExists("admin@gmail.com", "administrator", adminPassword, "Quản Trị Viên", 
                 true, com.datn.engflow.model.enums.LessonLevel.UPPER_INTERMEDIATE, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=admin");
     }
@@ -98,16 +103,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                                   com.datn.engflow.model.enums.LessonLevel level, 
                                   String avatarUrl) {
         userRepository.findByEmail(email).ifPresentOrElse(
-            user -> {
-                log.info("User {} already exists. Updating password hash to guarantee it is correct.", email);
-                user.setPasswordHash(passwordEncoder.encode(password));
-                user.setUsername(username);
-                user.setFullName(fullName);
-                user.setIsAdmin(isAdmin);
-                user.setCurrentLevel(level);
-                user.setAvatarUrl(avatarUrl);
-                userRepository.save(user);
-            },
+            user -> log.info("User {} already exists. Skipping (password not overwritten).", email),
             () -> {
                 log.info("Default user {} not found. Creating it...", email);
                 com.datn.engflow.model.entity.User user = com.datn.engflow.model.entity.User.builder()

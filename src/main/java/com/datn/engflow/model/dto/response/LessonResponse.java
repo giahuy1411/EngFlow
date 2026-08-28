@@ -14,6 +14,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class LessonResponse.
+ */
 public class LessonResponse {
     private Long id;
     private String title;

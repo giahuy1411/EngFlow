@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class LessonSubmission.
+ */
 public class LessonSubmission {
 
     @Id

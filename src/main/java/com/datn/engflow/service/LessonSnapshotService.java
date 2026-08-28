@@ -21,6 +21,9 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * class LessonSnapshotService.
+ */
 public class LessonSnapshotService {
 
     private final LessonSnapshotRepository snapshotRepository;

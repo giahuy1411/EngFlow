@@ -25,18 +25,5 @@ export const submissionService = {
   getMySubmission: async (lessonId, skillType) => {
     const response = await api.get(`/api/lesson-submissions/my/lesson/${lessonId}/skill/${skillType}`);
     return response.data;
-  },
-
-  adminGetSubmissions: async () => {
-    const response = await api.get('/api/admin/submissions');
-    return response.data;
-  },
-
-  adminGradeSubmission: async (submissionId, score, feedback) => {
-    const response = await api.put(`/api/admin/submissions/${submissionId}/grade`, {
-      score,
-      feedback
-    });
-    return response.data;
   }
 };

@@ -32,6 +32,9 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    # Evict least-recently-used keys under memory pressure instead of failing writes
+    # (default maxmemory-policy=noeviction rejects new writes once the cap is hit).
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
 
   backend:
     build:
@@ -48,13 +51,44 @@ services:
       - SPRING_DATA_REDIS_PORT=6379
       - JWT_SECRET=${JWT_SECRET}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-qwen2.5}
+      - OPENROUTER_BASE_URL=${OPENROUTER_BASE_URL:-http://host.docker.internal:11434/v1}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MINIO_URL=http://minio:9000
+      - MINIO_PUBLIC_URL=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - AI_SPEAKING_OLLAMA_BASE_URL=${AI_SPEAKING_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - AI_EXERCISE_OLLAMA_BASE_URL=${AI_EXERCISE_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      - AI_SPEAKING_OLLAMA_MODEL=${AI_SPEAKING_OLLAMA_MODEL:-qwen2.5:1.5b}
+      - SEPAY_WEBHOOK_SECRET=${SEPAY_WEBHOOK_SECRET}
+      - SEPAY_BANK_ACCOUNT=${SEPAY_BANK_ACCOUNT}
+      - SEPAY_BANK_NAME=${SEPAY_BANK_NAME}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     depends_on:
       sqlserver-init:
         condition: service_completed_successfully
       redis:
         condition: service_started
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio
+    container_name: engflow-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin123}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
     restart: unless-stopped
 
   frontend:
@@ -66,6 +100,29 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_TARGET=http://backend:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ngrok tunnel: exposes backend /api/webhook/sepay to the public internet
+  # so SePay cloud can POST webhook callbacks during local development.
+  # 1. Set NGROK_AUTHTOKEN in .env (https://dashboard.ngrok.com/get-started/your-authtoken)
+  # 2. After starting, copy the HTTPS URL -> register in SePay webhook settings
+  #    (URL: <https-URL>/api/webhook/sepay, secret: ${SEPAY_WEBHOOK_SECRET})
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: engflow-ngrok
+    command: >
+      start sepay-webhook --config /config/ngrok.yml
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    volumes:
+      - ./ngrok.yml:/config/ngrok.yml:ro
+    ports:
+      - "4040:4040"
     depends_on:
       - backend
     restart: unless-stopped
@@ -73,3 +130,4 @@ services:
 volumes:
   mssql_data:
   redis_data:
+  minio_data:

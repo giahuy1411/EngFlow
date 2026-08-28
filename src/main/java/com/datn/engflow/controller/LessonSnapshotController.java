@@ -13,6 +13,9 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+/**
+ * class LessonSnapshotController.
+ */
 public class LessonSnapshotController {
 
     private final LessonSnapshotService snapshotService;

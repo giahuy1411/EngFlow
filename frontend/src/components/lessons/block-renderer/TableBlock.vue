@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <div class="my-4 overflow-x-auto">
     <table class="min-w-full border-collapse border">
       <thead v-if="headers.length">
         <tr>
-          <th v-for="h in headers" :key="h" class="border px-4 py-2 bg-gray-100">{{ h }}</th>
+          <th v-for="h in headers" :key="h" class="border px-4 py-2 bg-muted">{{ h }}</th>
         </tr>
       </thead>
       <tbody>
@@ -25,3 +25,4 @@ const props = defineProps({
 const headers = computed(() => props.data?.headers || []);
 const rows = computed(() => props.data?.rows || []);
 </script>
+

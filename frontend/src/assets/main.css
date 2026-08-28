@@ -3,16 +3,23 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Be Vietnam Pro', sans-serif;
-    background-image: radial-gradient(rgba(18,18,18,0.08) 2px, transparent 2px);
-    background-size: 20px 20px;
+    background-color: var(--geo-bg);
+    color: var(--geo-fg);
+    font-family: var(--geo-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
   }
 
   *:focus-visible {
-    outline: 3px solid #D02020;
+    outline: 3px solid var(--geo-accent, #8B5CF6);
     outline-offset: 2px;
+    border-radius: 4px;
   }
 
   *:focus:not(:focus-visible) {
@@ -21,444 +28,36 @@
 }
 
 @layer components {
-  .bauhaus-btn-press {
-    @apply active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 ease-out;
-  }
-
-  .bauhaus-card-hover {
-    @apply hover:-translate-y-2 transition-transform duration-300 ease-out;
-  }
-
+  /* ---- Skip link ---- */
   .skip-link {
-    @apply absolute -top-96 left-4 bg-white text-foreground font-bold text-sm uppercase tracking-wider
-           border-2 border-black px-4 py-2 z-[9999] shadow-pop-sm;
+    position: absolute;
+    left: -9999px;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: var(--geo-fg, #1E293B);
+    color: var(--geo-bg, #FFFDF5);
+    font-family: var(--geo-font);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    border: var(--geo-border-width, 2px) solid transparent;
+    border-radius: var(--geo-radius-sm, 8px);
   }
 
   .skip-link:focus {
-    @apply top-4;
-  }
-
-  /* ── Skill HTML Content — imported from tienganh123 ── */
-  .skill-html {
-    @apply text-foreground leading-relaxed text-base;
-  }
-
-  /* Typography */
-  .skill-html h1 { @apply text-3xl font-black uppercase mb-6 mt-2; }
-  .skill-html h2 { @apply text-2xl font-black uppercase mb-4 mt-8; }
-  .skill-html h3 { @apply text-xl font-bold uppercase mb-3 mt-6; }
-  .skill-html h4 { @apply text-lg font-bold uppercase mb-2 mt-4; }
-  .skill-html p { @apply mb-5 leading-relaxed; }
-  .skill-html a { @apply text-red-600 font-bold underline decoration-2 underline-offset-2 hover:no-underline; }
-  .skill-html em, .skill-html i { @apply italic; }
-  .skill-html strong, .skill-html b { @apply font-black; }
-
-  /* Lists */
-  .skill-html ul, .skill-html ol { @apply pl-6 mb-5 space-y-2; }
-  .skill-html li { @apply leading-relaxed; }
-  .skill-html ul li { @apply list-disc; }
-  .skill-html ol li { @apply list-decimal; }
-
-  /* Blockquote — callout style */
-  .skill-html blockquote {
-    @apply border-l-4 border-yellow-400 bg-yellow-50 pl-5 pr-4 py-4 my-6 text-base rounded-r-lg;
-  }
-
-  /* Horizontal rule */
-  .skill-html hr {
-    @apply border-t-2 border-black/20 my-8;
-  }
-
-  /* Images */
-  .skill-html img {
-    @apply max-w-full h-auto border-4 border-black rounded-xl my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .mc_content_imgbox {
-    @apply border-4 border-black rounded-xl overflow-hidden my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
-  }
-  .skill-html .mc_content_imgbox img {
-    @apply border-0 rounded-none my-0 shadow-none;
-  }
-
-  /* Tables */
-  .skill-html table {
-    @apply w-full border-collapse mb-6 border-2 border-black rounded-xl overflow-hidden;
-  }
-  .skill-html td, .skill-html th {
-    @apply border border-black/20 px-4 py-3 text-left;
-  }
-  .skill-html th {
-    @apply bg-black text-white font-bold uppercase text-sm tracking-wider;
-  }
-  .skill-html tr:nth-child(even) td {
-    @apply bg-gray-50;
-  }
-  .skill-html tr:hover td {
-    @apply bg-yellow-50;
-  }
-
-  /* Video & Audio */
-  .skill-html video, .skill-html .mediaplayer,
-  .skill-html #mediaplayer, .skill-html #mediaplayer1 {
-    @apply w-full border-4 border-black rounded-xl my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
-    max-height: 450px;
-  }
-  .skill-html audio {
-    @apply w-full my-4;
-  }
-
-  /* ── Quiz Boxes (original tienganh123 structure) ── */
-  .skill-html .qz_box {
-    @apply border-2 border-black rounded-xl mb-6 overflow-hidden
-           shadow-[4px_4px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .qz_content {
-    @apply p-5;
-  }
-
-  .skill-html .qz_st1 {
-    @apply block font-bold text-base mb-5 uppercase tracking-tight
-           pb-3 border-b-2 border-black/10;
-  }
-
-  .skill-html .qz_st2_item.qz_radio {
-    @apply flex items-center gap-3 px-4 py-3 mb-2
-           border-2 border-black rounded-lg font-medium
-           cursor-pointer select-none
-           transition-all duration-150 ease-out
-           hover:bg-yellow-50 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .qz_st2_item.qz_radio .qz_st2_text {
-    @apply flex-1;
-  }
-
-  .skill-html .qz_st2_item.qz_radio input[type="radio"],
-  .skill-html .qz_st2_item.qz_radio input[type="checkbox"] {
-    @apply w-5 h-5 border-2 border-black accent-yellow-400 cursor-pointer;
-  }
-
-  /* ── Reading Questions ── */
-  .skill-html .tanc_read_item_ques {
-    @apply border-2 border-black rounded-xl p-5 mb-4
-           shadow-[3px_3px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .tanc_read_item_ques > div:first-child {
-    @apply font-bold text-base mb-3 uppercase;
-  }
-
-  .skill-html .tanc_read_radio_r {
-    @apply inline-flex items-center gap-2 px-4 py-2 mb-1.5
-           border-2 border-black rounded-lg font-medium
-           cursor-pointer select-none
-           transition-all duration-150
-           hover:bg-yellow-50 hover:-translate-y-0.5;
-  }
-
-  .skill-html .tanc_read_radio_r input[type="radio"] {
-    @apply w-4 h-4 border-2 border-black accent-yellow-400 cursor-pointer;
-  }
-
-  .skill-html .tanc_part_blank {
-    @apply border-2 border-black rounded-lg px-3 py-2 font-medium
-           transition-all duration-150
-           focus:outline-none focus:border-yellow-400 focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)];
-    min-width: 140px;
-  }
-
-  /* ── Inline code / keyboard ── */
-  .skill-html code, .skill-html kbd {
-    @apply bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-sm font-mono;
-  }
-
-  /* ── Small print ── */
-  .skill-html small {
-    @apply text-sm text-gray-500;
-  }
-
-  /* Flashcard 3D styles */
-  .flashcard-inner {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d;
-    cursor: pointer;
-    position: relative;
-    width: 100%;
-    height: 250px;
-  }
-
-  .flashcard-card.flipped .flashcard-inner {
-    transform: rotateY(180deg);
-  }
-
-  .flashcard-front, .flashcard-back {
-    backface-visibility: hidden;
-    position: absolute;
-    top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-size: 20px 20px;
-  }
-
-  *:focus-visible {
-    outline: 3px solid #D02020;
-    outline-offset: 2px;
-  }
-
-  *:focus:not(:focus-visible) {
-    outline: none;
-  }
-}
-
-@layer components {
-  .bauhaus-btn-press {
-    @apply active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-200 ease-out;
-  }
-
-  .bauhaus-card-hover {
-    @apply hover:-translate-y-2 transition-transform duration-300 ease-out;
-  }
-
-  .skip-link {
-    @apply absolute -top-96 left-4 bg-white text-foreground font-bold text-sm uppercase tracking-wider
-           border-2 border-black px-4 py-2 z-[9999] shadow-pop-sm;
-  }
-
-  .skip-link:focus {
-    @apply top-4;
-  }
-
-  /* ── Skill HTML Content — imported from tienganh123 ── */
-  .skill-html {
-    @apply text-foreground leading-relaxed text-base;
-  }
-
-  /* Typography */
-  .skill-html h1 { @apply text-3xl font-black uppercase mb-6 mt-2; }
-  .skill-html h2 { @apply text-2xl font-black uppercase mb-4 mt-8; }
-  .skill-html h3 { @apply text-xl font-bold uppercase mb-3 mt-6; }
-  .skill-html h4 { @apply text-lg font-bold uppercase mb-2 mt-4; }
-  .skill-html p { @apply mb-5 leading-relaxed; }
-  .skill-html a { @apply text-red-600 font-bold underline decoration-2 underline-offset-2 hover:no-underline; }
-  .skill-html em, .skill-html i { @apply italic; }
-  .skill-html strong, .skill-html b { @apply font-black; }
-
-  /* Lists */
-  .skill-html ul, .skill-html ol { @apply pl-6 mb-5 space-y-2; }
-  .skill-html li { @apply leading-relaxed; }
-  .skill-html ul li { @apply list-disc; }
-  .skill-html ol li { @apply list-decimal; }
-
-  /* Blockquote — callout style */
-  .skill-html blockquote {
-    @apply border-l-4 border-yellow-400 bg-yellow-50 pl-5 pr-4 py-4 my-6 text-base rounded-r-lg;
-  }
-
-  /* Horizontal rule */
-  .skill-html hr {
-    @apply border-t-2 border-black/20 my-8;
-  }
-
-  /* Images */
-  .skill-html img {
-    @apply max-w-full h-auto border-4 border-black rounded-xl my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .mc_content_imgbox {
-    @apply border-4 border-black rounded-xl overflow-hidden my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
-  }
-  .skill-html .mc_content_imgbox img {
-    @apply border-0 rounded-none my-0 shadow-none;
-  }
-
-  /* Tables */
-  .skill-html table {
-    @apply w-full border-collapse mb-6 border-2 border-black rounded-xl overflow-hidden;
-  }
-  .skill-html td, .skill-html th {
-    @apply border border-black/20 px-4 py-3 text-left;
-  }
-  .skill-html th {
-    @apply bg-black text-white font-bold uppercase text-sm tracking-wider;
-  }
-  .skill-html tr:nth-child(even) td {
-    @apply bg-gray-50;
-  }
-  .skill-html tr:hover td {
-    @apply bg-yellow-50;
-  }
-
-  /* Video & Audio */
-  .skill-html video, .skill-html .mediaplayer,
-  .skill-html #mediaplayer, .skill-html #mediaplayer1 {
-    @apply w-full border-4 border-black rounded-xl my-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
-    max-height: 450px;
-  }
-  .skill-html audio {
-    @apply w-full my-4;
-  }
-
-  /* ── Quiz Boxes (original tienganh123 structure) ── */
-  .skill-html .qz_box {
-    @apply border-2 border-black rounded-xl mb-6 overflow-hidden
-           shadow-[4px_4px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .qz_content {
-    @apply p-5;
-  }
-
-  .skill-html .qz_st1 {
-    @apply block font-bold text-base mb-5 uppercase tracking-tight
-           pb-3 border-b-2 border-black/10;
-  }
-
-  .skill-html .qz_st2_item.qz_radio {
-    @apply flex items-center gap-3 px-4 py-3 mb-2
-           border-2 border-black rounded-lg font-medium
-           cursor-pointer select-none
-           transition-all duration-150 ease-out
-           hover:bg-yellow-50 hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .qz_st2_item.qz_radio .qz_st2_text {
-    @apply flex-1;
-  }
-
-  .skill-html .qz_st2_item.qz_radio input[type="radio"],
-  .skill-html .qz_st2_item.qz_radio input[type="checkbox"] {
-    @apply w-5 h-5 border-2 border-black accent-yellow-400 cursor-pointer;
-  }
-
-  /* ── Reading Questions ── */
-  .skill-html .tanc_read_item_ques {
-    @apply border-2 border-black rounded-xl p-5 mb-4
-           shadow-[3px_3px_0px_0px_rgba(0,0,0,1)];
-  }
-
-  .skill-html .tanc_read_item_ques > div:first-child {
-    @apply font-bold text-base mb-3 uppercase;
-  }
-
-  .skill-html .tanc_read_radio_r {
-    @apply inline-flex items-center gap-2 px-4 py-2 mb-1.5
-           border-2 border-black rounded-lg font-medium
-           cursor-pointer select-none
-           transition-all duration-150
-           hover:bg-yellow-50 hover:-translate-y-0.5;
-  }
-
-  .skill-html .tanc_read_radio_r input[type="radio"] {
-    @apply w-4 h-4 border-2 border-black accent-yellow-400 cursor-pointer;
-  }
-
-  .skill-html .tanc_part_blank {
-    @apply border-2 border-black rounded-lg px-3 py-2 font-medium
-           transition-all duration-150
-           focus:outline-none focus:border-yellow-400 focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)];
-    min-width: 140px;
-  }
-
-  /* ── Inline code / keyboard ── */
-  .skill-html code, .skill-html kbd {
-    @apply bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-sm font-mono;
-  }
-
-  /* ── Small print ── */
-  .skill-html small {
-    @apply text-sm text-gray-500;
-  }
-
-  /* Flashcard 3D styles */
-  .flashcard-inner {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d;
-    cursor: pointer;
-    position: relative;
-    width: 100%;
-    height: 250px;
-  }
-
-  .flashcard-card.flipped .flashcard-inner {
-    transform: rotateY(180deg);
-  }
-
-  .flashcard-front, .flashcard-back {
-    backface-visibility: hidden;
-    position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
   }
 
-  .flashcard-back {
-    transform: rotateY(180deg);
-  }
-
-  /* Bauhaus Markdown Styling */
-  .bauhaus-markdown {
-    @apply text-base text-foreground font-sans leading-relaxed;
-  }
-  .bauhaus-markdown strong {
-    @apply font-black text-red-600;
-  }
-  .bauhaus-markdown em {
-    @apply font-bold italic bg-yellow-400 px-1;
-  }
-  .bauhaus-markdown blockquote {
-    @apply border-l-8 border-black pl-4 bg-black/5 py-2 my-2 font-medium italic;
-  }
-  .bauhaus-markdown code {
-    @apply font-mono font-bold bg-black/5 border-2 border-black px-1.5 py-0.5 text-sm;
-  }
-  .bauhaus-markdown pre {
-    @apply bg-foreground text-background border-4 border-black p-4 overflow-x-auto my-4;
-  }
-  .bauhaus-markdown pre code {
-    @apply bg-transparent border-none text-inherit p-0 font-normal;
-  }
-  .bauhaus-markdown ul {
-    @apply list-disc pl-6 my-3;
-  }
-  .bauhaus-markdown ol {
-    @apply list-decimal pl-6 my-3;
-  }
-  .bauhaus-markdown a {
-    @apply text-primary-blue font-black underline decoration-2 underline-offset-2 hover:bg-primary-blue hover:text-white transition-colors;
-  }
-  .bauhaus-markdown h1, .bauhaus-markdown h2, .bauhaus-markdown h3, .bauhaus-markdown h4 {
-    @apply font-black uppercase tracking-tight mt-6 mb-3;
-  }
-  .bauhaus-markdown p {
-    @apply mb-3;
-  }
-  .bauhaus-markdown p:last-child {
-    @apply mb-0;
-  }
-  .bauhaus-markdown table {
-    @apply w-full border-collapse border-4 border-black my-6 bg-white shadow-pop-sm;
-  }
-  .bauhaus-markdown th {
-    @apply bg-yellow-400 border-2 border-black p-3 font-black uppercase tracking-wider text-left;
-  }
-  .bauhaus-markdown td {
-    @apply border-2 border-black p-3;
-  }
-  .bauhaus-markdown img, .bauhaus-markdown video, .bauhaus-markdown audio {
-    @apply max-w-full border-4 border-black shadow-pop-sm my-4;
-  }
-  .bauhaus-markdown audio {
-    @apply bg-black/5 w-full;
+  /* Reduced motion for legacy bauhaus helpers */
+  @media (prefers-reduced-motion: reduce) {
+    .bauhaus-card-hover:hover {
+      transform: none;
+    }
+    .bauhaus-btn-press:active {
+      transform: none;
+    }
   }
 }

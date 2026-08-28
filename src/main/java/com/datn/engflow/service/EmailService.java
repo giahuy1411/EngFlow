@@ -13,6 +13,9 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+/**
+ * class EmailService.
+ */
 public class EmailService {
 
   private final JavaMailSender mailSender;
@@ -38,7 +41,7 @@ public class EmailService {
           <!-- Header -->
           <div style="background:#121212;padding:24px 32px;border-bottom:6px solid #D02020;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:14px;height:14px;border-radius:50%;background:#D02020;border:2px solid #fff;"></div>
+              <div style="width:14px;height:14px;border-radius:50%%;background:#D02020;border:2px solid #fff;"></div>
               <div style="width:14px;height:14px;background:#1a56db;border:2px solid #fff;"></div>
               <div style="width:14px;height:14px;background:#fceea7;border:2px solid #fff;"></div>
               <span style="color:#fff;font-weight:900;font-size:20px;text-transform:uppercase;letter-spacing:-0.5px;margin-left:8px;">EngFlow</span>

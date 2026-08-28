@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * class FlashcardService.
+ */
 public class FlashcardService {
 
     private final UserVocabularyProgressRepository progressRepository;

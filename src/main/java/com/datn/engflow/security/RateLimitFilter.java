@@ -20,6 +20,9 @@ import java.time.Duration;
 @Component
 @Order(1)
 @RequiredArgsConstructor
+/**
+ * class RateLimitFilter.
+ */
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final StringRedisTemplate redisTemplate;
@@ -57,15 +60,20 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null || xfHeader.isEmpty()) {
-            String ip = request.getRemoteAddr();
-            // Normalize IPv6 loopback to IPv4 for consistent rate limiting
-            if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
-                return "127.0.0.1";
+        // Only trust X-Forwarded-For when behind a configured proxy (e.g. nginx).
+        // In direct deployments, honoring XFF lets clients spoof the header and bypass limits.
+        boolean behindTrustedProxy = Boolean.parseBoolean(
+                System.getenv().getOrDefault("TRUSTED_PROXY_ENABLED", "false"));
+        if (behindTrustedProxy) {
+            String xfHeader = request.getHeader("X-Forwarded-For");
+            if (xfHeader != null && !xfHeader.isEmpty()) {
+                return xfHeader.split(",")[0].trim();
             }
-            return ip;
         }
-        return xfHeader.split(",")[0];
+        String ip = request.getRemoteAddr();
+        if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
+            return "127.0.0.1";
+        }
+        return ip;
     }
 }

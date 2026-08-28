@@ -13,6 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/flashcards")
 @RequiredArgsConstructor
+/**
+ * class FlashcardController.
+ */
 public class FlashcardController {
 
     private final FlashcardService flashcardService;

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+/**
+ * interface UserVocabularyProgressRepository.
+ */
 public interface UserVocabularyProgressRepository extends JpaRepository<UserVocabularyProgress, Long> {
     Optional<UserVocabularyProgress> findByUserIdAndVocabularyId(Long userId, Long vocabularyId);
 

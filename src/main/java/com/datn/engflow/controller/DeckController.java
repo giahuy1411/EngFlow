@@ -6,6 +6,8 @@ import com.datn.engflow.security.UserPrincipal;
 import jakarta.validation.Valid;
 import com.datn.engflow.service.DeckService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,18 +17,31 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/decks")
 @RequiredArgsConstructor
+/**
+ * class DeckController.
+ */
 public class DeckController {
 
     private final DeckService deckService;
 
     @GetMapping
-    public ResponseEntity<?> getAllPublicDecks() {
-        return ResponseEntity.ok(deckService.getAllPublicDecks());
+    public ResponseEntity<?> getAllPublicDecks(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size) {
+        size = Math.min(Math.max(size, 1), 100);
+        return ResponseEntity.ok(deckService.getPublicDeckPage(q,
+                PageRequest.of(Math.max(page, 0), size, Sort.by("name").ascending().and(Sort.by("id")))));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> getUserDecks(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return ResponseEntity.ok(deckService.getUserDecks(userPrincipal.getId()));
+    public ResponseEntity<?> getUserDecks(@AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size) {
+        size = Math.min(Math.max(size, 1), 100);
+        return ResponseEntity.ok(deckService.getUserDeckPage(userPrincipal.getId(), q,
+                PageRequest.of(Math.max(page, 0), size, Sort.by("name").ascending().and(Sort.by("id")))));
     }
 
     @GetMapping("/{id}")
@@ -65,7 +80,13 @@ public class DeckController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long id,
             @RequestBody Map<String, Long> payload) {
-        deckService.addWordToDeck(id, payload.get("vocabId"), userPrincipal.getId());
+        Long vocabId = payload.get("vocabId") != null
+                ? payload.get("vocabId")
+                : payload.get("vocabularyId");
+        if (vocabId == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "vocabId is required"));
+        }
+        deckService.addWordToDeck(id, vocabId, userPrincipal.getId());
         return ResponseEntity.ok(Map.of("message", "Word added to deck successfully"));
     }
 }

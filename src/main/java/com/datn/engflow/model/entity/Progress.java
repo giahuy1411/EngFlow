@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class Progress.
+ */
 public class Progress {
 
     @Id

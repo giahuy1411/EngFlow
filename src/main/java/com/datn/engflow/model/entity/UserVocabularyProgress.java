@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class UserVocabularyProgress.
+ */
 public class UserVocabularyProgress {
 
     @Id

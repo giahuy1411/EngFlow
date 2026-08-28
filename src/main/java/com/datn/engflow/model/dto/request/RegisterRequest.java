@@ -12,6 +12,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * class RegisterRequest.
+ */
 public class RegisterRequest {
 
     @NotBlank(message = "Tên đăng nhập không được để trống")

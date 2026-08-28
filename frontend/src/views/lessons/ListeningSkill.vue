@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div>
     <div v-if="audioUrl" class="mb-6">
-      <audio :src="audioUrl" controls class="w-full border-2 border-foreground bg-black/5 geo-audio rounded-md"></audio>
+      <audio :src="audioUrl" controls class="w-full border-2 border-foreground bg-foreground/5 geo-audio rounded-md"></audio>
     </div>
     <div class="space-y-4">
       <div v-for="(ex, idx) in exercises" :key="idx"
@@ -36,7 +36,7 @@ const props = defineProps({
 })
 
 const answers = ref([])
-onMounted(() => { answers.value = exercises.value.map(() => null) })
+onMounted(() => { answers.value = props.exercises.map(() => null) })
 
 function parseMarkdown(md) {
   if (!md) return ''
@@ -48,7 +48,7 @@ function parseMarkdown(md) {
 input.geo-radio {
   appearance: none;
   width: 20px; height: 20px;
-  border: 2px solid #1E293B;
+  border: 2px solid var(--geo-fg, #1E293B);
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -58,8 +58,9 @@ input.geo-radio {
   flex-shrink: 0;
 }
 input.geo-radio:checked {
-  border-color: #8B5CF6;
-  background: #8B5CF6;
+  border-color: var(--geo-accent, #8B5CF6);
+  background: var(--geo-accent, #8B5CF6);
   box-shadow: inset 0 0 0 3px white;
 }
 </style>
+

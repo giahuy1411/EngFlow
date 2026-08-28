@@ -3,20 +3,20 @@
     <!-- Header -->
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 bg-secondary border-2 border-foreground flex items-center justify-center -rotate-3 rounded-md">
+        <div class="w-10 h-10 bg-accent border-2 border-foreground flex items-center justify-center rotate-6 rounded-md">
           <span class="text-white font-black text-sm">B</span>
         </div>
         <div>
           <h2 class="font-black text-2xl uppercase tracking-tighter">Xây Dựng Bài Học</h2>
-          <p class="font-bold text-xs uppercase tracking-widest text-gray-500">{{ lesson?.title || 'Đang tải...' }}</p>
+          <p class="font-bold text-xs uppercase tracking-widest text-muted-foreground">{{ lesson?.title || 'Đang tải...' }}</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <button @click="saveAll" :disabled="saving || dirtyBlocks.size === 0"
                 class="flex items-center gap-2 px-5 py-3 font-bold uppercase text-sm tracking-wider border-2 border-foreground rounded-md transition-all duration-200"
-                :class="saving ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : dirtyBlocks.size > 0
+                :class="saving ? 'bg-muted text-muted-foreground cursor-not-allowed' : dirtyBlocks.size > 0
                   ? 'bg-accent text-white shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'">
           <span v-if="saving" class="animate-spin inline-block w-4 h-4 border-2 border-foreground border-t-transparent rounded-full"></span>
           <span v-else>
             <svg class="w-4 h-4 inline-block -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -40,17 +40,17 @@
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
           </svg>
-          Xem Trước
+          Xem trước
         </a>
       </div>
     </div>
 
     <!-- Save status toast -->
-    <div v-if="saveStatus === 'success'" class="bg-green-100 border-2 border-foreground rounded-md p-4 flex items-center gap-3 font-bold text-sm shadow-pop-sm">
+    <div v-if="saveStatus === 'success'" class="bg-success/10 border-2 border-foreground rounded-md p-4 flex items-center gap-3 font-bold text-sm shadow-pop-sm">
       <span class="w-6 h-6 bg-quaternary text-foreground rounded-full flex items-center justify-center text-xs font-black">&#10003;</span>
       Đã lưu thành công
     </div>
-    <div v-else-if="saveStatus === 'error'" class="bg-red-100 border-2 border-foreground rounded-md p-4 flex items-center gap-3 font-bold text-sm shadow-pop-sm">
+    <div v-else-if="saveStatus === 'error'" class="bg-danger/10 border-2 border-foreground rounded-md p-4 flex items-center gap-3 font-bold text-sm shadow-pop-sm">
       <span class="w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-xs font-black">&#10007;</span>
       Lỗi lưu. Vui lòng thử lại.
     </div>
@@ -62,10 +62,10 @@
         <span class="text-xs text-white/60">{{ snapshots.length }} bản ghi</span>
       </div>
       <div class="p-4">
-        <div v-if="loadingSnapshots" class="text-center py-8 text-gray-400 font-bold text-sm uppercase tracking-wider">
+        <div v-if="loadingSnapshots" class="text-center py-8 text-muted-foreground font-bold text-sm uppercase tracking-wider">
           Đang tải...
         </div>
-        <div v-else-if="snapshots.length === 0" class="text-center py-8 text-gray-400 font-bold text-sm uppercase tracking-wider">
+        <div v-else-if="snapshots.length === 0" class="text-center py-8 text-muted-foreground font-bold text-sm uppercase tracking-wider">
           Chưa có phiên bản nào
         </div>
         <div v-else class="space-y-2">
@@ -93,7 +93,7 @@
     <!-- Loading state -->
     <div v-if="loading" class="text-center py-24">
       <div class="animate-spin inline-block w-10 h-10 border-2 border-foreground border-t-accent rounded-full"></div>
-      <p class="font-bold uppercase mt-4 tracking-wider text-gray-500">Đang tải cấu trúc bài học...</p>
+      <p class="font-bold uppercase mt-4 tracking-wider text-muted-foreground">Đang tải cấu trúc bài học...</p>
     </div>
 
     <!-- Empty state -->
@@ -102,7 +102,7 @@
         <span class="text-3xl font-black text-foreground">+</span>
       </div>
       <p class="font-black text-xl uppercase mb-2">Chưa có nội dung</p>
-      <p class="text-gray-500 font-medium mb-6">Bắt đầu bằng cách thêm sections và blocks</p>
+      <p class="text-muted-foreground font-medium mb-6">Bắt đầu bằng cách thêm section và block</p>
       <button @click="addSection"
               class="inline-flex items-center gap-2 bg-accent border-2 border-foreground px-6 py-3 font-black uppercase text-sm tracking-wider text-white rounded-md
                      shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
@@ -125,7 +125,7 @@
             </div>
             <input v-model="section.title" @change="updateSection(section)"
                    class="flex-1 bg-transparent text-white font-bold text-lg px-4 py-3 focus:outline-none focus:bg-white/10 transition-colors"
-                   placeholder="Tiêu đề section..." />
+                    placeholder="Tiêu đề section..." />
             <div class="flex items-stretch">
               <button @click="addBlock(section.id)"
                       class="px-4 border-l-4 border-foreground text-white/60 hover:text-white hover:bg-white/10 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1">
@@ -147,14 +147,14 @@
                    :class="[blockAccent[block.blockType]?.container || 'bg-white', dirtyBlocks.has(block.id) ? 'ring-4 ring-tertiary border-tertiary' : '']">
                 <!-- Block Header -->
                 <div class="flex items-center justify-between px-4 py-2.5 border-b-2 border-foreground"
-                     :class="blockAccent[block.blockType]?.header || 'bg-gray-100'">
+                     :class="blockAccent[block.blockType]?.header || 'bg-muted'">
                   <div class="flex items-center gap-2.5">
                     <span class="w-6 h-6 flex items-center justify-center rounded-full text-xs font-black"
-                          :class="blockAccent[block.blockType]?.badge || 'bg-gray-500'">
+                          :class="blockAccent[block.blockType]?.badge || 'bg-muted/600'">
                       {{ blockAccent[block.blockType]?.icon || '?' }}
                     </span>
                     <span class="font-bold text-xs uppercase tracking-widest"
-                          :class="blockAccent[block.blockType]?.labelClass || 'text-gray-600'">
+                          :class="blockAccent[block.blockType]?.labelClass || 'text-muted-foreground'">
                       {{ blockLabels[block.blockType] || block.blockType }}
                     </span>
                     <select v-model="block.blockType" @change="onBlockTypeChange(block)"
@@ -176,8 +176,8 @@
                   <!-- TEXT -->
                   <div v-if="block.blockType === 'TEXT'" class="space-y-2">
                     <textarea v-model="blockData[block.id].content" @input="markDirty(block)"
-                              class="w-full border-2 border-foreground rounded-md p-4 bg-gray-50 font-mono text-sm leading-relaxed min-h-[400px] focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all resize-y shadow-inner"
-                              placeholder="<p>Nhập mã HTML hoặc văn bản vào đây...</p>"></textarea>
+                              class="w-full border-2 border-foreground rounded-md p-4 bg-muted/60 font-mono text-sm leading-relaxed min-h-[400px] focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all resize-y shadow-inner"
+                               placeholder="<p>Nhập mã HTML hoặc văn bản vào đây...</p>"></textarea>
                   </div>
 
                   <!-- IMAGE -->
@@ -198,9 +198,9 @@
                     <input v-model="blockData[block.id].caption" @input="markDirty(block)"
                            class="w-full border-2 border-foreground rounded-md p-2 bg-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                            placeholder="Chú thích (tùy chọn)..." />
-                    <div v-if="blockData[block.id].imageUrl" class="border-2 border-foreground rounded-md bg-gray-50 p-2 overflow-hidden shadow-pop-sm">
+                    <div v-if="blockData[block.id].imageUrl" class="border-2 border-foreground rounded-md bg-muted/60 p-2 overflow-hidden shadow-pop-sm">
                       <img :src="blockData[block.id].imageUrl" class="max-h-48 mx-auto object-contain" />
-                      <p v-if="blockData[block.id].caption" class="text-center font-bold text-xs uppercase tracking-wider mt-2 text-gray-500">{{ blockData[block.id].caption }}</p>
+                      <p v-if="blockData[block.id].caption" class="text-center font-bold text-xs uppercase tracking-wider mt-2 text-muted-foreground">{{ blockData[block.id].caption }}</p>
                     </div>
                   </div>
 
@@ -226,14 +226,14 @@
                   <!-- TABLE -->
                   <div v-else-if="block.blockType === 'TABLE'" class="space-y-3">
                     <div>
-                      <label class="block font-bold uppercase text-[10px] tracking-widest text-gray-500 mb-1">Headers</label>
-                      <input v-model="blockData[block.id].headersStr" @input="markDirty(block)"
+                      <label :for="`lb-headers-${block.id}`" class="block font-bold uppercase text-[10px] tracking-widest text-muted-foreground mb-1">Headers</label>
+                      <input :id="`lb-headers-${block.id}`" v-model="blockData[block.id].headersStr" @input="markDirty(block)"
                              class="w-full border-2 border-foreground rounded-md p-2 bg-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                              placeholder="col1, col2, col3" />
                     </div>
                     <div>
-                      <label class="block font-bold uppercase text-[10px] tracking-widest text-gray-500 mb-1">Rows</label>
-                      <textarea v-model="blockData[block.id].rowsStr" @input="markDirty(block)"
+                      <label :for="`lb-rows-${block.id}`" class="block font-bold uppercase text-[10px] tracking-widest text-muted-foreground mb-1">Rows</label>
+                      <textarea :id="`lb-rows-${block.id}`" v-model="blockData[block.id].rowsStr" @input="markDirty(block)"
                                 class="w-full border-2 border-foreground rounded-md p-2 bg-white font-mono text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
                                 placeholder="a | b | c"></textarea>
                     </div>
@@ -248,7 +248,7 @@
                         </thead>
                         <tbody>
                           <tr v-for="(row, ri) in parseRows(blockData[block.id].rowsStr)" :key="ri"
-                              class="border-t-2 border-foreground even:bg-gray-50">
+                              class="border-t-2 border-foreground even:bg-muted/60">
                             <td v-for="(cell, ci) in row" :key="ci"
                                 class="px-4 py-2 font-medium text-sm border-r-2 border-foreground/20 last:border-r-0">{{ cell }}</td>
                           </tr>
@@ -266,16 +266,16 @@
                       <select v-model="blockData[block.id].questionType" @change="markDirty(block)"
                               class="border-2 border-foreground rounded-md px-2 py-1.5 bg-white font-bold uppercase text-[10px] tracking-wider
                                      focus:outline-none focus:ring-2 focus:ring-accent appearance-none cursor-pointer shadow-pop-sm">
-                        <option value="MULTIPLE_CHOICE">Trắc nghiệm</option>
+                         <option value="MULTIPLE_CHOICE">Trắc nghiệm</option>
                         <option value="FILL_IN_BLANK">Điền từ</option>
                         <option value="TRUE_FALSE">Đúng/Sai</option>
-                        <option value="MATCHING">Nối từ</option>
+                         <option value="MATCHING">Nối từ</option>
                       </select>
                     </div>
 
                     <div v-if="blockData[block.id].questionType === 'MULTIPLE_CHOICE'">
-                      <label class="block font-bold uppercase text-[10px] tracking-widest text-gray-500 mb-1">Options</label>
-                      <textarea v-model="blockData[block.id].optionsStr" @input="markDirty(block)"
+                      <label :for="`lb-options-${block.id}`" class="block font-bold uppercase text-[10px] tracking-widest text-muted-foreground mb-1">Options</label>
+                      <textarea :id="`lb-options-${block.id}`" v-model="blockData[block.id].optionsStr" @input="markDirty(block)"
                                 class="w-full border-2 border-foreground rounded-md p-2 bg-white font-medium text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
                                 placeholder="Đáp án A&#10;Đáp án B&#10;Đáp án C"></textarea>
                     </div>
@@ -283,7 +283,7 @@
                     <div class="grid grid-cols-2 gap-3">
                       <input v-model="blockData[block.id].correctAnswer" @input="markDirty(block)"
                              class="border-2 border-foreground rounded-md p-2 bg-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                             placeholder="Đáp án đúng..." />
+                              placeholder="Đáp án đúng..." />
                       <input v-model="blockData[block.id].explanation" @input="markDirty(block)"
                              class="border-2 border-foreground rounded-md p-2 bg-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                              placeholder="Giải thích..." />
@@ -318,7 +318,7 @@
 
           <!-- Empty section -->
           <div v-else class="p-8 text-center">
-            <p class="font-bold text-sm uppercase tracking-wider text-gray-400 mb-3">Section trống</p>
+            <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3">Section trống</p>
             <button @click="addBlock(section.id)"
                     class="text-xs font-bold uppercase border-2 border-foreground px-4 py-2 hover:bg-foreground hover:text-white transition-all">
               + Thêm Block
@@ -348,7 +348,7 @@
         </div>
         <div class="p-6">
           <p class="font-bold mb-2">Xóa section <span class="text-accent">"{{ deleteTarget.section.title }}"</span>?</p>
-          <p class="text-gray-500 text-sm font-medium mb-6">Tất cả blocks trong section này cũng sẽ bị xóa.</p>
+          <p class="text-muted-foreground text-sm font-medium mb-6">Tất cả block trong section này cũng sẽ bị xóa.</p>
           <div class="flex justify-end gap-4">
             <button @click="deleteTarget = null"
                     class="px-6 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
@@ -411,11 +411,11 @@ const blockTypeOptions = [
 
 const blockAccent = {
   TEXT: { container: 'border-l-4 border-l-accent/10', header: 'bg-accent/10', badge: 'bg-accent/10 text-foreground font-black', icon: 'T', labelClass: 'text-foreground font-black' },
-  IMAGE: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-foreground font-black', icon: '🖼', labelClass: 'text-foreground font-black' },
-  AUDIO: { container: 'border-l-4 border-l-accent', header: 'bg-accent/10', badge: 'bg-accent text-white font-black', icon: '♪', labelClass: 'text-foreground font-black' },
-  TABLE: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-foreground font-black', icon: '⊞', labelClass: 'text-foreground font-black' },
+  IMAGE: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-foreground font-black', icon: 'I', labelClass: 'text-foreground font-black' },
+  AUDIO: { container: 'border-l-4 border-l-accent', header: 'bg-accent/10', badge: 'bg-accent text-white font-black', icon: 'A', labelClass: 'text-foreground font-black' },
+  TABLE: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-foreground font-black', icon: '#', labelClass: 'text-foreground font-black' },
   QUESTION: { container: 'border-l-4 border-l-tertiary', header: 'bg-tertiary/10', badge: 'bg-tertiary text-foreground font-black', icon: '?', labelClass: 'text-foreground font-black' },
-  SUBMISSION: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-white font-black', icon: '✎', labelClass: 'text-foreground font-black' }
+  SUBMISSION: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-white font-black', icon: 'S', labelClass: 'text-foreground font-black' }
 }
 
 onMounted(async () => {
@@ -675,3 +675,5 @@ function toggleHistory() {
 
 
 </script>
+
+

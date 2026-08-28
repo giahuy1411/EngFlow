@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class LessonSnapshot.
+ */
 public class LessonSnapshot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

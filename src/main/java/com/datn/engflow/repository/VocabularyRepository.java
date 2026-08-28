@@ -9,7 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+/**
+ * interface VocabularyRepository.
+ */
 public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
     List<Vocabulary> findByLessonId(Long lessonId);
     List<Vocabulary> findByWordContainingIgnoreCase(String word);
+    void deleteByLessonId(Long lessonId);
 }

@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Getter
+/**
+ * class UserPrincipal.
+ */
 public class UserPrincipal implements UserDetails {
 
     private final Long id;

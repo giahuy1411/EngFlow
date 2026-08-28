@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+/**
+ * class StreakService.
+ */
 public class StreakService {
 
     private final UserRepository userRepository;

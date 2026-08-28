@@ -2,6 +2,7 @@ package com.datn.engflow.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,6 +17,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+/**
+ * class Deck.
+ */
 public class Deck {
 
     @Id
@@ -48,6 +53,7 @@ public class Deck {
     private String thumbnailUrl;
 
     @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private List<DeckWord> words = new ArrayList<>();
 

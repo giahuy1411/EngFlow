@@ -11,6 +11,9 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * class GameSessionRedisDTO.
+ */
 public class GameSessionRedisDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -19,4 +22,6 @@ public class GameSessionRedisDTO implements Serializable {
     private Long deckId;
     private String gameType;
     private Integer totalQuestions;
+    // Stores correct answers for server-side validation (vocabId -> meaning or word -> meaning)
+    private java.util.Map<String, String> answerMap;
 }

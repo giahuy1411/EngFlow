@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * class VocabularyRequest.
+ */
 public class VocabularyRequest {
 
     private Long lessonId;

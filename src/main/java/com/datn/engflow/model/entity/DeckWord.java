@@ -12,6 +12,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+/**
+ * class DeckWord.
+ */
 public class DeckWord {
 
     @Id

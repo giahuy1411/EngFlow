@@ -1,5 +1,6 @@
 package com.datn.engflow.service;
 
+import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.request.BlockRequest;
 import com.datn.engflow.model.dto.request.SectionRequest;
 import com.datn.engflow.model.dto.response.BlockResponse;
@@ -19,6 +20,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * class LessonStructureService.
+ */
 public class LessonStructureService {
 
     private final LessonSectionRepository sectionRepository;
@@ -32,7 +36,7 @@ public class LessonStructureService {
             return sections.stream().map(this::toSectionResponse).toList();
         }
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found: " + lessonId));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
         if (lesson.getContent() == null || lesson.getContent().isBlank()) {
             return List.of();
         }
@@ -55,7 +59,7 @@ public class LessonStructureService {
     @Transactional
     public SectionResponse addSection(Long lessonId, SectionRequest request) {
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found: " + lessonId));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
         LessonSection section = LessonSection.builder()
                 .lesson(lesson)
                 .title(request.getTitle())
@@ -68,7 +72,7 @@ public class LessonStructureService {
     @Transactional
     public SectionResponse updateSection(Long sectionId, SectionRequest request) {
         LessonSection section = sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new RuntimeException("Section not found: " + sectionId));
+                .orElseThrow(() -> new ResourceNotFoundException("LessonSection", "id", sectionId));
         section.setTitle(request.getTitle());
         if (request.getOrderIndex() != null) {
             section.setOrderIndex(request.getOrderIndex());
@@ -86,7 +90,7 @@ public class LessonStructureService {
     @Transactional
     public SectionResponse addBlock(Long sectionId, BlockRequest request) {
         LessonSection section = sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new RuntimeException("Section not found: " + sectionId));
+                .orElseThrow(() -> new ResourceNotFoundException("LessonSection", "id", sectionId));
         LessonBlock block = LessonBlock.builder()
                 .section(section)
                 .blockType(BlockType.valueOf(request.getBlockType()))
@@ -100,7 +104,7 @@ public class LessonStructureService {
     @Transactional
     public SectionResponse updateBlock(Long blockId, BlockRequest request) {
         LessonBlock block = blockRepository.findById(blockId)
-                .orElseThrow(() -> new RuntimeException("Block not found: " + blockId));
+                .orElseThrow(() -> new ResourceNotFoundException("LessonBlock", "id", blockId));
         if (request.getBlockType() != null) {
             block.setBlockType(BlockType.valueOf(request.getBlockType()));
         }

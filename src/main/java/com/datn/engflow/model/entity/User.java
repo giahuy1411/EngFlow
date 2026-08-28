@@ -1,6 +1,7 @@
 package com.datn.engflow.model.entity;
 
 import com.datn.engflow.model.enums.LessonLevel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,6 +17,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class User.
+ */
 public class User {
 
     @Id
@@ -30,6 +34,7 @@ public class User {
     private String email;
 
     @Column(name = "password_hash", nullable = false, length = 255)
+    @JsonIgnore
     private String passwordHash;
 
     @org.hibernate.annotations.Nationalized
@@ -64,10 +69,21 @@ public class User {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @Builder.Default
+    @Column(name = "is_premium")
+    private Boolean isPremium = false;
+
+    @Column(name = "premium_expiry")
+    private LocalDate premiumExpiry;
+
     @Column(name = "last_study_date")
     private LocalDate lastStudyDate;
 
     @Builder.Default
     @Column(name = "current_streak")
     private Integer currentStreak = 0;
+
+    @Builder.Default
+    @Column(name = "ai_generation_count")
+    private Integer aiGenerationCount = 0;
 }

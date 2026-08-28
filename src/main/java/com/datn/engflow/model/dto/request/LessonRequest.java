@@ -9,6 +9,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * class LessonRequest.
+ */
 public class LessonRequest {
     @NotBlank(message = "Title is required")
     private String title;

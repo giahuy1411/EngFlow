@@ -11,6 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class UserResponse.
+ */
 public class UserResponse {
     private Long id;
     private String username;
@@ -22,5 +25,8 @@ public class UserResponse {
     private Integer totalPoints;
     private Integer currentStreak;
     private String lastLoginAt;
+    private Boolean isPremium;
+    private String premiumExpiry;
+    private Integer aiGenerationCount;
     private String token;
 }

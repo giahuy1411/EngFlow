@@ -9,6 +9,9 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
+/**
+ * class SectionResponse.
+ */
 public class SectionResponse {
     private Long id;
     private String title;

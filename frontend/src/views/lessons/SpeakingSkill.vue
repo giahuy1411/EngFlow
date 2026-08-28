@@ -7,6 +7,7 @@
       <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Ghi âm</label>
       <div class="flex items-center gap-4">
         <button @click="toggleRecording"
+          :aria-label="isRecording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm'"
           class="w-14 h-14 rounded-full border-2 border-foreground flex items-center justify-center transition-all"
           :class="isRecording ? 'bg-secondary text-white shadow-pop' : 'bg-card hover:bg-tertiary/20'"
         >

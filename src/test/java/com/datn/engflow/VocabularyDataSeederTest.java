@@ -30,16 +30,20 @@ class VocabularyDataSeederTest {
 
     @Test
     void shouldHaveAtLeastTenDecks() {
-        List<Deck> allDecks = deckRepository.findAll();
-        assertTrue(allDecks.size() >= 10,
-                "Should have at least 10 decks, but found " + allDecks.size());
+        List<Deck> seededDecks = deckRepository.findAll().stream()
+                .filter(deck -> deck.getOwner() == null)
+                .toList();
+        assertTrue(seededDecks.size() >= 10,
+                "Should have at least 10 seeded decks, but found " + seededDecks.size());
     }
 
     @Test
     void eachDeckShouldHaveAtLeastTenWords() {
-        List<Deck> allDecks = deckRepository.findAll();
-        assertFalse(allDecks.isEmpty(), "No decks found in database");
-        for (Deck deck : allDecks) {
+        List<Deck> seededDecks = deckRepository.findAll().stream()
+                .filter(deck -> deck.getOwner() == null)
+                .toList();
+        assertFalse(seededDecks.isEmpty(), "No seeded decks found in database");
+        for (Deck deck : seededDecks) {
             List<DeckWord> words = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deck.getId());
             assertTrue(words.size() >= 10,
                     "Deck '" + deck.getName() + "' should have at least 10 words, but has " + words.size());
@@ -48,9 +52,11 @@ class VocabularyDataSeederTest {
 
     @Test
     void eachDeckWordShouldHaveCompleteData() {
-        List<Deck> allDecks = deckRepository.findAll();
-        assertFalse(allDecks.isEmpty(), "No decks found in database");
-        for (Deck deck : allDecks) {
+        List<Deck> seededDecks = deckRepository.findAll().stream()
+                .filter(deck -> deck.getOwner() == null)
+                .toList();
+        assertFalse(seededDecks.isEmpty(), "No seeded decks found in database");
+        for (Deck deck : seededDecks) {
             List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deck.getId());
             for (DeckWord dw : deckWords) {
                 Vocabulary v = dw.getVocabulary();
@@ -68,8 +74,10 @@ class VocabularyDataSeederTest {
 
     @Test
     void shouldHaveAtLeastFourDistinctSources() {
-        List<Deck> allDecks = deckRepository.findAll();
-        long uniqueSources = allDecks.stream()
+        List<Deck> seededDecks = deckRepository.findAll().stream()
+                .filter(deck -> deck.getOwner() == null)
+                .toList();
+        long uniqueSources = seededDecks.stream()
                 .map(Deck::getSource)
                 .distinct()
                 .count();

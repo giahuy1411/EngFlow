@@ -7,6 +7,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class VocabularyDTO.
+ */
 public class VocabularyDTO {
     private Long id;
     private String word;

@@ -1,0 +1,53 @@
+/* AppLogo — chỉ dùng mark của EngFlow để có layout thống nhất */
+.app-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--geo-fg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  user-select: none;
+}
+.app-logo__mark {
+  position: relative;
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.app-logo__square {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 14px;
+  height: 14px;
+  background: var(--geo-accent);
+  border: 2px solid var(--geo-fg);
+  border-radius: 4px;
+}
+.app-logo__circle {
+  position: absolute;
+  top: 16px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--geo-secondary);
+  border: 2px solid var(--geo-fg);
+  border-radius: 50%;
+}
+.app-logo__dot {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: var(--geo-tertiary);
+  border: 2px solid var(--geo-fg);
+  border-radius: 50%;
+}
+.app-logo__word {
+  font-weight: 800;
+  font-family: var(--geo-font);
+  color: inherit;
+  text-decoration: none;
+}

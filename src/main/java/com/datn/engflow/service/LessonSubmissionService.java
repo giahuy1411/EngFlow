@@ -24,11 +24,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * class LessonSubmissionService.
+ */
 public class LessonSubmissionService {
 
     private final LessonSubmissionRepository lessonSubmissionRepository;
@@ -49,25 +51,23 @@ public class LessonSubmissionService {
         Optional<LessonSubmission> existingOpt = lessonSubmissionRepository
                 .findByUserIdAndLessonIdAndSkillType(user.getId(), lesson.getId(), request.getSkillType());
 
-        LessonSubmission submission;
-        if (existingOpt.isPresent()) {
-            submission = existingOpt.get();
-            // Update submission content and reset grading details
-            submission.setSubmissionText(request.getSubmissionText());
-            submission.setAudioUrl(request.getAudioUrl());
-            submission.setScore(null);
-            submission.setFeedback(null);
-            submission.setStatus("PENDING");
-        } else {
-            submission = LessonSubmission.builder()
-                    .user(user)
-                    .lesson(lesson)
-                    .skillType(request.getSkillType())
-                    .submissionText(request.getSubmissionText())
-                    .audioUrl(request.getAudioUrl())
-                    .status("PENDING")
-                    .build();
-        }
+        LessonSubmission submission = existingOpt
+                .map(existing -> {
+                    existing.setSubmissionText(request.getSubmissionText());
+                    existing.setAudioUrl(request.getAudioUrl());
+                    existing.setScore(null);
+                    existing.setFeedback(null);
+                    existing.setStatus("PENDING");
+                    return existing;
+                })
+                .orElseGet(() -> LessonSubmission.builder()
+                        .user(user)
+                        .lesson(lesson)
+                        .skillType(request.getSkillType())
+                        .submissionText(request.getSubmissionText())
+                        .audioUrl(request.getAudioUrl())
+                        .status("PENDING")
+                        .build());
 
         LessonSubmission saved = lessonSubmissionRepository.save(submission);
         return convertToDTO(saved);
@@ -85,28 +85,6 @@ public class LessonSubmissionService {
         return convertToDTO(submission);
     }
 
-    @Transactional(readOnly = true)
-    public List<LessonSubmissionDTO> getAllSubmissionsForAdmin() {
-        log.info("Admin lấy danh sách bài nộp để chấm điểm");
-        return lessonSubmissionRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public LessonSubmissionDTO gradeSubmission(Long submissionId, Double score, String feedback) {
-        log.info("Admin chấm điểm bài nộp id={}, score={}, feedback={}", submissionId, score, feedback);
-
-        LessonSubmission submission = lessonSubmissionRepository.findById(submissionId)
-                .orElseThrow(() -> new ResourceNotFoundException("LessonSubmission", "id", submissionId));
-
-        submission.setScore(score);
-        submission.setFeedback(feedback);
-        submission.setStatus("GRADED");
-
-        LessonSubmission saved = lessonSubmissionRepository.save(submission);
-        return convertToDTO(saved);
-    }
 
     public String saveAudioFile(MultipartFile file) {
         log.info("Lưu file âm thanh được tải lên: {}", file.getOriginalFilename());

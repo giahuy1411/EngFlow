@@ -1,11 +1,14 @@
 <template>
   <div class="bg-geo-bg min-h-screen py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-accent border-2 border-foreground rounded-full mb-6 shadow-pop-sm">
-        <Volume2 class="w-8 h-8 text-white" />
-      </div>
-      <h1 class="font-black text-3xl uppercase tracking-tight mb-2">Nghe & Chọn</h1>
-      <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-10">Nghe từ và chọn đáp án đúng</p>
+      <UserPageHeader
+        eyebrow="Audio drill"
+        title="Nghe và chọn"
+        subtitle="Nghe từ và chọn đáp án đúng."
+        root-class="mb-10"
+      >
+        <template #accent>Listening</template>
+      </UserPageHeader>
 
       <!-- Audio -->
       <div v-if="currentWord" class="mb-8">
@@ -58,6 +61,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import deckService from '@/services/deckService'
 import { Volume2, Check } from 'lucide-vue-next'
+import UserPageHeader from '@/components/common/UserPageHeader.vue'
 
 const route = useRoute()
 const deckId = route.params.id
@@ -80,7 +84,16 @@ onMounted(async () => {
 })
 
 function playAudio() {
-  if (currentWord.value?.audioUrl) new Audio(currentWord.value.audioUrl).play()
+  const w = currentWord.value
+  if (!w) return
+  if (w.audioUrl) {
+    new Audio(w.audioUrl).play()
+  } else if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(w.word)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.85
+    window.speechSynthesis.speak(utterance)
+  }
 }
 
 function selectAnswer(idx) {

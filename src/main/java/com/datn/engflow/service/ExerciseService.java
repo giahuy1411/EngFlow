@@ -16,6 +16,8 @@ import com.datn.engflow.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,17 +26,25 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import com.datn.engflow.service.LessonContentService.LessonContentInfo;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * class ExerciseService.
+ */
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final LessonRepository lessonRepository;
     private final ExerciseAttemptRepository attemptRepository;
     private final UserRepository userRepository;
+    private final LessonContentService lessonContentService;
 
     // --- CRUD ---
 
@@ -46,35 +56,14 @@ public class ExerciseService {
     }
 
     private List<Exercise> findExercisesForLesson(Long lessonId) {
-        List<Exercise> exercises = exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
-        if (!exercises.isEmpty()) {
-            return exercises;
-        }
-        // Fallback: parent lesson has no exercises — find sub-lesson by title
-        Lesson lesson = lessonRepository.findById(lessonId).orElse(null);
-        if (lesson != null && lesson.getTitle() != null) {
-            String base = lesson.getTitle()
-                    .replaceAll("^English (Grammar|Vocabulary|Reading|Listening|Speaking|Writing) Exercises for [A-Z][12] – ", "")
-                    .replaceAll(" - (GRAMMAR|VOCABULARY|LISTENING|READING|SPEAKING|WRITING|WORD_SKILLS)$", "")
-                    .trim();
-            if (!base.isEmpty()) {
-                List<Lesson> candidates = lessonRepository.findByTitleContainingIgnoreCase(base);
-                for (Lesson candidate : candidates) {
-                    if (candidate.getId().equals(lessonId)) continue;
-                    List<Exercise> candidateExercises = exerciseRepository.findByLessonIdOrderByOrderIndexAsc(candidate.getId());
-                    if (!candidateExercises.isEmpty()) {
-                        return candidateExercises;
-                    }
-                }
-            }
-        }
-        return List.of();
+        return exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
     }
 
     public ExerciseResponse getExercise(Long id) {
         Exercise ex = exerciseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Exercise not found: " + id));
-        return toResponse(ex);
+        // Admin-only endpoint: include correctAnswer/explanation for admin editing.
+        return toResponse(ex, true);
     }
 
     @Transactional
@@ -97,7 +86,8 @@ public class ExerciseService {
                 .build();
 
         exercise = exerciseRepository.save(exercise);
-        return toResponse(exercise);
+        // F7-BUG01 FIX: Return correctAnswer/explanation to the admin who just created it.
+        return toResponse(exercise, true);
     }
 
     @Transactional
@@ -116,7 +106,8 @@ public class ExerciseService {
         if (request.getOrderIndex() != null) exercise.setOrderIndex(request.getOrderIndex());
 
         exercise = exerciseRepository.save(exercise);
-        return toResponse(exercise);
+        // F7-BUG01 FIX: Admin update should also return the answer so the editor sees what changed.
+        return toResponse(exercise, true);
     }
 
     @Transactional
@@ -182,11 +173,34 @@ public class ExerciseService {
     }
 
     public List<ExerciseResponse> getAllExercises(Long lessonId, String type, String difficulty, String search) {
-        if (lessonId != null) {
-            return exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId)
-                    .stream().map(e -> toResponse(e, true)).toList();
+        List<Exercise> exercises = lessonId != null
+                ? exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId)
+                : exerciseRepository.findAll();
+        if (search != null && !search.isBlank()) {
+            String keyword = search.trim().toLowerCase();
+            exercises = exercises.stream()
+                    .filter(e -> e.getQuestion() != null && e.getQuestion().toLowerCase().contains(keyword)
+                            || (e.getExplanation() != null && e.getExplanation().toLowerCase().contains(keyword)))
+                    .toList();
         }
-        return exerciseRepository.findAll().stream().map(e -> toResponse(e, true)).toList();
+        return exercises.stream().map(e -> toResponse(e, true)).toList();
+    }
+
+    public Page<ExerciseResponse> getAdminExercisePage(Long lessonId, String type, String difficulty, String search, Pageable pageable) {
+        ExerciseType exerciseType = parseEnum(type, ExerciseType.class);
+        ExerciseDifficulty exerciseDifficulty = parseEnum(difficulty, ExerciseDifficulty.class);
+        return exerciseRepository.findAdminPage(
+                        lessonId,
+                        exerciseType,
+                        exerciseDifficulty,
+                        search != null && !search.isBlank() ? search.trim() : null,
+                        pageable)
+                .map(e -> toResponse(e, true));
+    }
+
+    private static <T extends Enum<T>> T parseEnum(String value, Class<T> enumClass) {
+        if (value == null || value.isBlank()) return null;
+        return Enum.valueOf(enumClass, value.trim().toUpperCase());
     }
 
     // --- Exercise Attempts ---
@@ -198,10 +212,20 @@ public class ExerciseService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + userEmail));
 
+        // Batch fetch all exercises for detailsJson building to avoid N+1 query
+        List<Long> exerciseIds = grade.getResults().stream()
+                .map(ExerciseGradeItem::getExerciseId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, Exercise> exerciseMap = exerciseRepository.findAllById(exerciseIds).stream()
+                .collect(Collectors.toMap(Exercise::getId, e -> e));
+
         // Build details JSON
         String detailsJson = grade.getResults().stream()
                 .map(item -> {
-                    Exercise ex = exerciseRepository.findById(item.getExerciseId()).orElse(null);
+                    Exercise ex = exerciseMap.get(item.getExerciseId());
                     return "{\"exerciseId\":" + item.getExerciseId()
                             + ",\"question\":" + (ex != null ? escapeJson(ex.getQuestion()) : "null")
                             + ",\"userAnswer\":" + escapeJson(item.getUserAnswer())
@@ -356,6 +380,7 @@ public class ExerciseService {
         return ExerciseResponse.builder()
                 .id(ex.getId())
                 .lessonId(ex.getLesson().getId())
+                .lessonTitle(ex.getLesson().getTitle())
                 .question(ex.getQuestion())
                 .options(ex.getOptions())
                 .correctAnswer(includeAnswers ? ex.getCorrectAnswer() : null)
@@ -366,5 +391,12 @@ public class ExerciseService {
                 .audioUrl(ex.getAudioUrl())
                 .orderIndex(ex.getOrderIndex())
                 .build();
+    }
+
+    public LessonContentInfo getCleanContent(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new EntityNotFoundException("Lesson not found: " + lessonId));
+        // Content is already deep-cleaned in DB with <details>/<summary> for Answers
+        return new LessonContentInfo(lesson.getContent());
     }
 }

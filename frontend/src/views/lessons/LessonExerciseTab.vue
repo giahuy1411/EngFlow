@@ -1,0 +1,241 @@
+<template>
+  <div class="space-y-6">
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center py-16">
+      <div class="w-10 h-10 border-2 border-foreground border-t-accent rounded-full animate-spin"></div>
+    </div>
+
+    <!-- No exercises -->
+    <div v-else-if="exercises.length === 0" class="bg-card border-2 border-foreground shadow-pop-lg p-12 text-center rounded-md">
+      <p class="font-black text-xl uppercase">Chưa có bài tập</p>
+      <p class="text-muted-foreground font-medium mt-2">Bài học này chưa có bài tập để làm.</p>
+    </div>
+
+    <div v-else>
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="font-black text-2xl uppercase tracking-tight">Bài tập</h2>
+          <p class="text-muted-foreground font-medium">Trả lời từng câu và kiểm tra đáp án.</p>
+        </div>
+        <span class="font-bold text-sm bg-foreground text-white px-4 py-2 rounded-full">{{ exercises.length }} câu</span>
+      </div>
+
+      <!-- Cards -->
+      <div v-for="(ex, idx) in exercises" :key="ex.id"
+        class="bg-card border-2 border-foreground shadow-pop-lg rounded-md overflow-hidden mb-5 transition-all"
+        :class="cardStates[ex.id]?.revealed ? (cardStates[ex.id]?.isCorrect ? 'ring-2 ring-quaternary' : 'ring-2 ring-accent') : ''">
+
+        <!-- Card header -->
+        <div class="flex items-center gap-3 px-6 pt-5 pb-2">
+          <span class="font-black text-sm uppercase bg-foreground text-white px-3 py-1 rounded-full">{{ idx + 1 }}</span>
+          <span class="px-3 py-1 bg-tertiary text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-foreground">{{ typeLabel(ex.exerciseType) }}</span>
+          <span v-if="ex.difficulty === 'EASY'" class="text-quaternary font-bold text-xs uppercase">Dễ</span>
+          <span v-else-if="ex.difficulty === 'MEDIUM'" class="text-tertiary font-bold text-xs uppercase">TB</span>
+          <span v-else-if="ex.difficulty === 'HARD'" class="text-accent font-bold text-xs uppercase">Khó</span>
+        </div>
+
+        <div class="p-6 pt-3">
+          <!-- MATCHING: use dedicated component -->
+          <MatchingExercise v-if="ex.exerciseType === 'MATCHING'"
+            :exercise="ex"
+            @answer="onMatchingAnswer(ex.id, $event)"
+            @reveal="onMatchingReveal(ex.id, $event)"
+          />
+
+          <template v-else>
+            <!-- Question text (markdown) -->
+            <div class="geo-markdown mb-5" v-html="parseMarkdown(ex.question)"></div>
+
+            <!-- Image -->
+            <img v-if="ex.imageUrl" :src="ex.imageUrl" class="max-w-full max-h-96 mx-auto border-2 border-foreground rounded-md mb-5" alt="" />
+
+            <!-- Audio (for listening exercises) -->
+            <div v-if="ex.exerciseType === 'LISTENING' && ex.audioUrl" class="mb-5 bg-secondary/10 border-2 border-foreground p-4 rounded-md">
+              <p class="font-bold text-xs uppercase tracking-wider text-secondary mb-2">Nghe & trả lời</p>
+              <audio :src="ex.audioUrl" controls class="w-full max-w-md"></audio>
+            </div>
+
+            <!-- Options (multiple choice) -->
+            <div v-if="hasOptionChoices(ex)" class="space-y-3">
+              <button v-for="(opt, oi) in parsedOptions(ex)" :key="oi"
+                @click="selectAnswer(ex.id, opt)"
+                class="w-full text-left p-4 border-2 font-medium transition-all rounded-md"
+                :class="getCardOptionClass(ex.id, opt)">
+                {{ opt }}
+              </button>
+            </div>
+
+            <!-- Text input (fill blank / translation) -->
+            <input v-else v-model="textAnswers[ex.id]" type="text"
+              :aria-label="'Câu trả lời cho câu ' + (idx + 1)"
+              :placeholder="getInputPlaceholder(ex)"
+              :disabled="cardStates[ex.id]?.revealed"
+              class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
+
+            <!-- Result badge (after check) -->
+            <div v-if="cardStates[ex.id]?.revealed" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
+              :class="cardStates[ex.id]?.isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
+              <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
+                <span>{{ cardStates[ex.id]?.isCorrect ? '✅ Đúng' : '❌ Sai' }}</span>
+              </div>
+              <p class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ ex.correctAnswer || 'Chưa có đáp án' }}</span></p>
+              <p v-if="ex.explanation" class="mt-2 text-sm text-muted-foreground italic">{{ ex.explanation }}</p>
+            </div>
+
+            <!-- Check button -->
+            <button v-if="!cardStates[ex.id]?.revealed" @click="checkAnswer(ex)"
+              class="mt-4 px-6 py-3 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all"
+              :disabled="!getUserAnswer(ex.id)">
+              Kiểm tra
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Submit all button -->
+      <button @click="submitAll"
+        class="w-full px-8 py-4 bg-accent text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200"
+        :disabled="submitting">
+        {{ submitting ? 'Đang nộp...' : `Nộp bài (${exercises.length} câu)` }}
+      </button>
+
+      <!-- Submit success -->
+      <div v-if="submitted" class="mt-4 p-4 bg-quaternary/10 border-2 border-quaternary rounded-md text-center">
+        <p class="font-black text-sm uppercase">✅ Đã lưu kết quả! Xem tab Lịch sử.</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/store/modules/auth'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
+import lessonService from '@/services/lessonService'
+import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
+
+const route = useRoute()
+const lessonId = Number(route.params.id)
+
+const exercises = ref([])
+const loading = ref(true)
+const textAnswers = ref({})
+const optionAnswers = ref({})
+const cardStates = ref({})
+const submitting = ref(false)
+const submitted = ref(false)
+
+function typeLabel(type) {
+  const map = { MULTIPLE_CHOICE: 'Trắc nghiệm', FILL_BLANK: 'Điền từ', LISTENING: 'Nghe', MATCHING: 'Nối từ', TRANSLATION: 'Dịch' }
+  return map[type] || type
+}
+
+function parseMarkdown(md) {
+  if (!md) return ''
+  return DOMPurify.sanitize(marked.parse(md))
+}
+
+function parsedOptions(ex) {
+  if (!ex.options) return null
+  if (Array.isArray(ex.options)) return ex.options
+  try { return JSON.parse(ex.options) }
+  catch { return null }
+}
+
+function hasOptionChoices(ex) {
+  const choiceTypes = ['MULTIPLE_CHOICE', 'LISTENING']
+  if (!choiceTypes.includes(ex.exerciseType)) return false
+  const opts = parsedOptions(ex)
+  return Array.isArray(opts) && opts.length > 0
+}
+
+function getInputPlaceholder(ex) {
+  const placeholders = { FILL_BLANK: 'Điền vào chỗ trống...', TRANSLATION: 'Nhập bản dịch...' }
+  return placeholders[ex.exerciseType] || 'Nhập câu trả lời...'
+}
+
+function getUserAnswer(exId) {
+  return textAnswers.value[exId] || optionAnswers.value[exId] || ''
+}
+
+function selectAnswer(exId, answer) {
+  if (cardStates.value[exId]?.revealed) return
+  optionAnswers.value[exId] = answer
+  textAnswers.value[exId] = ''
+}
+
+function getCardOptionClass(exId, opt) {
+  const selected = optionAnswers.value[exId] === opt
+  const state = cardStates.value[exId]
+  if (!state?.revealed) {
+    return selected ? 'border-accent bg-accent/10' : 'border-foreground hover:bg-tertiary/10'
+  }
+  const ex = exercises.value.find(e => e.id === exId)
+  const isCorrectAnswer = opt.trim().toLowerCase() === (ex?.correctAnswer || '').trim().toLowerCase()
+  if (isCorrectAnswer) return 'border-quaternary bg-quaternary/10'
+  if (selected && !state.isCorrect) return 'border-accent bg-accent/10'
+  return 'border-border opacity-60'
+}
+
+function checkAnswer(ex) {
+  const userAnswer = getUserAnswer(ex.id)
+  if (!userAnswer) return
+  const normalizedUser = userAnswer.trim().toLowerCase().replace(/\s+/g, ' ')
+  const normalizedCorrect = (ex.correctAnswer || '').trim().toLowerCase().replace(/\s+/g, ' ')
+  const isCorrect = normalizedUser === normalizedCorrect
+  cardStates.value[ex.id] = { revealed: true, isCorrect }
+}
+
+// MATCHING handlers
+function onMatchingAnswer(exId, answer) {
+  optionAnswers.value[exId] = answer
+}
+
+function onMatchingReveal(exId, answer) {
+  const ex = exercises.value.find(e => e.id === exId)
+  if (!ex) return
+  const normalizedUser = answer.trim().toLowerCase().replace(/\s+/g, '')
+  const normalizedCorrect = (ex.correctAnswer || '').trim().toLowerCase().replace(/\s+/g, '')
+  const isCorrect = normalizedUser === normalizedCorrect
+  cardStates.value[exId] = { revealed: true, isCorrect }
+}
+
+async function submitAll() {
+  submitting.value = true
+  submitted.value = false
+  try {
+    const answers = exercises.value.map(ex => ({
+      exerciseId: ex.id,
+      userAnswer: getUserAnswer(ex.id)
+    }))
+    await lessonService.submitExercises(lessonId, answers)
+    submitted.value = true
+  } catch (e) {
+    console.error('Submit failed:', e)
+  } finally {
+    submitting.value = false
+  }
+}
+
+onMounted(async () => {
+  try {
+    const auth = useAuthStore()
+    // includeAnswers=true trả 403 cho ROLE_USER; chỉ admin được fetch kèm đáp án.
+    const data = auth.isAdmin
+      ? await lessonService.getExercisesWithAnswers(lessonId)
+      : await lessonService.getExercises(lessonId)
+    exercises.value = Array.isArray(data) ? data : []
+    for (const ex of exercises.value) {
+      cardStates.value[ex.id] = { revealed: false, isCorrect: false }
+      textAnswers.value[ex.id] = ''
+    }
+  } catch (e) {
+    console.error('Failed to load exercises:', e)
+  } finally {
+    loading.value = false
+  }
+})
+</script>

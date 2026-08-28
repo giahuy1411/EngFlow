@@ -9,6 +9,9 @@ import java.util.List;
 
 @Data
 @Builder
+/**
+ * class AttemptDetailResponse.
+ */
 public class AttemptDetailResponse {
     private Long id;
     private int score;

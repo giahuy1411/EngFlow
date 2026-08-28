@@ -7,6 +7,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class LeaderboardEntryDTO.
+ */
 public class LeaderboardEntryDTO {
     private Integer rank;
     private Long userId;

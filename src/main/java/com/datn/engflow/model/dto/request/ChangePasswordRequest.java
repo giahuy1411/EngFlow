@@ -7,6 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * class ChangePasswordRequest.
+ */
 public class ChangePasswordRequest {
     @NotBlank(message = "Mật khẩu cũ không được để trống")
     private String oldPassword;

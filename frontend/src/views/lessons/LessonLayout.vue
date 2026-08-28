@@ -1,49 +1,61 @@
 <template>
-  <div class="bg-geo-bg min-h-screen">
+  <div class="bg-background min-h-screen">
     <StreakBanner />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div role="tablist" aria-label="Nội dung bài học" class="flex gap-4 border-b-2 border-gray-300 mb-6">
-        <button role="tab" :aria-selected="activeTab === 'overview'" :aria-controls="'tabpanel-overview'"
-          :tabindex="activeTab === 'overview' ? 0 : -1"
-          @click="activeTab = 'overview'" @keydown.left.right.prevent="switchTab"
+      <!-- Tab bar -->
+      <div role="tablist" aria-label="Nội dung bài học" class="flex gap-4 border-b-2 border-border mb-6">
+        <button v-for="tab in tabs" :key="tab.id" role="tab"
+          :aria-selected="activeTab === tab.id" :aria-controls="'tabpanel-' + tab.id"
+          :tabindex="activeTab === tab.id ? 0 : -1"
+          @click="activeTab = tab.id" @keydown.left.right.prevent="switchTab"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="activeTab === 'overview' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
-          Nội dung
-        </button>
-        <button role="tab" :aria-selected="activeTab === 'history'" :aria-controls="'tabpanel-history'"
-          :tabindex="activeTab === 'history' ? 0 : -1"
-          @click="activeTab = 'history'" @keydown.left.right.prevent="switchTab"
-          class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="activeTab === 'history' ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-foreground'">
-          Lịch sử
+          :class="activeTab === tab.id ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'">
+          {{ tab.label }}
         </button>
       </div>
 
-      <div v-if="activeTab === 'overview'" id="tabpanel-overview" role="tabpanel" aria-label="Nội dung">
-        <LessonOverview />
+      <!-- Tab panels -->
+      <div v-if="activeTab === 'content'" :id="'tabpanel-content'" role="tabpanel" aria-label="Nội dung">
+        <LessonContent />
       </div>
-      <div v-if="activeTab === 'history'" id="tabpanel-history" role="tabpanel" aria-label="Lịch sử">
-        <LessonHistory />
+      <div v-else-if="activeTab === 'exercises'" :id="'tabpanel-exercises'" role="tabpanel" aria-label="Bài tập">
+        <LessonExerciseTab v-if="isLoggedIn" />
+        <GuestCtaCard v-else title="Đăng nhập để làm bài tập" />
+      </div>
+      <div v-else-if="activeTab === 'history'" :id="'tabpanel-history'" role="tabpanel" aria-label="Lịch sử">
+        <LessonPreview v-if="isLoggedIn" />
+        <GuestCtaCard v-else title="Đăng nhập để lưu lịch sử học" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useAuthStore } from '@/store/modules/auth'
 import StreakBanner from './StreakBanner.vue'
-import LessonOverview from './LessonOverview.vue'
-import LessonHistory from './LessonPreview.vue'
+import LessonContent from './LessonContent.vue'
+import LessonExerciseTab from './LessonExerciseTab.vue'
+import LessonPreview from './LessonPreview.vue'
+import GuestCtaCard from '@/components/common/GuestCtaCard.vue'
 
-const activeTab = ref('overview')
+const auth = useAuthStore()
+const isLoggedIn = computed(() => auth.isLoggedIn)
+
+const tabs = [
+  { id: 'content', label: 'Nội dung' },
+  { id: 'exercises', label: 'Bài tập' },
+  { id: 'history', label: 'Lịch sử' },
+]
+const activeTab = ref('content')
 
 function switchTab(e) {
-  const tabs = ['overview', 'history']
-  const cur = tabs.indexOf(activeTab.value)
+  const ids = tabs.map(t => t.id)
+  const cur = ids.indexOf(activeTab.value)
   if (e.key === 'ArrowLeft') {
-    activeTab.value = tabs[(cur - 1 + tabs.length) % tabs.length]
+    activeTab.value = ids[(cur - 1 + ids.length) % ids.length]
   } else if (e.key === 'ArrowRight') {
-    activeTab.value = tabs[(cur + 1) % tabs.length]
+    activeTab.value = ids[(cur + 1) % ids.length]
   }
 }
 </script>

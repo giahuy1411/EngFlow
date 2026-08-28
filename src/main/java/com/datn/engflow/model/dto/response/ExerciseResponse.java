@@ -5,9 +5,13 @@ import lombok.Data;
 
 @Data
 @Builder
+/**
+ * class ExerciseResponse.
+ */
 public class ExerciseResponse {
     private Long id;
     private Long lessonId;
+    private String lessonTitle;
     private String question;
     private String options;
     private String correctAnswer;

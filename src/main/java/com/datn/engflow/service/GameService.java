@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * class GameService.
+ */
 public class GameService {
 
     private final DeckWordRepository deckWordRepository;
@@ -27,7 +30,7 @@ public class GameService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final com.datn.engflow.repository.UserRepository userRepository;
 
-    private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions) {
+    private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions, Map<String, String> answerMap) {
         String sessionId = UUID.randomUUID().toString();
         GameSessionRedisDTO session = GameSessionRedisDTO.builder()
                 .sessionId(sessionId)
@@ -35,6 +38,7 @@ public class GameService {
                 .deckId(deckId)
                 .gameType(gameType)
                 .totalQuestions(totalQuestions)
+                .answerMap(answerMap)
                 .build();
         
         String key = "game:session:" + sessionId;
@@ -43,11 +47,16 @@ public class GameService {
         return session;
     }
 
+    private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions) {
+        return createSession(userId, deckId, gameType, totalQuestions, null);
+    }
+
     @Transactional
     public Map<String, Object> generateQuiz(Long deckId, Long userId) {
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
         List<Vocabulary> allVocabs = deckWords.stream().map(DeckWord::getVocabulary).collect(Collectors.toList());
         List<Map<String, Object>> quiz = new ArrayList<>();
+        Map<String, String> answerMap = new HashMap<>();
 
         for (Vocabulary vocab : allVocabs) {
             Map<String, Object> question = new HashMap<>();
@@ -68,13 +77,22 @@ public class GameService {
             Collections.shuffle(options);
 
             question.put("options", options);
+            // Do not expose correct answer to client in response; server stores it in Redis
+            // Keep answer for backward compat but will be removed in future
             question.put("answer", vocab.getMeaning());
+            answerMap.put(String.valueOf(vocab.getId()), vocab.getMeaning());
             quiz.add(question);
         }
         Collections.shuffle(quiz);
         List<Map<String, Object>> finalData = quiz.size() > 10 ? quiz.subList(0, 10) : quiz;
+        // Keep only answerMap entries for selected questions
+        Map<String, String> sessionAnswerMap = new HashMap<>();
+        for (Map<String, Object> q : finalData) {
+            String vid = String.valueOf(q.get("vocabId"));
+            sessionAnswerMap.put(vid, answerMap.get(vid));
+        }
 
-        GameSessionRedisDTO session = createSession(userId, deckId, "QUIZ", finalData.size());
+        GameSessionRedisDTO session = createSession(userId, deckId, "QUIZ", finalData.size(), sessionAnswerMap);
 
         Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getSessionId());
@@ -92,6 +110,7 @@ public class GameService {
         List<Vocabulary> selected = allVocabs.subList(0, pairs);
 
         List<Map<String, Object>> cards = new ArrayList<>();
+        Map<String, String> answerMap = new HashMap<>();
         for (Vocabulary v : selected) {
             Map<String, Object> wordCard = new HashMap<>();
             wordCard.put("id", v.getId() + "-word");
@@ -106,10 +125,11 @@ public class GameService {
             meaningCard.put("content", v.getMeaning());
             meaningCard.put("type", "meaning");
             cards.add(meaningCard);
+            answerMap.put(String.valueOf(v.getId()), v.getMeaning());
         }
         Collections.shuffle(cards);
 
-        GameSessionRedisDTO session = createSession(userId, deckId, "MEMORY_MATCH", pairs);
+        GameSessionRedisDTO session = createSession(userId, deckId, "MEMORY_MATCH", pairs, answerMap);
 
         Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getSessionId());
@@ -135,6 +155,7 @@ public class GameService {
     private Map<String, Object> generateBaseList(Long deckId, Long userId, String gameType) {
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
         List<Map<String, Object>> result = new ArrayList<>();
+        Map<String, String> answerMap = new HashMap<>();
         for (DeckWord dw : deckWords) {
             Vocabulary v = dw.getVocabulary();
             Map<String, Object> item = new HashMap<>();
@@ -144,11 +165,17 @@ public class GameService {
             item.put("pronunciation", v.getPronunciation());
             item.put("audioUrl", v.getAudioUrl());
             result.add(item);
+            answerMap.put(String.valueOf(v.getId()), v.getWord());
         }
         Collections.shuffle(result);
         List<Map<String, Object>> finalData = result.size() > 10 ? result.subList(0, 10) : result;
+        Map<String, String> sessionAnswerMap = new HashMap<>();
+        for (Map<String, Object> item : finalData) {
+            String vid = String.valueOf(item.get("vocabId"));
+            sessionAnswerMap.put(vid, answerMap.get(vid));
+        }
 
-        GameSessionRedisDTO session = createSession(userId, deckId, gameType, finalData.size());
+        GameSessionRedisDTO session = createSession(userId, deckId, gameType, finalData.size(), sessionAnswerMap);
 
         Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getSessionId());
@@ -158,6 +185,11 @@ public class GameService {
 
     @Transactional
     public Map<String, Object> submitGameResult(Long userId, String sessionId, int correctAnswers) {
+        return submitGameResult(userId, sessionId, correctAnswers, null);
+    }
+
+    @Transactional
+    public Map<String, Object> submitGameResult(Long userId, String sessionId, int clientCorrectAnswers, List<Map<String, Object>> userAnswers) {
         String key = "game:session:" + sessionId;
         GameSessionRedisDTO redisSession = (GameSessionRedisDTO) redisTemplate.opsForValue().get(key);
 
@@ -169,8 +201,43 @@ public class GameService {
             throw new BadRequestException("Session không thuộc về người dùng này");
         }
 
-        if (correctAnswers > redisSession.getTotalQuestions() || correctAnswers < 0) {
-            throw new BadRequestException("Số câu trả lời đúng không hợp lệ");
+        int correctAnswers;
+        // Server-side validation if answers provided and session has answerMap
+        if (userAnswers != null && redisSession.getAnswerMap() != null && !redisSession.getAnswerMap().isEmpty()) {
+            correctAnswers = 0;
+            Map<String, String> answerMap = redisSession.getAnswerMap();
+            for (Map<String, Object> ans : userAnswers) {
+                Object vidObj = ans.get("vocabId");
+                Object userAnsObj = ans.get("answer");
+                if (vidObj == null || userAnsObj == null) continue;
+                String vid = String.valueOf(vidObj);
+                String expected = answerMap.get(vid);
+                if (expected != null && expected.equalsIgnoreCase(String.valueOf(userAnsObj).trim())) {
+                    correctAnswers++;
+                }
+            }
+            log.info("Server-validated game score: {}/{} for session {}", correctAnswers, redisSession.getTotalQuestions(), sessionId);
+        } else {
+            // Fallback: trust client but log warning and apply daily cap to mitigate farming
+            if (redisSession.getAnswerMap() != null) {
+                log.warn("Game submit without server validation for session {} type {} - trusting client count {}", sessionId, redisSession.getGameType(), clientCorrectAnswers);
+            }
+            if (clientCorrectAnswers > redisSession.getTotalQuestions() || clientCorrectAnswers < 0) {
+                throw new BadRequestException("Số câu trả lời đúng không hợp lệ");
+            }
+            correctAnswers = clientCorrectAnswers;
+        }
+
+        // Daily cap to prevent farming: max 100 points per day via games
+        String dailyKey = "game:points:today:" + userId + ":" + java.time.LocalDate.now();
+        Integer already = (Integer) redisTemplate.opsForValue().get(dailyKey);
+        int alreadyPoints = already != null ? already : 0;
+        int dailyLimit = 100;
+        if (alreadyPoints >= dailyLimit) {
+            correctAnswers = 0;
+            log.warn("Daily game points cap reached for user {}", userId);
+        } else if (alreadyPoints + correctAnswers > dailyLimit) {
+            correctAnswers = dailyLimit - alreadyPoints;
         }
 
         streakService.checkin(userId, redisSession.getTotalQuestions(), 1);
@@ -180,6 +247,10 @@ public class GameService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         user.setTotalPoints(user.getTotalPoints() + correctAnswers);
         userRepository.save(user);
+
+        // Update daily counter
+        redisTemplate.opsForValue().increment(dailyKey, correctAnswers);
+        redisTemplate.expire(dailyKey, 25, TimeUnit.HOURS);
 
         // Xóa session khỏi Redis
         redisTemplate.delete(key);

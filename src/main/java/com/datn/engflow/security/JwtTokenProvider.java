@@ -1,6 +1,7 @@
 package com.datn.engflow.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -12,6 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
+/**
+ * class JwtTokenProvider.
+ */
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
@@ -24,13 +28,14 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, Boolean isPremium) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
+                .claim("isPremium", isPremium != null && isPremium)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())
@@ -47,15 +52,15 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    public boolean validateToken(String authToken) {
+    public boolean validateToken(String authToken) throws ExpiredJwtException {
         try {
             Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(authToken);
             return true;
-        } catch (JwtException | IllegalArgumentException ex) {
-            return false;
+        } catch (ExpiredJwtException ex) {
+            throw ex;
         }
     }
 }

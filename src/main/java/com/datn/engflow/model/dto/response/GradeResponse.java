@@ -6,6 +6,9 @@ import java.util.List;
 
 @Data
 @Builder
+/**
+ * class GradeResponse.
+ */
 public class GradeResponse {
     private List<ExerciseGradeItem> results;
     private int score;

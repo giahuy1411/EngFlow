@@ -13,6 +13,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/srs")
 @RequiredArgsConstructor
+/**
+ * class SrsController.
+ */
 public class SrsController {
 
     private final SrsService srsService;

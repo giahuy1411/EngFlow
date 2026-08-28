@@ -1,23 +1,23 @@
 <template>
   <div class="audio-recorder">
-    <div v-if="!supported" class="p-4 bg-red-100 border-2 border-red-400 rounded-lg text-red-700 font-bold">
+    <div v-if="!supported" class="p-4 bg-danger/10 border-2 border-danger rounded-lg text-danger font-bold">
       Audio recording not supported in your browser.
     </div>
 
     <div v-else class="space-y-4">
       <div v-if="state === 'idle'">
-        <button @click="startRecording" class="w-full py-3 bg-red-500 text-white font-bold uppercase border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+        <button @click="startRecording" class="w-full py-3 bg-danger text-white font-bold uppercase border-4 border-foreground rounded-xl shadow-pop hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
           Start Recording
         </button>
       </div>
 
       <div v-if="state === 'recording'" class="text-center space-y-3">
         <div class="flex items-center justify-center gap-3">
-          <span class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
-          <span class="font-bold text-lg uppercase text-red-600">Recording...</span>
+          <span class="w-4 h-4 bg-danger rounded-full animate-pulse"></span>
+          <span class="font-bold text-lg uppercase text-danger">Recording...</span>
         </div>
         <div class="font-mono text-2xl font-black">{{ formatTime(elapsed) }}</div>
-        <button @click="stopRecording" class="w-full py-3 bg-black text-white font-bold uppercase border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+        <button @click="stopRecording" class="w-full py-3 bg-foreground text-white font-bold uppercase border-4 border-foreground rounded-xl shadow-pop hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
           Stop Recording
         </button>
       </div>
@@ -25,20 +25,20 @@
       <div v-if="state === 'stopped' && audioUrl" class="space-y-3">
         <audio :src="audioUrl" controls class="w-full"></audio>
         <div class="flex gap-3">
-          <button @click="uploadRecording" class="flex-1 py-3 bg-green-500 text-white font-bold uppercase border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all" :disabled="uploading">
+          <button @click="uploadRecording" class="flex-1 py-3 bg-success text-white font-bold uppercase border-4 border-foreground rounded-xl shadow-pop hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all" :disabled="uploading">
             {{ uploading ? 'Uploading...' : 'Submit Recording' }}
           </button>
-          <button @click="resetRecording" class="flex-1 py-3 bg-gray-200 text-black font-bold uppercase border-4 border-black rounded-xl hover:bg-gray-300 transition-all">
+          <button @click="resetRecording" class="flex-1 py-3 bg-muted text-foreground font-bold uppercase border-4 border-foreground rounded-xl hover:bg-muted-foreground/20 transition-all">
             Re-record
           </button>
         </div>
       </div>
 
-      <div v-if="uploaded" class="p-4 bg-green-100 border-2 border-green-400 rounded-lg text-green-700 font-bold text-center">
+      <div v-if="uploaded" class="p-4 bg-success/10 border-2 border-success/50 rounded-lg text-success font-bold text-center">
         Recording submitted successfully!
       </div>
 
-      <div v-if="error" class="p-4 bg-red-100 border-2 border-red-400 rounded-lg text-red-700 font-bold">
+      <div v-if="error" class="p-4 bg-danger/10 border-2 border-danger rounded-lg text-danger font-bold">
         {{ error }}
       </div>
     </div>
@@ -130,3 +130,8 @@ onUnmounted(() => {
   if (stream) stream.getTracks().forEach(t => t.stop())
 })
 </script>
+
+
+
+
+

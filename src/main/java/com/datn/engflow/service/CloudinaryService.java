@@ -12,6 +12,9 @@ import java.util.Map;
 
 @Service
 @Slf4j
+/**
+ * class CloudinaryService.
+ */
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
@@ -28,20 +31,14 @@ public class CloudinaryService {
         ));
     }
 
-    /**
-     * Upload avatar image to Cloudinary with automatic resize to 200x200.
-     *
-     * @param file the image file (max 2MB, image/* only)
-     * @return the secure URL of the uploaded image
-     */
     public String uploadAvatar(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("File không được trống");
+            throw new IllegalArgumentException("File khong duoc de trong");
         }
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Chỉ chấp nhận file ảnh (image/*)");
+            throw new IllegalArgumentException("Chi chap nhan file anh (image/*)");
         }
 
         @SuppressWarnings("unchecked")
@@ -53,6 +50,39 @@ public class CloudinaryService {
 
         String secureUrl = (String) result.get("secure_url");
         log.info("Avatar uploaded to Cloudinary: {}", secureUrl);
+        return secureUrl;
+    }
+
+    public String uploadAudio(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File khong duoc de trong");
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                "folder", "engflow/audio",
+                "resource_type", "video"
+        ));
+
+        String secureUrl = (String) result.get("secure_url");
+        log.info("Audio uploaded to Cloudinary: {}", secureUrl);
+        return secureUrl;
+    }
+
+    public String uploadAudioBytes(byte[] audioBytes, String filename) throws IOException {
+        if (audioBytes == null || audioBytes.length == 0) {
+            throw new IllegalArgumentException("Audio bytes khong duoc de trong");
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> result = cloudinary.uploader().upload(audioBytes, ObjectUtils.asMap(
+                "folder", "engflow/audio",
+                "resource_type", "video",
+                "public_id", filename != null ? filename : "ai-listening-" + System.currentTimeMillis()
+        ));
+
+        String secureUrl = (String) result.get("secure_url");
+        log.info("AI audio uploaded to Cloudinary: {}", secureUrl);
         return secureUrl;
     }
 }

@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+/**
+ * class ProgressController.
+ */
 public class ProgressController {
 
     private final ProgressService progressService;

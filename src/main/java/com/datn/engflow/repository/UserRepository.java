@@ -1,7 +1,10 @@
 package com.datn.engflow.repository;
 
 import com.datn.engflow.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,13 +14,33 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+/**
+ * interface UserRepository.
+ */
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    // Get active users who have not logged in within the given time threshold
+    @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+           "OR LOWER(COALESCE(u.fullName, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<User> searchByKeyword(@Param("keyword") String keyword);
+
+    @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+           "OR LOWER(COALESCE(u.fullName, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<User> searchByKeywordPage(@Param("keyword") String keyword, Pageable pageable);
+
+    long countByIsActiveTrue();
+
+    long countByLastStudyDateAfter(LocalDate threshold);
+
     @Query("SELECT u FROM User u WHERE u.isActive = true AND (u.lastStudyDate IS NULL OR u.lastStudyDate < :threshold)")
     List<User> findUsersWhoHaveNotLoggedInSince(@Param("threshold") LocalDate threshold);
+
+    @Modifying
+    @Query("UPDATE User u SET u.isPremium = false, u.premiumExpiry = NULL WHERE u.isPremium = true AND u.premiumExpiry IS NOT NULL AND u.premiumExpiry < :today")
+    int updateExpiredPremium(@Param("today") LocalDate today);
 }

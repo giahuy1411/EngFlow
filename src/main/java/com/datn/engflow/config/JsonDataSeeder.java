@@ -10,6 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Order(2)
+@ConditionalOnProperty(name = "engflow.seed-json-data", havingValue = "true", matchIfMissing = true)
+/**
+ * class JsonDataSeeder.
+ */
 public class JsonDataSeeder implements CommandLineRunner {
 
     private final LessonRepository lessonRepository;
@@ -148,7 +153,8 @@ public class JsonDataSeeder implements CommandLineRunner {
                                 log.info("Found existing lesson: {}. Parsing exercises...", fullTitle);
                                 // Parse exercises for existing lessons too
                                 try {
-                                    Lesson lesson = lessonRepository.findByTitle(fullTitle).get();
+                                    Lesson lesson = lessonRepository.findByTitle(fullTitle)
+                                .orElseThrow(() -> new IllegalStateException("Lesson not found: " + fullTitle));
                                     if (lesson.getContent() != null && !lesson.getContent().isEmpty()) {
                                         List<Exercise> parsed = htmlParserService.parseExercises(lesson, lesson.getContent());
                                         for (Exercise ex : parsed) {

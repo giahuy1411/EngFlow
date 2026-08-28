@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-geo-bg min-h-screen">
+  <div class="bg-background min-h-screen">
     <!-- Streak Banner -->
     <div class="bg-foreground border-b-2 border-foreground">
       <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
@@ -34,13 +34,23 @@
 
         <div class="flex flex-wrap gap-2">
           <button v-for="lv in levels" :key="lv.value"
-            @click="selectedLevel = lv.value"
+            @click="selectLevel(lv.value)"
             class="px-4 py-2 border-2 border-foreground font-bold text-xs uppercase tracking-wider transition-all duration-200 rounded-md shadow-pop-sm"
             :class="selectedLevel === lv.value
               ? 'bg-accent text-white'
               : 'bg-card text-foreground hover:bg-tertiary/20'"
           >{{ lv.label }}</button>
         </div>
+      </div>
+
+      <!-- Search -->
+      <div class="mb-8">
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="Tìm bài học..."
+          class="w-full sm:w-96 border-2 border-foreground bg-white px-4 py-2.5 font-bold text-sm rounded-md shadow-pop-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        />
       </div>
 
       <!-- Loading -->
@@ -59,7 +69,7 @@
 
       <div v-else>
         <!-- Empty -->
-        <div v-if="filteredLessons.length === 0" class="text-center py-32">
+        <div v-if="displayLessons.length === 0" class="text-center py-32">
           <div class="inline-flex items-center justify-center w-20 h-20 border-2 border-foreground bg-card mb-6 shadow-pop rounded-blob">
             <span class="text-4xl font-black text-muted-foreground">?</span>
           </div>
@@ -68,7 +78,7 @@
 
         <!-- Grid -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <article v-for="lesson in filteredLessons" :key="lesson.id"
+          <article v-for="lesson in displayLessons" :key="lesson.id"
             class="group bg-card border-2 border-foreground shadow-pop-xl hover:-translate-y-2 hover:shadow-pop-lg transition-all duration-300 flex flex-col relative overflow-hidden rounded-md"
           >
             <div class="h-2.5 w-full" :style="{ background: levelColor(lesson.level) }"></div>
@@ -80,7 +90,7 @@
 
               <div class="absolute bottom-2 right-2 flex items-center gap-2 bg-card border-2 border-foreground px-2 py-1 shadow-pop-sm rounded-sm">
                 <svg class="w-6 h-6 -rotate-90" viewBox="0 0 32 32">
-                  <circle cx="16" cy="16" r="14" fill="none" stroke="#e5e7eb" stroke-width="3" />
+                  <circle cx="16" cy="16" r="14" fill="none" stroke="var(--geo-border, #E5DECF)" stroke-width="3" />
                   <circle cx="16" cy="16" r="14" fill="none" stroke-width="3"
                     :stroke="levelColor(lesson.level)"
                     :stroke-dasharray="88"
@@ -125,23 +135,67 @@
             </div>
           </article>
         </div>
+
+        <div v-if="totalPages > 1" class="mt-10">
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :total-items="store.totalElements || displayLessons.length"
+            :page-size="pageSize"
+            item-label="bài học"
+            @page-change="(p) => { currentPage = p; loadPage() }"
+          />
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useLessonStore } from '@/store/modules/lesson'
+import { useAuthStore } from '@/store/modules/auth'
 import streakService from '@/services/streakService'
+import Pagination from '@/components/common/Pagination.vue'
 
 const store = useLessonStore()
 const selectedLevel = ref('ALL')
+const searchQuery = ref('')
 const currentStreak = ref(0)
 const streakMessage = ref('')
+const currentPage = ref(1)
+const pageSize = 12
+
+const totalPages = computed(() => Math.max(1, store.totalPages))
+
+const displayLessons = computed(() => store.lessons)
+
+function loadPage() {
+  const params = { page: currentPage.value - 1, size: pageSize }
+  if (selectedLevel.value !== 'ALL') params.level = selectedLevel.value
+  if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
+  store.fetchLessonPage(params)
+}
+
+let searchTimer = null
+watch(searchQuery, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1
+    loadPage()
+  }, 350)
+})
+
+function selectLevel(level) {
+  selectedLevel.value = level
+  currentPage.value = 1
+  loadPage()
+}
 
 onMounted(async () => {
-  store.fetchLessons()
+  loadPage()
+  const auth = useAuthStore()
+  if (!auth.isLoggedIn) return
   try {
     const data = await streakService.getCurrentStreak()
     currentStreak.value = data.currentStreak
@@ -161,18 +215,13 @@ const levels = [
   { label: 'Upper-Int.', value: 'UPPER_INTERMEDIATE' },
 ]
 
-const filteredLessons = computed(() => {
-  if (selectedLevel.value === 'ALL') return store.lessons
-  return store.lessons.filter(l => l.level === selectedLevel.value)
-})
-
 function levelColor(level) {
   return ({
-    ELEMENTARY: '#8B5CF6',
-    PRE_INTERMEDIATE: '#FBBF24',
-    INTERMEDIATE: '#F472B6',
-    UPPER_INTERMEDIATE: '#34D399',
-  })[level] || '#64748B'
+    ELEMENTARY: 'var(--geo-accent, #8B5CF6)',
+    PRE_INTERMEDIATE: 'var(--geo-tertiary, #FBBF24)',
+    INTERMEDIATE: 'var(--geo-secondary, #F472B6)',
+    UPPER_INTERMEDIATE: 'var(--geo-quaternary, #34D399)',
+  })[level] || 'var(--geo-muted-fg, #64748B)'
 }
 
 function levelLabel(level) {

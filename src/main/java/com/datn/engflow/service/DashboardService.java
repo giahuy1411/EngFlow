@@ -15,6 +15,9 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * class DashboardService.
+ */
 public class DashboardService {
 
     private final UserRepository userRepository;

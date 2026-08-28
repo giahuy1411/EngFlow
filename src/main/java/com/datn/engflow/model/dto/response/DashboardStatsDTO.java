@@ -9,6 +9,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class DashboardStatsDTO.
+ */
 public class DashboardStatsDTO {
     private Integer totalLessons;
     private Integer completedLessons;

@@ -21,6 +21,9 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Order(2)
+/**
+ * class VocabularyDataSeeder.
+ */
 public class VocabularyDataSeeder implements CommandLineRunner {
 
     private final VocabularyRepository vocabularyRepository;

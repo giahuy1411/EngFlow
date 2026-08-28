@@ -13,6 +13,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/games")
 @RequiredArgsConstructor
+/**
+ * class GameController.
+ */
 public class GameController {
 
     private final GameService gameService;
@@ -58,6 +61,7 @@ public class GameController {
     }
 
     @PostMapping("/submit")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<?> submitGameResult(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody Map<String, Object> payload) {
@@ -67,6 +71,14 @@ public class GameController {
         String sessionId = (String) payload.get("sessionId");
         if (sessionId == null || sessionId.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Session ID không được để trống"));
+        }
+        // New secure path: if client sends detailed answers, server validates
+        Object answersObj = payload.get("answers");
+        if (answersObj instanceof java.util.List) {
+            java.util.List<Map<String, Object>> answers = (java.util.List<Map<String, Object>>) answersObj;
+            Number correctRaw = (Number) payload.get("correctAnswers");
+            int clientCorrect = correctRaw != null ? correctRaw.intValue() : 0;
+            return ResponseEntity.ok(gameService.submitGameResult(userPrincipal.getId(), sessionId, clientCorrect, answers));
         }
         Number correctAnswersRaw = (Number) payload.get("correctAnswers");
         if (correctAnswersRaw == null) {

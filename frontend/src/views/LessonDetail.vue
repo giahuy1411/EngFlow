@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-geo-bg min-h-screen py-12">
+  <div class="bg-background min-h-screen py-12">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 mb-8">
@@ -175,7 +175,7 @@ function playAudio(url) {
 input.geo-radio {
   appearance: none;
   width: 20px; height: 20px;
-  border: 2px solid #1E293B;
+  border: 2px solid var(--geo-fg, #1E293B);
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -185,8 +185,8 @@ input.geo-radio {
   flex-shrink: 0;
 }
 input.geo-radio:checked {
-  border-color: #8B5CF6;
-  background: #8B5CF6;
+  border-color: var(--geo-accent, #8B5CF6);
+  background: var(--geo-accent, #8B5CF6);
   box-shadow: inset 0 0 0 3px white;
 }
 audio.geo-audio { border-radius: 8px; }

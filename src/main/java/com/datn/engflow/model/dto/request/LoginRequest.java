@@ -12,6 +12,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * class LoginRequest.
+ */
 public class LoginRequest {
 
     @NotBlank(message = "Email không được để trống")

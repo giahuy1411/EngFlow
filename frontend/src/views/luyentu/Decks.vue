@@ -1,126 +1,161 @@
 <template>
-    <div class="max-w-7xl w-full mx-auto px-4 py-12">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-12 gap-4">
-      <div class="relative">
-        <div class="absolute -top-3 -left-3 w-7 h-7 bg-accent border-2 border-foreground rotate-12 rounded-sm"></div>
-        <h1 class="font-black text-5xl uppercase tracking-tighter relative z-10">Bộ Từ Vựng</h1>
-      </div>
-      
-      <div class="flex gap-3">
-        <router-link to="/decks/create"
-          class="px-6 py-3 bg-accent text-white font-black uppercase text-sm tracking-wider border-2 border-foreground shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-200 rounded-full">
-          + Tạo bộ từ
-        </router-link>
-        <router-link to="/ai-vocab-generator"
-          class="px-6 py-3 bg-tertiary text-foreground font-black uppercase text-sm tracking-wider border-2 border-foreground shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-200 rounded-full">
-          AI Generator
-        </router-link>
-      </div>
-    </div>
+  <main class="min-h-[100dvh] bg-background">
+    <div class="mx-auto max-w-7xl space-y-8 px-4 py-10 lg:py-14">
+      <UserPageHeader
+        eyebrow="Vocabulary studio"
+        title="Bộ từ vựng"
+        subtitle="Tìm một chủ đề, ôn từng nhóm từ, rồi biến thời gian rảnh thành tiến bộ thật."
+      >
+        <template #accent>Decks</template>
+        <template #actions>
+          <router-link to="/decks/create" class="app-btn app-btn--featured app-btn--md">Tạo bộ từ</router-link>
+          <router-link to="/ai-vocab-generator" class="app-btn app-btn--amber app-btn--md">Tạo bằng AI</router-link>
+        </template>
+      </UserPageHeader>
 
-    <!-- Tabs -->
-    <div class="flex gap-1 mb-10 border-2 border-foreground bg-card p-1 inline-flex rounded-md">
-      <button 
-        @click="activeTab = 'public'"
-        class="px-6 py-2.5 font-black uppercase text-sm tracking-wider border-2 transition-all duration-200 rounded-full"
-        :class="activeTab === 'public' ? 'bg-accent text-white border-foreground shadow-pop-sm' : 'border-transparent text-muted-foreground hover:text-foreground'">
-        Public
-      </button>
-      <button 
-        @click="activeTab = 'my'"
-        class="px-6 py-2.5 font-black uppercase text-sm tracking-wider border-2 transition-all duration-200 rounded-full"
-        :class="activeTab === 'my' ? 'bg-accent text-white border-foreground shadow-pop-sm' : 'border-transparent text-muted-foreground hover:text-foreground'">
-        My Decks
-      </button>
-    </div>
-
-    <!-- Loading -->
-    <div v-if="loading" class="text-center py-24">
-      <div class="animate-spin inline-block w-10 h-10 border-2 border-foreground border-t-accent rounded-full"></div>
-    </div>
-    
-    <!-- Grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <template v-if="displayedDecks.length > 0">
-        <div v-for="deck in displayedDecks" :key="deck.id" 
-          class="bg-card border-2 border-foreground shadow-pop-xl p-6 flex flex-col justify-between cursor-pointer hover:-translate-y-2 hover:shadow-pop-lg transition-all duration-300 relative group rounded-md"
-          @click="goToDeck(deck.id)">
-          <div class="absolute -top-3 -right-3 w-6 h-6 bg-secondary border-2 border-foreground rotate-12 z-10 rounded-sm"></div>
-          
-          <div>
-            <div class="flex gap-2 mb-4">
-              <span v-if="deck.source"
-                class="px-3 py-1 bg-tertiary text-foreground font-bold text-xs uppercase tracking-wider border-2 border-foreground rounded-full">
-                {{ deck.source }}
-              </span>
-              <span v-if="deck.cefrLevel"
-                class="px-3 py-1 bg-card text-foreground font-bold text-xs uppercase tracking-wider border-2 border-foreground rounded-full">
-                {{ deck.cefrLevel }}
-              </span>
-            </div>
-            <h3 class="font-black text-2xl uppercase mb-3 line-clamp-2 text-foreground">{{ deck.name }}</h3>
-            <p v-if="deck.description" class="font-medium text-sm text-muted-foreground mb-6 line-clamp-3">{{ deck.description }}</p>
-          </div>
-          
-          <div class="flex justify-between items-center pt-4 border-t-2 border-foreground">
-            <span class="font-black text-sm uppercase tracking-wider text-accent">Bắt đầu &rarr;</span>
-          </div>
+      <section class="grid gap-4 border-b-2 border-foreground pb-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end" aria-label="Tìm kiếm bộ từ">
+        <label class="block">
+          <span class="mb-2 block text-xs font-black uppercase tracking-wider text-muted-foreground">Tìm bộ từ</span>
+          <input
+            id="deck-search-input"
+            v-model="searchQuery"
+            name="deck-search"
+            type="search"
+            placeholder="Ví dụ: travel, work, daily life"
+            class="min-h-12 w-full border-2 border-foreground bg-card px-4 font-bold outline-none transition focus:ring-2 focus:ring-accent"
+          />
+        </label>
+        <div class="flex border-2 border-foreground bg-card p-1">
+          <button type="button" class="min-h-10 px-4 text-xs font-black uppercase tracking-wider transition" :class="activeTab === 'public' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'" @click="switchTab('public')">Cộng đồng</button>
+          <button type="button" class="min-h-10 px-4 text-xs font-black uppercase tracking-wider transition" :class="activeTab === 'my' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'" @click="switchTab('my')">Bộ của tôi</button>
         </div>
-      </template>
-      <!-- Empty -->
-      <div v-else class="col-span-full bg-card border-2 border-foreground shadow-pop-xl p-6 flex flex-col items-center justify-center text-center relative min-h-[500px] rounded-md">
-        <div class="absolute -top-3 -right-3 w-6 h-6 bg-secondary border-2 border-foreground z-10 rounded-sm"></div>
-        <div class="absolute -bottom-3 -left-3 w-6 h-6 bg-accent border-2 border-foreground -rotate-12 z-10 rounded-sm"></div>
-        
-        <p class="font-black text-3xl uppercase mb-3 text-foreground">{{ activeTab === 'public' ? 'Chưa có bộ từ công khai' : 'Chưa có bộ từ vựng' }}</p>
-        <p class="font-medium text-muted-foreground mb-8 max-w-md">{{ activeTab === 'public' ? 'Hiện tại chưa có bộ từ vựng công khai nào. Hãy quay lại sau!' : 'Bạn chưa có bộ từ vựng nào. Hãy tạo bộ từ vựng đầu tiên!' }}</p>
-        
-        <router-link v-if="activeTab === 'my'" to="/ai-vocab-generator"
-          class="px-8 py-3 bg-tertiary text-foreground font-black uppercase text-sm tracking-wider border-2 border-foreground shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-200 rounded-full">
-          + Tạo bộ từ
-        </router-link>
-      </div>
+      </section>
+
+      <section v-if="loading" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Đang tải bộ từ">
+        <div v-for="index in 6" :key="index" class="h-64 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
+      </section>
+
+      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+        <p class="font-black">Không tải được danh sách bộ từ.</p>
+        <p class="mt-1 text-sm">{{ error }}</p>
+        <button class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadPage">Thử lại</button>
+      </section>
+
+      <section v-else-if="displayedDecks.length" class="space-y-8">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">{{ activeTab === 'public' ? 'Được chia sẻ' : 'Không gian của bạn' }}</p>
+            <h2 class="mt-2 text-3xl font-black tracking-tight">{{ activeTab === 'public' ? 'Chọn một chủ đề để bắt đầu' : 'Các bộ bạn đang xây dựng' }}</h2>
+          </div>
+          <span class="text-sm font-black tabular-nums text-muted-foreground">{{ totalElements }} bộ</span>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <StickerCard
+            v-for="deck in displayedDecks"
+            :key="deck.id"
+            as="router-link"
+            :to="`/decks/${deck.id}`"
+            interactive
+            class="block text-inherit no-underline"
+            :aria-label="`Mở bộ từ ${deck.name}`"
+          >
+            <template #icon>
+              <div class="absolute -right-2 -top-2 h-5 w-5 rotate-12 border-2 border-foreground bg-secondary"></div>
+            </template>
+            <div class="flex flex-wrap gap-2">
+              <span v-if="deck.source" class="border-2 border-foreground bg-tertiary px-2.5 py-1 text-[11px] font-black uppercase tracking-wider">{{ deck.source }}</span>
+              <span v-if="deck.cefrLevel" class="border-2 border-foreground bg-card px-2.5 py-1 text-[11px] font-black uppercase tracking-wider">{{ deck.cefrLevel }}</span>
+            </div>
+            <h3 class="mt-5 line-clamp-2 text-2xl font-black tracking-tight text-foreground">{{ deck.name }}</h3>
+            <p v-if="deck.description" class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{{ deck.description }}</p>
+            <div class="mt-7 flex items-center justify-between border-t-2 border-foreground pt-4">
+              <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ deck.wordCount ?? 0 }} từ</span>
+              <span class="text-sm font-black uppercase tracking-wider text-accent">Mở bộ &rarr;</span>
+            </div>
+          </StickerCard>
+        </div>
+
+        <Pagination :current-page="currentPage" :total-pages="totalPages" :total-items="totalElements" :page-size="pageSize" item-label="bộ từ vựng" @page-change="changePage" />
+      </section>
+
+      <section v-else class="border-2 border-dashed border-foreground bg-card p-12 text-center">
+        <p class="text-2xl font-black">{{ activeTab === 'public' ? 'Chưa có bộ từ công khai' : 'Bạn chưa có bộ từ nào' }}</p>
+        <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{{ activeTab === 'public' ? 'Thử lại sau hoặc tìm một chủ đề khác.' : 'Tạo bộ đầu tiên bằng tay hoặc để AI gợi ý cấu trúc từ vựng.' }}</p>
+        <router-link v-if="activeTab === 'my'" to="/ai-vocab-generator" class="mt-6 inline-flex border-2 border-foreground bg-accent px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Tạo bộ đầu tiên</router-link>
+      </section>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import deckService from '@/services/deckService'
-import { useAuthStore } from '@/store/modules/auth'
+import Pagination from '@/components/common/Pagination.vue'
+import { StickerCard } from '@/components/ui'
+import UserPageHeader from '@/components/common/UserPageHeader.vue'
 
-const router = useRouter()
-const authStore = useAuthStore()
 const activeTab = ref('public')
 const publicDecks = ref([])
 const myDecks = ref([])
 const loading = ref(true)
+const error = ref('')
+const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = 9
+const totalPagesPublic = ref(1)
+const totalPagesMy = ref(1)
+const totalElementsPublic = ref(0)
+const totalElementsMy = ref(0)
+const displayedDecks = computed(() => activeTab.value === 'public' ? publicDecks.value : myDecks.value)
+const totalPages = computed(() => activeTab.value === 'public' ? totalPagesPublic.value : totalPagesMy.value)
+const totalElements = computed(() => activeTab.value === 'public' ? totalElementsPublic.value : totalElementsMy.value)
+let searchTimer
 
-const isLoggedIn = computed(() => authStore.isLoggedIn)
+onMounted(loadPage)
+onBeforeUnmount(() => clearTimeout(searchTimer))
 
-const displayedDecks = computed(() => {
-  return activeTab.value === 'public' ? publicDecks.value : myDecks.value
-})
-
-onMounted(async () => {
+async function loadPage() {
+  loading.value = true
+  error.value = ''
   try {
-    loading.value = true
-    const publicResponse = await deckService.getPublicDecks()
-    publicDecks.value = publicResponse
-    
-    if (isLoggedIn.value) {
-      const myResponse = await deckService.getMyDecks()
-      myDecks.value = myResponse
+    const params = { page: currentPage.value - 1, size: pageSize }
+    if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
+    if (activeTab.value === 'public') {
+      const response = await deckService.getPublicDecks(params)
+      publicDecks.value = response.content || []
+      totalPagesPublic.value = response.totalPages || 1
+      totalElementsPublic.value = response.totalElements || 0
+    } else {
+      const response = await deckService.getMyDecks(params)
+      myDecks.value = response.content || []
+      totalPagesMy.value = response.totalPages || 1
+      totalElementsMy.value = response.totalElements || 0
     }
-  } catch (error) {
-    console.error("Failed to load decks", error)
+  } catch (cause) {
+    error.value = cause.response?.data?.detail || 'Không tải được bộ từ.'
   } finally {
     loading.value = false
   }
+}
+
+watch(searchQuery, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1
+    loadPage()
+  }, 350)
 })
 
-const goToDeck = (id) => {
-  router.push(`/decks/${id}`)
+function switchTab(tab) {
+  if (activeTab.value === tab) return
+  activeTab.value = tab
+  currentPage.value = 1
+  loadPage()
+}
+
+function changePage(page) {
+  currentPage.value = page
+  loadPage()
 }
 </script>

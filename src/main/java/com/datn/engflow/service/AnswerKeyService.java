@@ -3,6 +3,8 @@ package com.datn.engflow.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -12,8 +14,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+/**
+ * class AnswerKeyService.
+ */
 public class AnswerKeyService {
 
+    private static final Logger log = LoggerFactory.getLogger(AnswerKeyService.class);
     private final Map<String, Map<Long, Map<Integer, String>>> keys = new HashMap<>();
     private static final Pattern ANSWER_PATTERN = Pattern.compile("result(\\d+)\\s*=\\s*['\"]?([^'\";,]+?)['\"]?\\s*[;,]");
     private static final Pattern ARR_RESULT_PATTERN = Pattern.compile("arr_result\\[\\d+]\\[\\d+]\\s*=\\s*['\"]?([^'\";]+?)['\"]?\\s*[;,]");
@@ -44,7 +50,7 @@ public class AnswerKeyService {
                 }
             }
             if (is == null) {
-                System.err.println("AnswerKeyService: Could not find tienganh_nangcao_lessons.json");
+                log.warn("AnswerKeyService: Could not find tienganh_nangcao_lessons.json");
                 return;
             }
 
@@ -71,9 +77,9 @@ public class AnswerKeyService {
                     }
                 }
             }
-            System.out.println("AnswerKeyService: Loaded answer keys for " + countKeys() + " quizzes");
+            log.info("AnswerKeyService: Loaded answer keys for {} quizzes", countKeys());
         } catch (Exception e) {
-            System.err.println("AnswerKeyService init error: " + e.getMessage());
+            log.error("AnswerKeyService init error: {}", e.getMessage(), e);
         }
     }
 

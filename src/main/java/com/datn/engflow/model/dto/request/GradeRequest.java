@@ -4,6 +4,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
+/**
+ * class GradeRequest.
+ */
 public class GradeRequest {
     private List<AnswerItem> answers;
 

@@ -34,8 +34,8 @@ const skills = [
 .skill-nav {
   display: flex;
   gap: 0;
-  border: 3px solid #000;
-  background: #000;
+  border: 3px solid var(--geo-fg, #1E293B);
+  background: var(--geo-fg, #1E293B);
   margin-bottom: 2rem;
 }
 .skill-nav__btn {
@@ -45,20 +45,21 @@ const skills = [
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border: 2px solid #000;
-  background: #fff;
-  color: #000;
+  border: 2px solid var(--geo-fg, #1E293B);
+  background: var(--geo-card, #fff);
+  color: var(--geo-fg, #1E293B);
   cursor: pointer;
   transition: all 0.15s;
+  font-family: var(--geo-font, 'Be Vietnam Pro', sans-serif);
 }
 .skill-nav__btn:hover {
-  background: #FFD700;
-  border-color: #FFD700;
+  background: var(--geo-tertiary, #FBBF24);
+  border-color: var(--geo-tertiary, #FBBF24);
 }
 .skill-nav__btn--active {
-  background: #FFD700;
-  border-color: #FFD700;
-  color: #000;
-  box-shadow: inset 0 -3px 0 #DC2626;
+  background: var(--geo-tertiary, #FBBF24);
+  border-color: var(--geo-tertiary, #FBBF24);
+  color: var(--geo-fg, #1E293B);
+  box-shadow: inset 0 -3px 0 var(--geo-danger, #E11D48);
 }
 </style>

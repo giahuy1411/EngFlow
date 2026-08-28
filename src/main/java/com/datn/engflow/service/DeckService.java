@@ -3,6 +3,7 @@ package com.datn.engflow.service;
 import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.DeckRequest;
+import com.datn.engflow.model.dto.response.DeckSummaryResponse;
 import com.datn.engflow.model.entity.Deck;
 import com.datn.engflow.model.entity.DeckWord;
 import com.datn.engflow.model.entity.User;
@@ -12,13 +13,20 @@ import com.datn.engflow.repository.DeckWordRepository;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * class DeckService.
+ */
 public class DeckService {
 
     private final DeckRepository deckRepository;
@@ -27,11 +35,66 @@ public class DeckService {
     private final VocabularyRepository vocabularyRepository;
 
     public List<Deck> getAllPublicDecks() {
+        return getAllPublicDecks(null);
+    }
+
+    public List<Deck> getAllPublicDecks(String keyword) {
+        if (keyword != null && !keyword.isBlank()) {
+            return deckRepository.searchPublic(keyword.trim());
+        }
         return deckRepository.findByIsPublicTrue();
     }
 
     public List<Deck> getUserDecks(Long userId) {
+        return getUserDecks(userId, null);
+    }
+
+    public List<Deck> getUserDecks(Long userId, String keyword) {
+        if (keyword != null && !keyword.isBlank()) {
+            return deckRepository.searchByOwner(userId, keyword.trim());
+        }
         return deckRepository.findByOwnerId(userId);
+    }
+
+    public Page<DeckSummaryResponse> getPublicDeckPage(String keyword, Pageable pageable) {
+        Page<Deck> page = deckRepository.findPublicPage(normalizeKeyword(keyword), pageable);
+        Page<DeckSummaryResponse> summary = page.map(this::toSummary);
+        attachWordCounts(summary);
+        return summary;
+    }
+
+    public Page<DeckSummaryResponse> getUserDeckPage(Long userId, String keyword, Pageable pageable) {
+        Page<Deck> page = deckRepository.findOwnerPage(userId, normalizeKeyword(keyword), pageable);
+        Page<DeckSummaryResponse> summary = page.map(this::toSummary);
+        attachWordCounts(summary);
+        return summary;
+    }
+
+    private String normalizeKeyword(String keyword) {
+        return keyword != null && !keyword.isBlank() ? keyword.trim() : null;
+    }
+
+    private DeckSummaryResponse toSummary(Deck deck) {
+        return DeckSummaryResponse.builder()
+                .id(deck.getId())
+                .name(deck.getName())
+                .description(deck.getDescription())
+                .source(deck.getSource())
+                .cefrLevel(deck.getCefrLevel())
+                .isPublic(deck.getIsPublic())
+                .thumbnailUrl(deck.getThumbnailUrl())
+                .wordCount(null)
+                .createdAt(deck.getCreatedAt())
+                .updatedAt(deck.getUpdatedAt())
+                .build();
+    }
+
+    private void attachWordCounts(Page<DeckSummaryResponse> page) {
+        List<Long> deckIds = page.getContent().stream().map(DeckSummaryResponse::getId).toList();
+        if (deckIds.isEmpty()) return;
+        Map<Long, Long> counts = deckRepository.countWordsByDeckIds(deckIds).stream()
+                .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+        page.getContent().forEach(dto -> dto.setWordCount(counts.getOrDefault(dto.getId(), 0L).intValue()));
     }
 
     public Deck getDeckById(Long deckId, Long userId) {

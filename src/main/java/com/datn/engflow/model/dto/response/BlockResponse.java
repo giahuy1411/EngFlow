@@ -7,6 +7,9 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
+/**
+ * class BlockResponse.
+ */
 public class BlockResponse {
     private Long id;
     private String blockType;

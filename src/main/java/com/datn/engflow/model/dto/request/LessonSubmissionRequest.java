@@ -9,6 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class LessonSubmissionRequest.
+ */
 public class LessonSubmissionRequest {
 
     @NotNull(message = "Mã bài học không được để trống")

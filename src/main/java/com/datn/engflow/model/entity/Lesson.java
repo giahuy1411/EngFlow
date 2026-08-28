@@ -18,6 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class Lesson.
+ */
 public class Lesson {
 
     @Id
@@ -34,6 +37,9 @@ public class Lesson {
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String content;
+
+    @Column(name = "content_original", columnDefinition = "NVARCHAR(MAX)")
+    private String contentOriginal;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

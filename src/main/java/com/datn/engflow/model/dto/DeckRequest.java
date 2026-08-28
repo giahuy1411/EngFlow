@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * class DeckRequest.
+ */
 public class DeckRequest {
     
     @NotBlank(message = "Tên bộ từ vựng không được để trống")

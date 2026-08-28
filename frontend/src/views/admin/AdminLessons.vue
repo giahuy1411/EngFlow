@@ -2,16 +2,16 @@
   <div class="space-y-8">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 bg-tertiary border-2 border-foreground flex items-center justify-center rounded-md">
-          <BookOpenIcon class="w-5 h-5 text-foreground" />
+        <div class="w-10 h-10 bg-accent border-2 border-foreground flex items-center justify-center rotate-6 rounded-md">
+          <BookOpenIcon class="w-5 h-5 text-white" />
         </div>
         <div>
           <h2 class="font-black text-2xl uppercase tracking-tighter">Bài học</h2>
-          <p class="font-bold text-xs uppercase tracking-widest text-gray-500">Quản lý danh sách bài học</p>
+          <p class="font-bold text-xs uppercase tracking-widest text-muted-foreground">Quản lý danh sách bài học</p>
         </div>
       </div>
       <button @click="openModal()"
-              class="flex items-center gap-2 bg-tertiary border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-foreground rounded-md
+              class="flex items-center gap-2 bg-accent border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-white rounded-md
                      shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
                      active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
         <PlusIcon class="w-4 h-4" />
@@ -19,25 +19,26 @@
       </button>
     </div>
 
-    <!-- Level filter -->
-    <div class="flex flex-wrap gap-2 px-6 py-3 bg-white border-2 border-foreground border-b-0 shadow-pop-lg rounded-t-3xl">
-      <button @click="levelFilter = ''"
-              class="px-3 py-1.5 border-2 border-foreground rounded-md font-bold uppercase text-xs tracking-wider transition-all shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-              :class="levelFilter === '' ? 'bg-foreground text-white' : 'bg-white hover:bg-tertiary/20'">
-        Tất cả
-      </button>
-      <button v-for="lv in levels" :key="lv"
-              @click="levelFilter = lv"
-              class="px-3 py-1.5 border-2 border-foreground rounded-md font-bold uppercase text-xs tracking-wider transition-all shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-              :class="levelFilter === lv ? 'bg-foreground text-white' : 'bg-white hover:bg-tertiary/20'">
-        {{ displayLevel(lv) }}
-      </button>
+    <!-- Search + Level filter bar -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[200px]">
+        <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input id="lesson-search" name="lesson-search" v-model="searchQuery" type="search" placeholder="Tìm tiêu đề, mô tả..."
+               class="w-full border-2 border-foreground pl-10 pr-3 py-2.5 bg-white font-bold text-sm rounded-md
+                      focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-pop-sm" />
+      </div>
+      <select id="lesson-level" name="lesson-level" v-model="levelFilter"
+              class="border-2 border-foreground px-3 py-2.5 bg-white font-bold uppercase text-xs rounded-md
+                     focus:outline-none focus:ring-2 focus:ring-accent transition-all appearance-none shadow-pop-sm">
+        <option value="">Tất cả cấp độ</option>
+        <option v-for="lv in levels" :key="lv" :value="lv">{{ displayLevel(lv) }}</option>
+      </select>
     </div>
 
-    <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-b-3xl overflow-hidden" style="border-top:0">
+    <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-md overflow-hidden" style="border-top:0">
       <div class="bg-foreground border-b-2 border-foreground px-6 py-3 flex items-center gap-3">
         <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
-        <span class="font-bold text-xs uppercase tracking-widest text-white/60">{{ filteredLessons.length }} bài học</span>
+        <span class="font-bold text-xs uppercase tracking-widest text-white/60">{{ totalElements }} bài học</span>
       </div>
 
       <table class="w-full text-left border-collapse">
@@ -60,16 +61,16 @@
               </div>
             </td>
           </tr>
-          <tr v-else-if="filteredLessons.length === 0" class="border-b-2 border-foreground">
-            <td colspan="6" class="p-12 text-center font-bold uppercase text-sm tracking-wider text-gray-400">Chưa có bài học</td>
+          <tr v-else-if="lessons.length === 0" class="border-b-2 border-foreground">
+            <td colspan="6" class="p-12 text-center font-bold uppercase text-sm tracking-wider text-muted-foreground">Chưa có bài học</td>
           </tr>
-          <tr v-for="lesson in filteredLessons" :key="lesson.id"
+          <tr v-for="lesson in lessons" :key="lesson.id"
               class="border-b-2 border-foreground hover:bg-accent/5 transition-colors duration-150">
             <td class="p-4 border-r-2 border-foreground font-bold">{{ lesson.title }}</td>
-            <td class="p-4 border-r-2 border-foreground text-sm text-gray-500 truncate max-w-xs">{{ lesson.description || '—' }}</td>
-            <td class="p-4 border-r-2 border-foreground text-sm text-gray-500 max-w-xs">
-              <div v-if="lesson.content" class="truncate">{{ lesson.content.replace(/<[^>]*>/g, '').substring(0, 120) }}...</div>
-              <span v-else class="text-gray-300 italic">Trống</span>
+            <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground truncate max-w-xs">{{ lesson.description || '-' }}</td>
+            <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground max-w-xs">
+              <div v-if="lesson.description" class="truncate">{{ lesson.description.substring(0, 120) }}...</div>
+              <span v-else class="text-muted-foreground/60 italic">Trống</span>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
               <span class="inline-block px-2 py-1 border-2 border-foreground text-xs font-black uppercase tracking-wider"
@@ -108,13 +109,18 @@
         </tbody>
       </table>
 
-      <div class="bg-accent/10 border-t-2 border-foreground px-6 py-3 flex justify-between items-center">
-        <span class="font-bold text-xs uppercase tracking-wider text-gray-500">Tổng số: {{ lessons.length }}</span>
-        <div class="flex gap-1">
-          <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="w-2 h-2 bg-secondary rounded"></div>
-        </div>
+      <div class="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground bg-accent/10 px-6 py-3">
+        <span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Tổng số: {{ totalElements }}</span>
+        <Pagination
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          :total-items="totalElements"
+          :page-size="pageSize"
+          :show-summary="false"
+          item-label="bài học"
+          class="!bg-transparent !border-0 !shadow-none !p-0"
+          @page-change="changePage"
+        />
       </div>
     </div>
 
@@ -136,28 +142,28 @@
         <div class="p-6 overflow-y-auto">
           <form @submit.prevent="saveLesson" class="space-y-5">
             <div>
-              <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Tiêu đề *</label>
-              <input v-model="formData.title" type="text" required
+              <label for="form-lesson-title" class="block font-bold uppercase text-xs tracking-wider mb-1.5">Tiêu đề *</label>
+              <input id="form-lesson-title" name="form-lesson-title" v-model="formData.title" type="text" required
                      class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
             </div>
             <div>
-              <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Mô tả</label>
-              <textarea v-model="formData.description" rows="3"
+              <label for="form-lesson-desc" class="block font-bold uppercase text-xs tracking-wider mb-1.5">Mô tả</label>
+              <textarea id="form-lesson-desc" name="form-lesson-desc" v-model="formData.description" rows="3"
                         class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all"></textarea>
             </div>
             
             <div>
-              <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">
+              <label for="form-lesson-content" class="block font-bold uppercase text-xs tracking-wider mb-1.5">
                 Nội dung HTML (Legacy Content)
-                <span class="text-[10px] lowercase text-gray-500 font-medium ml-2">(Chỉ dùng cho bài học cũ/clone)</span>
+                <span class="text-[10px] lowercase text-muted-foreground font-medium ml-2">(Chỉ dùng cho bài học cũ/clone)</span>
               </label>
-              <textarea v-model="formData.content" rows="6" placeholder="<p>Nhập mã HTML tại đây...</p>"
+              <textarea id="form-lesson-content" name="form-lesson-content" v-model="formData.content" rows="6" placeholder="<p>Nhập mã HTML tại đây...</p>"
                         class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all font-mono text-sm"></textarea>
             </div>
 
             <div>
-              <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Cấp độ *</label>
-              <select v-model="formData.level" required
+              <label for="form-lesson-level" class="block font-bold uppercase text-xs tracking-wider mb-1.5">Cấp độ *</label>
+              <select id="form-lesson-level" name="form-lesson-level" v-model="formData.level" required
                       class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all appearance-none">
                 <option value="ELEMENTARY">Elementary</option>
                 <option value="PRE_INTERMEDIATE">Pre-Intermediate</option>
@@ -196,10 +202,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { adminService } from '@/services/adminService'
+import Pagination from '@/components/common/Pagination.vue'
 import { useToast } from '@/composables/useToast'
-import { BookOpen as BookOpenIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon, Layers as LayersIcon } from 'lucide-vue-next'
+import { BookOpen as BookOpenIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon, Layers as LayersIcon, Search as SearchIcon } from 'lucide-vue-next'
 
 const lessons = ref([])
 const loading = ref(true)
@@ -207,6 +214,12 @@ const saving = ref(false)
 const showModal = ref(false)
 const editingLesson = ref(null)
 const levelFilter = ref('')
+const searchQuery = ref('')
+const searchTimer = ref(null)
+const currentPage = ref(1)
+const pageSize = 20
+const totalPages = ref(1)
+const totalElements = ref(0)
 const toast = useToast()
 
 const levels = ['ELEMENTARY', 'PRE_INTERMEDIATE', 'INTERMEDIATE', 'UPPER_INTERMEDIATE']
@@ -225,29 +238,70 @@ const levelBadge = (lv) => ({
   UPPER_INTERMEDIATE: 'bg-secondary text-white rounded-md border-2 border-foreground'
 }[lv] || 'bg-foreground/10 border-2 border-foreground')
 
-const filteredLessons = computed(() =>
-  levelFilter.value ? lessons.value.filter(l => l.level === levelFilter.value) : lessons.value
-)
-
 const initialForm = { title: '', description: '', content: '', level: 'ELEMENTARY', isPublished: false }
 const formData = ref({ ...initialForm })
 
 const fetchLessons = async () => {
   loading.value = true
-  try { lessons.value = await adminService.getAllLessons() }
+  try {
+    const params = {}
+    if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
+    if (levelFilter.value) params.level = levelFilter.value
+    params.page = currentPage.value - 1
+    params.size = pageSize
+    const data = await adminService.getAllLessons(params)
+    lessons.value = Array.isArray(data) ? data : data.content || []
+    totalPages.value = data.totalPages || 1
+    totalElements.value = data.totalElements || lessons.value.length
+  }
   catch { toast.showError('Không thể tải danh sách bài học') }
   finally { loading.value = false }
 }
 
-const openModal = (lesson = null) => {
-  editingLesson.value = lesson
-  formData.value = lesson ? { 
-    title: lesson.title, 
-    description: lesson.description || '', 
-    content: lesson.content || '', 
-    level: lesson.level || 'ELEMENTARY', 
-    isPublished: lesson.isPublished ?? false 
-  } : { ...initialForm }
+function changePage(p) {
+  currentPage.value = p
+  fetchLessons()
+}
+
+watch(levelFilter, () => {
+  currentPage.value = 1
+  fetchLessons()
+})
+
+const onSearchInput = () => {
+  clearTimeout(searchTimer.value)
+  searchTimer.value = setTimeout(() => {
+    currentPage.value = 1
+    fetchLessons()
+  }, 300)
+}
+
+const openModal = async (lesson = null) => {
+  if (lesson) {
+    try {
+      const fullLesson = await adminService.getLesson(lesson.id)
+      editingLesson.value = fullLesson
+      formData.value = {
+        title: fullLesson.title,
+        description: fullLesson.description || '',
+        content: fullLesson.content || '',
+        level: fullLesson.level || 'ELEMENTARY',
+        isPublished: fullLesson.isPublished ?? false
+      }
+    } catch {
+      editingLesson.value = lesson
+      formData.value = {
+        title: lesson.title,
+        description: lesson.description || '',
+        content: lesson.content || '',
+        level: lesson.level || 'ELEMENTARY',
+        isPublished: lesson.isPublished ?? false
+      }
+    }
+  } else {
+    editingLesson.value = null
+    formData.value = { ...initialForm }
+  }
   showModal.value = true
 }
 

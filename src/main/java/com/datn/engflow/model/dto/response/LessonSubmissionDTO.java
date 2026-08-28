@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class LessonSubmissionDTO.
+ */
 public class LessonSubmissionDTO {
     private Long id;
     private Long userId;

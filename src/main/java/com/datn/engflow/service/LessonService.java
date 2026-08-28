@@ -1,25 +1,40 @@
 package com.datn.engflow.service;
 
 import com.datn.engflow.exception.ResourceNotFoundException;
+import com.datn.engflow.model.dto.projection.LessonListProjection;
 import com.datn.engflow.model.dto.request.LessonRequest;
+import com.datn.engflow.model.dto.response.LessonListItemResponse;
 import com.datn.engflow.model.dto.response.LessonResponse;
 import com.datn.engflow.model.dto.response.VocabularyDTO;
 import com.datn.engflow.model.entity.Lesson;
+import com.datn.engflow.model.entity.LessonSection;
 import com.datn.engflow.model.entity.Progress;
 import com.datn.engflow.model.entity.User;
+import com.datn.engflow.model.enums.LessonLevel;
+import com.datn.engflow.repository.ExerciseAttemptRepository;
+import com.datn.engflow.repository.ExerciseRepository;
+import com.datn.engflow.repository.LessonBlockRepository;
 import com.datn.engflow.repository.LessonRepository;
+import com.datn.engflow.repository.LessonSectionRepository;
+import com.datn.engflow.repository.LessonSnapshotRepository;
+import com.datn.engflow.repository.LessonSubmissionRepository;
 import com.datn.engflow.repository.ProgressRepository;
+import com.datn.engflow.repository.SpeakingPromptRepository;
 import com.datn.engflow.repository.UserRepository;
+import com.datn.engflow.repository.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,12 +45,20 @@ public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
+    private final ExerciseAttemptRepository exerciseAttemptRepository;
+    private final ExerciseRepository exerciseRepository;
     private final ProgressRepository progressRepository;
+    private final LessonSnapshotRepository lessonSnapshotRepository;
+    private final LessonSectionRepository lessonSectionRepository;
+    private final LessonBlockRepository lessonBlockRepository;
+    private final LessonSubmissionRepository lessonSubmissionRepository;
+    private final VocabularyRepository vocabularyRepository;
+    private final SpeakingPromptRepository speakingPromptRepository;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "lessons", key = "#userEmail != null ? #userEmail : 'anonymous'")
     public List<LessonResponse> getAllLessons(String userEmail) {
-        log.info("L\u1ea5y danh s\u00e1ch b\u00e0i h\u1ecdc cho user: {}", userEmail);
+        log.info("Lấy danh sách bài học cho user: {}", userEmail);
 
         List<Lesson> lessons = lessonRepository.findByIsPublishedTrueOrderByOrderIndexAsc();
 
@@ -81,9 +104,62 @@ public class LessonService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public Page<LessonListItemResponse> getPublishedLessonPage(String userEmail, String keyword, LessonLevel level, Pageable pageable) {
+        // Use the lightweight projection to avoid hydrating NVARCHAR(MAX) content columns.
+        Page<LessonListProjection> page = lessonRepository.findPublishedPageProjection(
+                keyword != null && !keyword.isBlank() ? keyword.trim() : null,
+                level,
+                pageable);
+
+        LessonListProjection lesson;
+        if (userEmail == null) {
+            return page.map(p -> LessonListItemResponse.builder()
+                    .id(p.getId())
+                    .title(p.getTitle())
+                    .description(p.getDescription())
+                    .level(p.getLevel())
+                    .category(p.getCategory())
+                    .durationMinutes(p.getDurationMinutes())
+                    .thumbnailUrl(p.getThumbnailUrl())
+                    .audioUrl(p.getAudioUrl())
+                    .skillType(p.getSkillType())
+                    .orderIndex(p.getOrderIndex())
+                    .isCompleted(false)
+                    .completionPercentage(BigDecimal.ZERO)
+                    .build());
+        }
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+
+        List<Long> lessonIds = page.getContent().stream().map(LessonListProjection::getId).toList();
+        Map<Long, Progress> progressByLesson = lessonIds.isEmpty() ? Map.of()
+                : progressRepository.findByUserIdAndLessonIdIn(user.getId(), lessonIds).stream()
+                        .collect(Collectors.toMap(p -> p.getLesson().getId(), p -> p, (a, b) -> a));
+
+        return page.map(p -> {
+            Progress progress = progressByLesson.get(p.getId());
+            return LessonListItemResponse.builder()
+                    .id(p.getId())
+                    .title(p.getTitle())
+                    .description(p.getDescription())
+                    .level(p.getLevel())
+                    .category(p.getCategory())
+                    .durationMinutes(p.getDurationMinutes())
+                    .thumbnailUrl(p.getThumbnailUrl())
+                    .audioUrl(p.getAudioUrl())
+                    .skillType(p.getSkillType())
+                    .orderIndex(p.getOrderIndex())
+                    .isCompleted(progress != null && Boolean.TRUE.equals(progress.getIsCompleted()))
+                    .completionPercentage(progress != null ? progress.getCompletionPercentage() : BigDecimal.ZERO)
+                    .build();
+        });
+    }
+
     @Transactional
     public LessonResponse getLessonDetails(Long lessonId, String userEmail) {
-        log.info("L\u1ea5y chi ti\u1ebft b\u00e0i h\u1ecdc: id={}, user={}", lessonId, userEmail);
+        log.info("Lấy chi tiết bài học: id={}, user={}", lessonId, userEmail);
 
         Lesson lesson = lessonRepository.findByIdWithDetails(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
@@ -148,7 +224,7 @@ public class LessonService {
     @Transactional
     @CacheEvict(value = "lessons", allEntries = true)
     public LessonResponse createLesson(LessonRequest lessonRequest) {
-        log.info("T\u1ea1o b\u00e0i h\u1ecdc m\u1edbi: title={}", lessonRequest.getTitle());
+        log.info("Tạo bài học mới: title={}", lessonRequest.getTitle());
         Lesson lesson = Lesson.builder()
                 .title(lessonRequest.getTitle())
                 .description(lessonRequest.getDescription())
@@ -168,7 +244,7 @@ public class LessonService {
     @Transactional
     @CacheEvict(value = "lessons", allEntries = true)
     public LessonResponse updateLesson(Long id, LessonRequest lessonRequest) {
-        log.info("C\u1eadp nh\u1eadt b\u00e0i h\u1ecdc: id={}", id);
+        log.info("Cập nhật bài học: id={}", id);
         Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", id));
 
@@ -211,9 +287,25 @@ public class LessonService {
     @Transactional
     @CacheEvict(value = "lessons", allEntries = true)
     public void deleteLesson(Long id) {
-        log.info("X\u00f3a b\u00e0i h\u1ecdc: id={}", id);
+        log.info("Xóa bài học: id={}", id);
         Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", id));
+        // Cascade child rows manually — DB FK has no ON DELETE CASCADE for all
+        // child tables (ddl-auto=update won't retro-apply DDL cascade), so deleting
+        // the lesson with attached child rows throws FK 547. Order matters:
+        // blocks reference sections, sections reference lessons.
+        List<LessonSection> sections = lessonSectionRepository.findByLessonIdOrderByOrderIndexAsc(id);
+        for (LessonSection section : sections) {
+            lessonBlockRepository.deleteBySectionId(section.getId());
+        }
+        lessonSectionRepository.deleteByLessonId(id);
+        lessonSnapshotRepository.deleteByLessonId(id);
+        lessonSubmissionRepository.deleteByLessonId(id);
+        progressRepository.deleteByLessonId(id);
+        vocabularyRepository.deleteByLessonId(id);
+        speakingPromptRepository.deleteByLessonId(id);
+        exerciseAttemptRepository.deleteAllByLessonId(id);
+        exerciseRepository.deleteAllByLessonId(id);
         lessonRepository.delete(lesson);
     }
 }

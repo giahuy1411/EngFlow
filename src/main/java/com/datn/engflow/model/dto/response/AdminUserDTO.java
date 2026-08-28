@@ -1,6 +1,7 @@
 package com.datn.engflow.model.dto.response;
 
 import lombok.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -8,6 +9,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class AdminUserDTO.
+ */
 public class AdminUserDTO {
     private Long id;
     private String username;
@@ -18,4 +22,6 @@ public class AdminUserDTO {
     private Integer totalPoints;
     private Integer currentStreak;
     private LocalDateTime createdAt;
+    private Boolean isPremium;
+    private LocalDate premiumExpiry;
 }

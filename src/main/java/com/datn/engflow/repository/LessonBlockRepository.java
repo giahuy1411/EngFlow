@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+/**
+ * interface LessonBlockRepository.
+ */
 public interface LessonBlockRepository extends JpaRepository<LessonBlock, Long> {
     List<LessonBlock> findBySectionIdOrderByOrderIndexAsc(Long sectionId);
     void deleteBySectionId(Long sectionId);

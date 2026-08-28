@@ -1,28 +1,41 @@
 package com.datn.engflow.controller;
 
 import com.datn.engflow.model.dto.request.LessonRequest;
+import com.datn.engflow.model.dto.response.LessonListItemResponse;
 import com.datn.engflow.model.dto.response.LessonResponse;
+import com.datn.engflow.model.enums.LessonLevel;
 import com.datn.engflow.service.LessonService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/lessons")
 @RequiredArgsConstructor
+/**
+ * class LessonController.
+ */
 public class LessonController {
 
     private final LessonService lessonService;
 
     @GetMapping
-    public ResponseEntity<List<LessonResponse>> getAllLessons(Authentication authentication) {
+    public ResponseEntity<Page<LessonListItemResponse>> getAllLessons(
+            Authentication authentication,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) LessonLevel level,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
         String email = authentication != null ? authentication.getName() : null;
-        List<LessonResponse> lessons = lessonService.getAllLessons(email);
+        size = Math.min(Math.max(size, 1), 100);
+        Page<LessonListItemResponse> lessons = lessonService.getPublishedLessonPage(
+                email, q, level, PageRequest.of(Math.max(page, 0), size, Sort.by("orderIndex").ascending().and(Sort.by("id"))));
         return ResponseEntity.ok(lessons);
     }
 

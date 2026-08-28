@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+﻿import { reactive } from 'vue'
 
 const toasts = reactive([])
 let counter = 0
@@ -31,12 +31,15 @@ export function useToast() {
 
   function toastBackground(type) {
     switch (type) {
-      case 'success': return 'bg-primary-blue text-white'
-      case 'error': return 'bg-primary-red text-white'
-      case 'info': return 'bg-white text-foreground'
-      default: return 'bg-white text-foreground'
+      case 'success': return 'bg-accent text-white'
+      case 'error': return 'bg-danger text-danger-fg'
+      case 'info': return 'bg-card text-foreground'
+      default: return 'bg-card text-foreground'
     }
   }
 
   return { toasts, add, remove, success, error, info, toastBackground, showError: error, showSuccess: success }
 }
+
+
+

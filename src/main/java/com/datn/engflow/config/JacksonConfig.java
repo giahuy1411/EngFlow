@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
+/**
+ * class JacksonConfig.
+ */
 public class JacksonConfig {
 
     @Bean

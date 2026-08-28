@@ -21,6 +21,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/lesson-submissions")
 @RequiredArgsConstructor
+/**
+ * class LessonSubmissionController.
+ */
 public class LessonSubmissionController {
 
     private final LessonSubmissionService lessonSubmissionService;

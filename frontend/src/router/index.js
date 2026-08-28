@@ -29,13 +29,13 @@ const routes = [
     path: '/lessons',
     name: 'Lessons',
     component: () => import('@/views/Lessons.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/lessons/:id',
     name: 'LessonDetail',
     component: () => import('@/views/lessons/LessonLayout.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/profile',
@@ -113,6 +113,43 @@ const routes = [
     component: () => import('@/views/luyentu/DeckCreate.vue'),
     meta: { requiresAuth: true }
   },
+  // Speaking routes — Premium gated (admin bypasses via isAdmin check below)
+  {
+    path: '/speaking',
+    name: 'Speaking',
+    component: () => import('@/views/speaking/SpeakingList.vue'),
+    meta: { requiresAuth: true, requiresPremium: true }
+  },
+  {
+    path: '/speaking/history',
+    name: 'SpeakingHistory',
+    component: () => import('@/views/speaking/SubmissionHistory.vue'),
+    meta: { requiresAuth: true, requiresPremium: true }
+  },
+  {
+    path: '/speaking/:id',
+    name: 'SpeakingDetail',
+    component: () => import('@/views/speaking/SpeakingDetail.vue'),
+    meta: { requiresAuth: true, requiresPremium: true }
+  },
+  {
+    path: '/speaking/:id/record',
+    name: 'SpeakingRecord',
+    component: () => import('@/views/speaking/SpeakingRecord.vue'),
+    meta: { requiresAuth: true, requiresPremium: true }
+  },
+  // Premium routes
+  {
+    path: '/premium',
+    name: 'PremiumPage',
+    component: () => import('@/views/premium/PremiumPage.vue')
+  },
+  {
+    path: '/premium/checkout',
+    name: 'PremiumCheckout',
+    component: () => import('@/views/premium/PremiumCheckout.vue'),
+    meta: { requiresAuth: true }
+  },
   // Admin routes
   {
     path: '/admin',
@@ -124,8 +161,9 @@ const routes = [
       { path: 'lessons', name: 'AdminLessons', component: () => import('@/views/admin/AdminLessons.vue') },
       { path: 'exercises', name: 'AdminExercises', component: () => import('@/views/admin/AdminExercises.vue') },
       { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/AdminUsers.vue') },
-      { path: 'achievements', name: 'AdminAchievements', component: () => import('@/views/admin/AdminAchievements.vue') },
-      { path: 'submissions', name: 'AdminSubmissions', component: () => import('@/views/admin/AdminSubmissions.vue') },
+      { path: 'speaking-prompts', name: 'AdminSpeakingPrompts', component: () => import('@/views/admin/AdminSpeakingPrompts.vue') },
+      { path: 'speaking-submissions', name: 'AdminSpeakingSubmissions', component: () => import('@/views/admin/AdminSpeakingSubmissions.vue') },
+      { path: 'videos', redirect: '/admin/speaking-prompts' },
       { path: ':id/build', name: 'AdminLessonBuilder', component: () => import('@/views/admin/AdminLessonBuilder.vue'), props: true }
     ]
   },
@@ -144,15 +182,27 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
 
+  if (to.meta.requiresPremium && !auth.isAdmin && !auth.isPremium) {
+    next('/premium?redirect=' + encodeURIComponent(to.fullPath))
+    return
+  }
+
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     next('/login')
-  } else if (to.meta.guestOnly && auth.isLoggedIn) {
-    next('/lessons')
-  } else if (to.meta.requiresAdmin && !auth.isAdmin) {
-    next('/')
-  } else {
-    next()
+    return
   }
+
+  if (to.meta.guestOnly && auth.isLoggedIn) {
+    next('/lessons')
+    return
+  }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    next('/')
+    return
+  }
+
+  next()
 })
 
 export default router

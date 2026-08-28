@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
+/**
+ * class BlockRequest.
+ */
 public class BlockRequest {
     @NotBlank
     private String blockType;

@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * class ExerciseAttempt.
+ */
 public class ExerciseAttempt {
 
     @Id

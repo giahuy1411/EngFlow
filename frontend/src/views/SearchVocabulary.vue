@@ -1,24 +1,25 @@
 <template>
-  <div class="bg-geo-bg min-h-screen py-16">
+  <div class="bg-background min-h-screen py-16">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="font-black text-5xl md:text-6xl uppercase tracking-tight leading-none">
-          Tra <span class="text-accent">từ</span>
-        </h1>
-        <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mt-3">Tra cứu từ vựng tiếng Anh</p>
-      </div>
+      <UserPageHeader
+        eyebrow="Tra cứu nhanh"
+        title="Tra từ"
+        subtitle="Tra cứu từ vựng tiếng Anh, phát âm, nghĩa, ví dụ và nhóm từ liên quan."
+        root-class="mb-12"
+      >
+        <template #accent>AI lookup</template>
+      </UserPageHeader>
 
       <!-- Search -->
       <div class="max-w-2xl mx-auto mb-12">
         <div class="flex gap-2">
           <input v-model="query" @keyup.enter="search" placeholder="Nhập từ cần tra..."
-            class="flex-1 bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            class="flex-1 bg-input border-2 border-border rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
           />
-          <button @click="search" :disabled="!query.trim()"
+          <button @click="search" :disabled="!query.trim()" aria-label="Tra từ"
             class="px-8 py-3 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <Search class="w-5 h-5" />
+            <Search class="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -36,6 +37,15 @@
         <p class="font-bold text-lg text-accent">{{ error }}</p>
       </div>
 
+      <!-- Not found (searched but empty) -->
+      <div v-if="searched && results.length === 0 && !error" class="max-w-xl mx-auto text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 border-2 border-foreground bg-secondary/10 mb-6 rounded-blob">
+          <span class="text-3xl font-black text-secondary">?</span>
+        </div>
+        <p class="font-bold text-lg text-foreground">Không tìm thấy từ "{{ query }}"</p>
+        <p class="text-sm text-muted-foreground mt-1">Kiểm tra chính tả hoặc thử một từ khác.</p>
+      </div>
+
       <!-- Results -->
       <div v-if="results.length > 0" class="space-y-4">
         <div v-for="(word, i) in results" :key="i"
@@ -46,19 +56,43 @@
               <h3 class="font-black text-2xl uppercase tracking-tight">{{ word.word }}</h3>
               <p class="font-bold text-sm text-muted-foreground mt-1">{{ word.phonetic || '/' + word.word + '/' }}</p>
             </div>
-            <button v-if="word.audioUrl" @click="playAudio(word.audioUrl)"
+            <button v-if="word.audioUrl" @click="playAudio(word.audioUrl)" :aria-label="`Phát âm ${word.word}`"
               class="w-10 h-10 bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent/90 transition-all shadow-pop-sm"
             >
-              <Volume2 class="w-5 h-5" />
+              <Volume2 class="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
-          <div class="border-t-2 border-foreground/10 pt-3 space-y-2">
+          <div class="border-t-2 border-foreground/10 pt-3 space-y-3">
             <div v-for="(meaning, j) in word.meanings" :key="j">
-              <span class="font-bold text-xs uppercase tracking-wider text-accent">{{ meaning.partOfSpeech }}</span>
-              <p class="font-medium text-foreground mt-0.5">{{ meaning.definition }}</p>
-              <p v-if="meaning.example" class="font-medium text-sm text-muted-foreground italic mt-1">"{{ meaning.example }}"</p>
+              <span class="font-black text-xs uppercase tracking-wider text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">{{ meaning.partOfSpeech }}</span>
+
+              <ol class="list-decimal list-inside mt-2 space-y-2">
+                <li v-for="(def, k) in meaning.definitions" :key="k" class="text-foreground">
+                  <span class="font-medium">{{ def.definition }}</span>
+                  <p v-if="def.example" class="text-sm text-muted-foreground italic mt-0.5">"{{ def.example }}"</p>
+                </li>
+              </ol>
+
+              <div v-if="meaning.synonyms.length" class="mt-1.5 flex flex-wrap gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-foreground">Syn:</span>
+                <span v-for="(s, idx) in meaning.synonyms" :key="'syn'+idx"
+                  class="text-xs font-medium bg-secondary/15 text-secondary border border-foreground/15 px-2 py-0.5 rounded-full">
+                  {{ s }}
+                </span>
+              </div>
+              <div v-if="meaning.antonyms.length" class="mt-1 flex flex-wrap gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-secondary">Ant:</span>
+                <span v-for="(a, idx) in meaning.antonyms" :key="'ant'+idx"
+                  class="text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20 px-2 py-0.5 rounded-full">
+                  {{ a }}
+                </span>
+              </div>
             </div>
+          </div>
+
+          <div v-if="word.origin" class="mt-3 pt-3 border-t-2 border-foreground/10">
+            <p class="text-xs text-muted-foreground"><span class="font-bold uppercase tracking-wider">Nguồn gốc:</span> {{ word.origin }}</p>
           </div>
         </div>
       </div>
@@ -70,21 +104,31 @@
 import { ref } from 'vue'
 import vocabularyService from '@/services/vocabularyService'
 import { Search, Volume2 } from 'lucide-vue-next'
+import UserPageHeader from '@/components/common/UserPageHeader.vue'
 
 const query = ref('')
 const results = ref([])
 const loading = ref(false)
 const error = ref('')
+const searched = ref(false)
 
 async function search() {
   if (!query.value.trim()) return
   loading.value = true
   error.value = ''
   results.value = []
+  searched.value = false
   try {
     results.value = await vocabularyService.search(query.value.trim())
+    searched.value = true
   } catch (e) {
-    error.value = e.response?.data?.message || 'Không tìm thấy từ'
+    if (e && e.message === 'TIMEOUT') {
+      error.value = 'Tra cứu quá lâu (mất hơn 8 giây). Vui lòng thử lại.'
+    } else if (e && e.message === 'NETWORK_ERROR') {
+      error.value = 'Lỗi mạng — không kết nối được từ điển. Kiểm tra internet và thử lại.'
+    } else {
+      error.value = e.response?.data?.message || 'Không tìm thấy từ'
+    }
   } finally {
     loading.value = false
   }

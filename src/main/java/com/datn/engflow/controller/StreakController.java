@@ -13,6 +13,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/streak")
 @RequiredArgsConstructor
+/**
+ * class StreakController.
+ */
 public class StreakController {
 
     private final StreakService streakService;

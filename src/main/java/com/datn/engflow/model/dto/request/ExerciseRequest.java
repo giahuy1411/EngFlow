@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
+/**
+ * class ExerciseRequest.
+ */
 public class ExerciseRequest {
     @NotNull
     private Long lessonId;

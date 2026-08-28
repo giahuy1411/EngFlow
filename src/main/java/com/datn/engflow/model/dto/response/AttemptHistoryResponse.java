@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+/**
+ * class AttemptHistoryResponse.
+ */
 public class AttemptHistoryResponse {
     private Long id;
     private int score;

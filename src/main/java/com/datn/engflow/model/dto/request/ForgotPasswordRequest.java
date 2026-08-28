@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * class ForgotPasswordRequest.
+ */
 public class ForgotPasswordRequest {
 
     /**

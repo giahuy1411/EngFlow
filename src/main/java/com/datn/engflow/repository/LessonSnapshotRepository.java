@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+/**
+ * interface LessonSnapshotRepository.
+ */
 public interface LessonSnapshotRepository extends JpaRepository<LessonSnapshot, Long> {
     List<LessonSnapshot> findByLessonIdOrderByCreatedAtDesc(Long lessonId);
     void deleteByLessonId(Long lessonId);

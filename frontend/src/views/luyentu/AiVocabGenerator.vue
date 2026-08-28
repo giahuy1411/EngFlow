@@ -1,51 +1,68 @@
 <template>
-  <div class="bg-geo-bg min-h-screen py-16">
+  <div class="bg-background min-h-screen py-16">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="flex items-center gap-4 mb-10">
-        <router-link to="/decks"
-          class="w-10 h-10 border-2 border-foreground rounded-full flex items-center justify-center bg-card hover:bg-tertiary/20 transition-all"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-        </router-link>
-        <div>
-          <h1 class="font-black text-3xl uppercase tracking-tight">AI Generator</h1>
-          <p class="font-bold text-xs uppercase tracking-wider text-muted-foreground mt-1">Tự động sinh từ vựng</p>
+      <UserPageHeader
+        eyebrow="AI vocabulary"
+        title="AI Generator"
+        subtitle="Tự động sinh từ vựng theo chủ đề, cấp độ và lưu thẳng vào bộ học."
+        root-class="mb-10"
+      >
+        <template #accent>5 free</template>
+        <template #actions>
+          <router-link to="/decks"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-foreground bg-card shadow-pop-sm transition-all hover:-translate-y-0.5 hover:bg-tertiary/30 active:scale-[0.98]"
+            aria-label="Quay lại bộ từ"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </router-link>
+        </template>
+      </UserPageHeader>
+
+      <section class="mb-6 border-2 border-foreground bg-card p-5 shadow-pop-lg" aria-labelledby="ai-quota-title">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Quyền sử dụng</p>
+            <h2 id="ai-quota-title" class="mt-1 text-xl font-black">{{ auth.isPremium || auth.isAdmin ? 'Không giới hạn' : `${remainingQuota} / ${AI_LIMIT} lượt còn lại` }}</h2>
+            <p class="mt-1 text-sm text-muted-foreground">{{ auth.isPremium || auth.isAdmin ? 'Premium và admin được sinh từ không giới hạn.' : 'Mỗi tài khoản miễn phí có 5 lượt vĩnh viễn, không reset.' }}</p>
+          </div>
+          <router-link v-if="!auth.isPremium && !auth.isAdmin" to="/premium" class="inline-flex shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-tertiary px-5 py-2.5 text-sm font-black shadow-pop-sm transition-transform hover:-translate-y-0.5">Mở khóa không giới hạn</router-link>
         </div>
-      </div>
+        <div v-if="!auth.isPremium && !auth.isAdmin" class="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-muted" aria-hidden="true"><div class="h-full bg-accent transition-all" :style="{ width: `${quotaPercent}%` }"></div></div>
+      </section>
 
       <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
         <form @submit.prevent="generate" class="space-y-6">
           <div>
-            <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Chủ đề</label>
-            <input v-model="topic" placeholder="e.g. Environment, Technology, Travel..." required
-              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
+            <label for="ai-topic" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Chủ đề</label>
+            <input id="ai-topic" v-model="topic" placeholder="e.g. Environment, Technology, Travel..." required
+              class="w-full bg-input border-2 border-border rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-none focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
             />
           </div>
 
           <div>
-            <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">CEFR Level</label>
-            <select v-model="level"
-              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none"
+            <label for="ai-level" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">CEFR Level</label>
+            <select id="ai-level" v-model="level"
+              class="w-full bg-input border-2 border-border rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-none focus:border-accent focus:shadow-pop-accent focus:outline-none"
             >
               <option v-for="lv in ['A1','A2','B1','B2','C1','C2']" :key="lv" :value="lv">{{ lv }}</option>
             </select>
           </div>
 
           <div>
-            <label class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Số lượng từ</label>
-            <input v-model.number="count" type="number" min="3" max="20" required
-              class="w-full bg-input border-2 border-[#CBD5E1] rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none"
+            <label for="ai-count" class="block font-bold uppercase tracking-wider text-xs mb-1.5 text-foreground">Số lượng từ</label>
+            <input id="ai-count" v-model.number="count" type="number" min="3" max="20" required
+              class="w-full bg-input border-2 border-border rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-none focus:border-accent focus:shadow-pop-accent focus:outline-none"
             />
           </div>
 
-          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ error }}</p>
+          <p v-if="error" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ error }}</p>
+          <p v-if="quotaExhausted" role="alert" class="border-2 border-secondary bg-secondary/10 p-3 text-sm font-bold">Bạn đã hết 5 lượt sinh từ miễn phí. Nâng cấp Premium để tiếp tục.</p>
 
-          <button type="submit" :disabled="generating"
+          <button type="submit" :disabled="generating || quotaExhausted" :aria-busy="generating"
             class="w-full py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <span v-if="generating" class="flex items-center justify-center gap-2">
-              <span class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
               Đang sinh...
             </span>
             <span v-else>Sinh từ vựng</span>
@@ -54,19 +71,53 @@
 
         <!-- Results -->
         <div v-if="generatedWords.length > 0" class="mt-10 space-y-4">
-          <h2 class="font-black text-xl uppercase tracking-tight">Kết quả</h2>
+          <div class="flex items-center justify-between">
+            <h2 class="font-black text-xl uppercase tracking-tight">Kết quả</h2>
+            <button
+              @click="saveAll"
+              :disabled="savingAll || allSaved"
+              :aria-busy="savingAll"
+              class="px-5 py-2.5 font-bold text-sm bg-success text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="savingAll">Đang lưu...</span>
+              <span v-else-if="allSaved">Đã lưu tất cả</span>
+              <span v-else>Lưu tất cả ({{ unsavedCount }})</span>
+            </button>
+          </div>
+
+          <p v-if="saveError" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ saveError }}</p>
+          <p v-if="saveSuccess" role="status" aria-live="polite" class="font-bold text-xs uppercase tracking-wider text-success">{{ saveSuccess }}</p>
+
           <div v-for="(w, i) in generatedWords" :key="i"
             class="border-2 border-foreground rounded-md p-5 shadow-pop-lg"
           >
             <div class="flex items-start justify-between">
               <div>
                 <h3 class="font-black text-lg uppercase">{{ w.word }}</h3>
-                <p class="font-bold text-xs text-muted-foreground">{{ w.phonetic }}</p>
+                <p class="font-bold text-xs text-muted-foreground">{{ w.pronunciation || '/' + w.word + '/' }}</p>
               </div>
-              <span class="px-2 py-0.5 bg-accent/10 border-2 border-foreground rounded-full text-xs font-bold">{{ w.type }}</span>
+              <div class="flex items-center gap-2">
+                <span v-if="savedIndexes.has(i)" class="px-2 py-0.5 bg-success/10 border border-success rounded-full text-xs font-bold text-success">
+                  Đã lưu
+                </span>
+                <span class="px-2 py-0.5 bg-accent/10 border-2 border-foreground rounded-full text-xs font-bold">{{ w.wordType }}</span>
+              </div>
             </div>
-            <p class="font-medium text-foreground mt-2">{{ w.meaning }}</p>
-            <p v-if="w.example" class="text-sm text-muted-foreground italic mt-1">"{{ w.example }}"</p>
+            <p class="font-medium text-foreground mt-2">{{ w.meaning || w.definitionVi }}</p>
+            <p v-if="w.exampleSentence" class="text-sm text-muted-foreground italic mt-1">"{{ w.exampleSentence }}"</p>
+
+            <div class="mt-3 flex justify-end">
+              <button
+                v-if="!savedIndexes.has(i)"
+                @click="saveOne(i)"
+                :disabled="savingIndex === i"
+                :aria-busy="savingIndex === i"
+                :aria-label="'Lưu từ ' + w.word"
+                class="px-4 py-1.5 font-bold text-xs uppercase bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm hover:shadow-pop hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-200 disabled:opacity-50"
+              >
+                {{ savingIndex === i ? 'Đang lưu...' : 'Lưu' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -75,27 +126,94 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import vocabularyService from '@/services/vocabularyService'
+import { ref, computed, onUnmounted } from 'vue'
+import aiService from '@/services/aiService'
+import { useToast } from '@/composables/useToast'
+import { useAuthStore } from '@/store/modules/auth'
+import UserPageHeader from '@/components/common/UserPageHeader.vue'
 
+const AI_LIMIT = 5
+const auth = useAuthStore()
+const toast = useToast()
 const topic = ref('')
 const level = ref('B1')
 const count = ref(10)
 const generating = ref(false)
 const error = ref('')
 const generatedWords = ref([])
+const savedIndexes = ref(new Set())
+const savingIndex = ref(null)
+const savingAll = ref(false)
+const saveError = ref('')
+const saveSuccess = ref('')
+
+const allSaved = computed(() => generatedWords.value.length > 0 && savedIndexes.value.size === generatedWords.value.length)
+const unsavedCount = computed(() => generatedWords.value.length - savedIndexes.value.size)
+const usedQuota = computed(() => Math.min(auth.user?.aiGenerationCount || 0, AI_LIMIT))
+const remainingQuota = computed(() => Math.max(AI_LIMIT - usedQuota.value, 0))
+const quotaPercent = computed(() => (usedQuota.value / AI_LIMIT) * 100)
+const quotaExhausted = computed(() => !auth.isPremium && !auth.isAdmin && remainingQuota.value === 0)
 
 async function generate() {
   error.value = ''
   generating.value = true
   generatedWords.value = []
+  savedIndexes.value = new Set()
+  saveError.value = ''
+  saveSuccess.value = ''
   try {
-    const result = await vocabularyService.generateByAi({ topic: topic.value, level: level.value, count: count.value })
-    generatedWords.value = result.words || []
+    const result = await aiService.generateVocab(topic.value, level.value, count.value)
+    generatedWords.value = result || []
+    await auth.fetchUser()
   } catch (e) {
     error.value = e.response?.data?.message || 'Sinh từ thất bại'
   } finally {
     generating.value = false
   }
 }
+
+async function saveOne(index) {
+  savingIndex.value = index
+  saveError.value = ''
+  saveSuccess.value = ''
+  try {
+    const word = generatedWords.value[index]
+    await aiService.saveVocab([word])
+    const newSet = new Set(savedIndexes.value)
+    newSet.add(index)
+    savedIndexes.value = newSet
+    toast.success?.('Đã lưu từ "' + word.word + '"')
+  } catch (e) {
+    saveError.value = e.response?.data?.error || 'Lưu từ thất bại'
+    toast.error?.('Lưu từ thất bại')
+  } finally {
+    savingIndex.value = null
+  }
+}
+
+async function saveAll() {
+  savingAll.value = true
+  saveError.value = ''
+  saveSuccess.value = ''
+  try {
+    const unsaved = generatedWords.value.filter((_, i) => !savedIndexes.value.has(i))
+    if (unsaved.length === 0) return
+    await aiService.saveVocab(unsaved)
+    const newSet = new Set(savedIndexes.value)
+    for (let i = 0; i < generatedWords.value.length; i++) newSet.add(i)
+    savedIndexes.value = newSet
+    saveSuccess.value = 'Đã lưu ' + unsaved.length + ' từ vào DB!'
+    toast.success?.('Đã lưu ' + unsaved.length + ' từ vựng')
+  } catch (e) {
+    saveError.value = e.response?.data?.error || 'Lưu tất cả thất bại'
+    toast.error?.('Lưu tất cả thất bại')
+  } finally {
+    savingAll.value = false
+  }
+}
+
+onUnmounted(() => {
+  savingIndex.value = null
+  savingAll.value = false
+})
 </script>

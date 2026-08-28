@@ -8,6 +8,7 @@ import com.datn.engflow.repository.UserVocabularyProgressRepository;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.VocabularyRepository;
 import com.datn.engflow.repository.DeckWordRepository;
+import com.datn.engflow.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * class SrsService.
+ */
 public class SrsService {
 
     private final UserVocabularyProgressRepository progressRepository;
@@ -30,8 +34,10 @@ public class SrsService {
 
     @Transactional
     public void reviewWord(Long userId, Long vocabId, int quality) {
-        User user = userRepository.findById(userId).orElseThrow();
-        Vocabulary vocab = vocabularyRepository.findById(vocabId).orElseThrow();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        Vocabulary vocab = vocabularyRepository.findById(vocabId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vocabulary", "id", vocabId));
 
         UserVocabularyProgress progress = progressRepository.findByUserIdAndVocabularyId(userId, vocabId)
                 .orElse(UserVocabularyProgress.builder()
@@ -89,10 +95,10 @@ public class SrsService {
 
             boolean isDue = false;
             int level = 0;
-            if (progressOpt.isEmpty()) {
+            UserVocabularyProgress progress = progressOpt.orElse(null);
+            if (progress == null) {
                 isDue = true;
             } else {
-                UserVocabularyProgress progress = progressOpt.get();
                 level = progress.getMasteryLevel();
                 if (progress.getNextReviewDate() == null || progress.getNextReviewDate().isBefore(now) || progress.getNextReviewDate().isEqual(now)) {
                     isDue = true;

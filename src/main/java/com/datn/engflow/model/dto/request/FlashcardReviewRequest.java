@@ -6,6 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/**
+ * class FlashcardReviewRequest.
+ */
 public class FlashcardReviewRequest {
     @NotNull(message = "ID từ vựng không được để trống")
     private Long vocabularyId;
