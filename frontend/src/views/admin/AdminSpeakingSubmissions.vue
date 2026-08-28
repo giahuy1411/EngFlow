@@ -39,12 +39,13 @@
         <option value="GRADED">Đã chấm (GRADED)</option>
       </select>
 
-      <button
+      <AppButton
         @click="loadSubmissions()"
-        class="px-4 py-2 bg-white border-2 border-foreground font-bold text-xs uppercase tracking-wider hover:bg-muted transition-all rounded-xl shadow-pop-sm"
+        variant="secondary"
+        size="sm"
       >
         🔄 Tải lại danh sách
-      </button>
+      </AppButton>
     </div>
 
     <!-- Content List -->

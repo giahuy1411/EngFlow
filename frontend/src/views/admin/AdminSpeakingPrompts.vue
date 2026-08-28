@@ -11,13 +11,13 @@
           <p class="font-bold text-xs uppercase tracking-widest text-muted-foreground">Quản lý đề bài & mẫu câu đọc nói</p>
         </div>
       </div>
-      <button
+      <AppButton
         @click="openPromptForm(null)"
-        class="flex items-center gap-2 bg-accent border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-white rounded-md shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200"
+        variant="primary"
       >
         <PlusIcon class="w-4 h-4" />
         Thêm đề bài
-      </button>
+      </AppButton>
     </div>
 
     <!-- Actions & Filters -->
@@ -88,15 +88,17 @@
         <div class="md:col-span-2">
           <label for="prompt-reference" class="block text-xs font-bold uppercase mb-1">Nội dung đọc mẫu (referenceText)</label>
           <textarea id="prompt-reference" v-model="form.referenceText" rows="3" class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded"></textarea>
-          <button
+          <AppButton
             v-if="form.mode === 'FREE_SPEAKING'"
             type="button"
-            class="mt-2 text-xs font-bold uppercase bg-accent text-white px-3 py-1.5 rounded hover:bg-accent/80 transition-colors disabled:opacity-50"
+            class="mt-2"
             :disabled="generating"
             @click="aiGenerate"
+            variant="primary"
+            size="sm"
           >
             {{ generating ? 'Đang tạo...' : 'Tạo nội dung bằng AI' }}
-          </button>
+          </AppButton>
         </div>
         <div>
           <label for="prompt-duration" class="block text-xs font-bold uppercase mb-1">Thời lượng tối đa (giây)</label>

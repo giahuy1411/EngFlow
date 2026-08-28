@@ -12,36 +12,26 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button @click="saveAll" :disabled="saving || dirtyBlocks.size === 0"
-                class="flex items-center gap-2 px-5 py-3 font-bold uppercase text-sm tracking-wider border-2 border-foreground rounded-md transition-all duration-200"
-                :class="saving ? 'bg-muted text-muted-foreground cursor-not-allowed' : dirtyBlocks.size > 0
-                  ? 'bg-accent text-white shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none'
-                  : 'bg-muted text-muted-foreground cursor-not-allowed'">
-          <span v-if="saving" class="animate-spin inline-block w-4 h-4 border-2 border-foreground border-t-transparent rounded-full"></span>
-          <span v-else>
-            <svg class="w-4 h-4 inline-block -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-              <path d="M5 13l4 4L19 7"/>
-            </svg>
-          </span>
+        <AppButton @click="saveAll" :disabled="saving || dirtyBlocks.size === 0"
+                :loading="saving" variant="primary">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M5 13l4 4L19 7"/>
+          </svg>
           {{ saving ? 'Đang lưu...' : `Lưu tất cả${dirtyBlocks.size > 0 ? ' (' + dirtyBlocks.size + ')' : ''}` }}
-        </button>
-        <button @click="toggleHistory"
-                class="flex items-center gap-2 border-2 border-foreground px-4 py-3 font-bold uppercase text-sm tracking-wider rounded-md shadow-pop-sm transition-all duration-200"
-                :class="showHistory ? 'bg-foreground text-white' : 'bg-white text-foreground hover:bg-accent/20 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none'">
+        </AppButton>
+        <AppButton @click="toggleHistory"
+                :variant="showHistory ? 'tertiary' : 'secondary'">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
           Lịch sử
-        </button>
-        <a :href="'/lessons/' + lessonId + '/preview'" target="_blank"
-           class="flex items-center gap-2 bg-secondary border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-foreground rounded-md
-                  shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                  active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+        </AppButton>
+        <AppButton as="a" :href="'/lessons/' + lessonId + '/preview'" target="_blank" variant="pink">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
           </svg>
           Xem trước
-        </a>
+        </AppButton>
       </div>
     </div>
 

@@ -10,13 +10,10 @@
           <p class="font-bold text-xs uppercase tracking-widest text-muted-foreground">Quản lý bài tập trắc nghiệm</p>
         </div>
       </div>
-      <button @click="openModal()"
-              class="flex items-center gap-2 bg-accent border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-white rounded-md
-                     shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                     active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+      <AppButton @click="openModal()" variant="primary">
         <PlusIcon class="w-4 h-4" />
         Thêm Bài Tập
-      </button>
+      </AppButton>
     </div>
 
     <!-- Search + Filter bar -->
@@ -108,6 +105,7 @@
             </td>
             <td class="p-4 text-center align-top">
               <div class="flex items-center justify-center gap-2">
+                <!-- icon-only control: kept raw -->
                 <button @click="openModal(ex)" aria-label="Sửa bài tập"
                          class="flex h-9 w-9 items-center justify-center rounded-md border-2 border-foreground bg-secondary text-foreground shadow-pop-sm transition-all hover:-translate-y-0.5 hover:shadow-pop active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                     <EditIcon class="h-4 w-4" />
@@ -149,11 +147,11 @@
             <h3 class="font-black text-lg uppercase tracking-tighter text-white">{{ editingExercise ? 'Sửa Bài Tập' : 'Thêm Bài Tập Mới' }}</h3>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" @click="showAiPanel = !showAiPanel"
-                    class="px-3 py-2 border-2 border-white rounded-md font-black uppercase text-[11px] tracking-wider text-white hover:bg-white hover:text-accent transition-colors"
-                    :aria-expanded="showAiPanel">
+            <AppButton type="button" @click="showAiPanel = !showAiPanel" variant="secondary"
+                       :aria-expanded="showAiPanel" class="!border-white !text-white hover:!bg-white hover:!text-accent">
               {{ showAiPanel ? 'Ẩn AI' : 'Tạo bằng AI' }}
-            </button>
+            </AppButton>
+            <!-- icon-only control: kept raw -->
             <button type="button" @click="closeModal" aria-label="Đóng hộp thoại"
                     class="w-8 h-8 flex items-center justify-center border-2 border-white bg-white/20 text-white font-black text-lg rounded-md shadow-pop-sm hover:bg-white hover:text-accent transition-colors">&times;</button>
           </div>
@@ -206,6 +204,7 @@
                            @focus="showLessonDropdown = true"
                            @input="showLessonDropdown = true"
                            class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
+                    <!-- icon-only control: kept raw -->
                     <button type="button" @click="clearLesson" v-if="formData.lessonId"
                             class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-accent transition-colors">
                       &times;
@@ -227,12 +226,11 @@
                   <div class="flex gap-2">
                     <input v-model="formData.imageUrl" type="url" placeholder="https://example.com/image.jpg"
                            class="flex-1 border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
-                    <label class="flex items-center gap-1.5 px-4 py-2.5 bg-secondary text-foreground border-2 border-foreground rounded-md font-black text-xs uppercase tracking-wider cursor-pointer
-                                  hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all shadow-pop-sm shrink-0">
+                    <AppButton as="label" variant="pink" size="sm" class="cursor-pointer shrink-0">
                       <UploadIcon class="w-3.5 h-3.5" />
                       Upload
                       <input type="file" accept="image/*" class="hidden" @change="uploadFile($event, 'imageUrl')" />
-                    </label>
+                    </AppButton>
                   </div>
                   <img v-if="formData.imageUrl" :src="formData.imageUrl" class="mt-2 border-2 border-foreground max-h-32 object-contain bg-white rounded-md overflow-hidden"
                        @error="onImageError" />
@@ -249,12 +247,11 @@
                   <div class="flex gap-2">
                     <input v-model="formData.audioUrl" type="url" placeholder="https://example.com/audio.mp3"
                            class="flex-1 border-2 border-foreground rounded-md p-3 bg-white font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
-                    <label class="flex items-center gap-1.5 px-4 py-2.5 bg-secondary text-foreground border-2 border-foreground rounded-md font-black text-xs uppercase tracking-wider cursor-pointer
-                                  hover:-translate-y-0.5 hover:shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all shadow-pop-sm shrink-0">
+                    <AppButton as="label" variant="pink" size="sm" class="cursor-pointer shrink-0">
                       <UploadIcon class="w-3.5 h-3.5" />
                       Upload
                       <input type="file" accept="audio/*" class="hidden" @change="uploadFile($event, 'audioUrl')" />
-                    </label>
+                    </AppButton>
                   </div>
                   <audio v-if="formData.audioUrl" :src="formData.audioUrl" controls class="mt-2 w-full h-10" />
                 </div>
@@ -266,17 +263,16 @@
                 <div v-if="formData.exerciseType === 'MULTIPLE_CHOICE'" class="border-2 border-secondary/30 bg-secondary/5 p-4 rounded-md">
                   <div class="flex items-center justify-between mb-3">
                     <label class="font-bold uppercase text-xs tracking-wider text-secondary">Lựa chọn</label>
-                    <button type="button" @click="addOption"
-                            class="text-xs font-black uppercase border-2 border-secondary rounded-lg px-2 py-1 text-secondary
-                                   hover:bg-secondary hover:text-foreground transition-colors">
+                    <AppButton type="button" @click="addOption" variant="secondary" size="sm">
                       + Thêm
-                    </button>
+                    </AppButton>
                   </div>
                   <div v-for="(opt, i) in formData.options" :key="i" class="flex items-center gap-2 mb-2">
                     <span class="font-black text-sm w-6 text-center uppercase text-muted-foreground">{{ optionLabels[i] }}</span>
                     <input v-model="formData.options[i]" type="text" :placeholder="`Lựa chọn ${optionLabels[i]}`"
                            class="flex-1 border-2 border-foreground rounded-md p-2.5 bg-white font-bold text-sm
                                   focus:outline-none focus:ring-2 focus:ring-accent transition-all" />
+                    <!-- icon-only control: kept raw -->
                     <button type="button" @click="removeOption(i)" v-if="formData.options.length > 2"
                             class="w-8 h-8 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground
                                    hover:bg-accent hover:text-white hover:border-accent transition-colors font-black">
@@ -315,18 +311,12 @@
             </div>
 
             <div class="flex justify-end gap-4 pt-6 border-t-2 border-foreground">
-              <button type="button" @click="closeModal"
-                      class="px-8 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+              <AppButton type="button" @click="closeModal" variant="secondary">
                 Hủy
-              </button>
-              <button type="submit" :disabled="saving"
-                      class="px-8 py-3 bg-quaternary text-foreground border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
-                             shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                             active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
-                             transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                <div v-if="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </AppButton>
+              <AppButton type="submit" :disabled="saving" :loading="saving" variant="emerald">
                 {{ saving ? 'Đang lưu...' : 'Lưu lại' }}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>
@@ -343,18 +333,12 @@
         <div class="p-6">
           <p class="font-bold mb-6">Bạn có chắc chắn muốn xóa bài tập <span class="text-accent">"{{ deleteTarget.question || deleteTarget.title }}"</span>?</p>
           <div class="flex justify-end gap-4">
-            <button @click="deleteTarget = null"
-                    class="px-6 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+            <AppButton @click="deleteTarget = null" variant="secondary">
               Hủy
-            </button>
-            <button @click="executeDelete" :disabled="deleting"
-                    class="px-6 py-3 bg-accent text-white border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
-                           shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                           active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
-                           transition-all duration-200 disabled:opacity-50 flex items-center gap-2">
-              <div v-if="deleting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </AppButton>
+            <AppButton @click="executeDelete" :disabled="deleting" :loading="deleting" variant="primary">
               {{ deleting ? 'Đang xóa...' : 'Xóa' }}
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
@@ -368,6 +352,7 @@ import { adminService } from '@/services/adminService'
 import lessonStructureService from '@/services/lessonStructureService'
 import Pagination from '@/components/common/Pagination.vue'
 import AiGeneratePanel from '@/components/admin/AiGeneratePanel.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
 import {
   PenTool as PenToolIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon,

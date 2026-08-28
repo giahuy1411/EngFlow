@@ -1,5 +1,4 @@
 version: "3"
-authtoken: ${NGROK_AUTHTOKEN}
 tunnels:
   sepay-webhook:
     addr: "backend:8080"

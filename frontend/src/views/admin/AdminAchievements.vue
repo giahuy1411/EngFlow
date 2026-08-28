@@ -10,13 +10,10 @@
           <p class="font-bold text-xs uppercase tracking-widest text-gray-500">Quản lý thành tích & huy hiệu</p>
         </div>
       </div>
-      <button @click="openModal()"
-              class="flex items-center gap-2 bg-tertiary border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-foreground rounded-md
-                     shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                     active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+      <AppButton variant="amber" @click="openModal()">
         <PlusIcon class="w-4 h-4" />
         Thêm Thành Tích
-      </button>
+      </AppButton>
     </div>
 
     <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-md overflow-hidden">
@@ -67,12 +64,14 @@
             <td class="p-4 border-r-2 border-foreground text-center font-black text-lg">{{ ach.pointsRequired }}</td>
             <td class="p-4 text-center">
               <div class="flex items-center justify-center gap-2">
+                                <!-- Icon-only micro-control (h-9 w-9): table row edit — kept as raw button -->
                 <button @click="openModal(ach)" aria-label="Sửa thành tích"
                          class="w-9 h-9 flex items-center justify-center bg-secondary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
                                 hover:-translate-y-0.5 hover:shadow-pop transition-all
                                 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                    <EditIcon class="w-4 h-4" />
                  </button>
+                 <!-- Icon-only micro-control (h-9 w-9): table row delete — kept as raw button -->
                  <button @click="deleteAchievement(ach.id)" aria-label="Xóa thành tích"
                          class="w-9 h-9 flex items-center justify-center bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm
                                 hover:-translate-y-0.5 hover:shadow-pop transition-all
@@ -157,6 +156,7 @@
 </template>
 
 <script setup>
+import AppButton from '@/components/ui/AppButton.vue'
 import { ref, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
 import { useToast } from '@/composables/useToast'

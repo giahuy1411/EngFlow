@@ -184,6 +184,79 @@ class PaymentServiceTest {
     }
 
     @Test
+    void processWebhook_sepayProductionSignature_processesTransaction() throws Exception {
+        // Given - SePay production: X-Sepay-Signature: sha256=<hex>, signed over "<ts>.<rawBody>"
+        String orderCode = "ENG_ABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+        String timestamp = "1787942212";
+        String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
+
+        User user = baseUser(9L);
+        PaymentTransaction pending = pendingTx(orderCode, "MONTH", 9L);
+        pending.setUser(user);
+
+        when(paymentTransactionRepository.findByTransactionId("12345")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING")).thenReturn(Optional.of(pending));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, "sha256=" + signature, timestamp);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(true);
+        verify(paymentTransactionRepository).save(transactionCaptor.capture());
+        assertThat(transactionCaptor.getValue().getStatus()).isEqualTo("SUCCESS");
+        verify(userRepository).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getIsPremium()).isTrue();
+    }
+
+    @Test
+    void processWebhook_sepayProductionWrongSignature_rejects() throws Exception {
+        // Given - production header present but signature does not match
+        String orderCode = "ENG_ABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+        String timestamp = "1787942212";
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, "sha256=deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", timestamp);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(false);
+        assertThat(actualResult.get("error")).isEqualTo("Invalid signature");
+        verify(paymentTransactionRepository, never()).save(any());
+    }
+
+    @Test
+    void processWebhook_sepayProductionSignatureWithoutPrefix_processesTransaction() throws Exception {
+        // Given - same as production scheme but header value without "sha256=" prefix
+        String orderCode = "ENG_ABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+        String timestamp = "1700000000";
+        String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
+
+        User user = baseUser(11L);
+        PaymentTransaction pending = pendingTx(orderCode, "MONTH", 11L);
+        pending.setUser(user);
+
+        when(paymentTransactionRepository.findByTransactionId("12345")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING")).thenReturn(Optional.of(pending));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, signature, timestamp);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(true);
+    }
+
+    @Test
     void processWebhook_invalidSignature_returnsInvalidSignature() throws Exception {
         // Given
         String orderCode = "ENG_ABCDEF123456";

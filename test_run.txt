@@ -1,0 +1,26 @@
+﻿mvn : WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+At line:1 char:129
++ ... ew($false); mvn -q test -o -Dtest=ExerciseServiceAdminAnswerRegressio ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A term...has been called:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by lombok.permit.Permit
+WARNING: Please consider reporting this to the maintainers of class lombok.permit.Permit
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[ERROR] COMPILATION ERROR : 
+[ERROR] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/test/java/com/datn/engflow/service/ExerciseServiceAdminAnswerRegressionTest.java:[3,34] cannot find symbol
+  symbol:   class EntityNotFoundException
+  location: package com.datn.engflow.exception
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project engflow: Compilation failure
+[ERROR] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/test/java/com/datn/engflow/service/ExerciseServiceAdminAnswerRegressionTest.java:[3,34] cannot find symbol
+[ERROR]   symbol:   class EntityNotFoundException
+[ERROR]   location: package com.datn.engflow.exception
+[ERROR] 
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

@@ -22,8 +22,11 @@ public class PaymentController {
     @PostMapping("/api/webhook/sepay")
     public ResponseEntity<Map<String, Object>> sepayWebhook(
             @RequestBody String rawBody,
-            @RequestHeader(value = "X-Signature", required = false) String headerSignature) {
-        Map<String, Object> result = paymentService.processWebhook(rawBody, headerSignature);
+            @RequestHeader(value = "X-Signature", required = false) String headerSignature,
+            @RequestHeader(value = "X-Sepay-Signature", required = false) String sepaySignature,
+            @RequestHeader(value = "X-Sepay-Timestamp", required = false) String sepayTimestamp) {
+        Map<String, Object> result = paymentService.processWebhook(
+                rawBody, headerSignature, sepaySignature, sepayTimestamp);
         return ResponseEntity.ok(result);
     }
 

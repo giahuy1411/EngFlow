@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -48,23 +50,38 @@ public class PaymentService {
 
     @Transactional
     public Map<String, Object> processWebhook(String rawBody) {
-        return processWebhook(rawBody, null);
+        return processWebhook(rawBody, null, null, null);
     }
 
     @Transactional
     public Map<String, Object> processWebhook(String rawBody, String headerSignature) {
+        return processWebhook(rawBody, headerSignature, null, null);
+    }
+
+    /**
+     * Verify and process a SePay webhook notification.
+     *
+     * <p>SePay (production) signs the payload with HMAC-SHA256 over
+     * {@code "<X-Sepay-Timestamp>.<rawBody>"} using the webhook secret, and sends
+     * the digest in the {@code X-Sepay-Signature} header prefixed with
+     * {@code "sha256="}. Legacy/simulated integrations may instead send the
+     * signature in an {@code X-Signature} header or a {@code signature} body
+     * field, computed over the body with the signature field stripped. All three
+     * schemes are accepted; the first one that validates wins.</p>
+     *
+     * @param rawBody         the raw JSON request body
+     * @param headerSignature legacy {@code X-Signature} header value (may be null)
+     * @param sepaySignature  production {@code X-Sepay-Signature} header value (may be null)
+     * @param sepayTimestamp  production {@code X-Sepay-Timestamp} header value (may be null)
+     * @return result map with a {@code success} key
+     */
+    @Transactional
+    public Map<String, Object> processWebhook(String rawBody, String headerSignature,
+                                              String sepaySignature, String sepayTimestamp) {
         try {
             Map<String, Object> body = objectMapper.readValue(rawBody, new TypeReference<>() {});
 
-            // Verify HMAC-SHA256 over the body with the signature field removed.
-            // SePay signs the payload and sends the signature either in the
-            // request body ("signature") or as a header (X-Signature / x-signature).
-            String expectedSig = HmacUtils.hmacSha256Hex(webhookSecret, stripSignature(rawBody));
-            String receivedSig = headerSignature != null && !headerSignature.isBlank()
-                    ? headerSignature
-                    : pickSignature(body);
-
-            if (!expectedSig.equals(receivedSig)) {
+            if (!isSignatureValid(rawBody, body, headerSignature, sepaySignature, sepayTimestamp)) {
                 log.warn("Invalid HMAC signature from SePay webhook");
                 return Map.of("success", false, "error", "Invalid signature");
             }
@@ -273,6 +290,42 @@ public class PaymentService {
         }
 
         return result;
+    }
+
+    /**
+     * Validate the webhook signature against any supported scheme.
+     *
+     * @param rawBody         raw JSON request body
+     * @param body            parsed body (used for the legacy body-field signature)
+     * @param headerSignature legacy X-Signature header value (may be null)
+     * @param sepaySignature  production X-Sepay-Signature header value (may be null)
+     * @param sepayTimestamp  production X-Sepay-Timestamp header value (may be null)
+     * @return true if at least one scheme validates
+     */
+    private boolean isSignatureValid(String rawBody, Map<String, Object> body,
+                                     String headerSignature, String sepaySignature,
+                                     String sepayTimestamp) {
+        // Production SePay: X-Sepay-Signature: sha256=<hex>, signed over "<ts>.<body>"
+        if (sepaySignature != null && !sepaySignature.isBlank()
+                && sepayTimestamp != null && !sepayTimestamp.isBlank()) {
+            String received = sepaySignature.startsWith("sha256=")
+                    ? sepaySignature.substring("sha256=".length())
+                    : sepaySignature;
+            String expected = HmacUtils.hmacSha256Hex(webhookSecret, sepayTimestamp + "." + rawBody);
+            if (MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
+                    received.getBytes(StandardCharsets.UTF_8))) {
+                return true;
+            }
+        }
+
+        // Legacy/simulated: signature over the body with the signature field stripped,
+        // sent as X-Signature header or a "signature" body field.
+        String expectedSig = HmacUtils.hmacSha256Hex(webhookSecret, stripSignature(rawBody));
+        String receivedSig = headerSignature != null && !headerSignature.isBlank()
+                ? headerSignature
+                : pickSignature(body);
+        return MessageDigest.isEqual(expectedSig.getBytes(StandardCharsets.UTF_8),
+                receivedSig.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
