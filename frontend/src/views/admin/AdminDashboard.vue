@@ -9,7 +9,7 @@
     <div v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
       <p class="font-black">Không tải được dữ liệu dashboard.</p>
       <p class="mt-1 text-sm">{{ error }}</p>
-      <button class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadStats">Thử lại</button>
+      <AppButton class="mt-4" variant="secondary" size="sm" @click="loadStats">Thử lại</AppButton>
     </div>
 
     <template v-else>
@@ -95,6 +95,7 @@ import { adminService } from '@/services/adminService'
 import { LayoutDashboard, Users, BookOpen, FileText, Award } from 'lucide-vue-next'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import StatCard from '@/components/layout/StatCard.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const stats = ref({})
 const loading = ref(true)

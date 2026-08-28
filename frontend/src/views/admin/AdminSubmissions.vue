@@ -11,20 +11,20 @@
 
     <!-- Filter Tabs -->
     <div class="flex gap-4 border-b-2 border-black pb-4">
-      <button 
+      <AppButton
         @click="filterStatus = 'PENDING'"
-        class="px-6 py-3 border-2 border-foreground font-black uppercase text-sm tracking-wider rounded-md transition-all duration-150"
-        :class="filterStatus === 'PENDING' ? 'bg-tertiary shadow-pop -translate-y-1' : 'bg-white hover:bg-tertiary/20 hover:shadow-pop-sm'"
+        :variant="filterStatus === 'PENDING' ? 'amber' : 'secondary'"
+        class="px-6 py-3 tracking-wider"
       >
         Chờ chấm điểm ({{ pendingSubmissions.length }})
-      </button>
-      <button 
+      </AppButton>
+      <AppButton
         @click="filterStatus = 'GRADED'"
-        class="px-6 py-3 border-2 border-foreground font-black uppercase text-sm tracking-wider rounded-md transition-all duration-150"
-        :class="filterStatus === 'GRADED' ? 'bg-secondary text-foreground shadow-pop -translate-y-1' : 'bg-white hover:bg-secondary/20 hover:shadow-pop-sm'"
+        :variant="filterStatus === 'GRADED' ? 'pink' : 'secondary'"
+        class="px-6 py-3 tracking-wider"
       >
         Đã chấm điểm ({{ gradedSubmissions.length }})
-      </button>
+      </AppButton>
     </div>
 
     <!-- Main Workspace -->
@@ -105,6 +105,7 @@
             <!-- Speaking Content (Audio Player) -->
             <div v-if="selectedSubmission.skillType === 'SPEAKING' && selectedSubmission.audioUrl" class="space-y-3">
               <div class="flex items-center gap-3 bg-white p-3 border-2 border-foreground shadow-pop-sm rounded-md">
+                <!-- RAW: icon-only audio play control (w-10 h-10) kept as native button -->
                 <button 
                   @click="playSpeaking" 
                   class="w-10 h-10 flex items-center justify-center bg-accent border-2 border-foreground text-white font-black text-lg rounded-md shadow-pop-sm hover:scale-105 active:scale-95 transition-transform shrink-0"
@@ -148,13 +149,14 @@
               ></textarea>
             </div>
 
-            <button 
-              type="submit" 
+            <AppButton
+              type="submit"
               :disabled="grading"
-              class="w-full py-4 bg-accent text-white border-2 border-foreground font-black uppercase tracking-widest text-sm rounded-md hover:-translate-y-0.5 hover:shadow-pop active:translate-y-0.5 active:shadow-none transition-all shadow-pop-sm disabled:opacity-50"
+              variant="primary"
+              class="w-full"
             >
               {{ grading ? 'ĐANG LƯU...' : 'XÁC NHẬN CHẤM ĐIỂM' }}
-            </button>
+            </AppButton>
           </form>
         </div>
       </div>
@@ -167,6 +169,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { submissionService } from '@/services/submissionService'
 import { Loader2 as LoaderIcon } from 'lucide-vue-next'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const submissions = ref([])
 const loading = ref(true)

@@ -69,12 +69,10 @@
               </div>
               <span class="font-bold text-sm">{{ formatDate(snap.createdAt) }}</span>
             </div>
-            <button @click="restoreSnapshot(snap.id)" :disabled="restoring === snap.id"
-                    class="px-4 py-2 border-2 border-foreground rounded-lg font-black uppercase text-[10px] tracking-wider bg-white
-                           hover:bg-tertiary hover:text-foreground transition-all duration-200 shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                    :class="restoring === snap.id ? 'opacity-50 cursor-not-allowed' : ''">
+            <AppButton @click="restoreSnapshot(snap.id)" :disabled="restoring === snap.id"
+                    :loading="restoring === snap.id" size="sm" variant="secondary">
               {{ restoring === snap.id ? 'Đang khôi phục...' : 'Khôi phục' }}
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
@@ -93,13 +91,10 @@
       </div>
       <p class="font-black text-xl uppercase mb-2">Chưa có nội dung</p>
       <p class="text-muted-foreground font-medium mb-6">Bắt đầu bằng cách thêm section và block</p>
-      <button @click="addSection"
-              class="inline-flex items-center gap-2 bg-accent border-2 border-foreground px-6 py-3 font-black uppercase text-sm tracking-wider text-white rounded-md
-                     shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                     active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+      <AppButton @click="addSection" variant="primary">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Thêm Section Đầu Tiên
-      </button>
+      </AppButton>
     </div>
 
     <!-- Builder -->
@@ -117,10 +112,10 @@
                    class="flex-1 bg-transparent text-white font-bold text-lg px-4 py-3 focus:outline-none focus:bg-white/10 transition-colors"
                     placeholder="Tiêu đề section..." />
             <div class="flex items-stretch">
-              <button @click="addBlock(section.id)"
-                      class="px-4 border-l-4 border-foreground text-white/60 hover:text-white hover:bg-white/10 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1">
+              <AppButton @click="addBlock(section.id)" variant="ghost" size="sm">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Block
-              </button>
+              </AppButton>
+              <!-- icon-only control: kept raw -->
               <button @click="confirmDeleteSection(section, si)"
                       class="px-4 border-l-4 border-foreground text-white/40 hover:text-accent hover:bg-white/10 font-bold text-lg transition-all flex items-center">
                 &times;
@@ -155,6 +150,7 @@
                     <span v-if="dirtyBlocks.has(block.id)"
                           class="ml-1 w-2 h-2 rounded-full bg-tertiary inline-block"></span>
                   </div>
+                  <!-- icon-only control: kept raw -->
                   <button @click="deleteBlock(block.id, section.id, bi)"
                           class="w-7 h-7 flex items-center justify-center border-2 border-foreground rounded-lg bg-white text-foreground/40 hover:text-accent hover:bg-accent/10 font-bold text-sm transition-all shadow-pop-sm">
                     &times;
@@ -309,23 +305,19 @@
           <!-- Empty section -->
           <div v-else class="p-8 text-center">
             <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3">Section trống</p>
-            <button @click="addBlock(section.id)"
-                    class="text-xs font-bold uppercase border-2 border-foreground px-4 py-2 hover:bg-foreground hover:text-white transition-all">
+            <AppButton @click="addBlock(section.id)" variant="secondary" size="sm">
               + Thêm Block
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
 
       <!-- Add Section Button -->
       <div class="flex justify-center pt-4">
-        <button @click="addSection"
-                class="flex items-center gap-2 bg-foreground text-white border-2 border-foreground px-8 py-4 font-black uppercase text-sm tracking-wider rounded-md
-                       shadow-pop hover:-translate-y-1 hover:shadow-pop-md
-                       active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+        <AppButton @click="addSection" variant="tertiary" size="lg">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Thêm Section
-        </button>
+        </AppButton>
       </div>
     </template>
 
@@ -340,15 +332,12 @@
           <p class="font-bold mb-2">Xóa section <span class="text-accent">"{{ deleteTarget.section.title }}"</span>?</p>
           <p class="text-muted-foreground text-sm font-medium mb-6">Tất cả block trong section này cũng sẽ bị xóa.</p>
           <div class="flex justify-end gap-4">
-            <button @click="deleteTarget = null"
-                    class="px-6 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+            <AppButton @click="deleteTarget = null" variant="secondary">
               Hủy
-            </button>
-            <button @click="executeDeleteSection"
-                    class="px-6 py-3 bg-accent text-white border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
-                           shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+            </AppButton>
+            <AppButton @click="executeDeleteSection" variant="primary">
               Xóa
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
@@ -359,6 +348,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
+import AppButton from '@/components/ui/AppButton.vue'
 import lessonStructureService from '../../services/lessonStructureService'
 import lessonService from '../../services/lessonService'
 

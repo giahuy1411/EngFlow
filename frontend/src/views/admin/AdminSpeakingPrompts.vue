@@ -114,19 +114,20 @@
         </div>
       </div>
       <div class="flex gap-3">
-        <button
+        <AppButton
           @click="savePrompt"
           :disabled="saving"
-          class="px-6 py-2 bg-foreground text-white font-bold text-sm uppercase tracking-wider hover:bg-foreground/80 transition-colors rounded disabled:opacity-50"
+          :loading="saving"
+          variant="tertiary"
         >
           {{ saving ? 'Đang lưu...' : 'Lưu đề bài' }}
-        </button>
-        <button
+        </AppButton>
+        <AppButton
           @click="showForm = false"
-          class="px-6 py-2 border-2 border-foreground font-bold text-sm uppercase tracking-wider hover:bg-muted transition-colors rounded"
+          variant="secondary"
         >
           Hủy
-        </button>
+        </AppButton>
       </div>
     </div>
 
@@ -166,8 +167,8 @@
             <td class="p-4 border-r-2 border-foreground text-center">{{ p.isPremium ? 'Có' : 'Không' }}</td>
             <td class="p-4 border-r-2 border-foreground text-center">{{ p.orderIndex ?? '-' }}</td>
             <td class="p-4 text-center">
-              <button @click="editPrompt(p)" class="text-xs font-bold uppercase tracking-wider border-2 border-foreground mr-2 hover:bg-foreground hover:text-white px-2.5 py-1 rounded transition-colors">Sửa</button>
-              <button @click="deletePrompt(p.id)" class="text-xs font-bold uppercase tracking-wider border-2 border-danger text-danger hover:bg-danger hover:text-white px-2.5 py-1 rounded transition-colors">Xóa</button>
+              <AppButton @click="editPrompt(p)" variant="secondary" size="sm" class="mr-2">Sửa</AppButton>
+              <AppButton @click="deletePrompt(p.id)" variant="danger" size="sm">Xóa</AppButton>
             </td>
           </tr>
           <tr v-if="filteredPrompts.length === 0">
@@ -201,6 +202,7 @@ import speakingService from '@/services/speakingService'
 import lessonService from '@/services/lessonService'
 import api from '@/services/api'
 import Pagination from '@/components/common/Pagination.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
 
 const toast = useToast()

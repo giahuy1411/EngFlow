@@ -10,13 +10,10 @@
           <p class="font-bold text-xs uppercase tracking-widest text-muted-foreground">Quản lý danh sách bài học</p>
         </div>
       </div>
-      <button @click="openModal()"
-              class="flex items-center gap-2 bg-accent border-2 border-foreground px-5 py-3 font-black uppercase text-sm tracking-wider text-white rounded-md
-                     shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md
-                     active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+      <AppButton variant="primary" @click="openModal()">
         <PlusIcon class="w-4 h-4" />
         Thêm Bài Học
-      </button>
+      </AppButton>
     </div>
 
     <!-- Search + Level filter bar -->
@@ -84,6 +81,7 @@
             </td>
              <td class="p-4 text-center">
                 <div class="flex items-center justify-center gap-2">
+                   <!-- icon-only control: kept raw -->
                    <button @click="$router.push('/admin/' + lesson.id + '/build')" aria-label="Xây dựng bài học"
                            class="w-9 h-9 flex items-center justify-center bg-tertiary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
                                   hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
@@ -91,12 +89,14 @@
                            title="Xây dựng nội dung">
                      <LayersIcon class="w-4 h-4" />
                   </button>
+                  <!-- icon-only control: kept raw -->
                   <button @click="openModal(lesson)" aria-label="Sửa bài học"
                            class="w-9 h-9 flex items-center justify-center bg-secondary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
                                   hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
                                   active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                      <EditIcon class="w-4 h-4" />
                   </button>
+                  <!-- icon-only control: kept raw -->
                   <button @click="deleteLesson(lesson.id)" aria-label="Xóa bài học"
                            class="w-9 h-9 flex items-center justify-center bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm
                                   hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
@@ -134,6 +134,7 @@
               {{ editingLesson ? 'Sửa Bài Học' : 'Thêm Bài Học Mới' }}
             </h3>
           </div>
+          <!-- icon-only control: kept raw -->
           <button @click="closeModal"
                   class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-white text-foreground font-black text-lg rounded-md shadow-pop-sm
                          hover:bg-accent hover:text-white transition-colors">&times;</button>
@@ -174,6 +175,7 @@
 
             <div class="flex items-center justify-between py-2">
               <label class="font-bold uppercase text-xs tracking-wider cursor-pointer">Xuất bản</label>
+              <!-- icon-only control: kept raw (toggle switch) -->
               <button type="button" @click="formData.isPublished = !formData.isPublished"
                       class="relative w-12 h-7 border-2 border-foreground rounded-full transition-colors duration-200"
                       :class="formData.isPublished ? 'bg-quaternary' : 'bg-foreground/10'">
@@ -183,16 +185,12 @@
             </div>
 
             <div class="flex justify-end gap-4 pt-6 border-t-2 border-foreground">
-              <button type="button" @click="closeModal"
-                      class="px-8 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+              <AppButton variant="secondary" type="button" @click="closeModal">
                 Hủy
-              </button>
-              <button type="submit" :disabled="saving"
-                      class="px-8 py-3 bg-quaternary text-foreground border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
-                             shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
-                             transition-all duration-200 disabled:opacity-50">
+              </AppButton>
+              <AppButton variant="emerald" type="submit" :disabled="saving">
                 {{ saving ? 'Đang lưu...' : 'Lưu lại' }}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>
@@ -205,6 +203,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { adminService } from '@/services/adminService'
 import Pagination from '@/components/common/Pagination.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
 import { BookOpen as BookOpenIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon, Layers as LayersIcon, Search as SearchIcon } from 'lucide-vue-next'
 

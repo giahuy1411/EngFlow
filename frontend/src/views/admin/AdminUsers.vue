@@ -92,24 +92,24 @@
             </td>
             <td class="p-4 text-center">
               <div class="flex flex-col gap-1.5 items-center">
-                <button @click="toggleUser(user.id)"
+                <AppButton @click="toggleUser(user.id)"
                   :disabled="togglingUserId === user.id"
-                  class="px-4 py-1.5 border-2 border-foreground font-black text-xs tracking-wider transition-all duration-200 rounded-md shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 w-full"
-                  :class="[
-                    togglingUserId === user.id ? 'opacity-50 cursor-not-allowed' : '',
-                    user.isActive
-                      ? 'bg-accent text-white hover:bg-accent/90'
-                      : 'bg-secondary text-white hover:bg-secondary/90'
-                  ]"
-                >{{ togglingUserId === user.id ? '...' : (user.isActive ? 'Khóa' : 'Mở') }}</button>
-                <button v-if="user.premiumExpiry" @click="revokePremium(user.id)"
+                  size="sm"
+                  class="w-full"
+                  :variant="user.isActive ? 'primary' : 'pink'"
+                >{{ togglingUserId === user.id ? '...' : (user.isActive ? 'Khóa' : 'Mở') }}</AppButton>
+                <AppButton v-if="user.premiumExpiry" @click="revokePremium(user.id)"
                   :disabled="premiumUserId === user.id"
-                  class="px-4 py-1.5 border-2 border-danger font-black text-xs tracking-wider transition-all duration-200 rounded-md shadow-pop-sm w-full bg-danger/10 text-danger hover:bg-danger/10"
-                >{{ premiumUserId === user.id ? '...' : 'Huỷ Premium' }}</button>
-                <button v-else @click="activatePremium(user.id)"
+                  variant="danger"
+                  size="sm"
+                  class="w-full"
+                >{{ premiumUserId === user.id ? '...' : 'Huỷ Premium' }}</AppButton>
+                <AppButton v-else @click="activatePremium(user.id)"
                   :disabled="premiumUserId === user.id"
-                  class="px-4 py-1.5 border-2 border-tertiary font-black text-xs tracking-wider transition-all duration-200 rounded-md shadow-pop-sm w-full bg-tertiary/10 text-foreground hover:bg-tertiary/20"
-                >{{ premiumUserId === user.id ? '...' : 'Cấp Premium' }}</button>
+                  variant="amber"
+                  size="sm"
+                  class="w-full"
+                >{{ premiumUserId === user.id ? '...' : 'Cấp Premium' }}</AppButton>
               </div>
             </td>
           </tr>
@@ -138,6 +138,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
 import Pagination from '@/components/common/Pagination.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import { Users } from 'lucide-vue-next'
 
 const users = ref([])

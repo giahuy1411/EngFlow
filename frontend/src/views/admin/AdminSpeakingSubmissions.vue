@@ -158,14 +158,16 @@
               {{ gradeForms[s.id].error }}
             </p>
 
-            <button
+            <AppButton
               :id="`grade-${s.id}`"
               type="submit"
               :disabled="gradeForms[s.id].saving"
-              class="w-full bg-foreground px-4 py-3 font-black uppercase tracking-wider text-white hover:bg-foreground/80 transition-all rounded shadow-pop-sm disabled:opacity-50 active:translate-x-0.5 active:translate-y-0.5"
+              :loading="gradeForms[s.id].saving"
+              variant="tertiary"
+              class="w-full"
             >
               {{ gradeForms[s.id].saving ? 'Đang lưu điểm...' : '💾 Lưu điểm & Nhận xét' }}
-            </button>
+            </AppButton>
           </form>
         </div>
       </div>
@@ -193,6 +195,7 @@ import { ref, computed, onMounted } from 'vue'
 import { AudioWaveformIcon, SearchIcon } from 'lucide-vue-next'
 import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
 
 const toast = useToast()

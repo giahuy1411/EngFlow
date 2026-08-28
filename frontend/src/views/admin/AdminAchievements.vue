@@ -102,6 +102,7 @@
             <div class="w-3 h-3 bg-foreground rotate-45 rounded"></div>
             <h3 class="font-black text-xl uppercase tracking-tighter text-foreground">{{ editingAchievement ? 'Sửa Thành Tích' : 'Thêm Thành Tích Mới' }}</h3>
           </div>
+          <!-- icon-only control: kept raw -->
           <button @click="closeModal"
                   class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-white text-foreground font-black text-lg rounded-md shadow-pop-sm
                          hover:bg-accent hover:text-white transition-colors">&times;</button>
@@ -137,16 +138,12 @@
                       class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
             </div>
             <div class="flex justify-end gap-4 pt-6 border-t-2 border-foreground">
-              <button type="button" @click="closeModal"
-                      class="px-8 py-3 border-2 border-foreground rounded-md font-bold uppercase text-sm tracking-wider hover:bg-accent/20 transition-colors shadow-pop-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+              <AppButton type="button" @click="closeModal" variant="secondary">
                 Hủy
-              </button>
-              <button type="submit" :disabled="saving"
-                      class="px-8 py-3 bg-quaternary text-foreground border-2 border-foreground rounded-md font-black uppercase text-sm tracking-wider
-                             shadow-pop hover:-translate-y-0.5 hover:shadow-pop-md active:translate-x-0.5 active:translate-y-0.5 active:shadow-none
-                             transition-all duration-200 disabled:opacity-50">
+              </AppButton>
+              <AppButton type="submit" :disabled="saving" :loading="saving" variant="emerald">
                 {{ saving ? 'Đang lưu...' : 'Lưu lại' }}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>
