@@ -106,9 +106,98 @@ class PaymentServiceTest {
     // ---- processWebhook ----
 
     @Test
+    void processWebhook_bankContentWithoutUnderscore_matchesNewOrderFormat() throws Exception {
+        // Given - the VietQR generator strips "_" from the des= parameter, so content
+        // arriving from a QR-initiated transfer is underscore-free (ENGABCDEF123456).
+        String orderCode = "ENGABCDEF123456";
+        String baseJson = baseJsonWithoutSignature(orderCode);
+        String expectedSig = computeExpectedSig(baseJson);
+        String rawBody = buildRawBodyWithSignature(baseJson, expectedSig);
+
+        User user = baseUser(14L);
+        PaymentTransaction pending = pendingTx(orderCode, "MONTH", 14L);
+        pending.setUser(user);
+
+        when(paymentTransactionRepository.findByTransactionId("12345")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING")).thenReturn(Optional.of(pending));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(rawBody);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(true);
+        verify(paymentTransactionRepository).save(transactionCaptor.capture());
+        assertThat(transactionCaptor.getValue().getStatus()).isEqualTo("SUCCESS");
+    }
+
+    @Test
+    void processWebhook_contentWithoutUnderscore_fallsBackToLegacyUnderscoreOrder() throws Exception {
+        // Given - QR content arrives underscore-free but the PENDING row was created
+        // before the format change and stores "ENG_ABCDEF123456". The legacy fallback
+        // must resolve it so in-flight orders are not orphaned.
+        String legacyOrderCode = "ENG_ABCDEF123456";
+        String strippedCode = "ENGABCDEF123456";
+        String baseJson = baseJsonWithoutSignature(strippedCode);
+        String expectedSig = computeExpectedSig(baseJson);
+        String rawBody = buildRawBodyWithSignature(baseJson, expectedSig);
+
+        User user = baseUser(16L);
+        PaymentTransaction pending = pendingTx(legacyOrderCode, "MONTH", 16L);
+        pending.setUser(user);
+
+        when(paymentTransactionRepository.findByTransactionId("12345")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(strippedCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(strippedCode, "PENDING")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(legacyOrderCode, "PENDING")).thenReturn(Optional.of(pending));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(rawBody);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(true);
+        verify(paymentTransactionRepository).save(transactionCaptor.capture());
+        assertThat(transactionCaptor.getValue().getStatus()).isEqualTo("SUCCESS");
+    }
+
+    @Test
+    void processWebhook_bankContentLowercase_matchesOrderCaseInsensitively() throws Exception {
+        // Given - bank content may arrive lowercase; matcher uppercases before matching.
+        String orderCode = "ENGABCDEF123456";
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("id", 12345);
+        body.put("content", "chuyen tien " + orderCode.toLowerCase() + " thanh toan");
+        body.put("amount_in", "10000");
+        body.put("gateway", "VCB");
+        String baseJson = objectMapper.writeValueAsString(body);
+        String expectedSig = computeExpectedSig(baseJson);
+        String rawBody = buildRawBodyWithSignature(baseJson, expectedSig);
+
+        User user = baseUser(15L);
+        PaymentTransaction pending = pendingTx(orderCode, "MONTH", 15L);
+        pending.setUser(user);
+
+        when(paymentTransactionRepository.findByTransactionId("12345")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING")).thenReturn(Optional.of(pending));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(rawBody);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(true);
+    }
+
+    @Test
     void processWebhook_validSignature_processesTransaction() throws Exception {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String baseJson = baseJsonWithoutSignature(orderCode);
         String expectedSig = computeExpectedSig(baseJson);
         String rawBody = buildRawBodyWithSignature(baseJson, expectedSig);
@@ -139,11 +228,11 @@ class PaymentServiceTest {
 
     @Test
     void processWebhook_validSignatureInHeader_processesTransactionWithoutBodySignature() throws Exception {
-        // Given - SePay chuẩn gửi signature ở header X-Signature, KHÔNG có trong body.
-        String orderCode = "ENG_ABCDEF123456";
+        // Given - SePay chuáº©n gá»­i signature á»Ÿ header X-Signature, KHÃ”NG cÃ³ trong body.
+        String orderCode = "ENGABCDEF123456";
         String baseJson = baseJsonWithoutSignature(orderCode);
         String expectedSig = computeExpectedSig(baseJson);
-        // body không chứa field signature
+        // body khÃ´ng chá»©a field signature
         String rawBody = baseJson;
 
         User user = baseUser(7L);
@@ -156,7 +245,7 @@ class PaymentServiceTest {
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
         when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When - signature chỉ ở header
+        // When - signature chá»‰ á»Ÿ header
         Map<String, Object> actualResult = paymentService.processWebhook(rawBody, expectedSig);
 
         // Then
@@ -170,7 +259,7 @@ class PaymentServiceTest {
     @Test
     void processWebhook_wrongHeaderSignature_rejects() throws Exception {
         // Given - signature header sai
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String baseJson = baseJsonWithoutSignature(orderCode);
         String rawBody = baseJson;
 
@@ -186,7 +275,7 @@ class PaymentServiceTest {
     @Test
     void processWebhook_sepayProductionSignature_processesTransaction() throws Exception {
         // Given - SePay production: X-Sepay-Signature: sha256=<hex>, signed over "<ts>.<rawBody>"
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String rawBody = baseJsonWithoutSignature(orderCode);
         String timestamp = "1787942212";
         String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
@@ -216,7 +305,7 @@ class PaymentServiceTest {
     @Test
     void processWebhook_sepayProductionWrongSignature_rejects() throws Exception {
         // Given - production header present but signature does not match
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String rawBody = baseJsonWithoutSignature(orderCode);
         String timestamp = "1787942212";
 
@@ -233,7 +322,7 @@ class PaymentServiceTest {
     @Test
     void processWebhook_sepayProductionSignatureWithoutPrefix_processesTransaction() throws Exception {
         // Given - same as production scheme but header value without "sha256=" prefix
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String rawBody = baseJsonWithoutSignature(orderCode);
         String timestamp = "1700000000";
         String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
@@ -259,7 +348,7 @@ class PaymentServiceTest {
     @Test
     void processWebhook_invalidSignature_returnsInvalidSignature() throws Exception {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String baseJson = baseJsonWithoutSignature(orderCode);
         String rawBody = buildRawBodyWithSignature(baseJson, "wrong-signature");
 
@@ -276,7 +365,7 @@ class PaymentServiceTest {
     void processWebhook_missingTransactionId_returnsMissingIdError() throws Exception {
         // Given
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("content", "ENG_ABCDEF123456");
+        body.put("content", "ENGABCDEF123456");
         body.put("amount_in", "10000");
         String baseJson = objectMapper.writeValueAsString(body);
         String sig = computeExpectedSig(baseJson);
@@ -295,14 +384,14 @@ class PaymentServiceTest {
         // Given - id as number 999
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("id", 999);
-        body.put("content", "ENG_ABCDEF123456");
+        body.put("content", "ENGABCDEF123456");
         body.put("amount_in", "10000");
         body.put("gateway", "VCB");
         String baseJson = objectMapper.writeValueAsString(body);
         String sig = computeExpectedSig(baseJson);
         String rawBody = baseJson.substring(0, baseJson.length() - 1) + ",\"signature\":\"" + sig + "\"}";
 
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         User user = baseUser(2L);
         PaymentTransaction pending = pendingTx(orderCode, "MONTH", 2L);
         pending.setUser(user);
@@ -324,7 +413,7 @@ class PaymentServiceTest {
     @Test
     void processWebhook_transferAmountField_usedWhenAmountInMissing() throws Exception {
         // Given - uses transferAmount instead of amount_in
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("id", 5555);
         body.put("content", "Thanh toan " + orderCode);
@@ -374,7 +463,7 @@ class PaymentServiceTest {
     @Test
     void processSePayTransaction_duplicateTransactionId_returnsSuccessWithoutChange() {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String content = "Pay " + orderCode;
         PaymentTransaction existing = pendingTx(orderCode, "MONTH", 1L);
         existing.setTransactionId("txDup");
@@ -393,7 +482,7 @@ class PaymentServiceTest {
     @Test
     void processSePayTransaction_orderAlreadySuccess_returnsSuccessWithoutChange() {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String content = "Pay " + orderCode;
         when(paymentTransactionRepository.findByTransactionId("txNew")).thenReturn(Optional.empty());
         when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(true);
@@ -409,7 +498,7 @@ class PaymentServiceTest {
     @Test
     void processSePayTransaction_noPending_returnsError() {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String content = "Pay " + orderCode;
         when(paymentTransactionRepository.findByTransactionId("tx1")).thenReturn(Optional.empty());
         when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
@@ -426,8 +515,8 @@ class PaymentServiceTest {
     @Test
     void processSePayTransaction_yearPlan_calculatesExpiryPlusOneYear() {
         // Given
-        String orderCode = "ENG_YEAR12345678".substring(0, 16);
-        orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGYEAR12345678".substring(0, 15);
+        orderCode = "ENGABCDEF123456";
         String content = "Thanh toan " + orderCode;
         User user = baseUser(10L);
         PaymentTransaction pending = pendingTx(orderCode, "YEAR", 10L);
@@ -455,7 +544,7 @@ class PaymentServiceTest {
     @Test
     void processSePayTransaction_monthPlan_calculatesExpiryPlusOneMonth() {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         String content = "Pay " + orderCode + " extra";
         User user = baseUser(11L);
         PaymentTransaction pending = pendingTx(orderCode, "MONTH", 11L);
@@ -477,8 +566,8 @@ class PaymentServiceTest {
     @Test
     void processSePayTransaction_orderCodeExtractedCaseInsensitive() {
         // Given - content lower case
-        String orderCodeUpper = "ENG_ABCDEF123456";
-        String contentLower = "pay eng_abcdef123456 please";
+        String orderCodeUpper = "ENGABCDEF123456";
+        String contentLower = "pay ENGABCDEF123456 please";
         User user = baseUser(12L);
         PaymentTransaction pending = pendingTx(orderCodeUpper, "MONTH", 12L);
         pending.setUser(user);
@@ -511,7 +600,7 @@ class PaymentServiceTest {
         // Then
         assertThat(actualResult.get("planType")).isEqualTo("MONTH");
         assertThat(actualResult.get("amount")).isEqualTo(new BigDecimal("10000"));
-        assertThat((String) actualResult.get("orderCode")).matches("ENG_[A-Z0-9]{12}");
+        assertThat((String) actualResult.get("orderCode")).matches("ENG[A-Z0-9]{12}");
         assertThat((String) actualResult.get("qrUrl")).contains(bankAccount).contains(bankName);
         verify(paymentTransactionRepository).save(transactionCaptor.capture());
         PaymentTransaction saved = transactionCaptor.getValue();
@@ -567,7 +656,7 @@ class PaymentServiceTest {
     @Test
     void checkPendingPayments_findsMatchingTransaction_processesIt() {
         // Given
-        String orderCode = "ENG_ABCDEF123456";
+        String orderCode = "ENGABCDEF123456";
         User user = baseUser(1L);
         PaymentTransaction pending = pendingTx(orderCode, "MONTH", 1L);
         pending.setUser(user);

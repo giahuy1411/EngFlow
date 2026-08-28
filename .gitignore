@@ -79,3 +79,14 @@ backup_*.out
 .agents/mcp_config.json
 scripts/
 uploads/
+
+# Build/test logs & temp artifacts (anti-reaccumulation)
+compile_check*.txt
+csp_compile.txt
+test_run*.txt
+test_full.txt
+final_test.txt
+*.tmp-qr*.png
+.tmp-qrtool/
+api_tokens.txt
+*tokens*.txt

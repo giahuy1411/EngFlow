@@ -58,7 +58,7 @@ public class SePayApiService {
      * Query the SePay transaction API for a transaction matching the given
      * order code (in the content field) and amount.
      *
-     * @param orderCode the order code (e.g. ENG_XXXXXXXXXXXX) to search for in transaction content
+     * @param orderCode the order code (e.g. ENGXXXXXXXXXXXX) to search for in transaction content
      * @param amount    the expected transfer amount
      * @return an Optional containing the matching transaction map, or empty if not found
      */

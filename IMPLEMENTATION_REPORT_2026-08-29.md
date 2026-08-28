@@ -51,3 +51,26 @@ Mục tiêu: triển khai toàn bộ kế hoạch hậu-audit (TRỪ Flyway), ve
 - Kích hoạt Flyway (đã loại trừ theo yêu cầu) — còn `ddl-auto=update`.
 - Nonce-based CSP đầy đủ ở tầng hosting prod (nginx/CDN).
 - Cân nhắc gộp `feat/exercise-system` → `main` qua PR thay vì push trực tiếp (đang push trực tiếp theo yêu cầu).
+
+## Bug premium: "Chưa ghi nhận giao dịch" — nguyên nhân gốc & fix (2026-08-29)
+
+**Triệu chứng:** Test thủ công gói MONTH → QR hiển thị → tiền đã trừ trong ngân hàng → trang nâng cấp vẫn báo "Chưa ghi nhận giao dịch."
+
+**Chuỗi nguyên nhân (đã verify bằng evidence, không đoán):**
+
+1. **Webhook SePay production dùng scheme chữ ký KHÁC với code.** SePay gửi `X-Sepay-Signature: sha256=<hex>` + `X-Sepay-Timestamp`, trong đó hex = `HMAC-SHA256(secret, "<timestamp>.<rawBody>")`. Code cũ chỉ kiểm tra `X-Signature` (header) hoặc field `signature` (body), tính HMAC trên body đã strip signature → **luôn fail** với payload thật. Bằng chứng: replay đúng payload SePay capture từ ngrok → trả `Invalid signature`; sau khi tính `HMAC(secret, ts + "." + body)` thì **match byte-for-byte** (`e588da7b…83a2`).
+2. **Tunnel ngrok chết âm thầm.** `ngrok.yml` (v3) khai `authtoken` trong file config → ngrok báo `field authtoken not found in type config.v3yamlConfig` và crash-loop; container `Up` nhưng không có tunnel. Auth token phải truyền qua env `NGROK_AUTHTOKEN` (compose đã set) — file config không được chứa key đó. Đã sửa `ngrok.yml` bỏ `authtoken:`; tunnel `sagging-dyslexic-showoff.ngrok-free.dev` hoạt động, webhook POST tới backend trả 200.
+3. **Fallback polling bị vô hiệu.** `SEPAY_API_TOKEN` rỗng (length=0) → `SePayApiService` log "token not configured" mỗi 5s (đúng nhịp frontend poll) và không thể tự phát hiện giao dịch. Đây là lý do UI kẹt ở PENDING vĩnh viễn khi webhook fail.
+
+**Fix đã implement (commit trong HEAD):**
+- `PaymentController.sepayWebhook`: nhận thêm `X-Sepay-Signature` + `X-Sepay-Timestamp`.
+- `PaymentService.isSignatureValid`: chấp nhận CẢ HAI scheme — production (`sha256=` prefix, HMAC trên `"<ts>.<body>"`) và legacy (`X-Signature`/body field, HMAC trên body stripped). So sánh bằng `MessageDigest.isEqual` (constant-time, chống timing attack).
+- `PaymentServiceTest`: +3 test regression (production valid / production sai chữ ký bị reject / không có prefix `sha256=`).
+- `ngrok.yml`: bỏ `authtoken:` khỏi config v3.
+
+**Verify end-to-end:** Replay webhook thật qua backend → `{"success":true}`; DB: order `ENG_0136FCCFC2B9` → `SUCCESS`, log `Premium activated for user 120010: MONTH until 2026-09-28`. Đã revert side-effect test (user về `is_premium=0`, order về `PENDING`) để không污染 dữ liệu. Full suite: **128 tests pass / 0 fail / 0 error**.
+
+**Còn tồn (không phải bug code):**
+- Giao dịch thật của user (`MOMO-CASHOUT-…-OQCOiruCxwac-…`) có `content` KHÔNG chứa order code `ENG_…` → regex `ENG_[A-Z0-9]{12}` không match → trả `Invalid content format`. Nghĩa là khi chuyển khoản, nội dung CK không được điền đúng mã đơn (user chuyển qua MOMO cash-out với content do MOMO sinh). Cần hướng dẫn user nhập đúng `content = orderCode` khi chuyển, HOẶC bổ sung matching theo amount+time window. **Cần quyết định product — chưa tự sửa.**
+- `SEPAY_API_TOKEN` vẫn rỗng → fallback polling không hoạt động. Admin cần lấy token tại app.sepay.vn → Cài đặt → API rồi set `.env` + rebuild.
+- Webhook URL đăng ký trên SePay phải trỏ đúng `<ngrok-url>/api/webhook/sepay`; URL ngrok free đổi mỗi lần restart → cần fixed domain hoặc cập nhật lại mỗi phiên dev.

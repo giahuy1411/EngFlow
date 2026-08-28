@@ -126,11 +126,16 @@ public class PaymentService {
     @Transactional
     public Map<String, Object> processSePayTransaction(String transactionId, String content,
                                                        BigDecimal amount, String gateway, String rawBody) {
-        // Extract orderCode token (ENG_XXXXXXXXXXXX) from arbitrary bank content.
+        // Extract orderCode token (ENGXXXXXXXXXXXX, 15 chars) from arbitrary bank content.
+        // The token has NO separator: the VietQR generator strips "_" from the des=
+        // parameter when embedding it into EMVCo field 62/08 (verified by decoding
+        // generated QR payloads), so the code must survive bank-side normalization.
+        // The underscore is optional in the pattern so legacy "ENG_" PENDING rows
+        // created before the format change can still be fulfilled.
         String orderCode = null;
         if (content != null) {
             java.util.regex.Matcher m = java.util.regex.Pattern
-                    .compile("ENG_[A-Z0-9]{12}").matcher(content.toUpperCase());
+                    .compile("ENG_?[A-Z0-9]{12}").matcher(content.toUpperCase());
             if (m.find()) {
                 orderCode = m.group();
             }
@@ -153,6 +158,14 @@ public class PaymentService {
         // Resolve user/plan from the newest PENDING row for this order.
         Optional<PaymentTransaction> pendingOpt = paymentTransactionRepository
                 .findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING");
+        if (pendingOpt.isEmpty()) {
+            // Legacy fallback: rows created before the format change store "ENG_" +
+            // 12 chars, while QR-originated content arrives underscore-free. Try the
+            // underscore variant so in-flight orders are not orphaned.
+            String legacyCode = orderCode.startsWith("ENG_") ? orderCode : "ENG_" + orderCode.substring(3);
+            pendingOpt = paymentTransactionRepository
+                    .findFirstByOrderCodeAndStatusOrderByIdDesc(legacyCode, "PENDING");
+        }
         if (pendingOpt.isEmpty()) {
             log.warn("No pending order found for: {}", orderCode);
             return Map.of("success", false, "error", "No pending order for: " + orderCode);
@@ -229,7 +242,7 @@ public class PaymentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String orderCode = "ENG_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        String orderCode = "ENG" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
         BigDecimal amount = "YEAR".equals(planType) ? new BigDecimal("20000") : new BigDecimal("10000");
 
         PaymentTransaction pendingTx = PaymentTransaction.builder()
@@ -241,9 +254,14 @@ public class PaymentService {
                 .build();
         paymentTransactionRepository.save(pendingTx);
 
-        String qrContent = bankAccount + "|" + orderCode + "|" + amount;
+        // SePay QR image API: the transfer-content parameter is `des` (NOT `content`).
+        // Verified against official docs and by decoding the generated QR payload:
+        // `content=` is silently ignored (EMVCo field 62 absent), `des=` is embedded
+        // so banking apps auto-fill the transfer content when the QR is scanned.
+        // The QR generator strips "_" from `des`, so orderCode is underscore-free.
+        // Source: https://docs.sepay.vn/tao-qr-code-vietqr-dong.html
         String qrUrl = sepayQrUrl + "?acc=" + bankAccount + "&amount=" + amount.longValue()
-                + "&content=" + orderCode + "&bank=" + bankName;
+                + "&des=" + orderCode + "&bank=" + bankName;
 
         return Map.of(
                 "orderCode", orderCode,
