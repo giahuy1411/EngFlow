@@ -311,7 +311,22 @@ public class PaymentService {
     }
 
     /**
+     * Maximum allowed clock skew between the X-Sepay-Timestamp header and
+     * server time before a webhook is rejected as a replay.
+     * Source: https://developer.sepay.vn/vi/sepay-webhooks/xac-thuc —
+     * "if (abs(time() - $timestamp) > 300)" (5 minutes).
+     */
+    private static final long REPLAY_WINDOW_MS = 5 * 60 * 1000L;
+
+    /**
      * Validate the webhook signature against any supported scheme.
+     *
+     * <p>The production scheme additionally enforces the replay window: a
+     * request whose X-Sepay-Timestamp deviates more than {@link #REPLAY_WINDOW_MS}
+     * from server time is rejected even if the signature itself is valid, so a
+     * captured payload cannot be replayed indefinitely. The legacy/simulated
+     * schemes carry no timestamp header (they are exercised by tests and
+     * manual simulation) and therefore skip the replay check.</p>
      *
      * @param rawBody         raw JSON request body
      * @param body            parsed body (used for the legacy body-field signature)
@@ -326,10 +341,22 @@ public class PaymentService {
         // Production SePay: X-Sepay-Signature: sha256=<hex>, signed over "<ts>.<body>"
         if (sepaySignature != null && !sepaySignature.isBlank()
                 && sepayTimestamp != null && !sepayTimestamp.isBlank()) {
+            long timestamp;
+            try {
+                timestamp = Long.parseLong(sepayTimestamp.trim());
+            } catch (NumberFormatException e) {
+                log.warn("Webhook replay check failed: non-numeric X-Sepay-Timestamp");
+                return false;
+            }
+            long skew = Math.abs(System.currentTimeMillis() - timestamp * 1000L);
+            if (skew > REPLAY_WINDOW_MS) {
+                log.warn("Webhook replay rejected: timestamp skew {}ms exceeds {}ms window", skew, REPLAY_WINDOW_MS);
+                return false;
+            }
             String received = sepaySignature.startsWith("sha256=")
                     ? sepaySignature.substring("sha256=".length())
                     : sepaySignature;
-            String expected = HmacUtils.hmacSha256Hex(webhookSecret, sepayTimestamp + "." + rawBody);
+            String expected = HmacUtils.hmacSha256Hex(webhookSecret, sepayTimestamp.trim() + "." + rawBody);
             if (MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
                     received.getBytes(StandardCharsets.UTF_8))) {
                 return true;

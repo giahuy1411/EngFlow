@@ -8,6 +8,8 @@ export const useLessonStore = defineStore('lesson', () => {
   const currentLesson = ref(null)
   const loading = ref(false)
   const error = ref(null)
+  const totalElements = ref(0)
+  const totalPages = ref(1)
 
   // Actions
   async function fetchLessons() {
@@ -17,6 +19,23 @@ export const useLessonStore = defineStore('lesson', () => {
       lessons.value = await lessonService.getAll()
     } catch (e) {
       error.value = e.response?.data?.error || 'Lỗi tải danh sách bài học'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Paginated + filtered listing used by Lessons.vue
+  // params: { page, size, level?, q? }
+  async function fetchLessonPage(params = {}) {
+    loading.value = true
+    error.value = null
+    try {
+      const data = await lessonService.getPage(params)
+      lessons.value = data.content || []
+      totalElements.value = data.totalElements ?? lessons.value.length
+      totalPages.value = data.totalPages ?? 1
+    } catch (e) {
+      error.value = e.response?.data?.error || e.response?.data?.message || 'Lỗi tải danh sách bài học'
     } finally {
       loading.value = false
     }
@@ -39,5 +58,5 @@ export const useLessonStore = defineStore('lesson', () => {
     currentLesson.value = null
   }
 
-  return { lessons, currentLesson, loading, error, fetchLessons, fetchLessonById, clearCurrentLesson }
+  return { lessons, currentLesson, loading, error, totalElements, totalPages, fetchLessons, fetchLessonPage, fetchLessonById, clearCurrentLesson }
 })
