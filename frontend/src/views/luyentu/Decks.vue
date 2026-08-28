@@ -38,7 +38,7 @@
       <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
         <p class="font-black">Không tải được danh sách bộ từ.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
-        <button class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadPage">Thử lại</button>
+        <AppButton class="mt-4" variant="secondary" size="sm" @click="loadPage">Thử lại</AppButton>
       </section>
 
       <section v-else-if="displayedDecks.length" class="space-y-8">
@@ -92,7 +92,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import deckService from '@/services/deckService'
 import Pagination from '@/components/common/Pagination.vue'
-import { StickerCard } from '@/components/ui'
+import { StickerCard, AppButton } from '@/components/ui'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 
 const activeTab = ref('public')

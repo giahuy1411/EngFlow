@@ -23,7 +23,7 @@
       <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
         <p class="font-black">Không tải được bảng xếp hạng.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
-        <button class="mt-4 border-2 border-foreground bg-card px-4 py-2 font-black uppercase text-xs" @click="loadLeaderboard">Thử lại</button>
+        <AppButton class="mt-4" variant="secondary" size="sm" @click="loadLeaderboard">Thử lại</AppButton>
       </section>
 
       <section v-else-if="leaderboard.length === 0" class="border-2 border-dashed border-foreground bg-card p-12 text-center">
@@ -73,6 +73,7 @@ import { useAuthStore } from '@/store/modules/auth'
 import { Trophy } from 'lucide-vue-next'
 import Pagination from '@/components/common/Pagination.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const leaderboard = ref([])
 const loading = ref(true)

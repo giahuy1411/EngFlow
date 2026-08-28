@@ -37,11 +37,11 @@
 
         <!-- Tabs -->
         <div class="flex flex-wrap gap-2 mb-8">
-          <button v-for="tab in tabs" :key="tab.key"
+          <AppButton v-for="tab in tabs" :key="tab.key"
             @click="activeTab = tab.key"
-            class="px-5 py-2.5 font-bold text-xs uppercase tracking-wider border-2 border-foreground rounded-full transition-all duration-200"
-            :class="activeTab === tab.key ? 'bg-accent text-white shadow-pop-sm' : 'bg-card hover:bg-tertiary/20'"
-          >{{ tab.label }}</button>
+            :variant="activeTab === tab.key ? 'primary' : 'secondary'"
+            size="sm"
+          >{{ tab.label }}</AppButton>
         </div>
 
         <!-- Tab Content -->
@@ -124,6 +124,7 @@ import { useLessonStore } from '@/store/modules/lesson'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { Volume2 } from 'lucide-vue-next'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const store = useLessonStore()

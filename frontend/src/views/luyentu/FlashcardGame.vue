@@ -16,7 +16,7 @@
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 text-center shadow-pop-xl" role="alert">
         <p class="font-black text-lg text-danger">{{ error }}</p>
-        <button class="mt-4 px-5 py-2 border-2 border-foreground rounded-full font-bold uppercase text-sm" @click="loadDeck">Thử lại</button>
+        <AppButton variant="secondary" size="sm" class="mt-4" @click="loadDeck">Thử lại</AppButton>
       </div>
 
       <div v-else-if="words.length === 0" class="bg-card border-2 border-dashed border-foreground rounded-md p-12 text-center shadow-pop-xl">
@@ -68,7 +68,7 @@
               <p v-if="isFlipped && currentWord.example" class="font-medium text-background/80 mt-4 max-w-lg mx-auto italic">"{{ currentWord.example }}"</p>
             </div>
 
-            <!-- Audio button -->
+            <!-- Audio button — tiny circular icon-only overlay control; keep raw <button> to preserve absolute layout -->
             <button v-if="currentWord.audioUrl" @click.stop="playAudio(currentWord.audioUrl)"
               class="absolute top-4 left-4 w-10 h-10 bg-foreground/20 border-2 border-foreground rounded-full flex items-center justify-center text-background hover:bg-foreground/30 transition-all shadow-pop-sm"
             >
@@ -87,20 +87,14 @@
             <Check class="w-10 h-10 text-white" />
           </div>
           <h2 class="font-black text-3xl uppercase tracking-tight mb-3">Hoàn thành!</h2>
-          <button @click="restart" class="px-8 py-3 bg-accent text-white font-black text-sm border-2 border-foreground rounded-full shadow-pop">Luyện lại</button>
+          <AppButton @click="restart" variant="primary">Luyện lại</AppButton>
         </div>
 
         <!-- Navigation buttons -->
         <div v-if="currentWord" class="flex items-center justify-center gap-4">
-          <button @click="markWord('again')"
-            class="px-6 py-3 font-bold text-sm bg-secondary text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
-          >Lại</button>
-          <button @click="markWord('good')"
-            class="px-6 py-3 font-bold text-sm bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
-          >Tiếp theo</button>
-          <button @click="markWord('easy')"
-            class="px-6 py-3 font-bold text-sm bg-quaternary text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
-          >Dễ</button>
+          <AppButton @click="markWord('again')" variant="pink">Lại</AppButton>
+          <AppButton @click="markWord('good')" variant="primary">Tiếp theo</AppButton>
+          <AppButton @click="markWord('easy')" variant="emerald">Dễ</AppButton>
         </div>
       </div>
     </div>
@@ -113,6 +107,7 @@ import { useRoute } from 'vue-router'
 import deckService from '@/services/deckService'
 import { Check, Volume2 } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const deckId = route.params.id

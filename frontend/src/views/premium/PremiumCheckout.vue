@@ -27,12 +27,9 @@
             </div>
           </div>
 
-          <button @click="checkStatus"
-            :disabled="checking"
-            class="w-full py-3 bg-foreground text-white font-bold uppercase tracking-wider hover:bg-foreground/80 transition-colors disabled:opacity-50 rounded-full shadow-pop"
-          >
+          <AppButton @click="checkStatus" :disabled="checking" variant="tertiary" class="w-full">
             {{ checking ? 'Đang kiểm tra...' : 'Đã chuyển khoản? Kiểm tra' }}
-          </button>
+          </AppButton>
 
           <div v-if="message" class="mt-4 p-3 text-center font-bold rounded-md"
             :class="messageType === 'success' ? 'bg-quaternary/10 text-foreground border-2 border-quaternary' : 'bg-secondary/10 text-secondary border-2 border-secondary'">
@@ -50,6 +47,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePremiumStore } from '@/store/modules/premium'
 import { useAuthStore } from '@/store/modules/auth'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const router = useRouter()

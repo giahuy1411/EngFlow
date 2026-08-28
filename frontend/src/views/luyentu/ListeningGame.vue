@@ -10,7 +10,7 @@
         <template #accent>Listening</template>
       </UserPageHeader>
 
-      <!-- Audio -->
+      <!-- Audio play button — icon-only circular control (w-20 h-20); keep raw <button> to preserve the circular layout -->
       <div v-if="currentWord" class="mb-8">
         <button @click="playAudio"
           class="w-20 h-20 bg-accent border-2 border-foreground rounded-full flex items-center justify-center mx-auto text-white hover:bg-accent/90 transition-all shadow-pop-xl active:shadow-pop-active animate-pop-in"
@@ -20,7 +20,7 @@
         <p class="font-bold text-sm text-muted-foreground mt-4">Nhấn để nghe</p>
       </div>
 
-      <!-- Options -->
+      <!-- Options — answer buttons with dynamic per-state coloring (answerState); keep raw <button> since AppButton variants don't cover the correct/wrong states -->
       <div v-if="currentWord" class="grid grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
         <button v-for="(opt, oi) in currentWord.options" :key="oi"
           @click="selectAnswer(oi)"

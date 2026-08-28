@@ -14,7 +14,7 @@
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 text-center shadow-pop-xl" role="alert">
         <p class="font-black text-lg text-danger">{{ error }}</p>
-        <button class="mt-4 px-5 py-2 border-2 border-foreground rounded-full font-bold uppercase text-sm" @click="loadDeck">Thử lại</button>
+        <AppButton variant="secondary" size="sm" class="mt-4" @click="loadDeck">Thử lại</AppButton>
       </div>
 
       <div v-else-if="questions.length === 0" class="bg-card border-2 border-dashed border-foreground rounded-md p-12 text-center shadow-pop-xl">
@@ -46,6 +46,7 @@
 
           <p class="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{{ currentQuestion.direction }}</p>
           <h2 class="font-black text-4xl uppercase tracking-tight mb-8">{{ currentQuestion.prompt }}</h2>
+          <!-- Answer option buttons — dynamic per-state coloring (optionClass); keep raw <button> since AppButton variants don't cover the correct/wrong states -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
             <button v-for="(option, index) in currentQuestion.options" :key="option"
               class="p-4 border-2 border-foreground rounded-md font-bold transition-all"
@@ -54,9 +55,9 @@
               @click="selectAnswer(index)"
             >{{ option }}</button>
           </div>
-          <button v-if="answered" class="mt-6 px-8 py-3 bg-tertiary text-foreground font-black text-sm border-2 border-foreground rounded-full shadow-pop" @click="nextQuestion">
+          <AppButton v-if="answered" variant="amber" class="mt-6" @click="nextQuestion">
             {{ currentIndex < questions.length - 1 ? 'Câu tiếp theo' : 'Xem kết quả' }}
-          </button>
+          </AppButton>
         </template>
 
         <div v-else class="py-8">
@@ -69,7 +70,7 @@
           <p v-else-if="submitResult" class="mb-6 font-black text-lg text-quaternary">
             Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm
           </p>
-          <button class="px-8 py-3 bg-accent text-white font-black text-sm border-2 border-foreground rounded-full shadow-pop" @click="restart">Luyện lại</button>
+          <AppButton variant="primary" @click="restart">Luyện lại</AppButton>
         </div>
       </div>
     </div>
@@ -81,6 +82,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Check } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import gameService from '@/services/gameService'
 
 const route = useRoute()

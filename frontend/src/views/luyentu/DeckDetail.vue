@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="bg-background min-h-screen py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <router-link to="/decks"
@@ -15,7 +15,7 @@
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 text-center shadow-pop-xl mb-8" role="alert">
         <p class="font-black text-danger">{{ error }}</p>
-        <button class="mt-4 px-5 py-2 border-2 border-foreground rounded-full font-bold uppercase text-sm" @click="loadDeck">Thử lại</button>
+        <AppButton class="mt-4" variant="secondary" size="sm" @click="loadDeck">Thử lại</AppButton>
       </div>
 
       <template v-else>
@@ -89,6 +89,7 @@ import { useRoute } from 'vue-router'
 import deckService from '@/services/deckService'
 import { Volume2 } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const deck = ref({})

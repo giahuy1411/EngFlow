@@ -17,7 +17,7 @@
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 shadow-pop-xl" role="alert">
         <p class="font-black text-lg text-danger">{{ error }}</p>
-        <button class="mt-4 px-5 py-2 border-2 border-foreground rounded-full font-bold uppercase text-sm" @click="loadDeck">Thử lại</button>
+        <AppButton variant="secondary" size="sm" class="mt-4" @click="loadDeck">Thử lại</AppButton>
       </div>
 
       <div v-else-if="cards.length === 0" class="bg-card border-2 border-dashed border-foreground rounded-md p-12 shadow-pop-xl">
@@ -27,7 +27,7 @@
 
       <template v-else>
 
-      <!-- Grid -->
+      <!-- Card flip buttons — grid tiles with dynamic per-state coloring (getCardClass); keep raw <button> since AppButton variants don't cover the flip/matched states -->
       <div class="grid grid-cols-4 gap-3 max-w-xl mx-auto mb-8">
         <button v-for="(card, idx) in cards" :key="idx"
           @click="flipCard(idx)"
@@ -76,6 +76,7 @@ import { useRoute } from 'vue-router'
 import gameService from '@/services/gameService'
 import { Check } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const deckId = route.params.id

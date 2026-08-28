@@ -28,7 +28,7 @@
           <p v-if="currentWord.pronunciation" class="font-bold text-muted-foreground">{{ currentWord.pronunciation }}</p>
         </div>
 
-        <!-- Options -->
+        <!-- Options — answer buttons with dynamic per-state coloring (answerState: correct=quaternary, wrong=secondary); keep raw <button> since AppButton variants don't cover these states -->
         <div class="space-y-3">
           <button v-for="(opt, idx) in currentWord?.options || []" :key="idx"
             @click="selectAnswer(idx)"

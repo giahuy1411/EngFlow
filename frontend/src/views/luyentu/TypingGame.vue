@@ -17,7 +17,7 @@
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 shadow-pop-xl" role="alert">
         <p class="font-black text-lg text-danger">{{ error }}</p>
-        <button class="mt-4 px-5 py-2 border-2 border-foreground rounded-full font-bold uppercase text-sm" @click="loadDeck">Thử lại</button>
+        <AppButton variant="secondary" size="sm" class="mt-4" @click="loadDeck">Thử lại</AppButton>
       </div>
 
       <div v-else-if="words.length === 0" class="bg-card border-2 border-dashed border-foreground rounded-md p-12 shadow-pop-xl">
@@ -46,9 +46,8 @@
             class="w-full bg-input border-2 border-border rounded-sm px-4 py-3 font-sans text-lg text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground text-center uppercase tracking-wider font-black"
             autofocus
           />
-          <button @click="checkAnswer"
-            class="mt-4 px-10 py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all"
-          :disabled="!userInput.trim()">Kiểm tra</button>
+          <AppButton @click="checkAnswer" variant="primary" size="lg" class="mt-4"
+          :disabled="!userInput.trim()">Kiểm tra</AppButton>
           <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-quaternary' : 'text-secondary'">
             {{ lastAnswerCorrect ? 'Đúng!' : ('Sai. Đáp án: ' + feedback) }}
           </p>
@@ -91,6 +90,7 @@ import { useRoute } from 'vue-router'
 import gameService from '@/services/gameService'
 import { Check } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const deckId = route.params.id

@@ -58,31 +58,26 @@
           <p v-if="error" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ error }}</p>
           <p v-if="quotaExhausted" role="alert" class="border-2 border-secondary bg-secondary/10 p-3 text-sm font-bold">Bạn đã hết 5 lượt sinh từ miễn phí. Nâng cấp Premium để tiếp tục.</p>
 
-          <button type="submit" :disabled="generating || quotaExhausted" :aria-busy="generating"
-            class="w-full py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            <span v-if="generating" class="flex items-center justify-center gap-2">
-              <span class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
-              Đang sinh...
-            </span>
+          <AppButton type="submit" :disabled="generating || quotaExhausted" :loading="generating" variant="primary" size="lg" class="w-full">
+            <span v-if="generating">Đang sinh...</span>
             <span v-else>Sinh từ vựng</span>
-          </button>
+          </AppButton>
         </form>
 
         <!-- Results -->
         <div v-if="generatedWords.length > 0" class="mt-10 space-y-4">
           <div class="flex items-center justify-between">
             <h2 class="font-black text-xl uppercase tracking-tight">Kết quả</h2>
-            <button
+            <AppButton
               @click="saveAll"
               :disabled="savingAll || allSaved"
-              :aria-busy="savingAll"
-              class="px-5 py-2.5 font-bold text-sm bg-success text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed"
+              :loading="savingAll"
+              variant="emerald"
             >
               <span v-if="savingAll">Đang lưu...</span>
               <span v-else-if="allSaved">Đã lưu tất cả</span>
               <span v-else>Lưu tất cả ({{ unsavedCount }})</span>
-            </button>
+            </AppButton>
           </div>
 
           <p v-if="saveError" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ saveError }}</p>
@@ -107,16 +102,17 @@
             <p v-if="w.exampleSentence" class="text-sm text-muted-foreground italic mt-1">"{{ w.exampleSentence }}"</p>
 
             <div class="mt-3 flex justify-end">
-              <button
+              <AppButton
                 v-if="!savedIndexes.has(i)"
                 @click="saveOne(i)"
                 :disabled="savingIndex === i"
-                :aria-busy="savingIndex === i"
+                :loading="savingIndex === i"
                 :aria-label="'Lưu từ ' + w.word"
-                class="px-4 py-1.5 font-bold text-xs uppercase bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm hover:shadow-pop hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-200 disabled:opacity-50"
+                variant="primary"
+                size="sm"
               >
                 {{ savingIndex === i ? 'Đang lưu...' : 'Lưu' }}
-              </button>
+              </AppButton>
             </div>
           </div>
         </div>
@@ -127,6 +123,7 @@
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
+import AppButton from '@/components/ui/AppButton.vue'
 import aiService from '@/services/aiService'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/store/modules/auth'

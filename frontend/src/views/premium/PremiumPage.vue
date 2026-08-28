@@ -28,10 +28,9 @@
             <li class="flex items-center gap-2 text-sm">Bài tập Premium</li>
             <li class="flex items-center gap-2 text-sm">Hủy bất cứ lúc nào</li>
           </ul>
-          <button @click="checkout('MONTH')"
-            class="w-full py-3 bg-foreground text-white font-bold uppercase tracking-wider hover:bg-foreground/80 transition-colors">
+          <AppButton @click="checkout('MONTH')" variant="tertiary" class="w-full">
             Đăng ký ngay
-          </button>
+          </AppButton>
         </div>
 
         <div class="bg-white border-2 border-foreground p-8 flex flex-col relative">
@@ -47,10 +46,9 @@
             <li class="flex items-center gap-2 text-sm">Hỗ trợ ưu tiên</li>
             <li class="flex items-center gap-2 text-sm">Giá ưu đãi chỉ bằng 4 tháng</li>
           </ul>
-          <button @click="checkout('YEAR')"
-            class="w-full py-3 bg-foreground text-white font-bold uppercase tracking-wider hover:bg-foreground/80 transition-colors">
+          <AppButton @click="checkout('YEAR')" variant="tertiary" class="w-full">
             Đăng ký ngay
-          </button>
+          </AppButton>
         </div>
       </div>
 
@@ -65,6 +63,7 @@
 import { useRouter } from 'vue-router'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import { useAuthStore } from '@/store/modules/auth'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

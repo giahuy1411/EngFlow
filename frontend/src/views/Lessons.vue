@@ -33,13 +33,11 @@
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button v-for="lv in levels" :key="lv.value"
+          <AppButton v-for="lv in levels" :key="lv.value"
             @click="selectLevel(lv.value)"
-            class="px-4 py-2 border-2 border-foreground font-bold text-xs uppercase tracking-wider transition-all duration-200 rounded-md shadow-pop-sm"
-            :class="selectedLevel === lv.value
-              ? 'bg-accent text-white'
-              : 'bg-card text-foreground hover:bg-tertiary/20'"
-          >{{ lv.label }}</button>
+            :variant="selectedLevel === lv.value ? 'primary' : 'secondary'"
+            size="sm"
+          >{{ lv.label }}</AppButton>
         </div>
       </div>
 
@@ -126,12 +124,10 @@
                 </div>
               </div>
 
-              <button @click="$router.push(`/lessons/${lesson.id}`)"
-                class="w-full py-3 border-2 border-foreground font-bold text-xs uppercase tracking-wider transition-all duration-200 active:translate-x-0.5 active:translate-y-0.5 rounded-full shadow-pop"
-                :class="lesson.isCompleted
-                  ? 'bg-secondary text-white hover:bg-secondary/90'
-                  : 'bg-accent text-white hover:bg-accent/90'"
-              >{{ lesson.isCompleted ? 'Đã hoàn thành' : 'Bắt đầu học' }}</button>
+              <AppButton @click="$router.push(`/lessons/${lesson.id}`)"
+                :variant="lesson.isCompleted ? 'pink' : 'primary'"
+                class="w-full"
+              >{{ lesson.isCompleted ? 'Đã hoàn thành' : 'Bắt đầu học' }}</AppButton>
             </div>
           </article>
         </div>
@@ -157,6 +153,7 @@ import { useLessonStore } from '@/store/modules/lesson'
 import { useAuthStore } from '@/store/modules/auth'
 import streakService from '@/services/streakService'
 import Pagination from '@/components/common/Pagination.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const store = useLessonStore()
 const selectedLevel = ref('ALL')

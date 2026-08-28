@@ -16,11 +16,9 @@
           <input v-model="query" @keyup.enter="search" placeholder="Nhập từ cần tra..."
             class="flex-1 bg-input border-2 border-border rounded-sm px-4 py-3 font-sans text-base text-foreground transition-all duration-300 ease-bounce shadow-[4px_4px_0px_0px_transparent] focus:border-accent focus:shadow-pop-accent focus:outline-none placeholder:text-muted-foreground"
           />
-          <button @click="search" :disabled="!query.trim()" aria-label="Tra từ"
-            class="px-8 py-3 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-pop-active active:translate-x-0.5 active:translate-y-0.5 transition-all duration-300 ease-bounce disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
+          <AppButton @click="search" :disabled="!query.trim()" aria-label="Tra từ" variant="primary" size="lg">
             <Search class="w-5 h-5" aria-hidden="true" />
-          </button>
+          </AppButton>
         </div>
       </div>
 
@@ -105,6 +103,7 @@ import { ref } from 'vue'
 import vocabularyService from '@/services/vocabularyService'
 import { Search, Volume2 } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const query = ref('')
 const results = ref([])
