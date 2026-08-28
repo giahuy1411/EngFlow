@@ -90,3 +90,5 @@ final_test.txt
 .tmp-qrtool/
 api_tokens.txt
 *tokens*.txt
+.tmp-order*.txt
+.rt*.png
