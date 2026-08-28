@@ -3,6 +3,11 @@
    Stable Grid, Wild Decoration
    ============================================================= */
 
+/* --- Icon stroke: design-system.md mandates stroke-width 2.5 for lucide icons --- */
+.lucide {
+  stroke-width: 2.5;
+}
+
 /* --- CSS Custom Properties --- */
 :root {
   /* Colors — Playful Geometric (light) */
@@ -914,7 +919,7 @@ input[type="checkbox"].geo-checkbox:checked {
   box-shadow: 0 0 0 3px var(--geo-ring), 0 0 0 5px white;
 }
 
-.app-btn--sm { padding: 0.375rem 1rem; font-size: var(--geo-text-xs); min-height: 36px; }
+.app-btn--sm { padding: 0.375rem 1rem; font-size: var(--geo-text-xs); min-height: 44px; }
 .app-btn--lg { padding: 0.875rem 2rem; font-size: var(--geo-text-base); min-height: 52px; }
 
 .app-btn--primary {

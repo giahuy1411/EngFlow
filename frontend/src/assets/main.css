@@ -50,14 +50,4 @@
     left: 0;
     top: 0;
   }
-
-  /* Reduced motion for legacy bauhaus helpers */
-  @media (prefers-reduced-motion: reduce) {
-    .bauhaus-card-hover:hover {
-      transform: none;
-    }
-    .bauhaus-btn-press:active {
-      transform: none;
-    }
-  }
 }

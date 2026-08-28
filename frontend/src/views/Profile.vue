@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="bg-background min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl mb-8 relative overflow-hidden">
@@ -48,7 +48,7 @@ import { useAuthStore } from '@/store/modules/auth'
 import { usePremiumStore } from '@/store/modules/premium'
 import streakService from '@/services/streakService'
 import { BookOpen, Zap, Award, Flame } from 'lucide-vue-next'
-import StreakCalendar from '@/components/bauhaus/StreakCalendar.vue'
+import StreakCalendar from '@/components/common/StreakCalendar.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 
 const auth = useAuthStore()
