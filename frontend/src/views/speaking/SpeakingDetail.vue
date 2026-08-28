@@ -10,7 +10,7 @@
       <div v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
         <p class="font-black">Không tải được đề luyện nói.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
-        <button id="retry-detail-button" class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadPage">Thử lại</button>
+        <AppButton id="retry-detail-button" class="mt-4" variant="secondary" size="sm" @click="loadPage">Thử lại</AppButton>
       </div>
 
       <template v-else-if="prompt">
@@ -112,6 +112,7 @@ import { useRoute } from 'vue-router'
 import speakingService from '@/services/speakingService'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import Pagination from '@/components/common/Pagination.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const prompt = ref(null)

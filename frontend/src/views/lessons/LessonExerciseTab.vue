@@ -84,21 +84,17 @@
             </div>
 
             <!-- Check button -->
-            <button v-if="!cardStates[ex.id]?.revealed" @click="checkAnswer(ex)"
-              class="mt-4 px-6 py-3 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all"
-              :disabled="!getUserAnswer(ex.id)">
+            <AppButton v-if="!cardStates[ex.id]?.revealed" @click="checkAnswer(ex)" class="mt-4" variant="pink" :disabled="!getUserAnswer(ex.id)">
               Kiểm tra
-            </button>
+            </AppButton>
           </template>
         </div>
       </div>
 
       <!-- Submit all button -->
-      <button @click="submitAll"
-        class="w-full px-8 py-4 bg-accent text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200"
-        :disabled="submitting">
+      <AppButton @click="submitAll" variant="primary" class="w-full" :disabled="submitting">
         {{ submitting ? 'Đang nộp...' : `Nộp bài (${exercises.length} câu)` }}
-      </button>
+      </AppButton>
 
       <!-- Submit success -->
       <div v-if="submitted" class="mt-4 p-4 bg-quaternary/10 border-2 border-quaternary rounded-md text-center">
@@ -116,6 +112,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import lessonService from '@/services/lessonService'
 import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const lessonId = Number(route.params.id)

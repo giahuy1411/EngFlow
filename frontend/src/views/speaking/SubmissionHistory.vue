@@ -19,7 +19,7 @@
       <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
         <p class="font-black">Không tải được lịch sử.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
-        <button id="retry-speaking-history-button" class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadSubmissions">Thử lại</button>
+        <AppButton id="retry-speaking-history-button" class="mt-4" variant="secondary" size="sm" @click="loadSubmissions">Thử lại</AppButton>
       </section>
 
       <section v-else-if="!submissions.length" class="border-2 border-dashed border-foreground bg-card p-12 text-center">
@@ -50,9 +50,9 @@
           </div>
           <p v-else class="mt-5 text-sm leading-relaxed text-muted-foreground">{{ statusMeta(submission.status).description }}</p>
 
-          <button v-if="submission.videoUrl" :id="`toggle-submission-${submission.id}`" class="mt-5 border-2 border-foreground px-4 py-2 text-xs font-black uppercase tracking-wider transition hover:-translate-y-0.5 hover:bg-foreground hover:text-white active:scale-[0.98]" :aria-expanded="playing === submission.id" @click="playing = playing === submission.id ? null : submission.id">
+          <AppButton v-if="submission.videoUrl" :id="`toggle-submission-${submission.id}`" class="mt-5" variant="secondary" :aria-expanded="playing === submission.id" @click="playing = playing === submission.id ? null : submission.id">
             {{ playing === submission.id ? 'Ẩn bản ghi' : 'Mở bản ghi' }}
-          </button>
+          </AppButton>
           <template v-if="playing === submission.id && submission.videoUrl">
             <audio v-if="isAudio(submission)" :src="submission.videoUrl" controls class="mt-4 w-full" preload="metadata" />
             <video v-else :src="submission.videoUrl" controls class="mt-4 max-h-80 w-full bg-foreground" preload="metadata" />
@@ -77,6 +77,7 @@ import { ref, onMounted } from 'vue'
 import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const submissions = ref([])
 const loading = ref(true)

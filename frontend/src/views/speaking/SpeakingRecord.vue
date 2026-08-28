@@ -7,7 +7,7 @@
       <div v-else-if="loadError" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
         <p class="font-black">Không tải được phòng luyện nói.</p>
         <p class="mt-1 text-sm">{{ loadError }}</p>
-        <button id="retry-prompt-button" class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadPrompt">Thử lại</button>
+        <AppButton id="retry-prompt-button" class="mt-4" variant="secondary" size="sm" @click="loadPrompt">Thử lại</AppButton>
       </div>
 
       <template v-else-if="prompt">
@@ -42,7 +42,7 @@
                 <div class="mx-auto mb-5 h-16 w-16 rounded-full border-8 border-danger/20 bg-danger animate-pulse"></div>
                 <p class="text-xs font-black uppercase tracking-[0.2em] text-danger">Đang ghi âm</p>
                 <p class="my-4 text-6xl font-black tabular-nums">{{ formatTime(elapsedSeconds) }}</p>
-                <button id="stop-recording-button" class="min-h-12 border-2 border-foreground bg-foreground px-7 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:-translate-y-0.5 active:scale-[0.98]" @click="stop">Dừng ghi</button>
+                <AppButton id="stop-recording-button" variant="tertiary" @click="stop">Dừng ghi</AppButton>
               </template>
               <template v-else>
                 <div class="mx-auto flex h-20 w-20 items-center justify-center border-2 border-foreground bg-tertiary/30">
@@ -50,8 +50,8 @@
                 </div>
                 <p class="mt-5 text-xl font-black">{{ isReady ? 'Micro đã sẵn sàng' : 'Cho phép micro để bắt đầu' }}</p>
                 <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">Ghi ở nơi yên tĩnh. Nói tự nhiên, không cần đọc quá nhanh.</p>
-                <button v-if="!isReady" id="enable-microphone-button" class="mt-6 min-h-12 border-2 border-foreground bg-foreground px-7 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:-translate-y-0.5 active:scale-[0.98]" @click="prepare()">Bật micro</button>
-                <button v-else id="start-recording-button" class="mt-6 min-h-12 border-2 border-foreground bg-accent px-7 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:-translate-y-0.5 active:scale-[0.98]" @click="start()">Bắt đầu ghi</button>
+                <AppButton v-if="!isReady" id="enable-microphone-button" class="mt-6" variant="tertiary" @click="prepare()">Bật micro</AppButton>
+                <AppButton v-else id="start-recording-button" class="mt-6" variant="primary" @click="start()">Bắt đầu ghi</AppButton>
               </template>
             </div>
 
@@ -59,8 +59,8 @@
               <h3 class="font-black">Nghe lại trước khi nộp</h3>
               <audio :src="previewUrl" class="mt-4 w-full" controls />
               <div class="mt-5 flex flex-wrap gap-3">
-                <button id="rerecord-button" class="border-2 border-foreground px-5 py-2 text-xs font-black uppercase tracking-wider transition hover:-translate-y-0.5 disabled:opacity-50" :disabled="submitting" @click="recordAgain">Ghi lại</button>
-                <button id="submit-recording-button" class="border-2 border-foreground bg-accent px-5 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:-translate-y-0.5 disabled:opacity-50" :disabled="submitting" @click="submitRecording">{{ submitting ? 'Đang gửi' : 'Gửi bài' }}</button>
+                <AppButton id="rerecord-button" variant="secondary" :disabled="submitting" @click="recordAgain">Ghi lại</AppButton>
+                <AppButton id="submit-recording-button" variant="primary" :disabled="submitting" @click="submitRecording">{{ submitting ? 'Đang gửi' : 'Gửi bài' }}</AppButton>
               </div>
             </div>
 
@@ -101,6 +101,7 @@ import { useRoute } from 'vue-router'
 import { useSpeakingRecorder } from '@/composables/useSpeakingRecorder'
 import speakingService from '@/services/speakingService'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const promptId = route.params.id

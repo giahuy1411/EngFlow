@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="space-y-6">
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-16">
@@ -15,13 +15,12 @@
     <div v-else-if="cleanHtml" id="lesson-print-area">
       <!-- Toolbar -->
       <div class="flex flex-wrap gap-3 mb-6 no-print">
-        <button @click="printContent"
-          class="flex items-center gap-2 px-5 py-3 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all">
+        <AppButton @click="printContent" variant="pink">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
           </svg>
           In tài liệu
-        </button>
+        </AppButton>
       </div>
 
       <!-- Rendered clean HTML -->
@@ -55,6 +54,7 @@ import { useRoute } from 'vue-router'
 import DOMPurify from 'dompurify'
 import lessonService from '@/services/lessonService'
 import speakingService from '@/services/speakingService'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const lessonId = Number(route.params.id)

@@ -33,10 +33,9 @@
           </div>
         </div>
 
-        <button @click="resetQuiz"
-          class="px-8 py-3 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all">
+        <AppButton @click="resetQuiz" variant="pink">
           Làm lại
-        </button>
+        </AppButton>
       </div>
     </div>
 
@@ -87,18 +86,15 @@
         </div>
 
         <div class="px-6 pb-6 flex gap-3">
-          <button v-if="currentIndex > 0" @click="goTo(currentIndex - 1)"
-            class="px-6 py-4 border-2 border-foreground font-black text-sm tracking-wider rounded-full transition-all">
+          <AppButton v-if="currentIndex > 0" @click="goTo(currentIndex - 1)" variant="secondary">
             Trước
-          </button>
-          <button @click="submitAll" :disabled="submitting"
-            class="flex-1 px-8 py-4 bg-accent text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all duration-200">
+          </AppButton>
+          <AppButton @click="submitAll" :disabled="submitting" variant="primary" class="flex-1">
             {{ submitting ? 'Đang nộp...' : `Nộp tất cả (${exercises.length} câu)` }}
-          </button>
-          <button v-if="currentIndex < exercises.length - 1" @click="goTo(currentIndex + 1)"
-            class="px-6 py-4 bg-secondary text-white font-black text-sm tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all">
+          </AppButton>
+          <AppButton v-if="currentIndex < exercises.length - 1" @click="goTo(currentIndex + 1)" variant="pink">
             Tiếp
-          </button>
+          </AppButton>
         </div>
       </div>
     </div>
@@ -112,6 +108,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import lessonService from '@/services/lessonService'
 import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const route = useRoute()
 const lessonId = Number(route.params.id)

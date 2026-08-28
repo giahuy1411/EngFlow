@@ -40,7 +40,7 @@
       <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
         <p class="font-black">Không tải được đề luyện nói.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
-        <button id="retry-speaking-list-button" class="mt-4 border-2 border-foreground bg-card px-4 py-2 text-xs font-black uppercase" @click="loadPrompts">Thử lại</button>
+        <AppButton id="retry-speaking-list-button" class="mt-4" variant="secondary" size="sm" @click="loadPrompts">Thử lại</AppButton>
       </section>
 
       <section v-else-if="!prompts.length" class="border-2 border-dashed border-foreground bg-card p-12 text-center">
@@ -82,6 +82,7 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const prompts = ref([])
 const loading = ref(true)
