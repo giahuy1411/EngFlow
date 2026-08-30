@@ -149,6 +149,36 @@ class SePayApiServiceTest {
     }
 
     @Test
+    void findTransactionByOrderCode_contentWithoutUnderscore_matchesLegacyOrder() throws Exception {
+        // Given - real-world case: MoMo cash-out content "…-ENG0AC7BB0C1694-…"
+        // while the DB row stores ENG_0AC7BB0C1694 (with underscore).
+        stubResponse(documentedResponse("76021821",
+                "143580138966-ENG0AC7BB0C1694-CHUYEN TIEN-OQCH000IR18F-MOMO143580138966MOMO"));
+
+        // When
+        Optional<Map<String, Object>> result =
+                sePayApiService.findTransactionByOrderCode("ENG_0AC7BB0C1694", new BigDecimal("10000"));
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get().get("id")).isEqualTo("76021821");
+    }
+
+    @Test
+    void findTransactionByOrderCode_differentOrderCodeInContent_returnsEmpty() throws Exception {
+        // Given - content carries a DIFFERENT ENG token (belongs to another order)
+        stubResponse(documentedResponse("76021821",
+                "143580138966-ENG0AC7BB0C1694-CHUYEN TIEN-OQCH000IR18F-MOMO143580138966MOMO"));
+
+        // When
+        Optional<Map<String, Object>> result =
+                sePayApiService.findTransactionByOrderCode("ENG_BBBBBBBBBBBB", new BigDecimal("10000"));
+
+        // Then - must not claim a transaction meant for another order
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void findTransactionByOrderCode_noContentMatch_returnsEmpty() throws Exception {
         // Given - amount matches but content carries a different order code
         stubResponse(documentedResponse("77352518", "ENGZZZZZZZZZZZZ thanh toan"));

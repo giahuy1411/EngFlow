@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -228,11 +229,11 @@ class PaymentServiceTest {
 
     @Test
     void processWebhook_validSignatureInHeader_processesTransactionWithoutBodySignature() throws Exception {
-        // Given - SePay chuáº©n gá»­i signature á»Ÿ header X-Signature, KHÃ”NG cÃ³ trong body.
+        // Given - SePay chuÃ¡ÂºÂ©n gÃ¡Â»Â­i signature Ã¡Â»Å¸ header X-Signature, KHÃƒâ€NG cÃƒÂ³ trong body.
         String orderCode = "ENGABCDEF123456";
         String baseJson = baseJsonWithoutSignature(orderCode);
         String expectedSig = computeExpectedSig(baseJson);
-        // body khÃ´ng chá»©a field signature
+        // body khÃƒÂ´ng chÃ¡Â»Â©a field signature
         String rawBody = baseJson;
 
         User user = baseUser(7L);
@@ -245,7 +246,7 @@ class PaymentServiceTest {
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
         when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When - signature chá»‰ á»Ÿ header
+        // When - signature chÃ¡Â»â€° Ã¡Â»Å¸ header
         Map<String, Object> actualResult = paymentService.processWebhook(rawBody, expectedSig);
 
         // Then
@@ -275,9 +276,10 @@ class PaymentServiceTest {
     @Test
     void processWebhook_sepayProductionSignature_processesTransaction() throws Exception {
         // Given - SePay production: X-Sepay-Signature: sha256=<hex>, signed over "<ts>.<rawBody>"
+        // Timestamp must be within the Â±5 min replay window, so use current time.
         String orderCode = "ENGABCDEF123456";
         String rawBody = baseJsonWithoutSignature(orderCode);
-        String timestamp = "1787942212";
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
 
         User user = baseUser(9L);
@@ -307,7 +309,7 @@ class PaymentServiceTest {
         // Given - production header present but signature does not match
         String orderCode = "ENGABCDEF123456";
         String rawBody = baseJsonWithoutSignature(orderCode);
-        String timestamp = "1787942212";
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
 
         // When
         Map<String, Object> actualResult = paymentService.processWebhook(
@@ -324,7 +326,7 @@ class PaymentServiceTest {
         // Given - same as production scheme but header value without "sha256=" prefix
         String orderCode = "ENGABCDEF123456";
         String rawBody = baseJsonWithoutSignature(orderCode);
-        String timestamp = "1700000000";
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
 
         User user = baseUser(11L);
@@ -340,6 +342,89 @@ class PaymentServiceTest {
         // When
         Map<String, Object> actualResult = paymentService.processWebhook(
                 rawBody, null, signature, timestamp);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(true);
+    }
+
+    @Test
+    void processWebhook_staleTimestamp_rejectsReplay() throws Exception {
+        // Given - valid production signature but timestamp 10 minutes old.
+        // Docs (developer.sepay.vn/vi/sepay-webhooks/xac-thuc): reject if
+        // abs(time() - timestamp) > 300 seconds, so captured payloads cannot
+        // be replayed indefinitely.
+        String orderCode = "ENGABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+        String staleTimestamp = String.valueOf(Instant.now().getEpochSecond() - 600);
+        String signature = HmacUtils.hmacSha256Hex(webhookSecret, staleTimestamp + "." + rawBody);
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, "sha256=" + signature, staleTimestamp);
+
+        // Then - rejected before any repository interaction
+        assertThat(actualResult.get("success")).isEqualTo(false);
+        assertThat(actualResult.get("error")).isEqualTo("Invalid signature");
+        verify(paymentTransactionRepository, never()).save(any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void processWebhook_futureTimestamp_rejectsReplay() throws Exception {
+        // Given - valid signature but timestamp 10 minutes in the future
+        // (also outside the window: an attacker can shift timestamps forward too).
+        String orderCode = "ENGABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+        String futureTimestamp = String.valueOf(Instant.now().getEpochSecond() + 600);
+        String signature = HmacUtils.hmacSha256Hex(webhookSecret, futureTimestamp + "." + rawBody);
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, "sha256=" + signature, futureTimestamp);
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(false);
+        assertThat(actualResult.get("error")).isEqualTo("Invalid signature");
+        verify(paymentTransactionRepository, never()).save(any());
+    }
+
+    @Test
+    void processWebhook_nonNumericTimestamp_rejects() throws Exception {
+        // Given - garbage timestamp header (tampered or malformed)
+        String orderCode = "ENGABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, "sha256=abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd", "not-a-number");
+
+        // Then
+        assertThat(actualResult.get("success")).isEqualTo(false);
+        assertThat(actualResult.get("error")).isEqualTo("Invalid signature");
+        verify(paymentTransactionRepository, never()).save(any());
+    }
+
+    @Test
+    void processWebhook_timestampJustInsideWindow_processesTransaction() throws Exception {
+        // Given - timestamp 4 minutes old: inside the 5-minute window, must pass.
+        String orderCode = "ENGABCDEF123456";
+        String rawBody = baseJsonWithoutSignature(orderCode);
+        String timestamp = String.valueOf(Instant.now().getEpochSecond() - 240);
+        String signature = HmacUtils.hmacSha256Hex(webhookSecret, timestamp + "." + rawBody);
+
+        User user = baseUser(17L);
+        PaymentTransaction pending = pendingTx(orderCode, "MONTH", 17L);
+        pending.setUser(user);
+
+        when(paymentTransactionRepository.findByTransactionId("12345")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING")).thenReturn(Optional.of(pending));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentTransactionRepository.save(any(PaymentTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        Map<String, Object> actualResult = paymentService.processWebhook(
+                rawBody, null, "sha256=" + signature, timestamp);
 
         // Then
         assertThat(actualResult.get("success")).isEqualTo(true);
@@ -643,7 +728,7 @@ class PaymentServiceTest {
     @Test
     void checkPendingPayments_noPending_doesNothing() {
         // Given
-        when(paymentTransactionRepository.findTop5ByUserIdAndStatusOrderByIdDesc(1L, "PENDING")).thenReturn(List.of());
+        when(paymentTransactionRepository.findTop10ByUserIdAndStatusOrderByIdDesc(1L, "PENDING")).thenReturn(List.of());
 
         // When
         paymentService.checkPendingPayments(1L);
@@ -661,7 +746,7 @@ class PaymentServiceTest {
         PaymentTransaction pending = pendingTx(orderCode, "MONTH", 1L);
         pending.setUser(user);
         pending.setAmount(new BigDecimal("10000"));
-        when(paymentTransactionRepository.findTop5ByUserIdAndStatusOrderByIdDesc(1L, "PENDING")).thenReturn(List.of(pending));
+        when(paymentTransactionRepository.findTop10ByUserIdAndStatusOrderByIdDesc(1L, "PENDING")).thenReturn(List.of(pending));
 
         Map<String, Object> sePayTx = new HashMap<>();
         sePayTx.put("id", "sepay123");
@@ -717,7 +802,7 @@ class PaymentServiceTest {
         when(userRepository.findById(5L))
                 .thenReturn(Optional.of(user))
                 .thenReturn(Optional.of(refreshed));
-        when(paymentTransactionRepository.findTop5ByUserIdAndStatusOrderByIdDesc(5L, "PENDING")).thenReturn(List.of());
+        when(paymentTransactionRepository.findTop10ByUserIdAndStatusOrderByIdDesc(5L, "PENDING")).thenReturn(List.of());
         when(sePayApiService.isTokenConfigured()).thenReturn(true);
 
         // When
@@ -725,7 +810,7 @@ class PaymentServiceTest {
 
         // Then
         assertThat(actualResult.get("isPremium")).isEqualTo(true);
-        verify(paymentTransactionRepository).findTop5ByUserIdAndStatusOrderByIdDesc(5L, "PENDING");
+        verify(paymentTransactionRepository).findTop10ByUserIdAndStatusOrderByIdDesc(5L, "PENDING");
     }
 
     @Test
@@ -753,7 +838,7 @@ class PaymentServiceTest {
         User user = baseUser(7L);
         user.setIsPremium(false);
         when(userRepository.findById(7L)).thenReturn(Optional.of(user)).thenReturn(Optional.of(user));
-        when(paymentTransactionRepository.findTop5ByUserIdAndStatusOrderByIdDesc(7L, "PENDING")).thenReturn(List.of());
+        when(paymentTransactionRepository.findTop10ByUserIdAndStatusOrderByIdDesc(7L, "PENDING")).thenReturn(List.of());
         when(sePayApiService.isTokenConfigured()).thenReturn(false);
 
         // When

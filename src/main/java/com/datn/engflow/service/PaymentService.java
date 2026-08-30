@@ -207,7 +207,7 @@ public class PaymentService {
     @Transactional
     public void checkPendingPayments(Long userId) {
         List<PaymentTransaction> pendingTxs = paymentTransactionRepository
-                .findTop5ByUserIdAndStatusOrderByIdDesc(userId, "PENDING");
+                .findTop10ByUserIdAndStatusOrderByIdDesc(userId, "PENDING");
 
         if (pendingTxs == null || pendingTxs.isEmpty()) {
             return;

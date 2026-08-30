@@ -97,3 +97,64 @@ Mục tiêu: triển khai toàn bộ kế hoạch hậu-audit (TRỪ Flyway), ve
 - Order code format mới `ENGXXXXXXXXXXXX` (15 ký tự, không `_`); format cũ `ENG_XXXXXXXXXXXX` vẫn resolve được qua fallback.
 - `qrContent` (biến dead code cũ) đã xóa.
 - **Cảnh báo còn nguyên**: QR tự điền không bắt buộc user chuyển đúng số tiền, và user vẫn có thể gõ tay nội dung khác → webhook vẫn có thể nhận content không match; lớp polling theo `q=orderCode` (cần `SEPAY_API_TOKEN`) vẫn là bảo hiểm chính.
+
+## Củng cố luồng thanh toán (2026-08-29, đợt 2): User API endpoint + anti-replay + Test Mode
+
+### 1. `SePayApiService` — đổi sang endpoint User API theo docs
+
+- **Vấn đề:** code gọi `https://userapi.sepay.vn/v2/transactions?q=...&amount_in_min=...` — endpoint **không có trong docs**; docs chính thức (`docs.sepay.vn/api-giao-dich.html`) ghi `GET https://my.sepay.vn/userapi/transactions/list` với bộ lọc `amount_in` (khớp chính xác tiền vào), response `{ transactions: [ { id, transaction_content, amount_in, bank_brand_name, ... } ] }`.
+- **Thay đổi (`SePayApiService.java`):**
+  - URL → `https://my.sepay.vn/userapi/transactions/list?amount_in={amount}&limit=20`.
+  - Parser đọc `transactions` (fallback legacy `data`), field `transaction_content` (fallback `content`), và **normalize** row về shape processor expect (`id`, `content`, `transferAmount`, `gateway`) để `PaymentService.checkPendingPayments` không phải biết shape API.
+  - Bắt `HttpClientErrorException.TooManyRequests` (docs: rate limit 3 req/s, 429 kèm header `x-sepay-userapi-retry-after`) → log + trả empty, poll sau tự retry (frontend gọi status mỗi 5s).
+  - Sửa hướng dẫn lấy token trong log warn: **my.sepay.vn → Cấu hình Công ty → API Access → + Thêm API** (không phải app.sepay.vn như cũ); đồng bộ `.env.example`.
+- **Tests:** file mới `SePayApiServiceTest.java` — 10 case (shape docs, case-insensitive content, legacy shape, list rỗng, key lạ, không match content, HTTP error, 429, token rỗng skip HTTP, isTokenConfigured). **10/10 pass.**
+- **Lưu ý:** chưa verify được với API thật vì `SEPAY_API_TOKEN` rỗng — parser defensive nên nếu response thật khác docs thì log debug hiện danh sách, không crash. Verify thật ở mục 4.
+
+### 2. Anti-replay webhook theo docs
+
+- **Vấn đề:** docs (`developer.sepay.vn/vi/sepay-webhooks/xac-thuc`) khuyến nghị `abs(time() - timestamp) > 300` → reject; code chỉ verify HMAC, không kiểm timestamp → payload bắt được có thể replay vô hạn (idempotency theo `transaction_id` chặn được phần lớn, nhưng không đủ vì id chỉ xuất hiện sau khi xử lý lần đầu thành công).
+- **Thay đổi (`PaymentService.isSignatureValid`):** production scheme (`X-Sepay-Timestamp` + `X-Sepay-Signature`) giờ reject nếu skew > 5 phút (2 phía: quá khứ lẫn tương lai) hoặc timestamp không parse được; log `Webhook replay rejected: timestamp skew ...`. **Legacy/simulated scheme không kiểm timestamp** (giữ backward-compat cho test/simulation — có comment rõ lý do).
+- **Tests:** +4 case (`staleTimestamp_rejectsReplay`, `futureTimestamp_rejectsReplay`, `nonNumericTimestamp_rejects`, `timestampJustInsideWindow_processesTransaction`); sửa 3 test production cũ dùng timestamp cố định 2026 → `Instant.now()` (chúng sẽ rơi vào ngoài window). **PaymentServiceTest: 33/33 pass.**
+
+### 3. Quy trình test premium KHÔNG tốn tiền thật (docs: docs.sepay.vn/gia-lap-giao-dich.html)
+
+1. Đăng nhập **my.sepay.vn** → bật công tắc **Test Mode** (góc trên phải).
+2. **Cấu hình lại trong Test Mode**: webhook URL + secret, API token — môi trường Test **tách biệt hoàn toàn** với Live (webhook/token Live không dùng được ở Test).
+3. Menu **Giao dịch** → **`+ Mô phỏng giao dịch`** → điền số tiền (10000) + nội dung = orderCode (`ENGXXXXXXXXXXXX`) → SePay bắn webhook payload thật → premium kích hoạt.
+4. Verify UI premium + DB (`payment_transactions.status='SUCCESS'`), sau đó tắt Test Mode. Giao dịch giả không vào báo cáo Live.
+- Webhook log còn có nút **"Gửi thử"** để test đường webhook không cần giao dịch.
+
+### 4. Việc còn lại (chờ `SEPAY_API_TOKEN`) ✅ DONE
+
+- Lấy token: my.sepay.vn → Cấu hình Công ty → API Access → + Thêm API → set `SEPAY_API_TOKEN` trong `.env` → `docker compose up -d --build backend` (cũng thêm biến này vào `docker-compose.yml`).
+- Bật Test Mode → tạo giao dịch giả với orderCode thật → gọi `GET /api/v1/payment/status` (không cần webhook) → premium phải kích hoạt qua polling → xác nhận endpoint + response shape thật khớp docs.
+
+### 5. Verify E2E thật với token + giao dịch thật (2026-08-30)
+
+- **Token thật đã set**, container ghi `SePay API token configured. Webhook fallback polling is ENABLED` ở startup.
+- **Endpoint xác nhận khớp docs**: `https://my.sepay.vn/userapi/transactions/list?amount_in=10000&limit=20` trả 200 + `transactions[]` đúng shape (`bank_brand_name`, `transaction_content`, `amount_in`, `id`, ...).
+- **Phát hiện thêm trong khi verify (do dùng data thật)**:
+  1. Matcher `contains(orderCode)` cũ không khớp khi content ngân hàng strip `_` (giống QR), ví dụ content `…-ENG0AC7BB0C1694-…` không match order `ENG_0AC7BB0C1694`. Đã sửa `SePayApiService` dùng regex `ENG_?[A-Z0-9]{12}` và **normalize cả hai phía** về dạng không `_` (12 hex) trước khi compare. +2 test (match legacy format, reject format khác).
+  2. `findTop5ByUserIdAndStatusOrderByIdDesc` cắt mất order đã chuyển tiền cũ nằm ngoài top 5 mới nhất (user 120010 có 16 PENDING, order thật `ENG_0AC7BB0C1694` đứng thứ 6). Nâng lên **Top10** (1 dòng repo + 1 dòng service + update tests).
+- **Kết quả thực** (user 120010 / giahuy5461@gmail.com poll `/api/v1/payment/status`):
+  ```
+  poll took 3717ms
+  {"pollingEnabled": true, "premiumExpiry": "2026-09-30", "isPremium": true}
+  ```
+  Backend log: `SePay API found matching transaction for order code: ENG_0AC7BB0C1694` → `polling detected payment` → `Premium activated for user 120010: MONTH until 2026-09-30`.
+  → **Đóng chuỗi bug gốc**: ca báo lỗi đầu tiên (user chuyển 10k nhưng "Chưa ghi nhận") — tới 8 ngày sau mới premium tự động kích hoạt khi user mở app lại nhờ polling. Full suite 148 tests pass.
+
+## Tổng kết phạm vi QR tự điền nội dung
+
+| Thành phần | Trạng thái | Bằng chứng |
+|---|---|---|
+| Backend: `des=` đúng param | ✅ | giải mã QR thật → `62/08 = ENGXXXXXXXXXXXX` |
+| Backend: orderCode không `_` (match QR) | ✅ | regex `ENG_?[A-Z0-9]{12}` + legacy fallback `ENG_…` |
+| Backend: webhook HMAC chuẩn prod | ✅ | replay window ±5 phút, 3 scheme hỗ trợ |
+| Backend: User API polling fallback | ✅ | full E2E recovery user 120010 thật |
+| Frontend: hiển thị QR + content + amount | ✅ | `PremiumCheckout.vue` đã có sẵn — user quét = app tự điền |
+| Token SePay + docker-compose | ✅ | `.env` + `docker-compose.yml` line 68 |
+| Test suite | ✅ | 148 / 0 / 0 |
+
+**Không còn cần nhập tay nội dung CK khi quét QR.** Phòng hờ user tự sửa nội dung, polling fallback + legacy `ENG_` fallback vẫn map được.

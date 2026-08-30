@@ -16,5 +16,5 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
     Optional<PaymentTransaction> findByOrderCode(String orderCode);
     Optional<PaymentTransaction> findFirstByOrderCodeAndStatusOrderByIdDesc(String orderCode, String status);
     boolean existsByOrderCodeAndStatus(String orderCode, String status);
-    List<PaymentTransaction> findTop5ByUserIdAndStatusOrderByIdDesc(Long userId, String status);
+    List<PaymentTransaction> findTop10ByUserIdAndStatusOrderByIdDesc(Long userId, String status);
 }

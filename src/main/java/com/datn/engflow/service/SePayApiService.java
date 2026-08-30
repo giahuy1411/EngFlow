@@ -112,9 +112,27 @@ public class SePayApiService {
                 return Optional.empty();
             }
 
+            java.util.regex.Pattern codePattern = java.util.regex.Pattern.compile("ENG_?[A-Z0-9]{12}");
+            java.util.regex.Matcher orderMatcher = codePattern.matcher(orderCode.toUpperCase());
+            if (!orderMatcher.find()) {
+                log.warn("Order code does not match the ENG token format: {}", orderCode);
+                return Optional.empty();
+            }
+            // Normalize both sides to the underscore-free token: QR content and
+            // MoMo cash-out content drop "_", while legacy DB rows keep it.
+            String normalizedOrderCode = orderMatcher.group().replace("_", "");
+            java.util.regex.Matcher tokenMatcher;
+
             for (Map<String, Object> tx : transactions) {
                 String content = readContent(tx);
-                if (content != null && content.toUpperCase().contains(orderCode.toUpperCase())) {
+                if (content == null) {
+                    continue;
+                }
+                // Match the ENG token, not the raw DB string: bank content may drop
+                // the underscore (QR generator strips it, MoMo cash-out content did:
+                // "...-ENG0AC7BB0C1694-..." for DB row ENG_0AC7BB0C1694).
+                tokenMatcher = codePattern.matcher(content.toUpperCase());
+                if (tokenMatcher.find() && tokenMatcher.group().replace("_", "").equals(normalizedOrderCode)) {
                     log.info("SePay API found matching transaction for order code: {}", orderCode);
                     return Optional.of(normalizeTransaction(tx));
                 }
