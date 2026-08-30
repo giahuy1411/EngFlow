@@ -61,8 +61,13 @@
             <div class="h-2.5 w-full" :style="{ background: levelColor(lesson.level) }"></div>
             <div class="relative aspect-video overflow-hidden bg-muted border-b-2 border-foreground">
               <img
+                v-if="!brokenThumbs.includes(lesson.id)"
                 :src="`https://i.ytimg.com/vi/${lesson.youtubeVideoId}/hqdefault.jpg`"
+                @error="brokenThumbs.push(lesson.id)"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="" loading="lazy" />
+              <div v-else class="w-full h-full flex items-center justify-center bg-foreground/5">
+                <span class="text-4xl opacity-40">🎬</span>
+              </div>
               <div class="absolute inset-0 flex items-center justify-center">
                 <div class="w-14 h-14 bg-foreground/85 border-2 border-foreground rounded-full flex items-center justify-center shadow-pop">
                   <span class="text-white text-xl ml-1">▶</span>
@@ -111,6 +116,9 @@ const levels = [
 ]
 
 const lessons = ref([])
+// YouTube thumbnails 404 for some videos (private/removed); fall back to a
+// neutral placeholder instead of a broken image icon.
+const brokenThumbs = ref([])
 const totalPages = ref(1)
 const currentPage = ref(0)
 const activeLevel = ref('')
