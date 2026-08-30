@@ -47,8 +47,8 @@ frontend/dist/
 *.err
 vite-*.txt
 
-# Docs
-docs/
+# Docs (root-level only; keep frontend/docs/ ADRs tracked)
+/docs/
 
 # Temporary & Debug Files
 .brave-debug-user-data/
