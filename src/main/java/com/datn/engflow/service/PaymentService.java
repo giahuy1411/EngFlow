@@ -216,25 +216,71 @@ public class PaymentService {
         log.debug("Polling SePay API for {} pending order(s) for user {}", pendingTxs.size(), userId);
 
         for (PaymentTransaction tx : pendingTxs) {
-            Optional<Map<String, Object>> sePayTx = sePayApiService
-                    .findTransactionByOrderCode(tx.getOrderCode(), tx.getAmount());
-            if (sePayTx.isPresent()) {
-                Map<String, Object> stx = sePayTx.get();
-                String stxId = stx.get("id") != null ? String.valueOf(stx.get("id")) : null;
-                String content = (String) stx.getOrDefault("content", tx.getContent());
-                BigDecimal amount = new BigDecimal(String.valueOf(stx.getOrDefault("transferAmount", tx.getAmount())));
-                String gateway = (String) stx.getOrDefault("gateway", tx.getGateway());
-                String rawBody;
-                try {
-                    rawBody = objectMapper.writeValueAsString(stx);
-                } catch (Exception ex) {
-                    rawBody = "{}";
-                }
+            pollAndSettle(tx);
+        }
+    }
 
-                log.info("SePay API polling detected payment for order: {}", tx.getOrderCode());
-                processSePayTransaction(stxId, content, amount, gateway, rawBody);
+    /**
+     * Background sweep for the webhook-fallback polling scheduler. Scans the
+     * most recent PENDING orders (across all users) created within the lookback
+     * window and settles any whose payment SePay has already recorded. This
+     * makes activation work even when the user never revisits the premium page
+     * (i.e. the webhook is down AND nobody polls manually).
+     *
+     * <p>Idempotent: {@link #processSePayTransaction} skips already-fulfilled
+     * orders, so overlapping webhook + sweep deliveries are safe.</p>
+     *
+     * @param lookback only consider orders created at or after now minus this
+     * @param max      cap on rows scanned per sweep (SePay API rate-limit guard)
+     * @return number of orders settled by this sweep
+     */
+    @Transactional
+    public int sweepPendingPayments(java.time.Duration lookback, int max) {
+        if (!sePayApiService.isTokenConfigured()) {
+            return 0;
+        }
+        List<PaymentTransaction> pendingTxs = paymentTransactionRepository
+                .findRecentPending(java.time.LocalDateTime.now().minus(lookback), max);
+        int settled = 0;
+        for (PaymentTransaction tx : pendingTxs) {
+            if (pollAndSettle(tx)) {
+                settled++;
             }
         }
+        if (settled > 0) {
+            log.info("SePay fallback sweep settled {} pending order(s)", settled);
+        }
+        return settled;
+    }
+
+    /**
+     * Poll SePay for one PENDING row and settle it if a matching transaction
+     * exists. Shared by the manual (status-endpoint) and scheduled sweeps.
+     *
+     * @param tx the pending transaction row
+     * @return true if a matching SePay transaction was found and processed
+     */
+    private boolean pollAndSettle(PaymentTransaction tx) {
+        Optional<Map<String, Object>> sePayTx = sePayApiService
+                .findTransactionByOrderCode(tx.getOrderCode(), tx.getAmount());
+        if (sePayTx.isPresent()) {
+            Map<String, Object> stx = sePayTx.get();
+            String stxId = stx.get("id") != null ? String.valueOf(stx.get("id")) : null;
+            String content = (String) stx.getOrDefault("content", tx.getContent());
+            BigDecimal amount = new BigDecimal(String.valueOf(stx.getOrDefault("transferAmount", tx.getAmount())));
+            String gateway = (String) stx.getOrDefault("gateway", tx.getGateway());
+            String rawBody;
+            try {
+                rawBody = objectMapper.writeValueAsString(stx);
+            } catch (Exception ex) {
+                rawBody = "{}";
+            }
+
+            log.info("SePay API polling detected payment for order: {}", tx.getOrderCode());
+            processSePayTransaction(stxId, content, amount, gateway, rawBody);
+            return true;
+        }
+        return false;
     }
 
     @Transactional
