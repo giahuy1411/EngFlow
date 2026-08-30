@@ -92,3 +92,6 @@ api_tokens.txt
 *tokens*.txt
 .tmp-order*.txt
 .rt*.png
+
+# Tailscale node auth + serve/funnel state (never commit)
+.tailscale/

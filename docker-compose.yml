@@ -108,25 +108,46 @@ services:
       - backend
     restart: unless-stopped
 
-  # ngrok tunnel: exposes backend /api/webhook/sepay to the public internet
-  # so SePay cloud can POST webhook callbacks during local development.
-  # 1. Set NGROK_AUTHTOKEN in .env (https://dashboard.ngrok.com/get-started/your-authtoken)
-  # 2. After starting, copy the HTTPS URL -> register in SePay webhook settings
-  #    (URL: <https-URL>/api/webhook/sepay, secret: ${SEPAY_WEBHOOK_SECRET})
-  ngrok:
-    image: ngrok/ngrok:latest
-    container_name: engflow-ngrok
-    command: >
-      start sepay-webhook --config /config/ngrok.yml
+  # Tailscale Funnel: exposes backend /api/webhook/sepay to the public internet
+  # with a FIXED hostname (https://engflow-dev.tail7fd1fe.ts.net) — unlike ngrok
+  # free tier, the URL never changes across restarts.
+  # One-time setup (already done): `tailscale up` in this container + enable
+  # Funnel on the tailnet + `tailscale funnel --bg --https=443 http://backend:8080`.
+  # Auth state + serve/funnel config persist in ./.tailscale (bind mount).
+  # SePay webhook URL: https://engflow-dev.tail7fd1fe.ts.net/api/webhook/sepay
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: engflow-tailscale
+    hostname: engflow-dev
     environment:
-      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+      - TS_AUTH_ONCE=true
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
     volumes:
-      - ./ngrok.yml:/config/ngrok.yml:ro
-    ports:
-      - "4040:4040"
-    depends_on:
-      - backend
+      - ./.tailscale:/var/lib/tailscale
+    devices:
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - default
     restart: unless-stopped
+
+  # ngrok tunnel (REPLACED by Tailscale Funnel above — kept commented for rollback)
+  # ngrok:
+  #   image: ngrok/ngrok:latest
+  #   container_name: engflow-ngrok
+  #   command: >
+  #     start sepay-webhook --config /config/ngrok.yml
+  #   environment:
+  #     - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+  #   volumes:
+  #     - ./ngrok.yml:/config/ngrok.yml:ro
+  #   ports:
+  #     - "4040:4040"
+  #   depends_on:
+  #     - backend
+  #   restart: unless-stopped
 
 volumes:
   mssql_data:
