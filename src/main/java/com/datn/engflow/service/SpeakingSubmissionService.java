@@ -10,6 +10,11 @@ import com.datn.engflow.model.entity.SpeakingSubmission;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.SpeakingPromptRepository;
 import com.datn.engflow.repository.SpeakingSubmissionRepository;
+import com.datn.engflow.service.assessment.SpeakingAssessmentOutcome;
+import com.datn.engflow.service.assessment.SpeakingAssessmentService;
+import com.datn.engflow.service.assessment.TranscriptAlignmentMetrics;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,6 +45,8 @@ public class SpeakingSubmissionService {
     private final SpeakingPromptRepository promptRepository;
     private final UserRepository userRepository;
     private final MinioService minioService;
+    private final SpeakingAssessmentService assessmentService;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public SpeakingSubmission uploadSubmission(MultipartFile file, Long promptId, User user) {
@@ -71,6 +78,82 @@ public class SpeakingSubmissionService {
                 .status(SpeakingSubmissionStatus.SUBMITTED)
                 .build();
         return repository.save(submission);
+    }
+
+    /**
+     * Runs the automatic assessment pipeline for one submission.
+     *
+     * <p>The submission moves through PROCESSING and lands on COMPLETED when a rubric
+     * is produced, or FAILED when transcription or the LLM is unavailable. Manual
+     * grading remains available in every state.</p>
+     *
+     * @param submissionId submission to assess
+     * @return the assessed submission
+     */
+    @Transactional
+    public SpeakingSubmission assessSubmission(Long submissionId) {
+        SpeakingSubmission submission = getSubmission(submissionId);
+        if (submission.getStatus() == SpeakingSubmissionStatus.GRADED) {
+            return submission;
+        }
+        submission.setStatus(SpeakingSubmissionStatus.PROCESSING);
+        repository.save(submission);
+
+        SpeakingAssessmentOutcome outcome;
+        try {
+            outcome = assessmentService.assess(submission);
+        } catch (Exception ex) {
+            log.error("Assessment pipeline crashed for submission {}", submissionId, ex);
+            submission.setStatus(SpeakingSubmissionStatus.FAILED);
+            submission.setAssessmentError(truncate("Lỗi hệ thống: " + ex.getMessage(), 500));
+            return repository.save(submission);
+        }
+
+        submission.setTranscript(outcome.transcript());
+        submission.setAssessmentProvider(outcome.provider());
+        if (outcome.alignment() != null) {
+            submission.setPronunciationCompleteness(outcome.alignment().coveragePercent());
+            submission.setPronunciationDetailsJson(buildDetailsJson(outcome));
+        }
+        if (outcome.rubric() != null) {
+            submission.setScoreGrammar(outcome.rubric().grammar());
+            submission.setScoreVocabulary(outcome.rubric().vocabulary());
+            submission.setScoreFluency(outcome.rubric().fluency());
+            submission.setScoreTotal(outcome.rubric().total());
+            submission.setFeedback(outcome.rubric().feedback());
+            submission.setStatus(SpeakingSubmissionStatus.COMPLETED);
+        } else {
+            submission.setStatus(SpeakingSubmissionStatus.FAILED);
+        }
+        submission.setAssessmentError(truncate(outcome.error(), 500));
+        return repository.save(submission);
+    }
+
+    private String buildDetailsJson(SpeakingAssessmentOutcome outcome) {
+        TranscriptAlignmentMetrics.AlignmentResult alignment = outcome.alignment();
+        ObjectNode node = objectMapper.createObjectNode();
+        node.put("transcriptSource", outcome.transcriptSource());
+        node.put("wordErrorRate", alignment.wordErrorRatePercent());
+        node.put("coverage", alignment.coveragePercent());
+        node.put("correctWords", alignment.correctWords());
+        node.put("substitutions", alignment.substitutions());
+        node.put("insertions", alignment.insertions());
+        node.put("deletions", alignment.deletions());
+        node.put("hypothesisWords", alignment.hypothesisWords());
+        node.put("note", "Độ phủ nội dung so với bài mẫu; chưa phải điểm phát âm");
+        try {
+            return objectMapper.writeValueAsString(node);
+        } catch (Exception ex) {
+            log.warn("Could not serialize alignment details", ex);
+            return null;
+        }
+    }
+
+    private static String truncate(String value, int max) {
+        if (value == null) {
+            return null;
+        }
+        return value.length() <= max ? value : value.substring(0, max);
     }
 
     public Page<SpeakingSubmission> getUserSubmissions(Long userId, Pageable pageable) {

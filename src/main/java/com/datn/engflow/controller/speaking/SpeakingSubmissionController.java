@@ -47,6 +47,24 @@ public class SpeakingSubmissionController {
         return ResponseEntity.ok(toResponse(submission));
     }
 
+    /**
+     * Runs the automatic assessment pipeline for one of the caller's submissions.
+     *
+     * @param userPrincipal authenticated learner
+     * @param id            submission id
+     * @return assessed submission with transcript, rubric, and alignment details
+     */
+    @PostMapping({"/api/v1/speaking-submissions/{id}/assess", "/api/v1/video-submissions/{id}/assess"})
+    public ResponseEntity<SpeakingSubmissionResponse> assessSubmission(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long id) {
+        requireAuthenticated(userPrincipal);
+        SpeakingSubmission submission = submissionService.getSubmissionForViewer(
+                id, userPrincipal.getId(), isAdmin(userPrincipal));
+        SpeakingSubmission assessed = submissionService.assessSubmission(submission.getId());
+        return ResponseEntity.ok(toResponse(assessed));
+    }
+
     @GetMapping({"/api/v1/admin/speaking-submissions", "/api/v1/admin/video-submissions"})
     public ResponseEntity<Page<SpeakingSubmissionResponse>> getAllSubmissionsForAdmin(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

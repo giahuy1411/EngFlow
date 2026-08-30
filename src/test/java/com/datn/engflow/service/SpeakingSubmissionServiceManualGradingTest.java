@@ -30,6 +30,7 @@ class SpeakingSubmissionServiceManualGradingTest {
     @Mock private SpeakingPromptRepository promptRepository;
     @Mock private UserRepository userRepository;
     @Mock private MinioService minioService;
+    @Mock private com.datn.engflow.service.assessment.SpeakingAssessmentService assessmentService;
 
     private SpeakingSubmissionService service;
     private SpeakingSubmission submission;
@@ -38,7 +39,8 @@ class SpeakingSubmissionServiceManualGradingTest {
     @BeforeEach
     void setUp() {
         service = new SpeakingSubmissionService(
-                submissionRepository, promptRepository, userRepository, minioService);
+                submissionRepository, promptRepository, userRepository, minioService,
+                assessmentService, new com.fasterxml.jackson.databind.ObjectMapper());
         submission = SpeakingSubmission.builder()
                 .id(20L)
                 .status(SpeakingSubmissionStatus.SUBMITTED)

@@ -5,6 +5,8 @@ import com.datn.engflow.model.entity.SpeakingSubmission;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.SpeakingPromptRepository;
 import com.datn.engflow.repository.SpeakingSubmissionRepository;
+import com.datn.engflow.service.assessment.SpeakingAssessmentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,8 @@ class SpeakingSubmissionServiceAuthorizationTest {
     private UserRepository userRepository;
     @Mock
     private MinioService minioService;
+    @Mock
+    private SpeakingAssessmentService assessmentService;
 
     private SpeakingSubmissionService service;
     private SpeakingSubmission submission;
@@ -39,7 +43,9 @@ class SpeakingSubmissionServiceAuthorizationTest {
                 submissionRepository,
                 promptRepository,
                 userRepository,
-                minioService
+                minioService,
+                assessmentService,
+                new ObjectMapper()
         );
         submission = SpeakingSubmission.builder()
                 .id(10L)
