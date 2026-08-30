@@ -60,6 +60,10 @@ export default {
   getSubmission(id) {
     return api.get(`/api/v1/speaking-submissions/${id}`).then(response => response.data)
   },
+  assessSubmission(id) {
+    return api.post(`/api/v1/speaking-submissions/${id}/assess`, null, { timeout: 120000 })
+      .then(response => response.data)
+  },
   gradeSubmission(id, data) {
     return api.patch(`/api/v1/admin/speaking-submissions/${id}/grade`, data)
       .then(response => response.data)

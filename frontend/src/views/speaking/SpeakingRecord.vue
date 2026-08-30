@@ -83,11 +83,30 @@
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p class="text-xs font-black uppercase tracking-wider text-success">Nộp bài thành công</p>
-              <h2 id="result-title" class="mt-1 text-2xl font-black">Bài đang chờ giáo viên chấm</h2>
-              <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Bạn có thể rời trang. Điểm và nhận xét sẽ xuất hiện tại lịch sử của đề này.</p>
+              <h2 id="result-title" class="mt-1 text-2xl font-black">{{ assessmentHeadline }}</h2>
+              <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{{ assessmentDescription }}</p>
             </div>
-            <span class="border-2 border-foreground bg-tertiary/20 px-3 py-2 text-xs font-black uppercase tracking-wider">{{ result.status === 'UNDER_REVIEW' ? 'Đang xem bài' : 'Đã gửi' }}</span>
+            <span class="border-2 border-foreground bg-tertiary/20 px-3 py-2 text-xs font-black uppercase tracking-wider">{{ statusLabel }}</span>
           </div>
+
+          <div v-if="assessing" class="mt-5 flex items-center gap-3 border-l-4 border-tertiary bg-muted/60 p-4 text-sm font-bold">
+            <span class="h-4 w-4 animate-spin border-2 border-foreground border-t-transparent" aria-hidden="true"></span>
+            AI đang chấm bài của bạn...
+          </div>
+
+          <div v-else-if="result.status === 'COMPLETED'" class="mt-5 grid gap-4 sm:grid-cols-3">
+            <div v-for="metric in rubricMetrics" :key="metric.label" class="border-2 border-foreground bg-tertiary/20 p-4 text-center">
+              <strong class="block text-3xl font-black tabular-nums">{{ metric.value }}/10</strong>
+              <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ metric.label }}</span>
+            </div>
+            <p v-if="result.feedback" class="sm:col-span-3 border-l-4 border-accent bg-muted/60 p-4 text-sm leading-relaxed">{{ result.feedback }}</p>
+            <p v-if="result.transcript" class="sm:col-span-3 text-xs leading-relaxed text-muted-foreground"><strong class="text-foreground">Transcript:</strong> {{ result.transcript }}</p>
+          </div>
+
+          <div v-else-if="result.status === 'FAILED'" class="mt-5 border-l-4 border-danger bg-danger/10 p-4 text-sm font-bold text-danger" role="alert">
+            AI chưa chấm được bài này ({{ result.assessmentError || 'thiếu transcript' }}). Bài vẫn được gửi và sẽ có giáo viên chấm tay.
+          </div>
+
           <router-link :to="`/speaking/${promptId}`" class="mt-5 inline-flex border-b-2 border-foreground pb-1 text-xs font-black uppercase tracking-wider">Xem lịch sử</router-link>
         </section>
       </template>
@@ -112,8 +131,41 @@ const loadError = ref('')
 const submitting = ref(false)
 const submitError = ref('')
 const result = ref(null)
+const assessing = ref(false)
 const { blob, previewUrl, isRecording, elapsedSeconds, error: recorderError, isReady, prepare, start, stop, clearRecording } = useSpeakingRecorder(30)
 const modeLabel = computed(() => prompt.value?.mode === 'READ_ALOUD' ? 'Đọc theo mẫu' : 'Nói tự do')
+
+const statusLabel = computed(() => {
+  const status = result.value?.status
+  if (status === 'COMPLETED') return 'AI đã chấm'
+  if (status === 'PROCESSING') return 'Đang chấm'
+  if (status === 'FAILED') return 'Chờ giáo viên'
+  return 'Đã gửi'
+})
+
+const assessmentHeadline = computed(() => {
+  const status = result.value?.status
+  if (status === 'COMPLETED') return 'AI đã chấm xong bài của bạn'
+  if (status === 'PROCESSING') return 'Bài đang được AI chấm'
+  return 'Bài đang chờ giáo viên chấm'
+})
+
+const assessmentDescription = computed(() => {
+  const status = result.value?.status
+  if (status === 'COMPLETED') return 'Điểm ngữ pháp, từ vựng, trôi chảy và nhận xét bên dưới do AI chấm nội dung (chưa phải điểm phát âm). Giáo viên vẫn có thể chấm lại.'
+  if (status === 'FAILED') return 'AI không chấm được bài này nhưng bạn vẫn có thể rời trang. Giáo viên sẽ chấm tay.'
+  return 'Bạn có thể rời trang. Điểm và nhận xét sẽ xuất hiện tại lịch sử của đề này.'
+})
+
+const rubricMetrics = computed(() => {
+  const submission = result.value
+  if (!submission) return []
+  return [
+    { label: 'Ngữ pháp', value: submission.scoreGrammar ?? '-' },
+    { label: 'Từ vựng', value: submission.scoreVocabulary ?? '-' },
+    { label: 'Trôi chảy', value: submission.scoreFluency ?? '-' }
+  ]
+})
 
 loadPrompt()
 
@@ -144,10 +196,22 @@ async function submitRecording() {
   const file = new File([blob.value], `speaking-${Date.now()}.${ext}`, { type: blob.value.type })
   try {
     result.value = await speakingService.uploadSubmission(promptId, file)
+    await runAssessment(result.value.id)
   } catch (cause) {
     submitError.value = cause.response?.data?.detail || cause.response?.data?.message || 'Không thể nộp bản ghi.'
   } finally {
     submitting.value = false
+  }
+}
+
+async function runAssessment(submissionId) {
+  assessing.value = true
+  try {
+    result.value = await speakingService.assessSubmission(submissionId)
+  } catch {
+    // Assessment is best-effort: the submission stays queued for manual grading.
+  } finally {
+    assessing.value = false
   }
 }
 

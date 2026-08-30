@@ -48,6 +48,15 @@
             <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Nhận xét giáo viên</p>
             <p class="mt-1 text-sm leading-relaxed">{{ submission.adminFeedback }}</p>
           </div>
+          <div v-else-if="submission.status === 'COMPLETED'" class="mt-5 space-y-3">
+            <div class="grid gap-3 sm:grid-cols-3">
+              <div v-for="metric in rubricMetrics(submission)" :key="metric.label" class="border-2 border-foreground bg-tertiary/20 p-3 text-center">
+                <strong class="block text-2xl font-black tabular-nums">{{ metric.value }}/10</strong>
+                <span class="text-[11px] font-black uppercase tracking-wider text-muted-foreground">{{ metric.label }}</span>
+              </div>
+            </div>
+            <p v-if="submission.feedback" class="border-l-4 border-accent bg-muted/60 p-4 text-sm leading-relaxed">{{ submission.feedback }}</p>
+          </div>
           <p v-else class="mt-5 text-sm leading-relaxed text-muted-foreground">{{ statusMeta(submission.status).description }}</p>
 
           <AppButton v-if="submission.videoUrl" :id="`toggle-submission-${submission.id}`" class="mt-5" variant="secondary" :aria-expanded="playing === submission.id" @click="playing = playing === submission.id ? null : submission.id">
@@ -113,8 +122,19 @@ function handlePageChange(page) {
 
 function statusMeta(status) {
   if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success font-black', description: 'Giáo viên đã hoàn tất chấm bài.' }
+  if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-success font-black', description: 'AI đã chấm nội dung bài nói. Giáo viên có thể chấm lại.' }
+  if (status === 'PROCESSING') return { label: 'Đang chấm', className: 'text-tertiary font-black', description: 'AI đang phân tích bài nói của bạn.' }
   if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-tertiary font-black', description: 'Giáo viên đang xem bài của bạn.' }
+  if (status === 'FAILED') return { label: 'Chờ chấm', className: 'text-muted-foreground font-black', description: 'AI chưa chấm được, giáo viên sẽ chấm tay bài này.' }
   return { label: 'Chờ chấm', className: 'text-muted-foreground font-black', description: 'Bài đã gửi và đang chờ giáo viên chấm.' }
+}
+
+function rubricMetrics(submission) {
+  return [
+    { label: 'Ngữ pháp', value: submission.scoreGrammar ?? '-' },
+    { label: 'Từ vựng', value: submission.scoreVocabulary ?? '-' },
+    { label: 'Trôi chảy', value: submission.scoreFluency ?? '-' }
+  ]
 }
 
 function isAudio(submission) {
