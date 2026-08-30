@@ -101,7 +101,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
 import {
-  LayoutDashboard, BookOpen, PenTool, Users, Trophy, CheckSquare
+  LayoutDashboard, BookOpen, PenTool, Users, Trophy, CheckSquare, Clapperboard, AudioLines
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -113,6 +113,8 @@ const navItems = [
   { to: '/admin/lessons', icon: BookOpen, label: 'Bài học', activeClass: 'bg-tertiary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/exercises', icon: PenTool, label: 'Bài tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/submissions', icon: CheckSquare, label: 'Chấm bài', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/videos', icon: Clapperboard, label: 'Video học tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/video-attempts', icon: AudioLines, label: 'Chấm shadowing', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-pink-500 border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/achievements', icon: Trophy, label: 'Thành tích', activeClass: 'bg-tertiary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
 ]

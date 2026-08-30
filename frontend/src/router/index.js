@@ -37,6 +37,19 @@ const routes = [
     component: () => import('@/views/lessons/LessonLayout.vue'),
     meta: { requiresAuth: false }
   },
+  // Video learning (mô hình Corodomo) — khách xem tự do, ghi âm cần đăng nhập
+  {
+    path: '/videos',
+    name: 'VideoLibrary',
+    component: () => import('@/views/videos/VideoLibrary.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/videos/:id',
+    name: 'VideoLesson',
+    component: () => import('@/views/videos/VideoLesson.vue'),
+    meta: { requiresAuth: false }
+  },
   {
     path: '/profile',
     name: 'Profile',
@@ -163,7 +176,9 @@ const routes = [
       { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/AdminUsers.vue') },
       { path: 'speaking-prompts', name: 'AdminSpeakingPrompts', component: () => import('@/views/admin/AdminSpeakingPrompts.vue') },
       { path: 'speaking-submissions', name: 'AdminSpeakingSubmissions', component: () => import('@/views/admin/AdminSpeakingSubmissions.vue') },
-      { path: 'videos', redirect: '/admin/speaking-prompts' },
+      { path: 'videos', name: 'AdminVideoLessons', component: () => import('@/views/admin/AdminVideoLessons.vue') },
+      { path: 'video-attempts', name: 'AdminVideoAttempts', component: () => import('@/views/admin/AdminVideoAttempts.vue') },
+      { path: 'speaking-prompts', name: 'AdminSpeakingPrompts', component: () => import('@/views/admin/AdminSpeakingPrompts.vue') },
       { path: ':id/build', name: 'AdminLessonBuilder', component: () => import('@/views/admin/AdminLessonBuilder.vue'), props: true }
     ]
   },

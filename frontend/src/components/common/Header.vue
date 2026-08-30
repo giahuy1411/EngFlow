@@ -81,6 +81,7 @@ const navItems = computed(() => {
   const items = [
     { to: '/', label: 'Trang chủ' },
     { to: '/lessons', label: 'Bài học' },
+    { to: '/videos', label: 'Học qua video' },
     { to: '/decks', label: 'Luyện tập' },
     { to: '/speaking', label: 'Luyện nói', locked: speakingLocked },
     { to: '/leaderboard', label: 'Xếp hạng' },
