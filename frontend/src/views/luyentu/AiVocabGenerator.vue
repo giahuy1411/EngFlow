@@ -98,8 +98,8 @@
                 <span class="px-2 py-0.5 bg-accent/10 border-2 border-foreground rounded-full text-xs font-bold">{{ w.wordType }}</span>
               </div>
             </div>
-            <p class="font-medium text-foreground mt-2">{{ w.meaning || w.definitionVi }}</p>
-            <p v-if="w.exampleSentence" class="text-sm text-muted-foreground italic mt-1">"{{ w.exampleSentence }}"</p>
+            <div class="flex-1" v-html="sanitizeText(w.meaning || w.definitionVi)"></div>
+            <p v-if="w.exampleSentence" class="text-sm text-muted-foreground italic mt-1">"<span v-html="sanitizeText(w.exampleSentence)"></span>"</p>
 
             <div class="mt-3 flex justify-end">
               <AppButton
@@ -128,6 +128,7 @@ import aiService from '@/services/aiService'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/store/modules/auth'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const AI_LIMIT = 5
 const auth = useAuthStore()

@@ -59,7 +59,7 @@
           <span class="text-muted-foreground" aria-hidden="true">→</span>
           <span class="font-medium">{{ rightItems[pair.right] }}</span>
         </div>
-        <p v-if="exercise.explanation" class="mt-2 text-sm text-muted-foreground italic">{{ exercise.explanation }}</p>
+        <p v-if="exercise.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(exercise.explanation)"></p>
       </div>
     </div>
   </div>
@@ -69,6 +69,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import { sanitizeText } from '@/utils/markdown'
 
 const props = defineProps({
   exercise: { type: Object, required: true }

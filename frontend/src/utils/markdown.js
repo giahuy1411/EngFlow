@@ -38,3 +38,20 @@ export function parseMarkdown(text) {
     ADD_ATTR: ['controls', 'src', 'type', 'allow', 'allowfullscreen', 'colspan', 'rowspan']
   })
 }
+
+/**
+ * Sanitizes a plain-text field (e.g. word meaning, example, prompt).
+ * This is used for short content fields that may contain stray HTML from
+ * AI-generated or legacy data. It keeps inline formatting (bold/italic/links)
+ * but removes dangerous tags and does NOT wrap the result in block elements.
+ * Using this prevents raw HTML tags from being shown as visible text.
+ * @param {string} text - The raw text/HTML.
+ * @returns {string} Safe HTML string (null when empty).
+ */
+export function sanitizeText(text) {
+  if (!text) return ''
+  return DOMPurify.sanitize(text, {
+    ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 's', 'span', 'br', 'a', 'code', 'sub', 'sup', 'small', 'mark'],
+    ALLOWED_ATTR: ['href', 'title', 'target', 'rel']
+  })
+}

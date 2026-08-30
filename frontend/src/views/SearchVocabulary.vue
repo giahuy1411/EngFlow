@@ -67,8 +67,8 @@
 
               <ol class="list-decimal list-inside mt-2 space-y-2">
                 <li v-for="(def, k) in meaning.definitions" :key="k" class="text-foreground">
-                  <span class="font-medium">{{ def.definition }}</span>
-                  <p v-if="def.example" class="text-sm text-muted-foreground italic mt-0.5">"{{ def.example }}"</p>
+                  <span class="font-medium" v-html="sanitizeText(def.definition)"></span>
+                  <p v-if="def.example" class="text-sm text-muted-foreground italic mt-0.5">"<span v-html="sanitizeText(def.example)"></span>"</p>
                 </li>
               </ol>
 
@@ -102,6 +102,7 @@
 import { ref } from 'vue'
 import vocabularyService from '@/services/vocabularyService'
 import { Search, Volume2 } from 'lucide-vue-next'
+import { sanitizeText } from '@/utils/markdown'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 

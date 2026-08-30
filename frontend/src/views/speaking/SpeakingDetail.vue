@@ -34,11 +34,11 @@
             </UserPageHeader>
             <div class="mt-8 border-l-4 border-accent bg-muted/60 p-5">
               <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Nhiệm vụ</p>
-              <p class="mt-2 text-xl font-semibold leading-relaxed">{{ prompt.prompt }}</p>
+              <p class="mt-2 text-xl font-semibold leading-relaxed" v-html="sanitizeText(prompt.prompt)"></p>
             </div>
             <blockquote v-if="prompt.mode === 'READ_ALOUD' && prompt.referenceText" class="mt-4 border-2 border-foreground p-5">
               <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Đoạn đọc</p>
-              <p class="mt-2 text-lg font-semibold leading-relaxed">{{ prompt.referenceText }}</p>
+              <p class="mt-2 text-lg font-semibold leading-relaxed" v-html="sanitizeText(prompt.referenceText)"></p>
             </blockquote>
             <router-link id="start-speaking-button" :to="`/speaking/${prompt.id}/record`" class="mt-8 inline-flex min-h-12 items-center justify-center bg-accent px-6 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:-translate-y-0.5 active:scale-[0.98]">Bắt đầu luyện</router-link>
           </div>
@@ -113,6 +113,7 @@ import speakingService from '@/services/speakingService'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const route = useRoute()
 const prompt = ref(null)

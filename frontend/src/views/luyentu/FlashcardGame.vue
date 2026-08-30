@@ -63,9 +63,9 @@
 
             <div class="text-center">
               <p class="text-xs font-bold uppercase tracking-widest text-background/70 mb-2">{{ isFlipped ? 'Nghĩa' : 'Từ' }}</p>
-              <h2 class="font-black text-4xl md:text-5xl uppercase tracking-tight text-background drop-shadow-sm">{{ isFlipped ? currentWord.meaning : currentWord.word }}</h2>
+              <h2 class="font-black text-4xl md:text-5xl uppercase tracking-tight text-background drop-shadow-sm" v-html="sanitizeText(isFlipped ? currentWord.meaning : currentWord.word)"></h2>
               <p v-if="!isFlipped && currentWord.phonetic" class="font-bold text-lg text-background/80 mt-2">{{ currentWord.phonetic }}</p>
-              <p v-if="isFlipped && currentWord.example" class="font-medium text-background/80 mt-4 max-w-lg mx-auto italic">"{{ currentWord.example }}"</p>
+              <p v-if="isFlipped && currentWord.example" class="font-medium text-background/80 mt-4 max-w-lg mx-auto italic">"<span v-html="sanitizeText(currentWord.example)"></span>"</p>
             </div>
 
             <!-- Audio button — tiny circular icon-only overlay control; keep raw <button> to preserve absolute layout -->
@@ -108,6 +108,7 @@ import deckService from '@/services/deckService'
 import { Check, Volume2 } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const route = useRoute()
 const deckId = route.params.id

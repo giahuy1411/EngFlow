@@ -68,7 +68,7 @@
               <span v-if="deck.cefrLevel" class="border-2 border-foreground bg-card px-2.5 py-1 text-[11px] font-black uppercase tracking-wider">{{ deck.cefrLevel }}</span>
             </div>
             <h3 class="mt-5 line-clamp-2 text-2xl font-black tracking-tight text-foreground">{{ deck.name }}</h3>
-            <p v-if="deck.description" class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{{ deck.description }}</p>
+            <p v-if="deck.description" class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground" v-html="sanitizeText(deck.description)"></p>
             <div class="mt-7 flex items-center justify-between border-t-2 border-foreground pt-4">
               <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ deck.wordCount ?? 0 }} từ</span>
               <span class="text-sm font-black uppercase tracking-wider text-accent">Mở bộ &rarr;</span>
@@ -94,6 +94,7 @@ import deckService from '@/services/deckService'
 import Pagination from '@/components/common/Pagination.vue'
 import { StickerCard, AppButton } from '@/components/ui'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const activeTab = ref('public')
 const publicDecks = ref([])

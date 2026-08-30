@@ -84,8 +84,8 @@
           <tr v-for="ex in filteredExercises" :key="ex.id"
               class="border-b-2 border-foreground transition-colors duration-150 hover:bg-accent/5">
             <td class="border-r-2 border-foreground p-4 align-top">
-              <p class="line-clamp-3 break-words text-sm font-black leading-snug text-foreground">{{ ex.question || ex.title }}</p>
-              <p v-if="ex.title && ex.title !== ex.question" class="mt-2 line-clamp-2 break-words text-xs font-medium text-muted-foreground">{{ ex.title }}</p>
+              <p class="line-clamp-3 break-words text-sm font-black leading-snug text-foreground" v-html="sanitizeText(ex.question || ex.title)"></p>
+              <p v-if="ex.title && ex.title !== ex.question" class="mt-2 line-clamp-2 break-words text-xs font-medium text-muted-foreground" v-html="sanitizeText(ex.title)"></p>
             </td>
             <td class="border-r-2 border-foreground p-4 text-center align-top">
               <span class="inline-flex max-w-full items-center justify-center break-words rounded-md border-2 border-foreground bg-secondary/20 px-2.5 py-1 text-[11px] font-black uppercase leading-tight tracking-wider">
@@ -354,6 +354,7 @@ import Pagination from '@/components/common/Pagination.vue'
 import AiGeneratePanel from '@/components/admin/AiGeneratePanel.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
+import { sanitizeText } from '@/utils/markdown'
 import {
   PenTool as PenToolIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon,
   Search as SearchIcon, Check as CheckIcon, Headphones as HeadphonesIcon,

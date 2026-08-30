@@ -126,7 +126,7 @@
               class="border-t hover:bg-muted/60"
               role="row"
             >
-              <td class="p-2 max-w-xs truncate" role="cell">{{ ex.question }}</td>
+              <td class="p-2 max-w-xs truncate" role="cell" v-html="parseMarkdown(ex.question)"></td>
               <td class="p-2 text-xs" role="cell">{{ ex.exerciseType }}</td>
               <td class="p-2 max-w-xs truncate font-bold" role="cell">{{ ex.correctAnswer }}</td>
               <td class="p-2" role="cell">
@@ -165,6 +165,7 @@ import aiExerciseService from '@/services/aiExerciseService'
 import lessonService from '@/services/lessonService'
 import { useToast } from '@/composables/useToast'
 import { Sparkles, Loader2, Layers } from 'lucide-vue-next'
+import { parseMarkdown } from '@/utils/markdown'
 
 const toast = useToast()
 const lessons = ref([])

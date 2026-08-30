@@ -67,8 +67,8 @@
             <div>
               <h3 class="font-black text-lg uppercase">{{ w.word }}</h3>
               <p class="font-bold text-xs text-muted-foreground">{{ w.phonetic || '' }}</p>
-              <p class="font-medium text-foreground mt-1">{{ w.meaning }}</p>
-              <p v-if="w.example" class="text-sm text-muted-foreground italic mt-1">"{{ w.example }}"</p>
+              <p class="font-medium text-foreground mt-1" v-html="sanitizeText(w.meaning)"></p>
+              <p v-if="w.example" class="text-sm text-muted-foreground italic mt-1">"<span v-html="sanitizeText(w.example)"></span>"</p>
             </div>
             <button v-if="w.audioUrl" @click="playAudio(w.audioUrl)"
               class="w-9 h-9 bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent/90 transition-all shadow-pop-sm flex-shrink-0"
@@ -90,6 +90,7 @@ import deckService from '@/services/deckService'
 import { Volume2 } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const route = useRoute()
 const deck = ref({})

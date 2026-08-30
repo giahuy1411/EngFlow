@@ -45,7 +45,7 @@
           </div>
 
           <p class="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">{{ currentQuestion.direction }}</p>
-          <h2 class="font-black text-4xl uppercase tracking-tight mb-8">{{ currentQuestion.prompt }}</h2>
+          <h2 class="font-black text-4xl uppercase tracking-tight mb-8" v-html="sanitizeText(currentQuestion.prompt)"></h2>
           <!-- Answer option buttons — dynamic per-state coloring (optionClass); keep raw <button> since AppButton variants don't cover the correct/wrong states -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
             <button v-for="(option, index) in currentQuestion.options" :key="option"
@@ -83,6 +83,7 @@ import { useRoute } from 'vue-router'
 import { Check } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 import gameService from '@/services/gameService'
 
 const route = useRoute()

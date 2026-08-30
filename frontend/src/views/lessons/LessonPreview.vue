@@ -58,7 +58,7 @@
                 <div class="geo-markdown text-sm mb-1" v-html="parseMarkdown(item.question)"></div>
                 <p class="font-bold text-xs">Đáp án: <span class="text-quaternary">{{ item.correctAnswer }}</span></p>
                 <p v-if="!item.correct" class="text-xs text-accent">Bạn: {{ item.userAnswer }}</p>
-                <p v-if="item.explanation" class="text-xs text-muted-foreground italic mt-1">{{ item.explanation }}</p>
+                <p v-if="item.explanation" class="text-xs text-muted-foreground italic mt-1" v-html="sanitizeText(item.explanation)"></p>
               </div>
             </div>
           </div>
@@ -74,6 +74,7 @@ import { useRoute } from 'vue-router'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import lessonService from '@/services/lessonService'
+import { sanitizeText } from '@/utils/markdown'
 
 const route = useRoute()
 const lessonId = Number(route.params.id)

@@ -80,7 +80,7 @@
                 <span>{{ cardStates[ex.id]?.isCorrect ? '✅ Đúng' : '❌ Sai' }}</span>
               </div>
               <p class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ ex.correctAnswer || 'Chưa có đáp án' }}</span></p>
-              <p v-if="ex.explanation" class="mt-2 text-sm text-muted-foreground italic">{{ ex.explanation }}</p>
+              <p v-if="ex.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(ex.explanation)"></p>
             </div>
 
             <!-- Check button -->
@@ -110,6 +110,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import { sanitizeText } from '@/utils/markdown'
 import lessonService from '@/services/lessonService'
 import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
 import AppButton from '@/components/ui/AppButton.vue'

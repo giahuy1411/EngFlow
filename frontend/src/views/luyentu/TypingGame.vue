@@ -31,7 +31,7 @@
         <!-- Meaning prompt -->
         <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl mb-6">
           <p class="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Nghĩa</p>
-          <h2 class="font-black text-3xl uppercase tracking-tight">{{ currentWord.meaning }}</h2>
+          <h2 class="font-black text-3xl uppercase tracking-tight" v-html="sanitizeText(currentWord.meaning)"></h2>
         </div>
 
         <!-- Input -->
@@ -91,6 +91,7 @@ import gameService from '@/services/gameService'
 import { Check } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const route = useRoute()
 const deckId = route.params.id

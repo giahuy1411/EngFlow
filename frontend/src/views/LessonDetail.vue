@@ -30,7 +30,7 @@
                 <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ lesson.durationMinutes }} phút</span>
               </div>
               <h1 class="font-black text-3xl md:text-4xl uppercase tracking-tight mb-3">{{ lesson.title }}</h1>
-              <p class="font-medium text-muted-foreground leading-relaxed">{{ lesson.description }}</p>
+              <p class="font-medium text-muted-foreground leading-relaxed" v-html="sanitizeText(lesson.description)"></p>
             </div>
           </div>
         </div>
@@ -123,6 +123,7 @@ import { useRoute } from 'vue-router'
 import { useLessonStore } from '@/store/modules/lesson'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import { sanitizeText } from '@/utils/markdown'
 import { Volume2 } from 'lucide-vue-next'
 import AppButton from '@/components/ui/AppButton.vue'
 

@@ -24,7 +24,7 @@
               <span class="text-sm font-black tabular-nums text-muted-foreground">Tối đa {{ prompt.maxDurationSeconds || 30 }}s</span>
             </template>
           </UserPageHeader>
-          <blockquote v-if="prompt.mode === 'READ_ALOUD' && prompt.referenceText" class="mt-6 border-l-4 border-accent bg-muted/60 p-4 text-lg font-semibold leading-relaxed">{{ prompt.referenceText }}</blockquote>
+          <blockquote v-if="prompt.mode === 'READ_ALOUD' && prompt.referenceText" class="mt-6 border-l-4 border-accent bg-muted/60 p-4 text-lg font-semibold leading-relaxed" v-html="sanitizeText(prompt.referenceText)"></blockquote>
         </header>
 
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -102,6 +102,7 @@ import { useSpeakingRecorder } from '@/composables/useSpeakingRecorder'
 import speakingService from '@/services/speakingService'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const route = useRoute()
 const promptId = route.params.id

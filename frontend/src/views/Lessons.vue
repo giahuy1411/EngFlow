@@ -112,7 +112,7 @@
                 <h3 class="font-black text-lg uppercase leading-snug mt-1 text-foreground">{{ lesson.title }}</h3>
               </div>
 
-              <p class="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-2 flex-1">{{ lesson.description }}</p>
+              <p class="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-2 flex-1" v-html="sanitizeText(lesson.description)"></p>
 
               <div class="space-y-2 pt-2 border-t-2 border-foreground">
                 <div class="flex justify-between text-xs font-bold uppercase tracking-wider">
@@ -154,6 +154,7 @@ import { useAuthStore } from '@/store/modules/auth'
 import streakService from '@/services/streakService'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { sanitizeText } from '@/utils/markdown'
 
 const store = useLessonStore()
 const selectedLevel = ref('ALL')

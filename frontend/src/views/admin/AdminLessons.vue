@@ -64,9 +64,9 @@
           <tr v-for="lesson in lessons" :key="lesson.id"
               class="border-b-2 border-foreground hover:bg-accent/5 transition-colors duration-150">
             <td class="p-4 border-r-2 border-foreground font-bold">{{ lesson.title }}</td>
-            <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground truncate max-w-xs">{{ lesson.description || '-' }}</td>
+            <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground truncate max-w-xs" v-html="sanitizeText(lesson.description || '-')"></td>
             <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground max-w-xs">
-              <div v-if="lesson.description" class="truncate">{{ lesson.description.substring(0, 120) }}...</div>
+              <div v-if="lesson.description" class="truncate" v-html="sanitizeText(lesson.description.substring(0, 120))"></div>
               <span v-else class="text-muted-foreground/60 italic">Trống</span>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
@@ -205,6 +205,7 @@ import { adminService } from '@/services/adminService'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
+import { sanitizeText } from '@/utils/markdown'
 import { BookOpen as BookOpenIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon, Layers as LayersIcon, Search as SearchIcon } from 'lucide-vue-next'
 
 const lessons = ref([])
