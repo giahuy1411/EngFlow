@@ -130,7 +130,7 @@
   border-radius: 9999px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1280px) {
   .app-navbar__hamburger {
     display: none;
   }

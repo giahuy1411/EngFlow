@@ -2,7 +2,7 @@
   <header class="app-navbar">
     <div class="app-navbar__inner">
       <AppLogo href="/" />
-      <nav class="hidden md:flex items-center gap-1" aria-label="Primary">
+      <nav class="hidden xl:flex items-center gap-1" aria-label="Primary">
         <router-link
           v-for="item in navItems"
           :key="item.to"
@@ -19,7 +19,7 @@
           <router-link to="/login" class="app-navbar__auth app-navbar__auth--ghost hidden sm:inline-flex">Đăng nhập</router-link>
           <router-link to="/register" class="app-navbar__auth app-navbar__auth--solid">Đăng ký</router-link>
         </template>
-        <div v-else class="hidden md:flex items-center gap-3">
+        <div v-else class="hidden xl:flex items-center gap-3">
           <router-link to="/profile" class="app-navbar__user">
             <span class="app-avatar app-avatar--sm">
               <img v-if="auth.user?.avatarUrl" :src="auth.user.avatarUrl" :alt="auth.user.username || 'avatar'" />
@@ -29,7 +29,7 @@
           </router-link>
           <AppButton variant="secondary" size="sm" @click="handleLogout">Thoát</AppButton>
         </div>
-        <AppButton variant="ghost" size="sm" class="app-navbar__hamburger md:hidden" :aria-expanded="mobileOpen" aria-label="Menu" @click="mobileOpen = !mobileOpen">
+        <AppButton variant="ghost" size="sm" class="app-navbar__hamburger xl:hidden" :aria-expanded="mobileOpen" aria-label="Menu" @click="mobileOpen = !mobileOpen">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path v-if="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             <path v-else stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
