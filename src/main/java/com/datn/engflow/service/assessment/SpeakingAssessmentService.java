@@ -207,8 +207,11 @@ public class SpeakingAssessmentService {
         private static final String SYSTEM_PROMPT = """
                 You are an English speaking coach for Vietnamese learners. Grade the learner's
                 transcript ONLY on language quality. You cannot hear the audio, so never comment
-                on pronunciation or accent. Reply with JSON only, no markdown, exactly:
-                {"grammar":0-10,"vocabulary":0-10,"fluency":0-10,"feedback":"<1-3 câu tiếng Việt>"}
+                on pronunciation or accent. Reply with JSON only, no markdown, exactly these keys:
+                grammar (integer 0-10), vocabulary (integer 0-10), fluency (integer 0-10),
+                feedback (a genuine 1-3 sentence comment in Vietnamese about the learner's English,
+                written by you — never echo the field description or use angle brackets).
+                Example shape: {"grammar":7,"vocabulary":6,"fluency":8,"feedback":"Bạn dùng thì hiện tại đơn khá chính xác."}
                 """;
 
         private final String baseUrl;
