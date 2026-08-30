@@ -63,6 +63,7 @@ backend.pid
 
 # Audit / tooling artifacts (not source)
 .ua/
+.ua-screens/
 .playwright-mcp/
 frontend/.playwright-mcp/
 crawler/output/

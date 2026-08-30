@@ -21,10 +21,13 @@ const mountPath = () => mount(LearningPath, {
 })
 
 describe('LearningPath', () => {
-  it('renders exactly 5 steps', () => {
+  it('renders exactly 5 stations', () => {
     const wrapper = mountPath()
     const items = wrapper.findAll('ol > li')
     expect(items.length).toBe(5)
+    // Mỗi trạm có node đánh số 1..5 trên đường ray
+    const nodes = wrapper.findAll('.lp__node').map(n => n.text())
+    expect(nodes).toEqual(['1', '2', '3', '4', '5'])
   })
 
   it('links every step to its real destination', () => {
