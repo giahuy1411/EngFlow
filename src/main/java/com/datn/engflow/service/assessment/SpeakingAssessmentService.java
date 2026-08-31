@@ -212,13 +212,27 @@ public class SpeakingAssessmentService {
     static final class SpeakingRubricClient {
 
         private static final String SYSTEM_PROMPT = """
-                You are an English speaking coach for Vietnamese learners. Grade the learner's
-                transcript ONLY on language quality. You cannot hear the audio, so never comment
-                on pronunciation or accent. Reply with JSON only, no markdown, exactly these keys:
+                You are an experienced Vietnamese English teacher giving feedback to a student.
+
+                Grade the transcript ONLY on language quality. You cannot hear the audio,
+                so NEVER comment on pronunciation or accent.
+
+                Reply with JSON only, no markdown, exactly these keys:
                 grammar (integer 0-10), vocabulary (integer 0-10), fluency (integer 0-10),
-                feedback (a genuine 1-3 sentence comment in Vietnamese about the learner's English,
-                written by you — never echo the field description or use angle brackets).
-                Example shape: {"grammar":7,"vocabulary":6,"fluency":8,"feedback":"Bạn dùng thì hiện tại đơn khá chính xác."}
+                feedback (1-3 sentences in Vietnamese).
+
+                Vietnamese writing rules — you MUST follow all of them:
+                1. Common words are written exactly like this: "từ vựng", "ngữ pháp",
+                   "phát âm", "trôi chảy", "câu", "bài", "đọc", "nói", "người học".
+                2. NEVER write "từ vựt", "ngư pháp", "phat am", "noi chay" or any
+                   word without its diacritics.
+                3. If you are not 100% sure how to spell a Vietnamese word, rewrite
+                   the sentence using a simpler word you are sure about.
+                4. Re-read your feedback once before answering and fix any misspelled word.
+
+                Correct example: "Bạn dùng từ vựng đơn giản nhưng chính xác."
+                Wrong example:   "Bạn dùng từ vựt đơn giản nhưng chính xác."
+                JSON example shape: {"grammar":7,"vocabulary":6,"fluency":8,"feedback":"Bạn dùng thì hiện tại đơn khá chính xác."}
                 """;
 
         private final String baseUrl;
@@ -287,7 +301,7 @@ public class SpeakingAssessmentService {
                 int grammar = clamp(node.path("grammar").asInt(0));
                 int vocabulary = clamp(node.path("vocabulary").asInt(0));
                 int fluency = clamp(node.path("fluency").asInt(0));
-                String feedback = node.path("feedback").asText("").trim();
+                String feedback = sanitizeVietnameseSpelling(node.path("feedback").asText("").trim());
                 if (feedback.isEmpty()) {
                     feedback = "AI chưa tạo nhận xét chi tiết cho bài này.";
                 }
@@ -296,6 +310,46 @@ public class SpeakingAssessmentService {
                 throw new IllegalArgumentException("Rubric JSON không hợp lệ: " + raw, ex);
             }
         }
+
+        /**
+         * Small local models occasionally misspell common Vietnamese words in
+         * learner-facing feedback. Correction is deterministic Java, not another
+         * LLM call, so the fix cannot regress. Extend the map as new misspellings
+         * surface in production feedback.
+         */
+        static String sanitizeVietnameseSpelling(String feedback) {
+            if (feedback == null || feedback.isEmpty()) {
+                return feedback;
+            }
+            String corrected = feedback;
+            for (Map.Entry<String, String> misspelling : VIETNAMESE_MISSPELLINGS.entrySet()) {
+                corrected = corrected.replace(misspelling.getKey(), misspelling.getValue());
+            }
+            return corrected;
+        }
+
+        private static final Map<String, String> VIETNAMESE_MISSPELLINGS = Map.ofEntries(
+                Map.entry("từ vựt", "từ vựng"),
+                Map.entry("tư vựng", "từ vựng"),
+                Map.entry("tư vựt", "từ vựng"),
+                Map.entry("ngư pháp", "ngữ pháp"),
+                Map.entry("ngũ pháp", "ngữ pháp"),
+                Map.entry("ngu pháp", "ngữ pháp"),
+                Map.entry("ngu phap", "ngữ pháp"),
+                Map.entry("phat am", "phát âm"),
+                Map.entry("phat âm", "phát âm"),
+                Map.entry("phát am", "phát âm"),
+                Map.entry("troi chay", "trôi chảy"),
+                Map.entry("troi chảy", "trôi chảy"),
+                Map.entry("trôi chay", "trôi chảy"),
+                Map.entry("ngươi học", "người học"),
+                Map.entry("nguoi hoc", "người học"),
+                Map.entry("bai doc", "bài đọc"),
+                Map.entry("bai đọc", "bài đọc"),
+                Map.entry("bài doc", "bài đọc"),
+                Map.entry("câu tru", "câu trúc"),
+                Map.entry("cấu truc", "cấu trúc"),
+                Map.entry("câu truc", "câu trúc"));
 
         private static String extractJsonObject(String raw) {
             if (raw == null) {
