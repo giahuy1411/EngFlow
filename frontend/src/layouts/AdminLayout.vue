@@ -101,7 +101,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
 import {
-  LayoutDashboard, BookOpen, PenTool, Users, Trophy, CheckSquare, Clapperboard, AudioLines
+  LayoutDashboard, BookOpen, PenTool, Users, CheckSquare, Clapperboard, AudioLines
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -116,7 +116,6 @@ const navItems = [
   { to: '/admin/videos', icon: Clapperboard, label: 'Video học tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/video-attempts', icon: AudioLines, label: 'Chấm shadowing', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-pink-500 border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
-  { to: '/admin/achievements', icon: Trophy, label: 'Thành tích', activeClass: 'bg-tertiary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
 ]
 
 const pageTitles = {
@@ -125,7 +124,6 @@ const pageTitles = {
   AdminExercises: 'Bài tập',
   AdminSubmissions: 'Chấm bài',
   AdminUsers: 'Người dùng',
-  AdminAchievements: 'Thành tích',
 }
 
 const pageTitle = computed(() => pageTitles[route.name] || 'Admin')
