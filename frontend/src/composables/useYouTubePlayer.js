@@ -27,6 +27,19 @@ function loadYouTubeApi() {
 
 let mountSeq = 0
 
+/** Map YouTube IFrame API error codes to a message a Vietnamese learner can act on. */
+function describePlayerError(code) {
+  switch (code) {
+    case 2: return 'Link video không hợp lệ.'
+    case 5:
+    case 100: return 'Video không còn tồn tại hoặc để riêng tư.'
+    case 101:
+    case 150: return 'Chủ kênh đã tắt nhúng video này. Chọn video khác cho bài học.'
+    case 153: return 'Trình duyệt chặn nhúng video (thiếu thông tin giới thiệu). Thử mở bằng Chrome thường.'
+    default: return `Video không phát được (lỗi ${code ?? 'không rõ'}).`
+  }
+}
+
 /**
  * Thin wrapper around the YouTube IFrame Player API.
  *
@@ -75,11 +88,11 @@ export function useYouTubePlayer() {
               if (player.value?.getCurrentTime) currentTime.value = player.value.getCurrentTime()
             }, 250)
           },
-          onError: () => {
+          onError: (event) => {
             // A stale widget can fire an error after a good player is up; never
             // let it overwrite a working session.
             if (ready.value) return
-            error.value = 'Video không phát được (bị chặn nhúng hoặc offline).'
+            error.value = describePlayerError(event?.data)
           }
         }
       })
