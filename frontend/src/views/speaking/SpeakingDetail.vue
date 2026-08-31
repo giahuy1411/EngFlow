@@ -83,11 +83,15 @@
                   <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Nhận xét giáo viên</p>
                   <p class="mt-1 text-sm leading-relaxed">{{ submission.adminFeedback }}</p>
                 </div>
+                <div v-else-if="submission.status === 'COMPLETED' && aiFeedback(submission)" class="mt-4 border-l-4 border-primary bg-muted/60 p-4">
+                  <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Nhận xét AI</p>
+                  <p class="mt-1 text-sm leading-relaxed">{{ aiFeedback(submission) }}</p>
+                </div>
                 <p v-else class="mt-4 text-sm leading-relaxed text-muted-foreground">{{ statusMeta(submission.status).description }}</p>
               </div>
               <div class="border-2 border-foreground bg-tertiary/20 p-4 text-center">
-                <strong class="block text-4xl font-black tabular-nums">{{ submission.score == null ? '-' : submission.score }}</strong>
-                <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">Điểm /10</span>
+                <strong class="block text-4xl font-black tabular-nums">{{ (submission.score == null && aiTotal(submission) == null) ? '-' : (submission.score ?? aiTotal(submission)) }}</strong>
+                <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ submission.score != null ? 'Điểm /10' : (aiTotal(submission) != null ? 'Điểm /30' : 'Điểm /10') }}</span>
               </div>
             </article>
           </div>
@@ -154,7 +158,18 @@ function handleHistoryPageChange(page) {
 function statusMeta(status) {
   if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success', description: 'Giáo viên đã hoàn tất chấm bài.' }
   if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-amber-700', description: 'Giáo viên đang xem bài của bạn.' }
+  if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-primary', description: 'AI đã chấm xong bài của bạn.' }
+  if (status === 'PROCESSING') return { label: 'AI đang chấm', className: 'text-amber-700', description: 'Hệ thống đang phân tích bản ghi của bạn.' }
+  if (status === 'FAILED') return { label: 'AI chưa chấm được', className: 'text-destructive', description: 'AI chưa chấm được bài này, giáo viên sẽ chấm tay.' }
   return { label: 'Chờ chấm', className: 'text-muted-foreground', description: 'Bài đã được gửi và đang chờ giáo viên chấm.' }
+}
+
+function aiTotal(submission) {
+  return submission?.scoreTotal == null ? null : submission.scoreTotal
+}
+
+function aiFeedback(submission) {
+  return submission?.feedback || ''
 }
 
 function isAudio(submission) {
