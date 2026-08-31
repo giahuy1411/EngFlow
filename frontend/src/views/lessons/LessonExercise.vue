@@ -57,6 +57,12 @@
             <p class="font-bold text-xs uppercase tracking-wider text-secondary mb-3">Nghe & trả lời</p>
             <audio :src="currentExercise.audioUrl" controls class="w-full"></audio>
           </div>
+          <div v-else-if="currentExercise.exerciseType === 'LISTENING' && isSpeechAvailable()" class="mb-6 bg-secondary/10 border-2 border-foreground p-4 rounded-md flex items-center gap-3">
+            <p class="font-bold text-xs uppercase tracking-wider text-secondary flex-1">Nghe & trả lời (giọng đọc máy)</p>
+            <AppButton variant="secondary" :aria-label="'Phát âm câu nghe số ' + (currentIndex + 1)" @click="speakListening(currentExercise)">
+              🔊 Nghe
+            </AppButton>
+          </div>
 
           <!-- MATCHING: dedicated component -->
           <MatchingExercise v-if="currentExercise.exerciseType === 'MATCHING'"
@@ -106,6 +112,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import { isSpeechAvailable, blankOutForSpeech, stripLeadingNumber, speakEnglish } from '@/utils/speech'
 import lessonService from '@/services/lessonService'
 import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -128,6 +135,11 @@ const currentExercise = computed(() => exercises.value[currentIndex.value] || {}
 function typeLabel(type) {
   const map = { MULTIPLE_CHOICE: 'Trắc nghiệm', FILL_BLANK: 'Điền từ', LISTENING: 'Nghe', MATCHING: 'Nối từ', TRANSLATION: 'Dịch' }
   return map[type] || type
+}
+
+// LISTENING không có file audio → đọc bằng giọng máy, che chỗ trống để không lộ đáp án
+function speakListening(ex) {
+  return speakEnglish(blankOutForSpeech(stripLeadingNumber(ex.question)))
 }
 
 function parseOpts(ex) {

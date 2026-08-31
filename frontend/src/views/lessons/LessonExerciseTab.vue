@@ -50,10 +50,16 @@
             <!-- Image -->
             <img v-if="ex.imageUrl" :src="ex.imageUrl" class="max-w-full max-h-96 mx-auto border-2 border-foreground rounded-md mb-5" alt="" />
 
-            <!-- Audio (for listening exercises) -->
+            <!-- Audio (for listening exercises): file audio hoặc giọng đọc máy của trình duyệt -->
             <div v-if="ex.exerciseType === 'LISTENING' && ex.audioUrl" class="mb-5 bg-secondary/10 border-2 border-foreground p-4 rounded-md">
               <p class="font-bold text-xs uppercase tracking-wider text-secondary mb-2">Nghe & trả lời</p>
               <audio :src="ex.audioUrl" controls class="w-full max-w-md"></audio>
+            </div>
+            <div v-else-if="ex.exerciseType === 'LISTENING' && isSpeechAvailable()" class="mb-5 bg-secondary/10 border-2 border-foreground p-4 rounded-md flex items-center gap-3">
+              <p class="font-bold text-xs uppercase tracking-wider text-secondary flex-1">Nghe & trả lời (giọng đọc máy)</p>
+              <AppButton variant="secondary" :aria-label="'Phát âm câu nghe số ' + (idx + 1)" @click="speakListening(ex)">
+                🔊 Nghe
+              </AppButton>
             </div>
 
             <!-- Options (multiple choice) -->
@@ -111,6 +117,7 @@ import { useAuthStore } from '@/store/modules/auth'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { sanitizeText } from '@/utils/markdown'
+import { isSpeechAvailable, blankOutForSpeech, stripLeadingNumber, speakEnglish } from '@/utils/speech'
 import lessonService from '@/services/lessonService'
 import MatchingExercise from '@/components/lessons/MatchingExercise.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -129,6 +136,11 @@ const submitted = ref(false)
 function typeLabel(type) {
   const map = { MULTIPLE_CHOICE: 'Trắc nghiệm', FILL_BLANK: 'Điền từ', LISTENING: 'Nghe', MATCHING: 'Nối từ', TRANSLATION: 'Dịch' }
   return map[type] || type
+}
+
+// LISTENING không có file audio → đọc bằng giọng máy, che chỗ trống để không lộ đáp án
+function speakListening(ex) {
+  return speakEnglish(blankOutForSpeech(stripLeadingNumber(ex.question)))
 }
 
 function parseMarkdown(md) {
