@@ -90,8 +90,8 @@
                 <p v-else class="mt-4 text-sm leading-relaxed text-muted-foreground">{{ statusMeta(submission.status).description }}</p>
               </div>
               <div class="border-2 border-foreground bg-tertiary/20 p-4 text-center">
-                <strong class="block text-4xl font-black tabular-nums">{{ (submission.score == null && aiTotal(submission) == null) ? '-' : (submission.score ?? aiTotal(submission)) }}</strong>
-                <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ submission.score != null ? 'Điểm /10' : (aiTotal(submission) != null ? 'Điểm /30' : 'Điểm /10') }}</span>
+                <strong class="block text-4xl font-black tabular-nums">{{ (submission.score == null && aiTotal(submission) == null) ? '-' : (submission.score ?? formatAiScore(aiTotal(submission))) }}</strong>
+                <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ submission.score != null ? 'Điểm /10' : (aiTotal(submission) != null ? 'AI chấm /10' : 'Điểm /10') }}</span>
               </div>
             </article>
           </div>
@@ -166,6 +166,10 @@ function statusMeta(status) {
 
 function aiTotal(submission) {
   return submission?.scoreTotal == null ? null : submission.scoreTotal
+}
+
+function formatAiScore(value) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1)
 }
 
 function aiFeedback(submission) {
