@@ -11,7 +11,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **179 tests**.
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **196 tests**.
 - Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **73 tests / 14 files**.
 - Frontend build: `cmd /c "npx vite build"` trong `frontend/`.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
@@ -47,8 +47,11 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Kiến trúc sinh bài tập (2 đường)
 
-1. **Trong app** (admin UI): `AiExerciseService` → Ollama → async 202 + Redis progress. TTS backend (không key) chỉ dùng cho listening → audio sẽ trống.
+1. **Trong app** (admin UI): `AiExerciseService` → Ollama `qwen2.5:1.5b` → async 202 + Redis progress. Pipeline gồm: few-shot prompt (example lặp CUỐI prompt — attention decay), JSON salvage 3 lớp (fences → array regex → object salvage), schema validate, MATCHING slash-pair repair (`"a / b"` → `"a|b"`), example-copy guard, dedup within-batch + cross-lesson, tích lũy partial qua attempts, AI review. TTS backend (không key) chỉ dùng cho listening → audio sẽ trống.
 2. **MCP Antigravity**: `generate_listening` → supertonic WAV → `POST /api/admin/audio-upload` → Cloudinary → `audioUrl`. **Đây là đường sinh listening có audio.**
+
+- **MATCHING contract frontend**: `MatchingExercise.vue` chỉ parse options `"left|right"` + correctAnswer `"l=r,..."` (MUST). Java prompt cũ dùng `:::` — đã sửa, đừng quay lại.
+- **qwen2.5:1.5b hành vi đã quan sát**: copy few-shot example verbatim (chặn bằng signature match); drift MATCHING thành `["left / right", ...]` (repair); content dài nhấn chìm format instructions (cap 500 chars như MCP); JSON array thường bọc `MATCHING: {...}` không có `[` (salvage layer 3).
 
 ## Seed / Demo
 
