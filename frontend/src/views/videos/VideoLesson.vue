@@ -116,7 +116,7 @@
 
             <div v-if="rec.previewUrl.value && !attemptResult" class="mt-6 border-2 border-foreground bg-muted/60 p-5 rounded-md">
               <h3 class="font-black">Nghe lại trước khi nộp</h3>
-              <audio :src="rec.previewUrl.value" class="mt-3 w-full" controls />
+              <audio :src="rec.previewUrl.value" class="mt-3 w-full" controls @loadedmetadata="fixWebmDuration" />
               <div class="mt-4 flex flex-wrap gap-3">
                 <AppButton variant="secondary" @click="recordAgain">Ghi lại</AppButton>
                 <AppButton variant="primary" :disabled="submitting" @click="submitAttempt">
@@ -127,8 +127,28 @@
 
             <div v-if="attemptResult" class="mt-6 border-2 border-foreground bg-tertiary/20 p-5 rounded-md" role="status">
               <p class="font-black text-success uppercase text-xs tracking-widest">Đã nộp câu {{ shadowIndex + 1 }}</p>
-              <p class="mt-1 text-sm font-medium">Bài của bạn sẽ được giáo viên chấm (thang 10) và có nhận xét trong <router-link to="/profile" class="underline font-bold">lịch sử luyện nói</router-link>.</p>
+              <p class="mt-1 text-sm font-medium">Bài của bạn sẽ được giáo viên chấm (thang 10) và có nhận xét ngay tại đây.</p>
               <AppButton class="mt-4" variant="secondary" size="sm" @click="attemptResult = null; recordAgain()">Tiếp tục câu khác</AppButton>
+            </div>
+
+            <!-- Previously submitted attempt for this sentence, with teacher feedback -->
+            <div v-else-if="shadowAttempt && !rec.previewUrl.value" class="mt-6 border-2 border-foreground p-5 rounded-md"
+              :class="shadowAttempt.status === 'GRADED' ? 'bg-success/10 border-success' : 'bg-muted/60'">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="font-black uppercase text-xs tracking-widest"
+                  :class="shadowAttempt.status === 'GRADED' ? 'text-success' : 'text-muted-foreground'">
+                  {{ shadowAttempt.status === 'GRADED' ? 'Đã chấm' : 'Đã nộp — đang chờ giáo viên' }}
+                </p>
+                <span v-if="shadowAttempt.status === 'GRADED'" class="font-black text-2xl tabular-nums">
+                  {{ Number(shadowAttempt.score).toFixed(1) }}<span class="text-sm text-muted-foreground">/10</span>
+                </span>
+              </div>
+              <p v-if="shadowAttempt.status === 'GRADED' && shadowAttempt.adminFeedback" class="mt-2 text-sm font-medium leading-relaxed">
+                💬 {{ shadowAttempt.adminFeedback }}
+              </p>
+              <audio v-if="shadowAttempt.mediaUrl" :src="shadowAttempt.mediaUrl" controls class="mt-3 w-full h-10" @loadedmetadata="fixWebmDuration" />
+              <AppButton class="mt-4" variant="secondary" size="sm" @click="gotoShadow(shadowIndex + 1)"
+                :disabled="shadowIndex >= transcript.length - 1">Làm câu tiếp theo →</AppButton>
             </div>
           </div>
 
@@ -264,6 +284,10 @@ const rec = useSpeakingRecorder(30)
 const submitting = ref(false)
 const actionError = ref('')
 const attemptResult = ref(null)
+// Full attempt history keyed by line index, so a graded submission can show its
+// score + teacher feedback right on the sentence card instead of only in the
+// speaking history page.
+const attemptsByLine = ref({})
 
 const lookupWordInfo = ref(null)
 const lookupWordLoading = ref(false)
@@ -280,6 +304,7 @@ const quizScore = computed(() =>
   Object.entries(quizAnswered.value).filter(([qi, oi]) => quiz.value[qi] && oi === quiz.value[qi].correct).length)
 
 const shadowLine = computed(() => transcript.value[shadowIndex.value])
+const shadowAttempt = computed(() => attemptsByLine.value[shadowIndex.value] || null)
 const progressPercent = computed(() =>
   transcript.value.length ? Math.round((completedLines.value.length / transcript.value.length) * 100) : 0)
 
@@ -302,6 +327,7 @@ async function load() {
     lesson.value = await videoLessonService.getById(route.params.id)
     transcript.value = lesson.value.transcript || []
     completedLines.value = lesson.value.completedLines || []
+    await loadAttempts()
     buildQuiz()
     // The player host lives inside `v-else-if="lesson"`, which only renders once
     // the loading branch is gone. Clear the flag and wait for the DOM update
@@ -316,6 +342,24 @@ async function load() {
   }
 }
 
+/** Fetch this user's attempts for the current lesson (best-effort: guests have none). */
+async function loadAttempts() {
+  attemptsByLine.value = {}
+  if (!auth.isLoggedIn) return
+  try {
+    const page = await videoLessonService.myAttempts(0, 100)
+    for (const a of page.content || []) {
+      if (a.videoLessonId !== lesson.value.id) continue
+      const prev = attemptsByLine.value[a.lineIndex]
+      // Keep the most informative record: graded beats pending, newer wins ties.
+      if (!prev || (a.status === 'GRADED' && prev.status !== 'GRADED') ||
+          (a.status === prev.status && a.id > prev.id)) {
+        attemptsByLine.value[a.lineIndex] = a
+      }
+    }
+  } catch { /* attempt history is optional context, never block the lesson */ }
+}
+
 function splitWords(text) {
   return (text || '').split(/\s+/).filter(Boolean)
 }
@@ -326,6 +370,7 @@ function seekLine(idx) {
 }
 
 function gotoShadow(idx) {
+  if (idx < 0 || idx >= transcript.value.length) return
   shadowIndex.value = idx
   attemptResult.value = null
   rec.clearRecording()
@@ -375,6 +420,7 @@ async function submitAttempt() {
   const file = new File([rec.blob.value], `shadow-${lesson.value.id}-line-${shadowIndex.value}.${ext}`, { type: rec.blob.value.type })
   try {
     attemptResult.value = await videoLessonService.submitAttempt(lesson.value.id, shadowIndex.value, file)
+    attemptsByLine.value = { ...attemptsByLine.value, [shadowIndex.value]: attemptResult.value }
     if (!completedLines.value.includes(shadowIndex.value)) {
       completedLines.value = [...completedLines.value, shadowIndex.value]
     }
@@ -485,5 +531,24 @@ function formatTime(seconds) {
   const m = Math.floor(seconds / 60)
   const s = Math.floor(seconds % 60)
   return `${m}:${String(s).padStart(2, '0')}`
+}
+
+/**
+ * MediaRecorder webm has no duration in its header, so the native control shows
+ * "∞". Seeking past the end forces the browser to compute it, then rewinding.
+ */
+function fixWebmDuration(event) {
+  const el = event.target
+  if (Number.isFinite(el.duration) && el.duration > 0) return
+  const originalRate = el.playbackRate
+  el.onended = () => {
+    el.onended = null
+    el.pause()
+    el.currentTime = 0
+    el.playbackRate = originalRate
+  }
+  el.currentTime = 1e10
+  el.playbackRate = 16
+  el.play().catch(() => {})
 }
 </script>

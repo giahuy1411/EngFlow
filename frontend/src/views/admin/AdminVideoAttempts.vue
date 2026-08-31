@@ -34,7 +34,7 @@
             <p class="font-black uppercase tracking-wider">Video #{{ a.videoLessonId }} · Câu {{ a.lineIndex + 1 }}</p>
             <p class="text-xs font-bold text-muted-foreground mt-1">{{ a.submittedAt?.replace('T', ' ').slice(0, 16) }} · {{ a.status === 'GRADED' ? `Đã chấm ${a.score}/10` : 'Chưa chấm' }}</p>
           </div>
-          <audio v-if="a.mediaUrl" :src="a.mediaUrl" controls class="h-10 max-w-full" />
+          <audio v-if="a.mediaUrl" :src="a.mediaUrl" controls class="h-10 max-w-full" @loadedmetadata="fixWebmDuration" />
         </div>
         <div v-if="a.status !== 'GRADED'" class="mt-4 flex flex-wrap items-end gap-3 border-t-2 border-foreground/10 pt-4">
           <div>
@@ -103,5 +103,24 @@ async function submitGrade(attempt) {
   } finally {
     entry.saving = false
   }
+}
+
+/**
+ * MediaRecorder webm has no duration in its header, so the native control shows
+ * "∞". Seeking past the end forces the browser to compute it, then rewinding.
+ */
+function fixWebmDuration(event) {
+  const el = event.target
+  if (Number.isFinite(el.duration) && el.duration > 0) return
+  const originalRate = el.playbackRate
+  el.onended = () => {
+    el.onended = null
+    el.pause()
+    el.currentTime = 0
+    el.playbackRate = originalRate
+  }
+  el.currentTime = 1e10
+  el.playbackRate = 16
+  el.play().catch(() => {})
 }
 </script>
