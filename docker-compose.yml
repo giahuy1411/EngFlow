@@ -62,7 +62,7 @@ services:
       - AI_SPEAKING_OLLAMA_BASE_URL=${AI_SPEAKING_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
       - AI_EXERCISE_OLLAMA_BASE_URL=${AI_EXERCISE_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
       - AI_SPEAKING_OLLAMA_MODEL=${AI_SPEAKING_OLLAMA_MODEL:-qwen2.5:3b}
-      - AI_SPEAKING_WHISPER_BASE_URL=${AI_SPEAKING_WHISPER_BASE_URL:-}
+      - AI_SPEAKING_WHISPER_BASE_URL=${AI_SPEAKING_WHISPER_BASE_URL:-http://whisper:9002}
       - SEPAY_WEBHOOK_SECRET=${SEPAY_WEBHOOK_SECRET}
       - SEPAY_BANK_ACCOUNT=${SEPAY_BANK_ACCOUNT}
       - SEPAY_BANK_NAME=${SEPAY_BANK_NAME}
@@ -91,6 +91,25 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    restart: unless-stopped
+
+  # Local Whisper transcription sidecar (faster-whisper, OpenAI-compatible API).
+  # Enables automatic speech-to-text for speaking submissions with no cloud key.
+  # Uses CPU by default (int8) to stay light on the 4GB RTX 2050 shared with Ollama;
+  # set WHISPER_DEVICE=cuda + WHISPER_COMPUTE_TYPE=float16 to use the GPU instead.
+  whisper:
+    build:
+      context: .
+      dockerfile: whisper.Dockerfile
+    container_name: engflow-whisper
+    environment:
+      - WHISPER_MODEL=${WHISPER_MODEL:-base}
+      - WHISPER_DEVICE=${WHISPER_DEVICE:-cpu}
+      - WHISPER_COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-int8}
+    ports:
+      - "9002:9002"
+    volumes:
+      - whisper_models:/root/.cache/huggingface
     restart: unless-stopped
 
   frontend:
@@ -154,3 +173,4 @@ volumes:
   mssql_data:
   redis_data:
   minio_data:
+  whisper_models:
