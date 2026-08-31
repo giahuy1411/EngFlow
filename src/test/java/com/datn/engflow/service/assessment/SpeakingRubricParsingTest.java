@@ -16,7 +16,8 @@ class SpeakingRubricParsingTest {
         assertThat(result.grammar()).isEqualTo(7);
         assertThat(result.vocabulary()).isEqualTo(6);
         assertThat(result.fluency()).isEqualTo(8);
-        assertThat(result.total()).isEqualTo(21);
+        // Average on the 0-10 scale, one decimal: (7+6+8)/3 = 7.0.
+        assertThat(result.total()).isEqualTo(7.0);
         assertThat(result.feedback()).contains("thì quá khứ");
     }
 
@@ -25,7 +26,7 @@ class SpeakingRubricParsingTest {
         SpeakingRubricResult result = SpeakingRubricClient.parseRubric(
                 "```json\n{\"grammar\":5,\"vocabulary\":5,\"fluency\":5,\"feedback\":\"ok\"}\n```");
 
-        assertThat(result.total()).isEqualTo(15);
+        assertThat(result.total()).isEqualTo(5.0);
     }
 
     @Test
@@ -49,5 +50,36 @@ class SpeakingRubricParsingTest {
     void rejectsNonJsonOutput() {
         assertThatThrownBy(() -> SpeakingRubricClient.parseRubric("I think it was fine"))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void correctsKnownVietnameseMisspellingsInFeedback() {
+        // Regression guard: qwen2.5:3b produced "từ vựt" in production feedback (submission 40013).
+        SpeakingRubricResult result = SpeakingRubricClient.parseRubric(
+                "{\"grammar\":1,\"vocabulary\":1,\"fluency\":1,"
+                        + "\"feedback\":\"Trình độ ngữ pháp và từ vựt của bài đọc rất kém, cần cải thiện.\"}");
+
+        assertThat(result.feedback()).contains("từ vựng");
+        assertThat(result.feedback()).doesNotContain("từ vựt");
+    }
+
+    @Test
+    void sanitizeFixesMisspellingsWithoutDiacritics() {
+        assertThat(SpeakingRubricClient.sanitizeVietnameseSpelling(
+                "Bạn có kỹ năng ngu phap tốt, phat am chưa rõ."))
+                .isEqualTo("Bạn có kỹ năng ngữ pháp tốt, phát âm chưa rõ.");
+
+        assertThat(SpeakingRubricClient.sanitizeVietnameseSpelling(
+                "Nên trau dồi từ vựt và cách troi chay của câu.")
+                )
+                .isEqualTo("Nên trau dồi từ vựng và cách trôi chảy của câu.");
+    }
+
+    @Test
+    void sanitizeLeavesCorrectSpellingUntouched() {
+        String clean = "Bạn dùng từ vựng phong phú, ngữ pháp chính xác.";
+        assertThat(SpeakingRubricClient.sanitizeVietnameseSpelling(clean)).isEqualTo(clean);
+        assertThat(SpeakingRubricClient.sanitizeVietnameseSpelling("")).isEmpty();
+        assertThat(SpeakingRubricClient.sanitizeVietnameseSpelling(null)).isNull();
     }
 }

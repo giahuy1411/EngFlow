@@ -39,7 +39,7 @@ class SpeakingSubmissionResponseTest {
                 .scoreGrammar(5)
                 .scoreVocabulary(4)
                 .scoreFluency(4)
-                .scoreTotal(17)
+                .scoreTotal(5.7)
                 .feedback("Legacy AI feedback")
                 .score(new BigDecimal("8.5"))
                 .adminFeedback("Good attempt")

@@ -39,8 +39,8 @@
               </div>
             </div>
             <div class="border-2 border-foreground bg-tertiary/20 p-4 text-center">
-              <strong class="block text-4xl font-black tabular-nums">{{ submission.score == null ? '-' : submission.score }}</strong>
-              <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">Điểm /10</span>
+              <strong class="block text-4xl font-black tabular-nums">{{ displayTotal(submission) }}</strong>
+              <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ displayTotalLabel(submission) }}</span>
             </div>
           </div>
 
@@ -135,6 +135,23 @@ function rubricMetrics(submission) {
     { label: 'Từ vựng', value: submission.scoreVocabulary ?? '-' },
     { label: 'Trôi chảy', value: submission.scoreFluency ?? '-' }
   ]
+}
+
+// Teacher score wins; otherwise show the AI average on the same 0-10 scale.
+function displayTotal(submission) {
+  if (submission.score != null) return submission.score
+  if (submission.scoreTotal != null) return formatAiScore(submission.scoreTotal)
+  return '-'
+}
+
+function displayTotalLabel(submission) {
+  if (submission.score != null) return 'Điểm /10'
+  if (submission.scoreTotal != null) return 'AI chấm /10'
+  return 'Điểm /10'
+}
+
+function formatAiScore(value) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1)
 }
 
 function isAudio(submission) {

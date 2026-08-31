@@ -19,11 +19,12 @@ public record SpeakingRubricResult(
         String feedback) {
 
     /**
-     * Sums the three rubric dimensions.
+     * Averages the three rubric dimensions onto the same 0-10 scale the
+     * teacher uses, rounded to one decimal.
      *
-     * @return total rubric score on the 0-30 scale
+     * @return overall rubric score between 0.0 and 10.0
      */
-    public int total() {
-        return grammar + vocabulary + fluency;
+    public double total() {
+        return Math.round((grammar + vocabulary + fluency) / 3.0 * 10.0) / 10.0;
     }
 }

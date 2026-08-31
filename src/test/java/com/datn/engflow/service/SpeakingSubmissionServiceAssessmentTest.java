@@ -87,7 +87,7 @@ class SpeakingSubmissionServiceAssessmentTest {
         assertThat(result.getScoreGrammar()).isEqualTo(7);
         assertThat(result.getScoreVocabulary()).isEqualTo(6);
         assertThat(result.getScoreFluency()).isEqualTo(8);
-        assertThat(result.getScoreTotal()).isEqualTo(21);
+        assertThat(result.getScoreTotal()).isEqualTo(7.0);
         assertThat(result.getFeedback()).isEqualTo("Phát âm tốt");
         assertThat(result.getPronunciationCompleteness()).isEqualTo(100.0);
         assertThat(result.getPronunciationDetailsJson()).contains("wordErrorRate");

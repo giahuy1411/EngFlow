@@ -21,7 +21,7 @@ public record SpeakingSubmissionResponse(
         Integer scoreGrammar,
         Integer scoreVocabulary,
         Integer scoreFluency,
-        Integer scoreTotal,
+        Double scoreTotal,
         Double pronunciationAccuracy,
         Double pronunciationFluency,
         Double pronunciationCompleteness,

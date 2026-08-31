@@ -83,7 +83,7 @@ public class SpeakingSubmission {
     private Integer scoreFluency;
 
     @Column(name = "score_total")
-    private Integer scoreTotal;
+    private Double scoreTotal;
 
     @org.hibernate.annotations.Nationalized
     @Column(columnDefinition = "NVARCHAR(MAX)")
