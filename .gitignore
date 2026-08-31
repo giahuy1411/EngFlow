@@ -96,3 +96,4 @@ api_tokens.txt
 
 # Tailscale node auth + serve/funnel state (never commit)
 .tailscale/
+frontend/public/e2e-tts.wav
