@@ -63,11 +63,17 @@ public class SpeakingAssessmentService {
 
         String transcript = submission.getTranscript();
         String transcriptSource = "USER";
+        boolean usedWhisper = false;
         if (transcript == null || transcript.isBlank()) {
             transcript = transcribeFromAudio(submission);
-            transcriptSource = transcript != null ? "WHISPER" : "NONE";
+            usedWhisper = transcript != null && !transcript.isBlank();
+            transcriptSource = usedWhisper ? "WHISPER" : "NONE";
         }
         if (transcript == null || transcript.isBlank()) {
+            if (transcriptClient.isConfigured()) {
+                return SpeakingAssessmentOutcome.failed(PROVIDER,
+                        "AI không nghe rõ transcript từ bản ghi âm. Thử ghi lại ở nơi yên tĩnh và nói to, rõ hơn.");
+            }
             return SpeakingAssessmentOutcome.failed(PROVIDER,
                     "Chưa có transcript: bật Whisper sidecar hoặc nhập văn bản bài nói");
         }
@@ -161,7 +167,7 @@ public class SpeakingAssessmentService {
                 String text = node.path("text").asText(null);
                 return text == null || text.isBlank() ? null : text;
             } catch (Exception ex) {
-                log.warn("Whisper sidecar call failed: {}", ex.getMessage());
+                log.warn("Whisper sidecar call failed: {}", ex.toString());
                 return null;
             }
         }
@@ -178,6 +184,7 @@ public class SpeakingAssessmentService {
             String head = "--" + boundary + "\r\n"
                     + "Content-Disposition: form-data; name=\"file\"; filename=\"" + filename + "\"\r\n"
                     + "Content-Type: application/octet-stream\r\n\r\n";
+            // OpenAI-compatible clients send "model"; Flask/requests tolerates extra fields.
             String modelField = "\r\n--" + boundary + "\r\n"
                     + "Content-Disposition: form-data; name=\"model\"\r\n\r\nwhisper-1\r\n";
             String tail = "--" + boundary + "--\r\n";

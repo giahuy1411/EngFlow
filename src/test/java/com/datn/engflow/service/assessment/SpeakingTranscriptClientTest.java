@@ -83,8 +83,27 @@ class SpeakingTranscriptClientTest {
         assertThat(outcome.transcript()).isNull();
         assertThat(outcome.transcriptSource()).isEqualTo("NONE");
         assertThat(outcome.rubric()).isNull();
-        assertThat(outcome.error()).contains("transcript");
+        // Whisper sidecar is configured here, so the message should guide the learner,
+        // not tell them to enable a sidecar that is already on.
+        assertThat(outcome.error()).contains("AI không nghe rõ");
+        assertThat(outcome.error()).doesNotContain("bật Whisper sidecar");
         assertThat(outcome.provider()).isEqualTo(SpeakingAssessmentService.PROVIDER);
+    }
+
+    @Test
+    void assessWithoutSidecarStillAsksForTranscriptInput() {
+        SpeakingAssessmentService service = newService("");
+        com.datn.engflow.model.entity.SpeakingSubmission submission =
+                com.datn.engflow.model.entity.SpeakingSubmission.builder()
+                        .id(3L)
+                        .mediaObjectKey(null)
+                        .build();
+
+        SpeakingAssessmentOutcome outcome = service.assess(submission);
+
+        assertThat(outcome.transcript()).isNull();
+        assertThat(outcome.transcriptSource()).isEqualTo("NONE");
+        assertThat(outcome.error()).contains("bật Whisper sidecar");
     }
 
     @Test
