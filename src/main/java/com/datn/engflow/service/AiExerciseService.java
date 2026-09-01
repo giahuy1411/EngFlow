@@ -105,6 +105,13 @@ public class AiExerciseService {
 
     // ΓöÇΓöÇ Core LLM call ΓöÇΓöÇ
 
+    /**
+     * Calls the Ollama chat API. Temperature 0.5 (not the usual creative 0.7):
+     * qwen2.5:1.5b drifts toward textbook-copy and wrong MATCHING shapes more
+     * often at higher temperature. Lower temperature trades a little variety
+     * for format stability, which the review loop values more — it can retry
+     * but cannot fix creative drift.
+     */
     private String callOllama(String prompt, String modelName) {
         WebClient client = WebClient.builder()
                 .baseUrl(ollamaBaseUrl)
@@ -112,7 +119,7 @@ public class AiExerciseService {
                 .build();
         try {
             String content = objectMapper.valueToTree(prompt).toString();
-            String requestBody = "{\"model\":\"" + modelName + "\",\"messages\":[{\"role\":\"user\",\"content\":" + content + "}],\"temperature\":0.7,\"stream\":false}";
+            String requestBody = "{\"model\":\"" + modelName + "\",\"messages\":[{\"role\":\"user\",\"content\":" + content + "}],\"temperature\":0.5,\"stream\":false}";
             long t0 = System.currentTimeMillis();
             String responseBody = client.post()
                     .uri("/chat/completions")
