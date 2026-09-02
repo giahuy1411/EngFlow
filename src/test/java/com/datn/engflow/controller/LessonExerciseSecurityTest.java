@@ -34,9 +34,23 @@ class LessonExerciseSecurityTest {
 
     @Autowired private WebApplicationContext wac;
     @Autowired private UserRepository userRepository;
+    @Autowired private com.datn.engflow.repository.ExerciseRepository exerciseRepository;
     @Value("${jwt.secret}") private String jwtSecret;
 
     private MockMvc mockMvc;
+
+    /**
+     * Lesson 444 was accidentally deleted during audit-v3 (restored as 91900).
+     * These security guards must not depend on a hard-coded lesson id: pick
+     * any lesson that currently has exercises, fall back to 444 if present.
+     */
+    private Long lessonWithExercisesId() {
+        return exerciseRepository.findAll().stream()
+                .map(ex -> ex.getLesson() != null ? ex.getLesson().getId() : null)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(444L);
+    }
 
     @BeforeEach void setup() { mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity()).build(); }
 
@@ -59,25 +73,28 @@ class LessonExerciseSecurityTest {
 
     @Test
     void guestIncludeAnswersIsForbidden() throws Exception {
-        mockMvc.perform(get("/api/lessons/444/exercises").param("includeAnswers", "true"))
+        Long lessonId = lessonWithExercisesId();
+        mockMvc.perform(get("/api/lessons/{id}/exercises", lessonId).param("includeAnswers", "true"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void userIncludeAnswersIsForbidden() throws Exception {
+        Long lessonId = lessonWithExercisesId();
         User anyUser = userRepository.findAll().stream().filter(u -> !Boolean.TRUE.equals(u.getIsAdmin())).findFirst().orElseThrow();
         String tok = tokenViaProvider(anyUser.getEmail());
-        mockMvc.perform(get("/api/lessons/444/exercises").param("includeAnswers", "true").header("Authorization", "Bearer " + tok))
+        mockMvc.perform(get("/api/lessons/{id}/exercises", lessonId).param("includeAnswers", "true").header("Authorization", "Bearer " + tok))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void guestNormalReturnsNoAnswers() throws Exception {
-        mockMvc.perform(get("/api/lessons/444/exercises"))
+        Long lessonId = lessonWithExercisesId();
+        mockMvc.perform(get("/api/lessons/{id}/exercises", lessonId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].correctAnswer").doesNotExist());
         // Some implementations return null, so also check null
-        mockMvc.perform(get("/api/lessons/444/exercises"))
+        mockMvc.perform(get("/api/lessons/{id}/exercises", lessonId))
                 .andExpect(result -> {
                     String body = result.getResponse().getContentAsString();
                     // must contain correctAnswer:null or absent, not a real value
@@ -89,8 +106,9 @@ class LessonExerciseSecurityTest {
 
     @Test
     void adminIncludeAnswersExposesCorrectAnswer() throws Exception {
+        Long lessonId = lessonWithExercisesId();
         String tok = tokenViaProvider("admin@gmail.com");
-        mockMvc.perform(get("/api/lessons/444/exercises").param("includeAnswers", "true").header("Authorization", "Bearer " + tok))
+        mockMvc.perform(get("/api/lessons/{id}/exercises", lessonId).param("includeAnswers", "true").header("Authorization", "Bearer " + tok))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].correctAnswer").isNotEmpty());
     }
@@ -98,11 +116,12 @@ class LessonExerciseSecurityTest {
     @Test
     void userCanGradeExercises() throws Exception {
         // BUG-1 regression guard: ROLE_USER must NOT get 403 on grade endpoint.
+        Long lessonId = lessonWithExercisesId();
         User anyUser = userRepository.findAll().stream().filter(u -> !Boolean.TRUE.equals(u.getIsAdmin())).findFirst().orElseThrow();
         String tok = tokenViaProvider(anyUser.getEmail());
         String body = objectMapper.writeValueAsString(java.util.Map.of(
                 "answers", java.util.List.of(java.util.Map.of("exerciseId", 1, "userAnswer", "A"))));
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/lessons/444/exercises/grade")
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/lessons/{id}/exercises/grade", lessonId)
                         .header("Authorization", "Bearer " + tok)
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .content(body))
@@ -111,9 +130,10 @@ class LessonExerciseSecurityTest {
 
     @Test
     void guestCannotGradeExercises() throws Exception {
+        Long lessonId = lessonWithExercisesId();
         String body = objectMapper.writeValueAsString(java.util.Map.of(
                 "answers", java.util.List.of()));
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/lessons/444/exercises/grade")
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/lessons/{id}/exercises/grade", lessonId)
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isUnauthorized());

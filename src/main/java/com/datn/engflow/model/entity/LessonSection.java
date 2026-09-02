@@ -27,7 +27,8 @@ public class LessonSection {
     @ToString.Exclude
     private Lesson lesson;
 
-    @Column(nullable = false)
+    // NVARCHAR tường minh: varchar làm hỏng dấu tiếng Việt thành '?' (audit-v3 bug #3)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String title;
 
     @Column(name = "order_index")
