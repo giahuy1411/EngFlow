@@ -44,4 +44,12 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     @Modifying
     @Transactional
     void deleteAllByLessonId(Long lessonId);
+
+    /**
+     * Returns exercises that have a non-null question and a missing or empty correctAnswer
+     * (the backfill pipeline rewrites these with AI-generated keys). Returns a Page for memory
+     * safety on the 43k-row exercises table.
+     */
+    @Query("SELECT e FROM Exercise e WHERE (e.correctAnswer IS NULL OR TRIM(e.correctAnswer) = '') AND e.question IS NOT NULL AND TRIM(e.question) <> '' ORDER BY e.id ASC")
+    List<Exercise> findBackfillCandidates(Pageable pageable);
 }

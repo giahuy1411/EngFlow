@@ -42,6 +42,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * State conflicts (duplicate email/username on register) must return 409,
+     * not fall through to the 500 catch-all.
+     */
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ProblemDetail> handleConflictException(ConflictException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Conflict");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    /**
      * JPA-level "not found" (thrown by ExerciseService and any repository orElseThrow)
      * must surface as 404, not fall through to the catch-all 500.
      *

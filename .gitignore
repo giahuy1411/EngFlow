@@ -1,99 +1,144 @@
+# ===== EngFlow .gitignore =====
+
+# ---------- OS / Editor ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# ---------- Java / Maven / Spring Boot ----------
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+.mvn/wrapper/maven-wrapper.jar
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+.springBeans
+.classpath
+.factorypath
+.project
+.settings/
+.sts4-cache
+.apt_generated
 
-### VS Code ###
+# ---------- IDEs ----------
+.idea/
+*.iws
+*.iml
+*.ipr
 .vscode/
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
 
-# Secrets
+# ---------- Environment & Secrets ----------
 .env
-.env.*.local
-src/main/resources/application.properties
+.env.*
+!src/main/resources/application.properties.example
 
-# Node.js / VueJS (Frontend & Crawler)
+# ---------- Node / Frontend / Crawler ----------
 node_modules/
 dist/
 frontend/dist/
+crawler/dist/
+crawler/node_modules/
+frontend/node_modules/
+.cache/
+.parcel-cache/
 
-# Logs
+# ---------- Logs ----------
 *.log
 *.err
+logs/
+*.out
 vite-*.txt
+*hs_err_pid*.log
+replay_pid*.log
 
-# Docs (root-level only; keep frontend/docs/ ADRs tracked)
-/docs/
+# ---------- Runtime Artifacts ----------
+backend.pid
+*.pid
+uploads/
 
-# Temporary & Debug Files
-.brave-debug-user-data/
-chrome-wrapper.*
-
-# Agent / Extension caches
-.understand-anything/
+# ---------- Debug / Temp / One-off Scripts ----------
+*.tmp
+*.tmp-*
+*.bak
+*.orig
+*.rej
+diag_*.json
+diag_*.log
+*.network-request
+*.network-response
+*_dump.json
+api_tokens.txt
+*tokens*.txt
+api_smoke.ps1
+api_audit_*.ps1
+verify_*.ps1
+check_*.ps1
+final_*.ps1
+smoke_*.ps1
+tmp_*.json
+tmp_*.txt
+tmp_*.sql
+run_*.ps1
+db_*.sql
+create_*.sql
+reset_*.sql
+test_*.ps1
+diag_*.ps1
+compile_*.txt
+compile_*.log
+final_*.txt
+full_*.txt
+test_*.txt
+*_check.txt
+csp_*.txt
+compile_out.txt
+ui_report_utf8.md
+mcp.json
+mcp.json.backup-*
+mcp_config.json
+.agents/mcp_config.json
 skills-lock.json
 
-# Runtime artifacts
-backend.pid
-
-# Audit / tooling artifacts (not source)
+# ---------- Browser / MCP / Playwright ----------
 .ua/
 .ua-screens/
 .playwright-mcp/
 frontend/.playwright-mcp/
+.playwright/
+chrome-wrapper.*
+.brave-debug-user-data/
 crawler/output/
-screenshots/
-compile_out.txt
-ui_report_utf8.md
-tmp_*.json
-tmp_*.txt
-diag_*.json
-mcp_*.json
-backup_*.out
-*.network-request
-*.network-response
-.agents/mcp_config.json
-scripts/
-uploads/
+crawler/.cache/
 
-# Build/test logs & temp artifacts (anti-reaccumulation)
-compile_check*.txt
-csp_compile.txt
-test_run*.txt
-test_full.txt
-final_test.txt
+# ---------- Tailscale / Ngrok (never commit node auth + serve/funnel state) ----------
+.tailscale/
+tailscaled.*
+ngrok-stderr.txt
+ngrok-stdout.txt
+ngrok.yml
+home.png
+winget-tailscale*.log
+derpmap.cached.json
+
+# ---------- Misc ----------
+fsmonitor--daemon
 *.tmp-qr*.png
 .tmp-qrtool/
-api_tokens.txt
-*tokens*.txt
-.tmp-order*.txt
 .rt*.png
+.tmp-order*.txt
 
-# Tailscale node auth + serve/funnel state (never commit)
-.tailscale/
-frontend/public/e2e-tts.wav
+# ---------- Generated audio in static dir (keep folder, ignore content) ----------
+src/main/resources/static/audio/*.mp3
+# frontend/public/e2e-tts.wav is tracked (per AGENTS.md)
+
+# ---------- 0-byte accidental file from old shell sessions ----------
+/$null

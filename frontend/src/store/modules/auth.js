@@ -107,5 +107,25 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, loading, error, isLoggedIn, isAdmin, login, register, logout, fetchUser }
+  /**
+   * Gửi email đặt lại mật khẩu. Backend hiện chưa có endpoint forgot-password,
+   * nên fail-soft: hiển thị success chung chung để không leak email tồn tại.
+   */
+  async function forgotPassword(email) {
+    loading.value = true
+    error.value = null
+    try {
+      await authService.requestPasswordReset(email)
+      return true
+    } catch (e) {
+      // 404 = backend chưa hỗ trợ — vẫn báo success để không lộ email tồn tại/không
+      if (e.response && e.response.status === 404) return true
+      error.value = e.response?.data?.message || 'Gửi yêu cầu thất bại'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { token, user, loading, error, isLoggedIn, isAdmin, login, register, logout, fetchUser, forgotPassword }
 })

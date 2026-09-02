@@ -125,6 +125,7 @@ public class ExerciseService {
         List<Exercise> exercises = findExercisesForLesson(lessonId);
         List<ExerciseGradeItem> results = new ArrayList<>();
         int score = 0;
+        int total = 0;
 
         if (request.getAnswers() == null) {
             return GradeResponse.builder()
@@ -144,9 +145,26 @@ public class ExerciseService {
 
             if (ex == null) continue;
 
-            boolean correct = normalizeAnswer(item.getUserAnswer())
+            // Ungradeable: exercise has a null/blank answer key. Comparing "" to ""
+            // would mark an empty user answer as correct (false-positive), so the item
+            // is excluded from the score/total denominator instead.
+            boolean ungradeable = ex.getCorrectAnswer() == null || ex.getCorrectAnswer().isBlank();
+            boolean correct = false;
+            if (ungradeable) {
+                results.add(ExerciseGradeItem.builder()
+                        .exerciseId(ex.getId())
+                        .correct(false)
+                        .ungradeable(true)
+                        .userAnswer(item.getUserAnswer())
+                        .correctAnswer(ex.getCorrectAnswer())
+                        .build());
+                continue;
+            }
+
+            correct = normalizeAnswer(item.getUserAnswer())
                     .equals(normalizeAnswer(ex.getCorrectAnswer()));
             if (correct) score++;
+            total++;
 
             results.add(ExerciseGradeItem.builder()
                     .exerciseId(ex.getId())
@@ -156,13 +174,13 @@ public class ExerciseService {
                     .build());
         }
 
-        double pct = request.getAnswers().isEmpty() ? 0 :
-                (double) score / request.getAnswers().size() * 100;
+        double pct = total == 0 ? 0 :
+                (double) score / total * 100;
 
         return GradeResponse.builder()
                 .results(results)
                 .score(score)
-                .total(request.getAnswers().size())
+                .total(total)
                 .percentage(Math.round(pct * 100.0) / 100.0)
                 .build();
     }

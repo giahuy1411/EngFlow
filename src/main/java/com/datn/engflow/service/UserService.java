@@ -3,6 +3,7 @@ package com.datn.engflow.service;
 import java.time.Duration;
 import java.time.LocalDate;
 import com.datn.engflow.exception.BadRequestException;
+import com.datn.engflow.exception.ConflictException;
 import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.request.ChangePasswordRequest;
 import com.datn.engflow.model.dto.request.LoginRequest;
@@ -41,6 +42,7 @@ public class UserService {
     private final JwtTokenProvider tokenProvider;
     private final StreakService streakService;
     private final StringRedisTemplate redisTemplate;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public User findEntityById(Long userId) {
@@ -61,12 +63,12 @@ public class UserService {
 
         if (userRepository.existsByEmail(request.getEmail())) {
             log.error("\u0110\u0103ng k\u00fd th\u1ea5t b\u1ea1i: Email {} \u0111\u00e3 t\u1ed3n t\u1ea1i", request.getEmail());
-            throw new BadRequestException("Email \u0111\u00e3 t\u1ed3n t\u1ea1i tr\u00ean h\u1ec7 th\u1ed1ng");
+            throw new ConflictException("Email \u0111\u00e3 t\u1ed3n t\u1ea1i tr\u00ean h\u1ec7 th\u1ed1ng");
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {
             log.error("\u0110\u0103ng k\u00fd th\u1ea5t b\u1ea1i: Username {} \u0111\u00e3 t\u1ed3n t\u1ea1i", request.getUsername());
-            throw new BadRequestException("T\u00ean \u0111\u0103ng nh\u1eadp \u0111\u00e3 t\u1ed3n t\u1ea1i");
+            throw new ConflictException("T\u00ean \u0111\u0103ng nh\u1eadp \u0111\u00e3 t\u1ed3n t\u1ea1i");
         }
 
         User user = User.builder()
@@ -165,6 +167,53 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
         log.info("Thay \u0111\u1ed5i m\u1eadt kh\u1ea9u th\u00e0nh c\u00f4ng cho email: {}", email);
+    }
+
+    /**
+     * Sinh OTP 6 số lưu Redis 10 phút rồi gửi qua email.
+     * Trả về message chung chung cho mọi email (không leak user tồn tại).
+     */
+    public String requestPasswordReset(String email) {
+        log.info("Y\u00eau c\u1ea7u \u0111\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u cho email: {}", email);
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            // Không tiết lộ email tồn tại hay không — vẫn gửi "thành công"
+            return "N\u1ebfu email t\u1ed3n t\u1ea1i, m\u00e3 OTP \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1eedi. Ki\u1ec3m tra h\u1ed9p th\u01b0.";
+        }
+        User user = userOpt.get();
+
+        // Rate-limit: tối đa 3 OTP / email / 15 phút
+        String rlKey = "otp:rate:" + email;
+        Long count = redisTemplate.opsForValue().increment(rlKey);
+        if (count != null && count == 1) {
+            redisTemplate.expire(rlKey, Duration.ofMinutes(15));
+        }
+        if (count != null && count > 3) {
+            throw new BadRequestException("Qu\u00e1 nhi\u1ec1u y\u00eau c\u1ea7u. Th\u1eed l\u1ea1i sau 15 ph\u00fat.");
+        }
+
+        String otp = String.format("%06d", new java.security.SecureRandom().nextInt(1_000_000));
+        redisTemplate.opsForValue().set("otp:reset:" + email, otp, Duration.ofMinutes(10));
+
+        emailService.sendOtpEmail(email, user.getFullName(), otp);
+        return "N\u1ebfu email t\u1ed3n t\u1ea1i, m\u00e3 OTP \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1eedi. Ki\u1ec3m tra h\u1ed9p th\u01b0.";
+    }
+
+    /** Xác thực OTP rồi đặt mật khẩu mới. Xóa OTP sau khi dùng (one-time). */
+    @Transactional
+    public void resetPassword(String email, String otp, String newPassword) {
+        String key = "otp:reset:" + email;
+        String saved = redisTemplate.opsForValue().get(key);
+        if (saved == null || !saved.equals(otp)) {
+            throw new BadRequestException("M\u00e3 OTP kh\u00f4ng \u0111\u00fang ho\u1eb7c \u0111\u00e3 h\u1ebft h\u1ea1n");
+        }
+        redisTemplate.delete(key);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("\u0110\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u th\u00e0nh c\u00f4ng cho email: {}", email);
     }
 
     @Transactional

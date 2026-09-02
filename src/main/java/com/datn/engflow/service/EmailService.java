@@ -93,4 +93,67 @@ public class EmailService {
       log.error("Failed to send streak reminder to {}: {}", toEmail, e.getMessage());
     }
   }
+
+  /**
+   * Send a password-reset OTP email (6-digit code, valid 10 minutes).
+   */
+  public void sendOtpEmail(String toEmail, String fullName, String otp) {
+    String subject = "🔐 Mã đặt lại mật khẩu EngFlow: " + otp;
+
+    String html = """
+        <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;">
+          <div style="background:#121212;padding:24px 32px;border-bottom:6px solid #8B5CF6;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:14px;height:14px;border-radius:50%%;background:#8B5CF6;border:2px solid #fff;"></div>
+              <div style="width:14px;height:14px;background:#F472B6;border:2px solid #fff;"></div>
+              <div style="width:14px;height:14px;background:#FBBF24;border:2px solid #fff;"></div>
+              <span style="color:#fff;font-weight:900;font-size:20px;text-transform:uppercase;letter-spacing:-0.5px;margin-left:8px;">EngFlow</span>
+            </div>
+          </div>
+
+          <div style="padding:40px 32px;text-align:center;">
+            <div style="font-size:48px;margin-bottom:16px;">🔐</div>
+            <h1 style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;margin:0 0 8px 0;color:#121212;">
+              Xin chào, %s!
+            </h1>
+            <p style="color:#666;font-size:15px;margin:0 0 32px 0;line-height:1.6;">
+              Bạn đã yêu cầu đặt lại mật khẩu. Nhập mã OTP dưới đây vào trang EngFlow:
+            </p>
+
+            <div style="border:4px solid #121212;padding:24px;margin:0 auto 16px auto;max-width:240px;box-shadow:6px 6px 0 0 #8B5CF6;">
+              <div style="font-size:40px;font-weight:900;letter-spacing:8px;color:#8B5CF6;">%s</div>
+            </div>
+
+            <p style="color:#999;font-size:13px;margin:0 0 32px 0;">
+              Mã có hiệu lực <strong>10 phút</strong>. Không chia sẻ mã này với ai.
+            </p>
+
+            <a href="http://localhost:5173/reset-password"
+               style="display:inline-block;background:#8B5CF6;color:#fff;font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;padding:16px 48px;text-decoration:none;border:3px solid #121212;box-shadow:5px 5px 0 0 #121212;">
+              NHẬP MÃ NGAY →
+</a>
+          </div>
+
+          <div style="background:#f5f5f5;padding:20px 32px;border-top:3px solid #121212;text-align:center;">
+            <p style="color:#999;font-size:11px;margin:0;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
+              EngFlow — Nền tảng học Tiếng Anh tương tác
+            </p>
+          </div>
+        </div>
+        """
+        .formatted(fullName != null ? fullName : "bạn", otp);
+
+    try {
+      MimeMessage message = mailSender.createMimeMessage();
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setFrom(fromEmail);
+      helper.setTo(toEmail);
+      helper.setSubject(subject);
+      helper.setText(html, true);
+      mailSender.send(message);
+      log.info("Password-reset OTP sent to: {}", toEmail);
+    } catch (MessagingException e) {
+      log.error("Failed to send OTP to {}: {}", toEmail, e.getMessage());
+    }
+  }
 }
