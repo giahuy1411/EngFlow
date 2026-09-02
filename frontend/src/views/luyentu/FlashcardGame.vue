@@ -105,6 +105,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import deckService from '@/services/deckService'
+import flashcardService from '@/services/flashcardService'
 import { Check, Volume2 } from 'lucide-vue-next'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -186,6 +187,13 @@ function playAudio(url) {
 
 function markWord(rating) {
   if (currentIndex.value < words.value.length) {
+    // Ghi nhận review SRS (fire-and-forget): 'again' → chưa thuộc,
+    // 'good'/'easy' → đã thuộc. Lỗi không chặn việc học, chỉ log console.
+    const vocabularyId = currentWord.value?.id
+    if (vocabularyId) {
+      flashcardService.reviewFlashcard(vocabularyId, rating !== 'again')
+        .catch(err => console.warn('Không lưu được review:', err?.message || err))
+    }
     currentIndex.value++
     isFlipped.value = false
   }
