@@ -43,6 +43,13 @@ public class SePayApiService {
     private final ObjectMapper objectMapper;
     private final String apiToken;
 
+    /**
+     * Circuit breaker: when SePay returns 401/403 the token is invalid
+     * permanently (until restart with a new token). Retrying every sweep
+     * would only spam the log and burn the rate limit.
+     */
+    private volatile boolean authDisabled = false;
+
     public SePayApiService(RestTemplate restTemplate,
                            ObjectMapper objectMapper,
                            @Value("${sepay.api-token:}") String apiToken) {
@@ -64,7 +71,7 @@ public class SePayApiService {
      * @return true if the API token is present and non-blank
      */
     public boolean isTokenConfigured() {
-        return apiToken != null && !apiToken.isBlank();
+        return apiToken != null && !apiToken.isBlank() && !authDisabled;
     }
 
     /**
@@ -84,6 +91,9 @@ public class SePayApiService {
         if (apiToken == null || apiToken.isBlank()) {
             log.warn("SePay API token not configured, cannot poll for transactions");
             return Optional.empty();
+        }
+        if (authDisabled) {
+            return Optional.empty(); // 401/403 circuit open — log once, skip silently
         }
 
         String url = TRANSACTIONS_LIST_URL
@@ -145,6 +155,11 @@ public class SePayApiService {
             String retryAfter = e.getResponseHeaders() != null
                     ? e.getResponseHeaders().getFirst("x-sepay-userapi-retry-after") : null;
             log.warn("SePay API rate limited (429), retry-after={}s; will be retried on next status poll", retryAfter);
+            return Optional.empty();
+        } catch (HttpClientErrorException.Unauthorized | HttpClientErrorException.Forbidden e) {
+            authDisabled = true;
+            log.error("SePay API rejected the token ({}). Disabling polling fallback until restart. "
+                    + "Fix SEPAY_API_TOKEN in .env and rebuild/restart the backend.", e.getStatusCode());
             return Optional.empty();
         } catch (Exception e) {
             log.warn("SePay API polling failed for order code {}: {}", orderCode, e.getMessage());
