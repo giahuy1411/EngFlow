@@ -4,7 +4,7 @@
 
 ## Technical Context
 
-- **Backend:** Spring Boot 3, Java 17, SQL Server 2019 (`engflow-sqlserver` :1434→1433),
+- **Backend:** Spring Boot 3, Java 17, SQL Server 2019 (`engflow-sqlserver` :1434→1433; host port đã đổi thành 1433 sau audit-v3, 2026-09-02),
   Redis (`engflow-redis`), MinIO, container `engflow-backend` :8080. 25 controllers,
   40 services, 21 entities. Test: `mvnw.cmd test` = 196.
 - **Frontend:** Vue 3 + Vite (container `engflow-frontend` :5173, bind-mount

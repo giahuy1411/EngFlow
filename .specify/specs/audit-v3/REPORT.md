@@ -27,7 +27,8 @@
 - **T18 design-system grep**: `Outfit`/`Plus Jakarta Sans` = **0** lần; `Be Vietnam Pro` ở đúng 4 file (index.html, design-system.css, App.vue, AdminLayout.vue); `--geo-*` 699 lần; `shadow-pop*` 201; `prefers-reduced-motion` 6 → **đạt**.
 - Console: không có error; 1 cảnh a11y low-priority "A form field element should have an id or name attribute" (39 lần ở tab exercises — input render động, không chặn chức năng).
 
-### 1.3 Database trong Docker (engflow-sqlserver :1434)
+### 1.3 Database trong Docker (engflow-sqlserver)
+> Port note: trong suốt đợt audit này SQL Server host port là **1434**; sau khi audit (2026-09-02) đã đổi sang **1433** (commit `11dfaa8`) — kết nối từ ngoài giờ dùng `localhost:1433`.
 - Kết nối `sa` OK; DB `english_learning`; đếm rows khớp admin dashboard.
 - **Tối ưu hiệu năng đã áp dụng**: index `idx_exercises_lesson_type` (lesson_id, exercise_type), `idx_lesson_blocks_section`… (tạo bằng sqlcmd với `SET QUOTED_IDENTIFIER ON`), Redis cache dictionary, RestTemplate timeout đúng.
 - **Hiệu năng đo được (bằng chứng P5)**: dictionary trước khi sửa **19,5–21,9s mỗi lần** (browser direct, luôn timeout/fallback) → sau khi sửa: call đầu ~20s (cold), các call sau **23–258ms** (Redis, 4 keys `dictionary:*`). Còn lại: `payment.status` ~3,5s trong cửa sổ poll — đo được, chưa tối ưu (xem §4).

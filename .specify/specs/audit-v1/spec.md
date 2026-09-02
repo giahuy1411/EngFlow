@@ -26,7 +26,7 @@ baseline xanh và KHÔNG thêm tính năng mới.
 - R2.4 Kiểm tra response shape từng API (v/v `.data` vs plain).
 
 ### R3 — DB trong Docker + hiệu năng
-- R3.1 `engflow-sqlserver` healthy, kết nối được qua sqlcmd :1434.
+- R3.1 `engflow-sqlserver` healthy, kết nối được qua sqlcmd :1434. *(Cập nhật: host port hiện là 1433 — sửa 2026-09-02 sau audit-v3.)*
 - R3.2 Bảng, index, ràng buộc nguyên vẹn; các cột NOT NULL hợp lệ.
 - R3.3 Chỉ số hiệu năng: thời gian API p50, query chậm (đọc Hibernate stats /
   logging), full-table-scan trên các query chính.
