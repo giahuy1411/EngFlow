@@ -1,7 +1,7 @@
 spring.application.name=engflow
 
 # Database Configuration (SQL Server)
-spring.datasource.url=jdbc:sqlserver://localhost:1434;databaseName=english_learning;encrypt=true;trustServerCertificate=true;
+spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=english_learning;encrypt=true;trustServerCertificate=true;
 spring.datasource.username=sa
 spring.datasource.password=${DB_PASSWORD}
 spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver

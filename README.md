@@ -48,7 +48,7 @@ docker compose up -d
 |---------|-----------|
 | Frontend (Vite dev) | 5173 |
 | Backend (Spring Boot) | 8080 |
-| SQL Server | 1434 |
+| SQL Server | 1433 |
 | Redis | 6379 |
 | MinIO | 9000 / 9001 (console) |
 
