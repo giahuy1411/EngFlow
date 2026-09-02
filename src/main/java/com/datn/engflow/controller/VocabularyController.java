@@ -13,7 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClient;
+import org.springframework.cache.annotation.Cacheable;
+import com.datn.engflow.service.DictionaryService;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ import java.util.List;
 public class VocabularyController {
 
     private final VocabularyRepository vocabularyRepository;
+    private final DictionaryService dictionaryService;
 
     @GetMapping
     public ResponseEntity<Page<Vocabulary>> list(@PageableDefault(size = 20, sort = "word") Pageable pageable) {
@@ -48,7 +50,9 @@ public class VocabularyController {
     /**
      * Proxy tra từ điển dictionaryapi.dev — browser ở VN đôi khi không kết nối
      * trực tiếp được tới API này, trong khi backend container thì được.
-     * Trả về JSON array y nguyên từ upstream (fail-soft: 502 + message nếu lỗi).
+     * Cache + timeout nằm ở DictionaryService (bắt buộc tách class để
+     * @Cacheable đi qua Spring proxy).
+     * Fail-soft: lỗi upstream → "[]".
      */
     @GetMapping("/dictionary/{word}")
     public ResponseEntity<String> dictionaryProxy(@PathVariable String word) {
@@ -56,19 +60,7 @@ public class VocabularyController {
         if (clean.isBlank()) {
             return ResponseEntity.badRequest().body("[]");
         }
-        try {
-            String body = RestClient.create()
-                    .get()
-                    .uri("https://api.dictionaryapi.dev/api/v2/entries/en/{w}", clean)
-                    .retrieve()
-                    .body(String.class);
-            return ResponseEntity.ok(body == null ? "[]" : body);
-        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
-            return ResponseEntity.ok("[]");
-        } catch (Exception e) {
-            log.warn("Dictionary proxy failed for '{}': {}", clean, e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("[]");
-        }
+        return ResponseEntity.ok(dictionaryService.lookup(clean));
     }
 
     @PostMapping
