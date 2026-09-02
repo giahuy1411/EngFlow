@@ -76,8 +76,10 @@ export default {
     async function backendFallback() {
       // 1) Proxy qua backend tới dictionaryapi.dev (container có mạng tới API
       //    mà browser VN đôi khi không vào được). Trả array cùng shape direct.
+      //    Timeout 32s riêng: upstream thực tế ~20s khi cache lạnh, axios
+      //    default 10s sẽ cắt sớm → báo "Không tìm thấy từ" sai.
       try {
-        const proxy = await api.get(`/api/vocabulary/dictionary/${encodeURIComponent(trimmed)}`)
+        const proxy = await api.get(`/api/vocabulary/dictionary/${encodeURIComponent(trimmed)}`, { timeout: 32000 })
         const raw = typeof proxy.data === 'string' ? JSON.parse(proxy.data) : proxy.data
         if (Array.isArray(raw) && raw.length > 0) {
           return raw.map((entry, idx) => ({
@@ -138,21 +140,21 @@ export default {
 
     let response
     try {
+      // Proxy backend là đường chính: Redis cache 1h dùng chung mọi user +
+      // timeout 3s/30s phía server. Chỉ khi proxy lỗi mới thử direct từ
+      // browser (4s×2). Tiết kiệm ~8s chờ vô ích cho mỗi từ mới.
       try {
-        // Timeout ngắn (4s): nếu browser không vào được dictionaryapi.dev
-        // thì càng sớm càng tốt chuyển sang proxy backend (đã xác minh container
-        // luôn vào được). 2 lần thử ngắn > 1 lần thử dài cho UX.
-        response = await directFetch(4000)
-      } catch (firstErr) {
+        return await backendFallback()
+      } catch (proxyErr) {
         try {
           response = await directFetch(4000)
-        } catch (secondErr) {
-          return await backendFallback()
+        } catch (firstErr) {
+          response = await directFetch(4000)
         }
+        return await mapDirectResponse(response)
       }
-      return await mapDirectResponse(response)
     } catch (e) {
-      // mapDirectResponse lỗi HTTP (404 trả [] nên không tới đây) — thử backend
+      // mapDirectResponse lỗi HTTP (404 trả [] nên không tới đây) — thử backend lần cuối
       try {
         return await backendFallback()
       } catch (backendErr) {

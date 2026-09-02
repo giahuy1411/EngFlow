@@ -123,7 +123,7 @@ async function search() {
     searched.value = true
   } catch (e) {
     if (e && e.message === 'TIMEOUT') {
-      error.value = 'Tra cứu quá lâu (mất hơn 8 giây). Vui lòng thử lại.'
+      error.value = 'Tra cứu quá lâu — từ điển đang chậm phản hồi. Vui lòng thử lại sau ít phút.'
     } else if (e && e.message === 'NETWORK_ERROR') {
       error.value = 'Lỗi mạng — không kết nối được từ điển. Kiểm tra internet và thử lại.'
     } else {
