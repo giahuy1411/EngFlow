@@ -61,27 +61,22 @@
         </div>
       </div>
 
-      <!-- Result badge -->
+      <!-- Result badge (server-graded via `result` prop; correct pairs only known after /grade) -->
       <div v-if="revealed && !unusable" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
-        :class="isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
+        :class="!graded ? 'bg-secondary/10 border-secondary' : (result.isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent')">
         <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
-          <span>{{ isCorrect ? '✓ Đúng' : '✕ Sai' }}</span>
+          <span>{{ !graded ? 'Đang chấm…' : (result.isCorrect ? '✓ Đúng' : '✕ Sai') }}</span>
         </div>
-        <p class="font-bold text-sm">Đáp án đúng:</p>
-        <div v-for="(pair, i) in correctPairs" :key="'c-' + i" class="flex gap-2 text-sm mt-1">
-          <span class="font-bold">{{ leftItems[pair.left] }}</span>
-          <span class="text-muted-foreground" aria-hidden="true">→</span>
-          <span class="font-medium">{{ rightItems[pair.right] }}</span>
-        </div>
+        <p v-if="graded && result.correctAnswer" class="font-bold text-sm">Đáp án đúng: <span class="text-quaternary">{{ result.correctAnswer }}</span></p>
         <p v-if="exercise.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(exercise.explanation)"></p>
       </div>
       <!-- Fallback result badge (unusable matching data) -->
       <div v-else-if="revealed && unusable" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
-        :class="fallbackCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
+        :class="!graded ? 'bg-secondary/10 border-secondary' : (result.isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent')">
         <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
-          <span>{{ fallbackCorrect ? '✓ Đúng' : '✕ Sai' }}</span>
+          <span>{{ !graded ? 'Đang chấm…' : (result.isCorrect ? '✓ Đúng' : '✕ Sai') }}</span>
         </div>
-        <p class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ exercise.correctAnswer || 'Chưa có đáp án' }}</span></p>
+        <p v-if="graded" class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ result.correctAnswer || 'Chưa có đáp án' }}</span></p>
       </div>
     </div>
   </div>
@@ -95,16 +90,18 @@ import { sanitizeText } from '@/utils/markdown'
 import AppButton from '@/components/ui/AppButton.vue'
 
 const props = defineProps({
-  exercise: { type: Object, required: true }
+  exercise: { type: Object, required: true },
+  // audit-v5: kết quả chấm từ server (LessonExerciseTab gọi /grade rồi đẩy xuống)
+  result: { type: Object, default: () => ({}) }
 })
 
 const emit = defineEmits(['answer', 'reveal'])
 
+const graded = computed(() => props.result?.graded === true)
+
 // audit-v5: unusable matching data (empty or no "left|right" pairs) → text fallback
 const unusable = computed(() => leftItems.value.length === 0)
 const fallbackAnswer = ref('')
-const fallbackCorrect = computed(() =>
-  fallbackAnswer.value.trim().toLowerCase() === String(props.exercise.correctAnswer || '').trim().toLowerCase())
 
 function emitFallback() {
   revealed.value = true
@@ -132,17 +129,6 @@ const userPairs = computed(() => {
     map[p.left] = p.right
   }
   return map
-})
-
-const isCorrect = computed(() => {
-  if (matchedPairs.value.length !== correctPairs.value.length) return false
-  for (const mp of matchedPairs.value) {
-    const leftVal = leftItems.value[mp.left]
-    const rightVal = rightItems.value[mp.right]
-    const expected = correctPairs.value.find(cp => cp.left === leftVal)
-    if (!expected || expected.right !== rightVal) return false
-  }
-  return true
 })
 
 onMounted(() => {
@@ -253,11 +239,9 @@ function leftClass(i) {
   const isMatched = matchedPairs.value.some(p => p.left === i)
   const isPending = pendingLeft.value === i
   if (revealed.value) {
-    const cp = correctPairs.value.find(p => p.left === i)
+    // audit-v5: client không biết đáp án đúng (server chấm) — chỉ highlight đã nối
     const mp = matchedPairs.value.find(p => p.left === i)
-    const correct = cp && mp && cp.right === mp.right
-    if (correct) return 'border-quaternary bg-quaternary/10'
-    if (mp) return 'border-accent bg-accent/10'
+    if (mp) return graded.value && props.result.isCorrect ? 'border-quaternary bg-quaternary/10' : 'border-accent bg-accent/10'
     return 'border-border opacity-50'
   }
   if (isMatched) return 'border-quaternary bg-quaternary/10'
@@ -269,11 +253,8 @@ function rightClass(i) {
   const isMatched = matchedPairs.value.some(p => p.right === i)
   const isPending = pendingRight.value === i
   if (revealed.value) {
-    const cp = correctPairs.value.find(p => p.right === i)
     const mp = matchedPairs.value.find(p => p.right === i)
-    const correct = cp && mp && cp.right === mp.right
-    if (correct) return 'border-quaternary bg-quaternary/10'
-    if (mp) return 'border-accent bg-accent/10'
+    if (mp) return graded.value && props.result.isCorrect ? 'border-quaternary bg-quaternary/10' : 'border-accent bg-accent/10'
     return 'border-border opacity-50'
   }
   if (isMatched) return 'border-quaternary bg-quaternary/10'

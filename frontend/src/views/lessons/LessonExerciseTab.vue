@@ -39,6 +39,7 @@
           <!-- MATCHING: use dedicated component -->
           <MatchingExercise v-if="ex.exerciseType === 'MATCHING'"
             :exercise="ex"
+            :result="cardStates[ex.id] || {}"
             @answer="onMatchingAnswer(ex.id, $event)"
             @reveal="onMatchingReveal(ex.id, $event)"
           />
@@ -83,14 +84,15 @@
             <div v-if="cardStates[ex.id]?.revealed" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
               :class="cardStates[ex.id]?.isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
               <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
-                <span>{{ cardStates[ex.id]?.isCorrect ? '✅ Đúng' : '❌ Sai' }}</span>
+                <span>{{ cardStates[ex.id]?.ungradeable ? '⚪ Không chấm được' : (cardStates[ex.id]?.isCorrect ? '✅ Đúng' : '❌ Sai') }}</span>
               </div>
-              <p class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ ex.correctAnswer || 'Chưa có đáp án' }}</span></p>
+              <p v-if="cardStates[ex.id]?.correctAnswer" class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ cardStates[ex.id].correctAnswer }}</span></p>
+              <p v-else-if="cardStates[ex.id]?.ungradeable" class="text-sm text-muted-foreground">Bài tập này chưa có đáp án chuẩn nên không được tính điểm.</p>
               <p v-if="ex.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(ex.explanation)"></p>
             </div>
 
             <!-- Check button -->
-            <AppButton v-if="!cardStates[ex.id]?.revealed" @click="checkAnswer(ex)" class="mt-4" variant="pink" :disabled="!getUserAnswer(ex.id)">
+            <AppButton v-if="!cardStates[ex.id]?.revealed" @click="checkAnswer(ex)" class="mt-4" variant="pink" :disabled="!getUserAnswer(ex.id) || grading">
               Kiểm tra
             </AppButton>
           </template>
@@ -132,6 +134,9 @@ const optionAnswers = ref({})
 const cardStates = ref({})
 const submitting = ref(false)
 const submitted = ref(false)
+// audit-v5: đáp án thật không bao giờ nằm trên client (includeAnswers=403 cho
+// user thường) — mọi check/submit phải chấm qua API /grade (server-side key).
+const grading = ref(false)
 
 function typeLabel(type) {
   const map = { MULTIPLE_CHOICE: 'Trắc nghiệm', FILL_BLANK: 'Điền từ', LISTENING: 'Nghe', MATCHING: 'Nối từ', TRANSLATION: 'Dịch' }
@@ -198,34 +203,51 @@ function getCardOptionClass(exId, opt) {
   if (!state?.revealed) {
     return selected ? 'border-accent bg-accent/10' : 'border-foreground hover:bg-tertiary/10'
   }
-  const ex = exercises.value.find(e => e.id === exId)
-  const isCorrectAnswer = opt.trim().toLowerCase() === (ex?.correctAnswer || '').trim().toLowerCase()
-  if (isCorrectAnswer) return 'border-quaternary bg-quaternary/10'
+  // audit-v5: sau khi chấm, tô xanh đáp án server trả về (key thật), không so
+  // trên client vì correctAnswer bị strip với user thường.
+  if (state.correctAnswer && opt.trim().toLowerCase() === String(state.correctAnswer).trim().toLowerCase()) {
+    return 'border-quaternary bg-quaternary/10'
+  }
   if (selected && !state.isCorrect) return 'border-accent bg-accent/10'
   return 'border-border opacity-60'
 }
 
-function checkAnswer(ex) {
+async function checkAnswer(ex) {
   const userAnswer = getUserAnswer(ex.id)
-  if (!userAnswer) return
-  const normalizedUser = userAnswer.trim().toLowerCase().replace(/\s+/g, ' ')
-  const normalizedCorrect = (ex.correctAnswer || '').trim().toLowerCase().replace(/\s+/g, ' ')
-  const isCorrect = normalizedUser === normalizedCorrect
-  cardStates.value[ex.id] = { revealed: true, isCorrect }
+  if (!userAnswer || grading.value) return
+  grading.value = true
+  try {
+    const res = await lessonService.gradeExercises(lessonId, [
+      { exerciseId: ex.id, userAnswer }
+    ])
+    const item = res?.results?.[0]
+    if (item) {
+      cardStates.value[ex.id] = {
+        revealed: true,
+        graded: true,
+        isCorrect: !!item.correct,
+        ungradeable: !!item.ungradeable,
+        correctAnswer: item.correctAnswer || ''
+      }
+    }
+  } catch (e) {
+    console.error('Grade failed:', e)
+  } finally {
+    grading.value = false
+  }
 }
 
 // MATCHING handlers
 function onMatchingAnswer(exId, answer) {
   optionAnswers.value[exId] = answer
+  // audit-v5: reset trạng thái đã chấm khi học viên đổi câu trả lời
+  cardStates.value[exId] = { revealed: false, graded: false, isCorrect: false, correctAnswer: '' }
 }
 
-function onMatchingReveal(exId, answer) {
+async function onMatchingReveal(exId, answer) {
   const ex = exercises.value.find(e => e.id === exId)
   if (!ex) return
-  const normalizedUser = answer.trim().toLowerCase().replace(/\s+/g, '')
-  const normalizedCorrect = (ex.correctAnswer || '').trim().toLowerCase().replace(/\s+/g, '')
-  const isCorrect = normalizedUser === normalizedCorrect
-  cardStates.value[exId] = { revealed: true, isCorrect }
+  await checkAnswer(ex)
 }
 
 async function submitAll() {
