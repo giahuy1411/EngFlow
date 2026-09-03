@@ -102,6 +102,14 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 - Shift còn lại 0.108 = footer `prev[0,791,1425,96]→[0,0,0,0]` ở t≈200-400ms: Vue mount route async làm main phình → footer bị đẩy ra viewport. Đã thử 4 cách (min-height wrapper, absolute slot, static placeholder, main min-height hard-code) — chỉ hard-code hết shift nhưng tạo khoảng trống thừa trên trang ngắn → **bác bỏ** (đánh đổi UX không chấp nhận được). **Warm cache CLS = 0**; production có HTTP cache/CDN → hành vi warm. Kết luận: 0.108 cold-load là SPA-mount artifact, < 0.25 (Not "Poor"), chấp nhận; nếu muốn <0.1 cần SSR/prerender (ngoài phạm vi).
 - vitest 73/73 + build sạch sau khi revert về trạng thái tối ưu.
 
+## 4f. TTS Supertonic local cho bài tập LISTENING do AI sinh (T8.1–T8.3)
+- **Kiến trúc**: `supertonic_server.py` — FastAPI adapter đặt trên server chính chủ của supertonic (`create_app`), expose đúng contract Java `SupertonicProxyTtsService` chờ sẵn: `POST /synthesize {text,voice,lang} → WAV`, `GET /health → 200`. Adapter gọi thẳng `_do_synthesize`/`_audio_response` (giữ synth_lock + voice resolution của lib). `supertonic.Dockerfile` (python:3.12-slim, `supertonic[serve]==1.3.1`) + compose service `supertonic` (CPU-only, named volume `supertonic_models`) + env `AI_EXERCISE_TTS_SUPERTONIC_URL=http://supertonic:8001`. Provider flip: `${AI_EXERCISE_TTS_PROVIDER:supertonic}` — rollback = set env về `Z.ai`.
+- **Root cause 422 (sửa tận gốc)**: Java `HttpClient` mặc định **HTTP/2** gửi h2c Upgrade; uvicorn chỉ nói HTTP/1.1, quá trình hạ cấp **làm mất POST body** → FastAPI đọc `body=b''` → 422 "Field required". Mọi test từ host (wget/PowerShell/.NET, kể cả chunked) đều 200 vì dùng HTTP/1.1. Fix: `.version(HttpClient.Version.HTTP_1_1)` trong `SupertonicProxyTtsService` (1 dòng, rebuild jar).
+- **Đo hiệu năng (P5)**: synth 1 câu ~44 ký tự = **1.1–1.3s** CPU; RAM sidecar **~546–718MB**/3.7GB; model load + health trong 10s (volume cache).
+- **E2E đã verify**: admin AI-generate LISTENING (lesson tạm 91916) → log `Supertonic TTS synthesized 264236 bytes` → `TTS audio generated: https://res.cloudinary.com/.../ai-listen-91916-*.wav` → `audio_url` có trong DB (2/2 bài). Dọn lesson sau test. Unit: 4 Mockito tests (unavailable/bytes/throws/null). Sweep 67/67.
+- **Fail-soft**: sidecar chết → `isAvailable()` false → bài vẫn lưu không audio → browser TTS fallback (`speech.js`) hoạt động như cũ.
+- Commit **b9bbbd3**.
+
 ## 5. SKILL ĐÃ NẠP
 - `speckit-workflow` (pipeline constitution→…→converge) — dùng xuyên suốt, artifacts §1.6.
 - (Các skill khác trong catalog như `accessibility`, `performance-optimization` đã có sẵn hướng dẫn tương đương trong constitution + checklist; không cần nạp thêm vì công việc đã đi theo đúng gate của chúng.)
