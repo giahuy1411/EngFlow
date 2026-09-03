@@ -74,9 +74,13 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 1. **Data seed hỏng chưa sửa tận gốc** (148/481 MATCHING, ~230 placeholder, 81 LISTENING thiếu audio, 3 dòng degenerate) — quyết định KHÔNG rewrite hàng chục nghìn dòng (rủi ro mất bài thật); UI guard đã che toàn bộ. Kiến nghị: chạy lại pipeline MCP/`generate-async` cho các bài hỏng.
 2. **Giao dịch thật ENGF8AB9431CE85**: DB không có transaction khớp → hoặc SePay webhook chưa về lúc chuyển, hoặc nội dung CK sai cú pháp. Cần đối soát thủ công với sao kê; premium hiện active do E2E webhook test (expiry 2026-10-03).
 3. **CLS dev-server 0.18**: footer đã reserve; phần còn lại là FOUT font-swap khi Vite dev serve unminified — cần đo lại bằng `vite preview`/prod build khi deploy.
-4. **`/ai-vocab-generator`**: trang mở được nhưng chưa walkthrough sâu từng nút.
-5. **Hikari tuning / PagedModel serialization warning**: ghi nhận, chưa đụng (không thuộc DoD).
-6. Memory game "0 CẶP/14 LẦN THỬ" sau script click — nghi do script lật lại cặp; chưa xác minh lại bằng tay.
+4. ~~`/ai-vocab-generator`~~ **ĐÃ XONG (converge round)**: walkthrough đầy đủ — form Travel/B1/5 → Ollama sinh 5 từ (travel/destination/accommodation/transport/budget) → "Lưu tất cả" → toast "ĐÃ LƯU 5 TỪ VÀO DB!" → verify `vocabulary` rows 50170–50174 `source=AI_GENERATED` → dọn DB sạch.
+5. ~~Memory game~~ **ĐÃ XONG (converge round)**: "0 CẶP/14 LẦN THỬ" trước đó là artifact của script lật-lại-cặp; chơi đúng bằng cách đọc `pairId` từ state → **8/8 CẶP, 8 LẦN THỬ, "Đã lưu: 8/8 đúng · +8 điểm"**. Lưu ý: deck 10016/50038/50039 ("Test Deck") có 0 từ → game hiện "Không tải được bộ từ" (đúng hành fail-soft, deck rỗng là dữ liệu test cũ).
+6. **Hikari tuning / PagedModel serialization warning**: ghi nhận, chưa đụng (không thuộc DoD).
+
+## 4b. Converge round (sau REPORT gốc)
+- **Phát hiện + sửa F16**: `SpeakingDetail.vue` còn 3 class off-token/chết (`text-amber-700`, `text-primary`, `text-destructive` — 2 cái cuối không tồn tại trong tailwind config) → map `warning/accent/danger` (commit `6a520ab`). Scan off-token toàn `frontend/src` giờ = **0 hit**. vitest 73/73, build sạch.
+- Skill nạp thêm: `speckit-converge` (đánh giá codebase ↔ spec/plan/tasks, append task).
 
 ## 5. SKILL ĐÃ NẠP
 - `speckit-workflow` (pipeline constitution→…→converge) — dùng xuyên suốt, artifacts §1.6.
