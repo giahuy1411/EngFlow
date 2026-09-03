@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
         <div class="w-10 h-10 bg-accent border-2 border-foreground flex items-center justify-center rotate-6 rounded-md">
-          <AudioWaveformIcon class="w-5 h-5 text-white" />
+          <AudioWaveformIcon class="w-5 h-5 text-white" aria-hidden="true" />
         </div>
         <div>
           <h2 class="font-black text-2xl uppercase tracking-tighter">Chấm Bài Speaking</h2>
@@ -16,7 +16,7 @@
     <!-- Status Filter -->
     <div class="flex flex-wrap items-center gap-3">
       <div class="relative flex-1 min-w-[200px] sm:max-w-xs">
-        <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
         <input
           id="submission-search"
           name="submission-search"
@@ -37,31 +37,58 @@
         <option value="SUBMITTED">Chờ chấm (SUBMITTED)</option>
         <option value="UNDER_REVIEW">Đang chấm (UNDER_REVIEW)</option>
         <option value="GRADED">Đã chấm (GRADED)</option>
+        <option value="COMPLETED">Đánh giá xong (COMPLETED)</option>
+        <option value="PROCESSING">Đang xử lý (PROCESSING)</option>
+        <option value="FAILED">Lỗi đánh giá (FAILED)</option>
       </select>
 
-      <AppButton
-        @click="loadSubmissions()"
-        variant="secondary"
-        size="sm"
-      >
-        🔄 Tải lại danh sách
+      <AppButton @click="loadSubmissions()" variant="secondary" size="sm">
+        <RefreshCwIcon class="w-4 h-4" aria-hidden="true" />
+        Tải lại danh sách
       </AppButton>
     </div>
 
-    <!-- Content List -->
-    <div v-if="subLoading" class="text-center py-12" role="status">
-      <div class="animate-spin w-8 h-8 border-2 border-foreground border-t-transparent rounded-full mx-auto"></div>
-      <p class="mt-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Đang tải bài nộp...</p>
+    <!-- Loading skeleton -->
+    <div v-if="subLoading" class="space-y-6" role="status" aria-label="Đang tải bài nộp">
+      <div v-for="i in 3" :key="i" class="bg-white border-2 border-foreground p-6 rounded-md shadow-pop space-y-4">
+        <div class="flex items-center justify-between border-b-2 border-border pb-4">
+          <div class="space-y-2">
+            <div class="app-skeleton h-5 w-48 rounded"></div>
+            <div class="app-skeleton h-4 w-64 rounded"></div>
+          </div>
+          <div class="app-skeleton h-10 w-24 rounded-md"></div>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
+          <div class="app-skeleton h-24 rounded-md"></div>
+          <div class="app-skeleton h-48 rounded-md"></div>
+        </div>
+      </div>
     </div>
 
-    <div v-else-if="subError" class="bg-danger/10 border-2 border-danger p-6 rounded-md">
-      <p class="font-bold text-danger">{{ subError }}</p>
-      <button @click="loadSubmissions()" class="mt-2 text-sm font-bold underline">Thử lại</button>
-    </div>
-    <div v-else class="space-y-6">
-      <div v-if="filteredSubmissions.length === 0" class="text-center py-12 bg-white border-2 border-dashed border-foreground rounded-md shadow-pop">
-        <p class="font-bold uppercase tracking-wider text-sm text-muted-foreground">Chưa có bài nộp nào</p>
+    <!-- Error -->
+    <div v-else-if="subError" class="app-state app-state--error" role="alert">
+      <AlertTriangleIcon class="w-8 h-8 text-danger" aria-hidden="true" />
+      <h3 class="app-state__title">Không tải được danh sách bài nộp</h3>
+      <p class="app-state__desc">{{ subError }}</p>
+      <div class="app-state__action">
+        <AppButton variant="secondary" size="sm" @click="loadSubmissions()">Thử lại</AppButton>
       </div>
+    </div>
+
+    <!-- Content List -->
+    <div v-else class="space-y-6">
+      <AppEmptyState
+        v-if="filteredSubmissions.length === 0"
+        :title="hasActiveFilters ? 'Không tìm thấy bài nộp phù hợp' : 'Chưa có bài nộp nào'"
+        :description="hasActiveFilters ? 'Thử đổi từ khóa hoặc chọn trạng thái khác.' : 'Bài nộp của học viên sẽ xuất hiện tại đây để bạn chấm điểm.'"
+      >
+        <template #visual>
+          <InboxIcon class="w-10 h-10 text-muted-foreground" aria-hidden="true" />
+        </template>
+        <template v-if="hasActiveFilters" #action>
+          <AppButton variant="secondary" size="sm" @click="clearFilters">Xóa bộ lọc</AppButton>
+        </template>
+      </AppEmptyState>
 
       <div
         v-for="s in filteredSubmissions"
@@ -83,7 +110,7 @@
 
           <div class="text-right">
             <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1">Điểm số</span>
-            <span class="text-3xl font-black px-4 py-2 bg-tertiary/20 border-2 border-foreground rounded-md inline-block">
+            <span class="text-3xl font-black px-4 py-2 bg-tertiary/20 border-2 border-foreground rounded-md inline-block tabular-nums">
               {{ s.score == null ? '-' : s.score + '/10' }}
             </span>
           </div>
@@ -98,6 +125,11 @@
               <audio v-if="isAudio(s.videoUrl)" :src="s.videoUrl" controls class="w-full" preload="metadata" />
               <video v-else-if="s.videoUrl" :src="s.videoUrl" controls class="max-h-72 w-full border-2 border-foreground bg-foreground rounded" preload="metadata" />
               <p v-else class="border-2 border-dashed border-border p-6 text-center text-muted-foreground font-bold text-sm">Không có media ghi âm.</p>
+            </div>
+
+            <div v-if="s.transcript" class="border-l-4 border-border bg-muted p-4 rounded text-sm">
+              <strong class="font-black uppercase text-xs text-muted-foreground block mb-1">Bản trích lời (Whisper):</strong>
+              <p class="font-medium text-foreground">{{ s.transcript }}</p>
             </div>
 
             <div v-if="s.adminFeedback" class="border-l-4 border-accent bg-accent/5 p-4 rounded text-sm">
@@ -125,7 +157,7 @@
                 max="10"
                 step="0.1"
                 required
-                class="w-full border-2 border-foreground bg-white p-2.5 font-black text-lg rounded outline-none focus:ring-2 focus:ring-accent"
+                class="w-full border-2 border-foreground bg-white p-2.5 font-black text-lg rounded outline-none focus:ring-2 focus:ring-accent tabular-nums"
               />
             </div>
 
@@ -166,7 +198,7 @@
               variant="tertiary"
               class="w-full"
             >
-              {{ gradeForms[s.id].saving ? 'Đang lưu điểm...' : '💾 Lưu điểm & Nhận xét' }}
+              {{ gradeForms[s.id].saving ? 'Đang lưu điểm...' : 'Lưu điểm & Nhận xét' }}
             </AppButton>
           </form>
         </div>
@@ -192,10 +224,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { AudioWaveformIcon, SearchIcon } from 'lucide-vue-next'
+import { AudioWaveformIcon, SearchIcon, RefreshCwIcon, AlertTriangleIcon, InboxIcon } from 'lucide-vue-next'
 import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 import { useToast } from '@/composables/useToast'
 
 const toast = useToast()
@@ -211,6 +244,8 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const totalElements = ref(0)
 const pageSize = ref(10)
+
+const hasActiveFilters = computed(() => Boolean(searchQuery.value.trim() || submissionStatus.value))
 
 const filteredSubmissions = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
@@ -244,7 +279,7 @@ async function loadSubmissions() {
     gradeForms.value = {}
     for (const s of submissions.value) {
       gradeForms.value[s.id] = {
-        score: s.score ?? 8.0,
+        score: s.score ?? '',
         feedback: s.adminFeedback || '',
         privateNote: s.privateNote || '',
         saving: false,
@@ -259,6 +294,13 @@ async function loadSubmissions() {
 }
 
 function handleStatusFilterChange() {
+  currentPage.value = 1
+  loadSubmissions()
+}
+
+function clearFilters() {
+  searchQuery.value = ''
+  submissionStatus.value = ''
   currentPage.value = 1
   loadSubmissions()
 }
@@ -291,6 +333,14 @@ function statusMeta(status) {
       return { label: 'Đang chấm', className: 'bg-secondary text-foreground' }
     case 'GRADED':
       return { label: 'Đã chấm', className: 'bg-accent text-white' }
+    case 'COMPLETED':
+      return { label: 'Đánh giá xong', className: 'bg-quaternary text-foreground' }
+    case 'PROCESSING':
+      return { label: 'Đang xử lý', className: 'bg-muted text-foreground' }
+    case 'UPLOADED':
+      return { label: 'Đã tải lên', className: 'bg-muted text-foreground' }
+    case 'FAILED':
+      return { label: 'Lỗi đánh giá', className: 'bg-danger text-white' }
     default:
       return { label: status || 'Khác', className: 'bg-muted text-foreground' }
   }
@@ -299,15 +349,20 @@ function statusMeta(status) {
 async function grade(s) {
   const form = gradeForms.value[s.id]
   if (!form) return
+  const score = Number(form.score)
+  if (form.score === '' || Number.isNaN(score) || score < 0 || score > 10) {
+    form.error = 'Điểm số phải trong khoảng 0 đến 10'
+    return
+  }
   form.saving = true
   form.error = null
   try {
     await speakingService.gradeSubmission(s.id, {
-      score: Number(form.score),
+      score,
       feedback: form.feedback,
       privateNote: form.privateNote
     })
-    toast.showSuccess('Đã lưu điểm và nhận xét thành công!')
+    toast.showSuccess('Đã lưu điểm và nhận xét')
     await loadSubmissions()
   } catch (err) {
     form.error = err.response?.data?.message || 'Chấm điểm thất bại'
