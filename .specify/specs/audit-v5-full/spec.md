@@ -31,6 +31,15 @@ cấu hình `.env` hỏng, `@PreAuthorize` trơ, dữ liệu seed không khớp 
 | F12 | N+1 trong LessonSnapshotService | Query blocks theo từng section | 1 query/lesson |
 | F13 | SQL Server ăn hết RAM host (7.7GB) | Không có memory cap; env `MSSQL_MAX_MEMORY_PER_PROCESS_MB` image không nhận | `sp_configure` qua init-db.sql |
 | F14 | `bg-pink-500` trong AdminLayout | Off-token | `bg-accent` |
+| F15 | **Mọi câu trả lời đúng đều hiện "❌ SAI"** (loop-test lần 2) | `checkAnswer` so sánh trên `ex.correctAnswer` — vốn bị server STRIP với user thường (includeAnswers=403) → luôn sai + badge "Chưa có đáp án" | Chuyển chấm qua `POST /grade` (server key); verified 5/5 ĐÚNG, nộp bài 100% |
+
+## 2b. Ghi chú F15
+
+Lỗ hổng nghiêm trọng nhất của vòng audit: tính năng cốt lõi (làm bài tập + chấm điểm)
+hiển thị SAI cho MỌI câu trả lời đúng vì frontend tự chấm trên client bằng field mà
+chính backend đã ẩn vì lý do bảo mật. Server đã có sẵn `POST /grade` với key thật —
+frontend chỉ cần gọi nó. Audit-v1..v4 không bắt được vì chưa từng bấm "Kiểm tra" với
+đáp án đúng trên tài khoản user thường.
 
 ## 3. Phạm vi
 

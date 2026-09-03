@@ -43,11 +43,11 @@ Ký hiệu: `[x]` = đã xong kèm bằng chứng runtime; `[ ]` = còn lại. D
 - [x] T6.6 Admin CRUD qua UI: create→edit→delete lesson; 7 trang admin render; AI generate-async 2/2
 - [x] T6.7 Register (DB verify) / forgot-password (OTP Redis) / login sai (alert) / dictionary / leaderboard / profile
 - [x] T6.8 chrome-devtools: LCP 366–427ms; CLS culprit = footer mount shift (đã reserve 96px) + font FOUT
-- [ ] T6.9 Mobile 375px screenshots các trang chính
-- [ ] T6.10 Vòng loop-test lần 2 (converge): chạy lại sweep + walkthrough sau mọi thay đổi cuối
+- [x] T6.9 Mobile 375px: home/lessons/premium/decks/leaderboard/login — không overflow, menu hoạt động (audit-v5-shots/mobile-*.png)
+- [x] T6.10 Vòng loop-test lần 2 (converge): sweep 67/67, vitest 73/73, build sạch, walkthrough 5/5 ĐÚNG + nộp bài 100% — PHÁT HIỆN + SỬA F15 (chấm điểm client-side trên correctAnswer đã strip → luôn SAI)
 
 ## Phase 7 — Artifacts & báo cáo
 - [x] T7.1 SpecKit: spec/clarify/checklist/plan/tasks (file này)
 - [x] T7.2 analyze.md — cross-check spec↔tasks↔code (PASS, 2 task mở còn lại)
-- [ ] T7.3 REPORT.md tiếng Việt đầy đủ (đã làm / chưa / fix + cách / skill đã nạp)
+- [x] T7.3 REPORT.md tiếng Việt đầy đủ (đã làm / chưa / fix + cách / skill đã nạp)
 - [x] T7.4 Commit Conventional Commits (02aa8c1, 83a8ad1) — `.env` không vào git
