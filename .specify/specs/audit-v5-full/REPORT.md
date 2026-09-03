@@ -71,7 +71,7 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 - Mobile 375px: 6 trang không overflow (shots `audit-v5-shots/mobile-*.png`)
 
 ## 4. CHƯA LÀM / CÒN TỒN TẠI (rõ ràng, không giấu)
-1. **Data seed hỏng chưa sửa tận gốc** (148/481 MATCHING, ~230 placeholder, 81 LISTENING thiếu audio, 3 dòng degenerate) — quyết định KHÔNG rewrite hàng chục nghìn dòng (rủi ro mất bài thật); UI guard đã che toàn bộ. Kiến nghị: chạy lại pipeline MCP/`generate-async` cho các bài hỏng.
+1. **Data seed hỏng — ĐÃ SỬA TẬN GỐC phần lớn (vòng continue)**: 76/148 dòng MATCHING hỏng được phân loại + sửa: 75 dòng "MATCHING" thật ra là MULTIPLE_CHOICE dán nhãn sai (đáp án nằm trong options JSON) → UPDATE exercise_type; 1 dòng legacy `:::` viết lại options sạch. Còn lại 68 dòng options rỗng (55 có đáp án text tự do — UI fallback text-input xử lý tốt) + 4 dòng degenerate thật (đáp án không có trong options — UI fallback). Backup: bảng `exercises_bak_v5` (481 dòng). LISTENING thiếu audio (81) giữ fallback TTS trình duyệt. **Verified**: lesson 41881 Q3 render 3 nút is/am/are, chấm ĐÚNG; sweep 67/67.
 2. **Giao dịch thật ENGF8AB9431CE85**: DB không có transaction khớp → hoặc SePay webhook chưa về lúc chuyển, hoặc nội dung CK sai cú pháp. Cần đối soát thủ công với sao kê; premium hiện active do E2E webhook test (expiry 2026-10-03).
 3. **CLS dev-server 0.18**: footer đã reserve; phần còn lại là FOUT font-swap khi Vite dev serve unminified — cần đo lại bằng `vite preview`/prod build khi deploy.
 4. ~~`/ai-vocab-generator`~~ **ĐÃ XONG (converge round)**: walkthrough đầy đủ — form Travel/B1/5 → Ollama sinh 5 từ (travel/destination/accommodation/transport/budget) → "Lưu tất cả" → toast "ĐÃ LƯU 5 TỪ VÀO DB!" → verify `vocabulary` rows 50170–50174 `source=AI_GENERATED` → dọn DB sạch.
@@ -81,6 +81,12 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 ## 4b. Converge round (sau REPORT gốc)
 - **Phát hiện + sửa F16**: `SpeakingDetail.vue` còn 3 class off-token/chết (`text-amber-700`, `text-primary`, `text-destructive` — 2 cái cuối không tồn tại trong tailwind config) → map `warning/accent/danger` (commit `6a520ab`). Scan off-token toàn `frontend/src` giờ = **0 hit**. vitest 73/73, build sạch.
 - Skill nạp thêm: `speckit-converge` (đánh giá codebase ↔ spec/plan/tasks, append task).
+
+## 4c. Vòng continue — data repair tận gốc (F17)
+- **F17**: 75 dòng `exercise_type='MATCHING'` nhưng options là JSON-array MC và `correct_answer` nằm trong options → dán nhãn sai từ seed. UPDATE → `MULTIPLE_CHOICE` (giữ nguyên options/đáp án, không mất dữ liệu). 1 dòng legacy `:::` (745606) viết lại options sạch + đổi type.
+- Trước khi sửa: backup toàn bộ 481 dòng MATCHING vào `exercises_bak_v5` (rollback: `UPDATE e SET exercise_type='MATCHING' FROM exercises e JOIN exercises_bak_v5 b ON e.exercise_id=b.exercise_id`).
+- Sau sửa: MATCHING = 333 valid-pipe + 68 empty (UI fallback) + 4 degenerate (UI fallback); MULTIPLE_CHOICE 33331→33407.
+- Verified E2E: lesson 41881 Q3 (exercise 755962) giờ là MC với options `["is","am","are"]` → render 3 nút, chọn "is" → ✅ ĐÚNG. Sweep 67/67 pass.
 
 ## 5. SKILL ĐÃ NẠP
 - `speckit-workflow` (pipeline constitution→…→converge) — dùng xuyên suốt, artifacts §1.6.
