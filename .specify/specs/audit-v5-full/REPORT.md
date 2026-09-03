@@ -90,6 +90,12 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 - Sau sửa: MATCHING = 333 valid-pipe + 68 empty (UI fallback) + 4 degenerate (UI fallback); MULTIPLE_CHOICE 33331→33403.
 - Verified E2E: lesson 41881 Q3 (exercise 755962) giờ là MC với options `["is","am","are"]` → render 3 nút, chọn "is" → ✅ ĐÚNG. Sweep 67/67 pass.
 
+## 4d. Vòng continue 2 — Match-the-user's-fix round (F18/F19)
+- **F18 (68 MATCHING options rỗng)**: 55 dòng có đáp án scalar/text → convert `FILL_BLANK` (UI text-input + server exact-match grading); 13 dòng lesson 91900 không có đáp án ở bất kỳ đâu (câu đứt, 0 attempt tham chiếu) → cũng convert `FILL_BLANK` → grade trả `ungradeable` fail-soft, nhất quán với 28 dòng FILL_BLANK anh em cùng lesson. Kết quả: **MATCHING = 332 dòng all-valid** (options `l|r` + answer `l=r`), 0 rỗng, 0 degenerate.
+- **F19 (letter-answer grading bug — always-wrong)**: 48 dòng có options thật nhưng `correct_answer` là "A"/"B"/"C"/"D" trong khi UI submit full option text → so exact-match luôn SAI (false-negative toàn bộ). Fix: resolve letter→option text (39 prefix-match `A. / A: / A, / A) / A]`, 3 positional-map theo sanity-check câu hỏi, 1 phonetics 745773 đáp án mojibake → `ˈsɛnsɪz`, 661177 tách `<br>`). 4 dòng degenerate MATCHING (745626/745641/745736/745801/745685/745661) thiếu option-đúng → append `correct_answer` vào options + convert MC.
+- Verified E2E grade API: 651442 (trước: mọi câu trả lời SAI) → gửi "B. news" → `correct=true`. Sweep 67/67 pass.
+- Backups: `exercises_bak_v5c` (55), `exercises_bak_v5d` (39) + id-list JSON. Phân bố cuối: MC 33547, FILL_BLANK 9112, MATCHING 332, LISTENING 367, TRANSLATION 377 (= 43727, không mất dòng).
+
 ## 5. SKILL ĐÃ NẠP
 - `speckit-workflow` (pipeline constitution→…→converge) — dùng xuyên suốt, artifacts §1.6.
 - (Các skill khác trong catalog như `accessibility`, `performance-optimization` đã có sẵn hướng dẫn tương đương trong constitution + checklist; không cần nạp thêm vì công việc đã đi theo đúng gate của chúng.)
