@@ -20,6 +20,8 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.isAdmin)
+  // Guard /speaking/* đọc auth.isPremium — phải expose đúng từ user payload (UserResponse.isPremium)
+  const isPremium = computed(() => user.value?.isPremium === true)
 
   // Actions
   async function login(credentials) {
@@ -35,6 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
         fullName: data.fullName,
         avatarUrl: data.avatarUrl,
         isAdmin: data.isAdmin,
+        isPremium: data.isPremium === true,
+        premiumExpiry: data.premiumExpiry,
         currentLevel: data.currentLevel,
         totalPoints: data.totalPoints,
         currentStreak: data.currentStreak
@@ -63,6 +67,8 @@ export const useAuthStore = defineStore('auth', () => {
           fullName: data.fullName,
           avatarUrl: data.avatarUrl,
           isAdmin: data.isAdmin,
+          isPremium: data.isPremium === true,
+          premiumExpiry: data.premiumExpiry,
           currentLevel: data.currentLevel,
           totalPoints: data.totalPoints,
           currentStreak: data.currentStreak
@@ -97,6 +103,8 @@ export const useAuthStore = defineStore('auth', () => {
         fullName: data.fullName,
         avatarUrl: data.avatarUrl,
         isAdmin: data.isAdmin,
+        isPremium: data.isPremium === true,
+        premiumExpiry: data.premiumExpiry,
         currentLevel: data.currentLevel,
         totalPoints: data.totalPoints,
         currentStreak: data.currentStreak
@@ -127,5 +135,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, loading, error, isLoggedIn, isAdmin, login, register, logout, fetchUser, forgotPassword }
+  return { token, user, loading, error, isLoggedIn, isAdmin, isPremium, login, register, logout, fetchUser, forgotPassword }
 })

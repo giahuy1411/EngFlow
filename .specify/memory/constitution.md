@@ -1,16 +1,16 @@
 <!--
 Sync Impact Report
-Version change: (new) → 1.0.0
-Modified principles: N/A (initial ratification)
-Added sections: 9 principles, Governance
-Removed sections: N/A
-Templates requiring updates: ✅ .specify/templates/* created alongside
+Version change: 1.0.0 → 1.0.1
+Modified principles: P1 (backend baseline 196 → 221 tests — đo lại sau audit-v3; số phải được đo lại mỗi kỳ audit)
+Added sections: none
+Removed sections: none
+Templates requiring updates: N/A
 Follow-up TODOs: none
 -->
 
-# EngFlow — Constitution v1.0.0
+# EngFlow — Constitution v1.0.1
 
-**Ratified:** 2026-09-01 | **Last amended:** 2026-09-01
+**Ratified:** 2026-09-01 | **Last amended:** 2026-09-03
 
 ## Preamble
 
@@ -21,9 +21,10 @@ qua Ollama/Whisper/MCP). Mọi agent hoặc người đóng góp PHẢI tuân th
 ## Article I — Nguyên tắc kỹ thuật
 
 ### P1. Baseline xanh là tiền đề
-Trước và sau mọi thay đổi: backend `mvnw.cmd test` = 196 tests, frontend
-`npx vitest run` = 73 tests / 14 files. Mọi PR/commit không giữ baseline xanh
-bị từ chối.
+Trước và sau mọi thay đổi: backend `mvnw.cmd test` = 221 tests, frontend
+`npx vitest run` = 73 tests / 14 files (con số này là mốc audit-v3; mỗi kỳ
+audit PHẢI đo lại và ghi giá trị thực tế). Mọi PR/commit không giữ baseline
+xanh bị từ chối.
 
 ### P2. Kiến trúc phân lớp bất biến
 Java: Controller → Service → Repository, DTO request/response tách riêng,

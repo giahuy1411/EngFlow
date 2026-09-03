@@ -46,7 +46,10 @@ class PaymentServiceTest {
     @Captor
     private ArgumentCaptor<User> userCaptor;
 
-    private final String webhookSecret = "test-webhook-secret-123";
+    // Secret HMAC của test: ưu tiên env, fallback UUID runtime. Chỉ dùng sign/verify
+    // trong chính class này nên không cần giá trị cố định, tránh literal trong source.
+    private final String webhookSecret = System.getenv().getOrDefault(
+            "TEST_WEBHOOK_SECRET", UUID.randomUUID().toString());
     private final String bankAccount = "123456789";
     private final String bankName = "VCB";
     private final String sepayQrUrl = "https://qr.sepay.vn/img";

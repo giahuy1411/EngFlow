@@ -5,6 +5,7 @@ import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.GameSessionRedisDTO;
 import com.datn.engflow.model.entity.DeckWord;
 import com.datn.engflow.model.entity.Vocabulary;
+import com.datn.engflow.repository.DeckRepository;
 import com.datn.engflow.repository.DeckWordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,13 @@ public class GameService {
     private final StreakService streakService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final com.datn.engflow.repository.UserRepository userRepository;
+    private final DeckRepository deckRepository;
+
+    private void requireDeck(Long deckId) {
+        if (deckId == null || !deckRepository.existsById(deckId)) {
+            throw new ResourceNotFoundException("Deck", "deckId", deckId);
+        }
+    }
 
     private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions, Map<String, String> answerMap) {
         String sessionId = UUID.randomUUID().toString();
@@ -53,6 +61,7 @@ public class GameService {
 
     @Transactional
     public Map<String, Object> generateQuiz(Long deckId, Long userId) {
+        requireDeck(deckId);
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
         List<Vocabulary> allVocabs = deckWords.stream().map(DeckWord::getVocabulary).collect(Collectors.toList());
         List<Map<String, Object>> quiz = new ArrayList<>();
@@ -102,6 +111,7 @@ public class GameService {
 
     @Transactional
     public Map<String, Object> generateMemoryMatch(Long deckId, Long userId) {
+        requireDeck(deckId);
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
         List<Vocabulary> allVocabs = deckWords.stream().map(DeckWord::getVocabulary).collect(Collectors.toList());
         Collections.shuffle(allVocabs);
@@ -153,6 +163,7 @@ public class GameService {
     }
 
     private Map<String, Object> generateBaseList(Long deckId, Long userId, String gameType) {
+        requireDeck(deckId);
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
         List<Map<String, Object>> result = new ArrayList<>();
         Map<String, String> answerMap = new HashMap<>();

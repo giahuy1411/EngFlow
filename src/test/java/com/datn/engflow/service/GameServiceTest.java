@@ -6,6 +6,7 @@ import com.datn.engflow.model.dto.GameSessionRedisDTO;
 import com.datn.engflow.model.entity.DeckWord;
 import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.entity.Vocabulary;
+import com.datn.engflow.repository.DeckRepository;
 import com.datn.engflow.repository.DeckWordRepository;
 import com.datn.engflow.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,9 @@ class GameServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private DeckRepository deckRepository;
+
+    @Mock
     private ValueOperations<String, Object> valueOperations;
 
     @InjectMocks
@@ -58,6 +62,7 @@ class GameServiceTest {
     @BeforeEach
     void setUp() {
         lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        lenient().when(deckRepository.existsById(any())).thenReturn(true);
     }
 
     // ---- helpers ----

@@ -107,6 +107,21 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * JSON body posted to a multipart endpoint (e.g. video shadowing attempts)
+     * must be a 4xx client error, not fall through to the catch-all 500.
+     */
+    @ExceptionHandler({org.springframework.web.multipart.MultipartException.class,
+            org.springframework.web.multipart.support.MissingServletRequestPartException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class})
+    public ResponseEntity<ProblemDetail> handleMultipartException(Exception ex) {
+        log.warn("Malformed request (missing part/parameter): {}", ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                "Yêu cầu thiếu tham số hoặc cần dạng multipart/form-data đầy đủ (bao gồm tệp đính kèm).");
+        problem.setTitle("Bad Request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    /**
      * Converts authorization failures to an RFC 7807 response.
      *
      * @param ex access denial raised by the service layer

@@ -12,10 +12,12 @@ import com.datn.engflow.repository.LessonSectionRepository;
 import com.datn.engflow.repository.LessonSnapshotRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.datn.engflow.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,19 +37,22 @@ public class LessonSnapshotService {
     @Transactional
     public void takeSnapshot(Long lessonId, Long userId) {
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found: " + lessonId));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
         List<LessonSection> sections = sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
+        // LinkedHashMap (không phải Map.of) vì section title / block data có thể null
+        // với lesson dở build — snapshot không được phép 500 vì field tùy chọn.
         List<Map<String, Object>> snapshotData = sections.stream().map(s -> {
             List<LessonBlock> blocks = blockRepository.findBySectionIdOrderByOrderIndexAsc(s.getId());
-            Map<String, Object> sectionMap = Map.of(
-                    "title", s.getTitle(),
-                    "orderIndex", s.getOrderIndex(),
-                    "blocks", blocks.stream().map(b -> Map.of(
-                            "blockType", b.getBlockType().name(),
-                            "data", b.getData(),
-                            "orderIndex", b.getOrderIndex()
-                    )).toList()
-            );
+            Map<String, Object> sectionMap = new LinkedHashMap<>();
+            sectionMap.put("title", s.getTitle());
+            sectionMap.put("orderIndex", s.getOrderIndex());
+            sectionMap.put("blocks", blocks.stream().map(b -> {
+                Map<String, Object> blockMap = new LinkedHashMap<>();
+                blockMap.put("blockType", b.getBlockType() != null ? b.getBlockType().name() : null);
+                blockMap.put("data", b.getData());
+                blockMap.put("orderIndex", b.getOrderIndex());
+                return blockMap;
+            }).toList());
             return sectionMap;
         }).toList();
 
@@ -78,9 +83,9 @@ public class LessonSnapshotService {
     @Transactional
     public List<Map<String, Object>> restoreSnapshot(Long lessonId, Long snapshotId) {
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found: " + lessonId));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
         LessonSnapshot snapshot = snapshotRepository.findById(snapshotId)
-                .orElseThrow(() -> new RuntimeException("Snapshot not found: " + snapshotId));
+                .orElseThrow(() -> new ResourceNotFoundException("Snapshot", "id", snapshotId));
 
         List<Map<String, Object>> sectionsData;
         try {
@@ -122,17 +127,19 @@ public class LessonSnapshotService {
         List<LessonSection> restored = sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
         return restored.stream().map(s -> {
             List<LessonBlock> blocks = blockRepository.findBySectionIdOrderByOrderIndexAsc(s.getId());
-            return Map.of(
-                    "id", s.getId(),
-                    "title", s.getTitle(),
-                    "orderIndex", s.getOrderIndex(),
-                    "blocks", blocks.stream().map(b -> Map.of(
-                            "id", b.getId(),
-                            "blockType", b.getBlockType().name(),
-                            "data", b.getData(),
-                            "orderIndex", b.getOrderIndex()
-                    )).toList()
-            );
+            Map<String, Object> sectionMap = new LinkedHashMap<>();
+            sectionMap.put("id", s.getId());
+            sectionMap.put("title", s.getTitle());
+            sectionMap.put("orderIndex", s.getOrderIndex());
+            sectionMap.put("blocks", blocks.stream().map(b -> {
+                Map<String, Object> blockMap = new LinkedHashMap<>();
+                blockMap.put("id", b.getId());
+                blockMap.put("blockType", b.getBlockType() != null ? b.getBlockType().name() : null);
+                blockMap.put("data", b.getData());
+                blockMap.put("orderIndex", b.getOrderIndex());
+                return blockMap;
+            }).toList());
+            return sectionMap;
         }).toList();
     }
 }

@@ -3,12 +3,14 @@
     class="user-page-header flex flex-col md:flex-row justify-between items-start md:items-end gap-8"
     :class="[rootClass, { 'border-b-2 border-foreground pb-8': divided }]"
   >
-    <div class="relative">
+    <div class="relative min-w-0">
       <div class="absolute -top-4 -left-4 w-8 h-8 bg-tertiary border-2 border-foreground rotate-12 rounded-sm" aria-hidden="true"></div>
       <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-secondary border-2 border-foreground rounded-full" aria-hidden="true"></div>
-      <h1 :id="titleId || undefined" class="font-black text-5xl md:text-6xl uppercase tracking-tight leading-none relative z-10">
+      <h1 :id="titleId || undefined" class="font-black text-5xl md:text-6xl uppercase tracking-tight leading-none relative z-10 break-words">
         <slot name="title">
-          <span v-if="titleParts.prefix">{{ titleParts.prefix }}&nbsp;</span><span class="text-accent">{{ titleParts.highlight }}</span>
+          <!-- Space phải nằm trong chuỗi runtime ('{{ prefix }}' + ' '): template compiler
+               trim whitespace source (mất space), còn &nbsp; thì tạo token không wrap → tràn mobile. -->
+          <span v-if="titleParts.prefix">{{ titleParts.prefix + ' ' }}</span><span class="text-accent">{{ titleParts.highlight }}</span>
         </slot>
       </h1>
       <p v-if="subtitle || eyebrow" class="font-bold text-sm uppercase tracking-wider text-muted-foreground mt-3">

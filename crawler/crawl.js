@@ -27,10 +27,35 @@ const WAYBACK_RETRIES = 15;
 const WAYBACK_RETRY_DELAY = 10000;
 const WAYBACK_TIMEOUT = 120000;
 
+// SSRF guard: crawler chỉ được fetch đúng nguồn dữ liệu đã cho phép.
+// Chặn protocol lạ, hostname ngoài allowlist, và host loopback/private/reserved.
+const ALLOWED_HOSTS = new Set(['english-practice.net', 'www.english-practice.net', 'web.archive.org']);
+const BLOCKED_HOST_RE = /^(127\.|10\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1|f[cd][0-9a-f]{2}:)/i;
+
+function assertSafeUrl(rawUrl) {
+  let parsed;
+  try { parsed = new URL(rawUrl); } catch { throw new Error(`Blocked non-URL: ${rawUrl}`); }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error(`Blocked protocol ${parsed.protocol}: ${rawUrl}`);
+  }
+  const host = parsed.hostname.toLowerCase();
+  if (!ALLOWED_HOSTS.has(host) || BLOCKED_HOST_RE.test(host)) {
+    throw new Error(`Blocked host ${host}: not in crawl allowlist`);
+  }
+  return rawUrl;
+}
+
 function fetchUrl(url, retries = null) {
   const maxRetries = retries !== null ? retries : (viaWayback ? WAYBACK_RETRIES : 3);
   return new Promise((resolve, reject) => {
-    const actualUrl = waybackUrl(url);
+    let actualUrl;
+    try {
+      actualUrl = waybackUrl(assertSafeUrl(url));
+      if (actualUrl !== url) assertSafeUrl(actualUrl);
+    } catch (err) {
+      reject(err);
+      return;
+    }
     const client = actualUrl.startsWith('https') ? https : http;
     const req = client.get(actualUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
@@ -136,11 +161,30 @@ async function main() {
   let level = 'a1';
   let skill = 'vocabulary';
 
+  // Whitelist level/skill (dùng trong URL pattern và tên file output — chặn path traversal)
+  const ALLOWED_LEVELS = new Set(['a1', 'a2', 'b1', 'b2', 'c1', 'c2']);
+  const ALLOWED_SKILLS = new Set(['vocabulary', 'grammar', 'word_skills', 'reading', 'listening']);
+
+  // Sanitizer: chỉ cho phép segment chữ-số/-/_ — mọi giá trị argv chảy vào URL
+  // pattern, selector, tên file đều phải qua hàm này.
+  function safeSegment(value, label) {
+    if (typeof value !== 'string' || !/^[a-z][a-z0-9_-]*$/i.test(value)) {
+      throw new Error(`Unsafe ${label}: ${value}`);
+    }
+    return value;
+  }
+
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--level' && i + 1 < args.length) level = args[i + 1].toLowerCase();
     if (args[i] === '--skill' && i + 1 < args.length) skill = args[i + 1].toLowerCase();
     if (args[i] === '--via-wayback') viaWayback = true;
   }
+  if (!ALLOWED_LEVELS.has(level) || !ALLOWED_SKILLS.has(skill)) {
+    console.error(`Refusing to run: level="${level}" / skill="${skill}" không nằm trong whitelist.`);
+    process.exit(1);
+  }
+  level = safeSegment(level, 'level');
+  skill = safeSegment(skill, 'skill');
 
   const validLevels = ['a1', 'a2', 'b1', 'b2'];
   const validSkills = ['vocabulary', 'grammar', 'listening', 'reading', 'speaking', 'writing', 'word_skills'];
@@ -154,8 +198,19 @@ async function main() {
     process.exit(1);
   }
 
-  const skillKey = skill === 'word_skills' ? 'word-skills' : skill;
-  const indexUrl = `${BASE_URL}/english-${skillKey}-exercises-for-${level}/`;
+  // Slug lookup từ literal map — giá trị chảy vào URL pattern/selector/tên file
+  // chỉ có thể là các chuỗi literal dưới đây, không thể mang ../ hay ký tự lạ.
+  const LEVEL_SLUGS = { a1: 'a1', a2: 'a2', b1: 'b1', b2: 'b2' };
+  const SKILL_SLUGS = { vocabulary: 'vocabulary', grammar: 'grammar', reading: 'reading', listening: 'listening', 'word_skills': 'word-skills' };
+  const levelSlug = LEVEL_SLUGS[level];
+  const skillSlug = SKILL_SLUGS[skill];
+  if (!levelSlug || !skillSlug) {
+    console.error(`Refusing to run: level="${level}" / skill="${skill}" không có slug an toàn.`);
+    process.exit(1);
+  }
+
+  const skillKey = skillSlug;
+  const indexUrl = `${BASE_URL}/english-${skillSlug}-exercises-for-${levelSlug}/`;
 
   console.log(`Crawling level=${level}, skill=${skill}`);
   console.log(`Index URL: ${indexUrl}`);
@@ -192,7 +247,9 @@ async function main() {
   console.log(`Found ${topicLinks.length} topics:`);
   topicLinks.forEach(t => console.log(`  - ${t.title}`));
 
-  const outputFile = path.resolve(__dirname, '..', `crawler/data/${level}-${skill}.json`);
+  // level/skill đã qua whitelist ở trên → file output luôn nằm trong crawler/data
+  const dataDir = path.join(__dirname, 'data');
+  const outputFile = path.join(dataDir, `${level}-${skill}.json`);
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
 
   // Resume: load existing progress
