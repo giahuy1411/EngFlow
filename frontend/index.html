@@ -30,14 +30,12 @@
     </script>
     <!-- Be Vietnam Pro font: geometric sans-serif, hỗ trợ tiếng Việt đầy đủ.
          audit-v5: Plus Jakarta Sans (dead payload) removed — Be Vietnam Pro là
-         font duy nhất theo constitution P6.
-         CLS fix: display=optional (không swap) — nếu font chưa sẵn trong ~100ms
-         trang dùng fallback và KHÔNG reflow khi font về sau -> footer không bị
-         đẩy tụt (loại 0.11 layout-shift do FOUT). -->
+         font duy nhất theo constitution P6. display=swap + preconnect: font
+         tải song song với app bundle; CLS cold-load chủ yếu đến từ SPA mount
+         (xem REPORT §4e), không phải FOUT. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=optional">
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=optional" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="app"></div>

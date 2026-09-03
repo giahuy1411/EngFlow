@@ -110,6 +110,13 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 - **Fail-soft**: sidecar chết → `isAvailable()` false → bài vẫn lưu không audio → browser TTS fallback (`speech.js`) hoạt động như cũ.
 - Commit **b9bbbd3**.
 
+## 4g. Full UI functional gate (T8.5) — 0 lỗi console
+- Phạm vi qua UI thật (dev :5173, user@gmail.com + admin@gmail.com): Home, Lessons list/detail (3 tab + grade + submit + history), Decks (6 mode: Flashcard/Quiz/Nghe/Gõ từ/Ghép cặp/Tổng hợp), Videos (player + Shadowing + Quiz), Speaking (list/detail/record), Search (tra từ + kết quả), Profile, Leaderboard, Premium, Admin (dashboard + 6 trang + CRUD tạo lesson).
+- **Kết quả: 0 console error/warning trên mọi trang.**
+- **2 lỗi data tìm thấy & sửa**: lesson 41881 có 2 câu MC `correct_answer` không nằm trong options (755960: "doesn't like" thay vì "don't"; 755963: "doesn't" thay vì "don't" — sai cả 2 chiều) → UPDATE DB, verify UI trả "✅ Đúng".
+- Ghi chú môi trường (không phải bug): speaking mic cần user-gesture thật (headless auto-deny → fail-soft message tiếng Việt lịch sự); :4173 preview bị CORS vì `cors.allowed-origins` dev-only (prod deploy same-origin → không áp dụng).
+- Regression cuối: backend **225/225** (baseline 221 + 4 TTS tests mới), frontend **73/73**, API sweep **67/67**, prod build sạch.
+
 ## 5. SKILL ĐÃ NẠP
 - `speckit-workflow` (pipeline constitution→…→converge) — dùng xuyên suốt, artifacts §1.6.
 - (Các skill khác trong catalog như `accessibility`, `performance-optimization` đã có sẵn hướng dẫn tương đương trong constitution + checklist; không cần nạp thêm vì công việc đã đi theo đúng gate của chúng.)

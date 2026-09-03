@@ -52,17 +52,19 @@ register/forgot-password/login-sai.
 
 ## 4. Yêu cầu kiểm chứng (DoD)
 
-- [ ] Backend `mvnw test` xanh (baseline 221)
-- [ ] Frontend `vitest` xanh (baseline 73/14 files) + `vite build` sạch
-- [ ] API sweep 67/67 pass trên container rebuilt
-- [ ] Computed font mọi trang public = chỉ "Be Vietnam Pro"
-- [ ] Không còn class màu off-token nào resolve rỗng trong `frontend/src`
-- [ ] E2E: mỗi chức năng §3 có bằng chứng runtime (snapshot/log/DB row)
-- [ ] Perf: số liệu before/after cho lesson list, dictionary cache, log volume (P5)
-- [ ] CLS đo được; nếu >0.1 ghi rõ nguyên nhân còn lại trong REPORT
-- [ ] Commit Conventional Commits, author giahuy1411, `.env` không vào git
+- [x] Backend `mvnw test` xanh (baseline 221 → **225** với 4 TTS tests mới)
+- [x] Frontend `vitest` xanh (baseline 73/14 files) + `vite build` sạch
+- [x] API sweep 67/67 pass trên container rebuilt
+- [x] Computed font mọi trang public = chỉ "Be Vietnam Pro"
+- [x] Không còn class màu off-token nào resolve rỗng trong `frontend/src`
+- [x] E2E: mỗi chức năng §3 có bằng chứng runtime (snapshot/log/DB row)
+- [x] Perf: số liệu before/after cho lesson list, dictionary cache, log volume (P5)
+- [x] CLS đo được; nếu >0.1 ghi rõ nguyên nhân còn lại trong REPORT → **0.108 cold / 0 warm**, nguyên nhân SPA-mount ghi §4e
+- [x] Commit Conventional Commits, author giahuy1411, `.env` không vào git
+- [x] **Data quality (bổ sung qua analyze A1/A2)**: 0 dòng MATCHING options rỗng (F18: 68→0), 0 dòng letter-answer không chấm được (F19: 48→0), 0 dòng correct_answer không nằm trong options với MC (T8.5: 2 dòng 41881 đã sửa)
+- [x] **TTS local (bổ sung)**: AI-generate listening có audio_url qua Supertonic sidecar, fail-soft khi sidecar chết
 
 ## 5. Rủi ro
 
-- Guard UI che data xấu nhưng không sửa data → chấp nhận (out of scope seed rewrite), ghi chú REPORT.
+- Guard UI che data xấu nhưng không sửa data → **đã xử lý**: F18/F19/T8.5 sửa tận gốc data, không chỉ guard.
 - `min-height` footer có thể lệch trên mobile → screenshot 375px trước khi đóng.
