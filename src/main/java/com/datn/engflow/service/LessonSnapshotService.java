@@ -39,10 +39,15 @@ public class LessonSnapshotService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
         List<LessonSection> sections = sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
+        // audit-v5 perf: 1 query blocks cho toàn lesson thay vì N+1 theo section
+        Map<Long, List<LessonBlock>> blocksBySection = sections.isEmpty()
+                ? Map.of()
+                : blockRepository.findBySectionIds(sections.stream().map(LessonSection::getId).toList())
+                        .stream().collect(java.util.stream.Collectors.groupingBy(b -> b.getSection().getId()));
         // LinkedHashMap (không phải Map.of) vì section title / block data có thể null
         // với lesson dở build — snapshot không được phép 500 vì field tùy chọn.
         List<Map<String, Object>> snapshotData = sections.stream().map(s -> {
-            List<LessonBlock> blocks = blockRepository.findBySectionIdOrderByOrderIndexAsc(s.getId());
+            List<LessonBlock> blocks = blocksBySection.getOrDefault(s.getId(), List.of());
             Map<String, Object> sectionMap = new LinkedHashMap<>();
             sectionMap.put("title", s.getTitle());
             sectionMap.put("orderIndex", s.getOrderIndex());
@@ -125,8 +130,13 @@ public class LessonSnapshotService {
         }
 
         List<LessonSection> restored = sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
+        // audit-v5 perf: gộp 1 query blocks cho toàn bộ section vừa restore
+        Map<Long, List<LessonBlock>> blocksBySection = restored.isEmpty()
+                ? Map.of()
+                : blockRepository.findBySectionIds(restored.stream().map(LessonSection::getId).toList())
+                        .stream().collect(java.util.stream.Collectors.groupingBy(b -> b.getSection().getId()));
         return restored.stream().map(s -> {
-            List<LessonBlock> blocks = blockRepository.findBySectionIdOrderByOrderIndexAsc(s.getId());
+            List<LessonBlock> blocks = blocksBySection.getOrDefault(s.getId(), List.of());
             Map<String, Object> sectionMap = new LinkedHashMap<>();
             sectionMap.put("id", s.getId());
             sectionMap.put("title", s.getTitle());
