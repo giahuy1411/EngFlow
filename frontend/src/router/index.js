@@ -43,18 +43,18 @@ const routes = [
     component: () => import('@/views/lessons/LessonLayout.vue'),
     meta: { requiresAuth: false }
   },
-  // Video learning (mô hình Corodomo) — khách xem tự do, ghi âm cần đăng nhập
+  // Video learning — Premium gated như Luyện nói (admin bypass qua guard)
   {
     path: '/videos',
     name: 'VideoLibrary',
     component: () => import('@/views/videos/VideoLibrary.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true, requiresPremium: true }
   },
   {
     path: '/videos/:id',
     name: 'VideoLesson',
     component: () => import('@/views/videos/VideoLesson.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true, requiresPremium: true }
   },
   {
     path: '/profile',
@@ -184,7 +184,6 @@ const routes = [
       { path: 'speaking-submissions', name: 'AdminSpeakingSubmissions', component: () => import('@/views/admin/AdminSpeakingSubmissions.vue') },
       { path: 'videos', name: 'AdminVideoLessons', component: () => import('@/views/admin/AdminVideoLessons.vue') },
       { path: 'video-attempts', name: 'AdminVideoAttempts', component: () => import('@/views/admin/AdminVideoAttempts.vue') },
-      { path: 'speaking-prompts', name: 'AdminSpeakingPrompts', component: () => import('@/views/admin/AdminSpeakingPrompts.vue') },
       { path: ':id/build', name: 'AdminLessonBuilder', component: () => import('@/views/admin/AdminLessonBuilder.vue'), props: true }
     ]
   },

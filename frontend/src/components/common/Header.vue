@@ -77,19 +77,16 @@ const router = useRouter()
 const mobileOpen = ref(false)
 
 const navItems = computed(() => {
-  const speakingLocked = auth.isLoggedIn && !auth.isAdmin && !auth.isPremium
+  const premiumLocked = auth.isLoggedIn && !auth.isAdmin && !auth.isPremium
   const items = [
     { to: '/', label: 'Trang chủ' },
     { to: '/lessons', label: 'Bài học' },
-    { to: '/videos', label: 'Học qua video' },
+    { to: '/videos', label: 'Học qua video', locked: premiumLocked },
     { to: '/decks', label: 'Luyện tập' },
-    { to: '/speaking', label: 'Luyện nói', locked: speakingLocked },
+    { to: '/speaking', label: 'Luyện nói', locked: premiumLocked },
     { to: '/leaderboard', label: 'Xếp hạng' },
     { to: '/search', label: 'Tra từ' },
   ]
-  if (auth.isLoggedIn && !auth.isPremium && !auth.isAdmin) {
-    items.push({ to: '/premium', label: 'Premium' })
-  }
   if (auth.isLoggedIn && auth.isAdmin) {
     items.push({ to: '/admin/dashboard', label: 'Quản trị' })
   }

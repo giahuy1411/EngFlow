@@ -112,7 +112,7 @@ const navItems = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan', activeClass: 'bg-accent border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/lessons', icon: BookOpen, label: 'Bài học', activeClass: 'bg-tertiary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/exercises', icon: PenTool, label: 'Bài tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
-  { to: '/admin/submissions', icon: CheckSquare, label: 'Chấm bài', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/speaking-submissions', icon: CheckSquare, label: 'Chấm bài', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/videos', icon: Clapperboard, label: 'Video học tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/video-attempts', icon: AudioLines, label: 'Chấm shadowing', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-pink-500 border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
@@ -122,7 +122,11 @@ const pageTitles = {
   AdminDashboard: 'Tổng quan',
   AdminLessons: 'Bài học',
   AdminExercises: 'Bài tập',
-  AdminSubmissions: 'Chấm bài',
+  AdminSpeakingSubmissions: 'Chấm bài',
+  AdminSpeakingPrompts: 'Đề luyện nói',
+  AdminVideoLessons: 'Video học tập',
+  AdminVideoAttempts: 'Chấm shadowing',
+  AdminLessonBuilder: 'Xây dựng bài học',
   AdminUsers: 'Người dùng',
 }
 
