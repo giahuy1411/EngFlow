@@ -1,5 +1,5 @@
 <template>
-  <header class="app-navbar">
+  <header class="app-navbar" v-if="showNav">
     <div class="app-navbar__inner">
       <AppLogo href="/" />
       <nav class="hidden xl:flex items-center gap-1" aria-label="Primary">
@@ -75,6 +75,13 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const mobileOpen = ref(false)
+
+// audit-v5 CLS fix: the nav shell is always mounted (App.vue) so its reserved
+// height never shifts the page; visibility is decided here instead.
+const showNav = computed(() => {
+  const authRoutes = ['/login', '/register']
+  return !authRoutes.includes(route.path) && !route.path.startsWith('/admin')
+})
 
 const navItems = computed(() => {
   const premiumLocked = auth.isLoggedIn && !auth.isAdmin && !auth.isPremium

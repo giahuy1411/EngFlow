@@ -96,6 +96,12 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 - Verified E2E grade API: 651442 (trước: mọi câu trả lời SAI) → gửi "B. news" → `correct=true`. Sweep 67/67 pass.
 - Backups: `exercises_bak_v5c` (55), `exercises_bak_v5d` (39) + id-list JSON. Phân bố cuối: MC 33547, FILL_BLANK 9112, MATCHING 332, LISTENING 367, TRANSLATION 377 (= 43727, không mất dòng).
 
+## 4e. CLS prod build (T8.4)
+- Đo prod build (`vite preview` :4173, cold): **CLS 0.176 → 0.108** sau 2 fix: (1) `html { scrollbar-gutter: stable }` diệt navbar shift 7px; (2) Header/Footer shell luôn mount (`v-if` chuyển vào trong component) + `min-height` reserve.
+- **Không phải font FOUT** (giả định cũ sai): prod build CLS ≈ dev → loại font-swap.
+- Shift còn lại 0.108 = footer `prev[0,791,1425,96]→[0,0,0,0]` ở t≈200-400ms: Vue mount route async làm main phình → footer bị đẩy ra viewport. Đã thử 4 cách (min-height wrapper, absolute slot, static placeholder, main min-height hard-code) — chỉ hard-code hết shift nhưng tạo khoảng trống thừa trên trang ngắn → **bác bỏ** (đánh đổi UX không chấp nhận được). **Warm cache CLS = 0**; production có HTTP cache/CDN → hành vi warm. Kết luận: 0.108 cold-load là SPA-mount artifact, < 0.25 (Not "Poor"), chấp nhận; nếu muốn <0.1 cần SSR/prerender (ngoài phạm vi).
+- vitest 73/73 + build sạch sau khi revert về trạng thái tối ưu.
+
 ## 5. SKILL ĐÃ NẠP
 - `speckit-workflow` (pipeline constitution→…→converge) — dùng xuyên suốt, artifacts §1.6.
 - (Các skill khác trong catalog như `accessibility`, `performance-optimization` đã có sẵn hướng dẫn tương đương trong constitution + checklist; không cần nạp thêm vì công việc đã đi theo đúng gate của chúng.)

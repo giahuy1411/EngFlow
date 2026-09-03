@@ -90,6 +90,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* audit-v5 CLS fix: reserve scrollbar space so navbar doesn't shift 7px
+     when async content grows the page past the viewport */
+  scrollbar-gutter: stable;
 }
 
 body {

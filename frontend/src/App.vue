@@ -5,13 +5,16 @@
       Bỏ qua điều hướng
     </a>
 
-    <Header v-if="showNavigation" />
+    <!-- audit-v5 CLS fix: Header/Footer shells are ALWAYS mounted so their
+         reserved heights (min-height in app-layout.css) exist from the first
+         paint; each component hides itself on auth/admin routes. -->
+    <Header />
 
     <main id="main-content" class="flex-grow flex flex-col" tabindex="-1">
       <router-view></router-view>
     </main>
 
-    <Footer v-if="showNavigation" />
+    <Footer />
 
     <!-- Toast Container -->
     <div class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
@@ -36,20 +39,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import Header from '@/components/common/Header.vue'
 import Footer from '@/components/common/Footer.vue'
 import { useToast } from '@/composables/useToast'
 
-const route = useRoute()
 const { toasts, remove, toastBackground } = useToast()
-
-const showNavigation = computed(() => {
-  const authRoutes = ['/login', '/register']
-  const isAdminRoute = route.path.startsWith('/admin')
-  return !authRoutes.includes(route.path) && !isAdminRoute
-})
 </script>
 
 <style>

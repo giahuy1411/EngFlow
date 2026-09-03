@@ -51,3 +51,12 @@ Ký hiệu: `[x]` = đã xong kèm bằng chứng runtime; `[ ]` = còn lại. D
 - [x] T7.2 analyze.md — cross-check spec↔tasks↔code (PASS, 2 task mở còn lại)
 - [x] T7.3 REPORT.md tiếng Việt đầy đủ (đã làm / chưa / fix + cách / skill đã nạp)
 - [x] T7.4 Commit Conventional Commits (02aa8c1, 83a8ad1) — `.env` không vào git
+
+## Phase 8 — Vòng continue 2 (yêu cầu 2026-09-03 buổi chiều)
+- [x] T8.0 Data repair tận gốc tiếp tục: F17 (76 MATCHING→MC), F17b (71 LISTENING→MC), F17c (137 FB/TRANSLATION→MC), F18 (68 MATCHING rỗng→FILL_BLANK), F19 (48 letter-answer bug + 745773 + 7 degenerate) — commits 62ef9ea, 823034c, d6273f6, 4ab6589; E2E grade API verified; sweep 67/67
+- [ ] T8.1 TTS supertonic → Java: chốt phương án từ feasibility report + doubt-driven review
+- [ ] T8.2 TTS: implement (sidecar/container + Java service + fail-soft) + unit/integration tests
+- [ ] T8.3 TTS: E2E — tạo listening exercise mới trong app có audio, verify UI play
+- [ ] T8.4 CLS đo trên prod build (`vite preview` + chrome-devtools trace) — số liệu trước/sau so dev
+- [ ] T8.5 Full UI functional gate: mọi chức năng chính qua UI thật, console 0 error/warning → báo user deploy-ready
+- [ ] T8.6 Cập nhật spec.md DoD (data-quality mục) + REPORT §4e + commit cuối
