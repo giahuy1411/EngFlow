@@ -24,7 +24,12 @@ public class SupertonicProxyTtsService implements TtsService {
 
     public SupertonicProxyTtsService(@Value("${ai.exercise.tts.supertonic.url:http://localhost:8001}") String supertonicUrl) {
         this.supertonicUrl = supertonicUrl;
+        // audit-v5 TTS: force HTTP/1.1. Java HttpClient defaults to HTTP/2 and
+        // sends an h2c Upgrade handshake; the uvicorn sidecar only speaks
+        // HTTP/1.1, and the downgrade drops the POST body -> FastAPI sees an
+        // empty body and rejects with 422 "Field required". HTTP/1.1 fixes it.
         this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
