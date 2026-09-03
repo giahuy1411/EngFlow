@@ -85,6 +85,7 @@ Ngoài ra: xóa 13 module frontend chết (~800 dòng), `premium.js` catch, foot
 ## 4c. Vòng continue — data repair tận gốc (F17)
 - **F17**: 75 dòng `exercise_type='MATCHING'` nhưng options là JSON-array MC và `correct_answer` nằm trong options → dán nhãn sai từ seed. UPDATE → `MULTIPLE_CHOICE` (giữ nguyên options/đáp án, không mất dữ liệu). 1 dòng legacy `:::` (745606) viết lại options sạch + đổi type.
 - **F17b**: 71 dòng LISTENING có options thật (không phải placeholder A-D) với đáp án nằm trong options → cùng pattern dán nhãn sai, convert → `MULTIPLE_CHOICE`. 1 dòng (745798) đáp án lệch 1 ký tự so với options → chuẩn hóa đáp án về đúng option rồi convert. LISTENING còn lại: 368 (320 không options → text input + TTS; 38 có audio + options → giữ LISTENING đúng nghĩa; 8 dòng options "A. ..." với đáp án "A" — MC hợp lệ, giữ nguyên vì chọn letter vẫn chấm đúng).
+- **F17c**: 137 dòng FILL_BLANK/TRANSLATION cùng pattern (options JSON thật + đáp án nằm trong options) → convert `MULTIPLE_CHOICE`. Phân bố cuối: MC 33540, FILL_BLANK 9045, MATCHING 405, LISTENING 368, TRANSLATION 377. Tổng không đổi 43727.
 - Trước khi sửa: backup `exercises_bak_v5` (481 MATCHING) + `exercises_bak_v5b` (322 L/F/T có options). Rollback: UPDATE type từ bảng backup.
 - Sau sửa: MATCHING = 333 valid-pipe + 68 empty (UI fallback) + 4 degenerate (UI fallback); MULTIPLE_CHOICE 33331→33403.
 - Verified E2E: lesson 41881 Q3 (exercise 755962) giờ là MC với options `["is","am","are"]` → render 3 nút, chọn "is" → ✅ ĐÚNG. Sweep 67/67 pass.
