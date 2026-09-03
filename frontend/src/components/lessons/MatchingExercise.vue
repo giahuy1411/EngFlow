@@ -34,8 +34,22 @@
         </p>
       </div>
 
+      <!-- audit-v5: malformed/empty MATCHING rows (seeded MC data mislabeled)
+           would render two empty columns — show the question with a text input
+           instead of a broken matching grid. -->
+      <div v-if="unusable" class="space-y-3">
+        <input v-model="fallbackAnswer" type="text"
+          :aria-label="'Câu trả lời nối từ'"
+          placeholder="Nhập câu trả lời..."
+          :disabled="revealed"
+          class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
+        <AppButton v-if="!revealed" @click="emitFallback" variant="pink" :disabled="!fallbackAnswer.trim()">
+          Kiểm tra
+        </AppButton>
+      </div>
+
       <!-- Matched pairs -->
-      <div v-if="matchedPairs.length > 0" class="mt-4 space-y-2">
+      <div v-else-if="matchedPairs.length > 0" class="mt-4 space-y-2">
         <p class="font-bold text-xs uppercase tracking-wider text-muted-foreground mb-2">Đã nối:</p>
         <div v-for="(pair, i) in matchedPairs" :key="'m-' + i"
           class="flex items-center gap-3 p-2.5 bg-quaternary/10 border-2 border-quaternary rounded-md">
@@ -43,12 +57,12 @@
           <span class="font-bold text-sm truncate">{{ leftItems[pair.left] }}</span>
           <span class="text-muted-foreground" aria-hidden="true">→</span>
           <span class="font-medium text-sm truncate">{{ rightItems[pair.right] }}</span>
-          <button @click="removePair(i)" class="ml-auto w-6 h-6 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground hover:bg-accent hover:text-white transition-all font-black text-xs">&times;</button>
+          <button @click="removePair(i)" aria-label="Xóa cặp đã chọn" class="ml-auto w-6 h-6 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground hover:bg-accent hover:text-white transition-all font-black text-xs">&times;</button>
         </div>
       </div>
 
       <!-- Result badge -->
-      <div v-if="revealed" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
+      <div v-if="revealed && !unusable" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
         :class="isCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
         <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
           <span>{{ isCorrect ? '✓ Đúng' : '✕ Sai' }}</span>
@@ -61,6 +75,14 @@
         </div>
         <p v-if="exercise.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(exercise.explanation)"></p>
       </div>
+      <!-- Fallback result badge (unusable matching data) -->
+      <div v-else-if="revealed && unusable" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
+        :class="fallbackCorrect ? 'bg-quaternary/10 border-quaternary' : 'bg-accent/10 border-accent'">
+        <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
+          <span>{{ fallbackCorrect ? '✓ Đúng' : '✕ Sai' }}</span>
+        </div>
+        <p class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ exercise.correctAnswer || 'Chưa có đáp án' }}</span></p>
+      </div>
     </div>
   </div>
 </template>
@@ -70,12 +92,25 @@ import { ref, computed, onMounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { sanitizeText } from '@/utils/markdown'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const props = defineProps({
   exercise: { type: Object, required: true }
 })
 
 const emit = defineEmits(['answer', 'reveal'])
+
+// audit-v5: unusable matching data (empty or no "left|right" pairs) → text fallback
+const unusable = computed(() => leftItems.value.length === 0)
+const fallbackAnswer = ref('')
+const fallbackCorrect = computed(() =>
+  fallbackAnswer.value.trim().toLowerCase() === String(props.exercise.correctAnswer || '').trim().toLowerCase())
+
+function emitFallback() {
+  revealed.value = true
+  emit('answer', fallbackAnswer.value)
+  emit('reveal', fallbackAnswer.value)
+}
 
 // Parse MATCHING data
 // options: ["word1|def1", "word2|def2", "word3|def3", "word4|def4"]

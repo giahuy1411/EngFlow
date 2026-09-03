@@ -142,3 +142,10 @@ src/main/resources/static/audio/*.mp3
 
 # ---------- 0-byte accidental file from old shell sessions ----------
 /$null
+
+# ---------- Audit artifacts (local only) ----------
+.mimosa/
+audit-v*-*.json
+audit-v*-shots/
+*.network-request
+*.network-response

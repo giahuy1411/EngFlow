@@ -20,14 +20,14 @@
           v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'pointer-events-auto border-2 border-black p-4 font-bold uppercase tracking-wider text-sm shadow-pop',
+            'pointer-events-auto border-2 border-foreground p-4 font-bold uppercase tracking-wider text-sm shadow-pop',
             toastBackground(toast.type)
           ]"
           role="alert"
         >
           <div class="flex items-start justify-between gap-3">
             <span>{{ toast.message }}</span>
-            <button @click="remove(toast.id)" class="flex-shrink-0 leading-none text-lg font-black opacity-70 hover:opacity-100 transition-opacity">&times;</button>
+            <button @click="remove(toast.id)" aria-label="Đóng thông báo" class="flex-shrink-0 leading-none text-lg font-black opacity-70 hover:opacity-100 transition-opacity">&times;</button>
           </div>
         </div>
       </TransitionGroup>
@@ -53,24 +53,9 @@ const showNavigation = computed(() => {
 </script>
 
 <style>
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  z-index: 9999;
-  padding: 0.5rem 1rem;
-  background: #121212;
-  color: #F0F0F0;
-  font-family: 'Be Vietnam Pro', sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-decoration: none;
-}
-.skip-link:focus {
-  left: 0;
-  top: 0;
-}
+/* audit-v5: removed the duplicate .skip-link block here (hardcoded #121212/#F0F0F0
+   + literal font) — the token-based definition in assets/main.css is the single
+   source of truth. */
 
 main:focus {
   outline: none;

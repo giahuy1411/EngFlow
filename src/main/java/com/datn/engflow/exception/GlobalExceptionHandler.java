@@ -134,6 +134,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
     }
 
+    /**
+     * audit-v5 fix: controllers (SpeakingSubmission, VideoLesson premium gates)
+     * throw ResponseStatusException(403/404/...) but no handler existed, so the
+     * catch-all {@link #handleGlobalException} converted them to 500. Propagate
+     * the intended status instead.
+     *
+     * @param ex status-carrying exception raised by a controller or service
+     * @return problem details with the original HTTP status
+     */
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ProblemDetail> handleResponseStatusException(
+            org.springframework.web.server.ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, ex.getReason() != null ? ex.getReason() : status.getReasonPhrase());
+        problem.setTitle(status.getReasonPhrase());
+        return ResponseEntity.status(status).body(problem);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ProblemDetail> handleNoResourceFoundException(NoResourceFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Không tìm thấy tài nguyên yêu cầu.");

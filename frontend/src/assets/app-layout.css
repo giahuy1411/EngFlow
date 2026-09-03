@@ -196,6 +196,9 @@
   color: var(--geo-bg);
   border-top: 2px solid var(--geo-fg);
   margin-top: auto;
+  /* audit-v5 perf: reserve height so the footer appearing after async data
+     renders doesn't shift the page (CLS 0.17 → target <0.1). */
+  min-height: 96px;
 }
 .app-footer__deco {
   pointer-events: none;

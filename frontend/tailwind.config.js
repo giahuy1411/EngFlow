@@ -6,9 +6,6 @@ export default {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
-      },
       colors: {
         geo: {
           bg: '#FFFDF5',
@@ -26,13 +23,7 @@ export default {
           ring: '#8B5CF6',
         },
         // Legacy aliases for backward compatibility during migration
-        playful: {
-          coral: '#8B5CF6',     // accent
-          pink: '#F472B6',      // secondary
-          yellow: '#FBBF24',    // tertiary
-          sky: '#F472B6',       // mapped to secondary
-          lime: '#34D399',      // quaternary
-        },
+        // audit-v5: playful.* block removed — zero usages across src (grep verified).
         accent: '#8B5CF6',
         secondary: '#F472B6',
         tertiary: '#FBBF24',
@@ -45,10 +36,20 @@ export default {
         input: '#FFFFFF',
         card: '#FFFFFF',
         ring: '#8B5CF6',
+        // audit-v5 fix: 55 usages of bg-danger/10, text-success, border-warning...
+        // existed across admin/user views but these colors were never defined in
+        // Tailwind (only as --geo-* CSS vars) → every utility silently resolved
+        // to nothing. Values mirror design-system.css --geo-danger/-warning/-success.
+        danger: '#E11D48',
+        warning: '#F59E0B',
+        success: '#059669',
       },
       fontFamily: {
         sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
         heading: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+        // audit-v5: Be Vietnam Pro tuyệt đối — font-mono không còn trỏ hệ mono
+        // riêng; giữ class hợp lệ nhưng resolve về BVP (single-family design system).
+        mono: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Major Third scale (1.25)
@@ -64,7 +65,9 @@ export default {
         '6xl': ['3.75rem', { lineHeight: '1.1' }],
       },
       borderRadius: {
-        blob: '0.5rem',
+        // audit-v5: removed duplicate `blob` key (0.5rem was silently overridden
+        // by '24px 24px 24px 0' below); blob-2/blob-3 kept as the real shapes.
+        'blob': '24px 24px 24px 0',
         'blob-sm': '0.375rem',
         'blob-lg': '0.75rem',
         'blob-xl': '1rem',
@@ -74,7 +77,6 @@ export default {
         md: '16px',
         lg: '24px',
         full: '9999px',
-        'blob': '24px 24px 24px 0',
         'blob-2': '30% 70% 70% 30% / 30% 30% 70% 70%',
         'blob-3': '9999px 9999px 0 0',
       },

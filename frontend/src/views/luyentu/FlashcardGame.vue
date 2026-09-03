@@ -50,7 +50,7 @@
         <div v-if="currentWord" class="relative mb-8">
           <div @click="flipCard"
             class="rounded-2xl border-2 border-foreground p-10 min-h-[280px] flex items-center justify-center cursor-pointer transition-all duration-500 relative shadow-pop-xl hover:shadow-pop-lg"
-            :class="cardTheme"
+            :class="[cardBg, cardInk]"
           >
             <!-- Theme badge -->
             <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-foreground/90 text-background text-[10px] font-black uppercase tracking-widest">
@@ -62,10 +62,10 @@
             <div class="absolute top-1/2 -translate-y-1/2 -left-2 w-4 h-4 bg-foreground/10 border-2 border-foreground rounded-full"></div>
 
             <div class="text-center">
-              <p class="text-xs font-bold uppercase tracking-widest text-background/70 mb-2">{{ isFlipped ? 'Nghĩa' : 'Từ' }}</p>
-              <h2 class="font-black text-4xl md:text-5xl uppercase tracking-tight text-background drop-shadow-sm" v-html="sanitizeText(isFlipped ? currentWord.meaning : currentWord.word)"></h2>
-              <p v-if="!isFlipped && currentWord.phonetic" class="font-bold text-lg text-background/80 mt-2">{{ currentWord.phonetic }}</p>
-              <p v-if="isFlipped && currentWord.example" class="font-medium text-background/80 mt-4 max-w-lg mx-auto italic">"<span v-html="sanitizeText(currentWord.example)"></span>"</p>
+              <p class="text-xs font-bold uppercase tracking-widest opacity-70 mb-2">{{ isFlipped ? 'Nghĩa' : 'Từ' }}</p>
+              <h2 class="font-black text-4xl md:text-5xl uppercase tracking-tight drop-shadow-sm" v-html="sanitizeText(isFlipped ? currentWord.meaning : currentWord.word)"></h2>
+              <p v-if="!isFlipped && currentWord.phonetic" class="font-bold text-lg opacity-80 mt-2">{{ currentWord.phonetic }}</p>
+              <p v-if="isFlipped && currentWord.example" class="font-medium opacity-80 mt-4 max-w-lg mx-auto italic">"<span v-html="sanitizeText(currentWord.example)"></span>"</p>
             </div>
 
             <!-- Audio button — tiny circular icon-only overlay control; keep raw <button> to preserve absolute layout -->
@@ -124,18 +124,22 @@ const currentWord = computed(() => words.value[currentIndex.value])
 const displayIndex = computed(() => Math.min(currentIndex.value + 1, words.value.length))
 const progressPercent = computed(() => words.value.length ? Math.round((Math.min(currentIndex.value, words.value.length) / words.value.length) * 100) : 0)
 
-// Color themes by word type — mỗi loại từ một gradient riêng để thẻ đỡ đơn điệu.
-// Chữ dùng text-background (gần đen/trắng tùy theme) đảm bảo tương phản trên nền màu.
+// Color themes by word type — audit-v5: dùng đúng 4 màu token của Playful
+// Geometric (accent #8B5CF6, secondary #F472B6, tertiary #FBBF24,
+// quaternary #34D399) + nền fg. Design system KHÔNG dùng gradient cho
+// surface nên bỏ hết gradient Tailwind off-palette; phân biệt loại từ bằng
+// màu phẳng + border-2 + shadow-pop (đúng "hard pop" của hệ).
+// cardInk = màu chữ trên nền thẻ: nền tối → trắng; nền sáng (tertiary) → fg.
 const THEMES = {
-  verb: 'bg-gradient-to-br from-sky-500 via-sky-600 to-indigo-700',
-  noun: 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700',
-  adjective: 'bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600',
-  adverb: 'bg-gradient-to-br from-fuchsia-500 via-purple-600 to-violet-700',
-  preposition: 'bg-gradient-to-br from-cyan-500 via-sky-600 to-blue-700',
-  pronoun: 'bg-gradient-to-br from-lime-500 via-green-600 to-emerald-700',
-  conjunction: 'bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600',
-  interjection: 'bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-600',
-  default: 'bg-gradient-to-br from-accent via-accent/90 to-indigo-600',
+  verb: { bg: 'bg-accent', ink: 'text-white' },
+  noun: { bg: 'bg-quaternary', ink: 'text-foreground' },
+  adjective: { bg: 'bg-tertiary', ink: 'text-foreground' },
+  adverb: { bg: 'bg-secondary', ink: 'text-white' },
+  preposition: { bg: 'bg-foreground', ink: 'text-background' },
+  pronoun: { bg: 'bg-accent', ink: 'text-white' },
+  conjunction: { bg: 'bg-secondary', ink: 'text-white' },
+  interjection: { bg: 'bg-tertiary', ink: 'text-foreground' },
+  default: { bg: 'bg-accent', ink: 'text-white' },
 }
 const THEME_LABELS = {
   verb: 'Động từ',
@@ -158,6 +162,8 @@ const cardTheme = computed(() => {
   const type = (currentWord.value?.wordType || currentWord.value?.type || '').toLowerCase()
   return THEMES[type] || THEMES.default
 })
+const cardBg = computed(() => cardTheme.value.bg)
+const cardInk = computed(() => cardTheme.value.ink)
 
 onMounted(loadDeck)
 

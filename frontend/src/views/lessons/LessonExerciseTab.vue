@@ -150,16 +150,31 @@ function parseMarkdown(md) {
 
 function parsedOptions(ex) {
   if (!ex.options) return null
-  if (Array.isArray(ex.options)) return ex.options
-  try { return JSON.parse(ex.options) }
-  catch { return null }
+  let opts = ex.options
+  if (typeof opts === 'string') {
+    if (opts === 'null') return null
+    try { opts = JSON.parse(opts) }
+    catch { return null }
+  }
+  if (!Array.isArray(opts) || opts.length === 0) return null
+  // audit-v5: seeded rows carry placeholder options (["A","B","C","D"] or
+  // ["A - noisy", ...]) with the real answer only in correctAnswer — rendering
+  // bare letters is worse than the free-text input.
+  const allPlaceholders = opts.every(o => /^[A-D](\s*-\s*.*)?$/i.test(String(o).trim()))
+  return allPlaceholders ? null : opts
 }
 
 function hasOptionChoices(ex) {
-  const choiceTypes = ['MULTIPLE_CHOICE', 'LISTENING']
-  if (!choiceTypes.includes(ex.exerciseType)) return false
+  if (ex.exerciseType === 'MULTIPLE_CHOICE' || ex.exerciseType === 'LISTENING') {
+    const opts = parsedOptions(ex)
+    return Array.isArray(opts) && opts.length > 0
+  }
+  // audit-v5: FILL_BLANK/TRANSLATION with REAL word options (e.g.
+  // ["not","don't","doesn't"]) render as tappable choices — the answer string
+  // matches an option exactly, so grading is unchanged. Placeholder options are
+  // filtered out inside parsedOptions and fall back to the text input.
   const opts = parsedOptions(ex)
-  return Array.isArray(opts) && opts.length > 0
+  return Array.isArray(opts) && opts.length >= 2
 }
 
 function getInputPlaceholder(ex) {

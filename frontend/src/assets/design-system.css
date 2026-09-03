@@ -10,17 +10,21 @@
 
 /* --- CSS Custom Properties --- */
 :root {
-  /* Colors — Playful Geometric (light) */
+  /* Colors — Playful Geometric (light).
+     audit-v5 token-drift fix: --geo-muted/--geo-border previously held warm
+     cream values (#F5F0E6/#E5DECF) that diverged from the Tailwind config
+     (#F1F5F9/#E2E8F0) — same design system, two palettes depending on the
+     styling path. Values now match the design-system spec (Slate 100/200). */
   --geo-bg: #FFFDF5;
   --geo-fg: #1E293B;
-  --geo-muted: #F5F0E6;
+  --geo-muted: #F1F5F9;
   --geo-muted-fg: #64748B;
   --geo-accent: #8B5CF6;
   --geo-accent-fg: #FFFFFF;
   --geo-secondary: #F472B6;
   --geo-tertiary: #FBBF24;
   --geo-quaternary: #34D399;
-  --geo-border: #E5DECF;
+  --geo-border: #E2E8F0;
   --geo-input: #FFFFFF;
   --geo-card: #FFFFFF;
   --geo-ring: #8B5CF6;
@@ -57,7 +61,7 @@
   --geo-shadow-sm: 3px 3px 0px 0px #1E293B;
   --geo-shadow-md: 4px 4px 0px 0px #1E293B;
   --geo-shadow-lg: 6px 6px 0px 0px #1E293B;
-  --geo-shadow-xl: 8px 8px 0px 0px #E5DECF;
+  --geo-shadow-xl: 8px 8px 0px 0px #E2E8F0;
   --geo-shadow-featured: 8px 8px 0px 0px #F472B6;
   --geo-shadow-accent: 4px 4px 0px 0px #8B5CF6;
   --geo-shadow-hover: 6px 6px 0px 0px #1E293B;
@@ -501,7 +505,9 @@ body {
   border-radius: var(--geo-radius-sm);
   padding: 1rem;
   overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
+  /* audit-v5: 'JetBrains Mono' was never loaded (silent system fallback).
+     Be Vietnam Pro is the single family per constitution P6. */
+  font-family: var(--geo-font);
   font-size: var(--geo-text-sm);
 }
 .geo-markdown code {

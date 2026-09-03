@@ -5,6 +5,11 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=${SA_PASSWORD}
+      # audit-v5 perf: host has 8GB RAM shared with backend/Ollama/Whisper.
+      # Default max server memory is unlimited; cap SQL Server at 2GB (it uses ~1GB).
+      # NOTE: MSSQL_MAX_MEMORY_PER_PROCESS_MB is NOT a recognized setup env var in
+      # the 2019 image — the cap is applied via sqlserver-init (init-db.sql).
+      - MSSQL_PID=Developer
     ports:
       - "1433:1433"
     volumes:

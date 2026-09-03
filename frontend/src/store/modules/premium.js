@@ -14,10 +14,11 @@ export const usePremiumStore = defineStore('premium', () => {
       isPremium.value = data.isPremium
       premiumExpiry.value = data.premiumExpiry
       premiumStatus.value = data
-    } catch {
-      isPremium.value = false
-      premiumExpiry.value = null
-      premiumStatus.value = null
+    } catch (e) {
+      // audit-v5 fix: a network blip must NOT flip a paying user to the
+      // free-tier UI. Keep the last known state; only an authoritative
+      // response (above) changes it.
+      console.warn('payment/status failed, keeping last premium state', e)
     }
   }
 

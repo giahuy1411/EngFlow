@@ -1,5 +1,7 @@
 <template>
-  <div class="flex h-screen bg-geo-bg overflow-hidden" style="font-family: 'Be Vietnam Pro', sans-serif">
+  <!-- audit-v5: inline font-family removed — body already inherits Be Vietnam Pro
+       via --geo-font (main.css); the literal bypassed the token. -->
+  <div class="flex h-screen bg-geo-bg overflow-hidden">
     <!-- Sidebar -->
     <aside class="w-72 bg-foreground text-white flex flex-col flex-shrink-0 border-r-2 border-foreground relative">
       <!-- Decorative shapes -->
@@ -115,7 +117,7 @@ const navItems = [
   { to: '/admin/speaking-submissions', icon: CheckSquare, label: 'Chấm bài', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/videos', icon: Clapperboard, label: 'Video học tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/video-attempts', icon: AudioLines, label: 'Chấm shadowing', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
-  { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-pink-500 border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-accent border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
 ]
 
 const pageTitles = {

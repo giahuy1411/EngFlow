@@ -134,8 +134,8 @@
               {{ editingLesson ? 'Sửa Bài Học' : 'Thêm Bài Học Mới' }}
             </h3>
           </div>
-          <!-- icon-only control: kept raw -->
-          <button @click="closeModal"
+          <!-- audit-v5 a11y: icon-only control now carries an accessible name -->
+          <button @click="closeModal" aria-label="Đóng form"
                   class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-white text-foreground font-black text-lg rounded-md shadow-pop-sm
                          hover:bg-accent hover:text-white transition-colors">&times;</button>
         </div>
@@ -174,9 +174,10 @@
             </div>
 
             <div class="flex items-center justify-between py-2">
-              <label class="font-bold uppercase text-xs tracking-wider cursor-pointer">Xuất bản</label>
-              <!-- icon-only control: kept raw (toggle switch) -->
+              <label id="publish-switch-label" class="font-bold uppercase text-xs tracking-wider cursor-pointer">Xuất bản</label>
+              <!-- audit-v5 a11y: toggle switch now exposes role/checked/name -->
               <button type="button" @click="formData.isPublished = !formData.isPublished"
+                      role="switch" :aria-checked="String(formData.isPublished)" aria-labelledby="publish-switch-label"
                       class="relative w-12 h-7 border-2 border-foreground rounded-full transition-colors duration-200"
                       :class="formData.isPublished ? 'bg-quaternary' : 'bg-foreground/10'">
                 <div :class="['absolute top-0.5 w-5 h-5 bg-white border-2 border-foreground rounded-full transition-transform duration-200',
