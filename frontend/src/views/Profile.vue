@@ -18,7 +18,7 @@
           <div class="flex gap-4">
             <div class="text-center"><p class="font-black text-2xl text-accent">{{ user.currentStreak || 0 }}</p><p class="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">Streak</p></div>
             <div class="text-center"><p class="font-black text-2xl text-secondary">{{ user.totalPoints || 0 }}</p><p class="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">Điểm</p></div>
-            <div class="text-center"><p class="font-black text-2xl text-tertiary">{{ user.level || 'N/A' }}</p><p class="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">Cấp độ</p></div>
+            <div class="text-center"><p class="font-black text-2xl text-foreground">{{ user.level || 'N/A' }}</p><p class="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">Cấp độ</p></div>
           </div>
         </div>
       </div>

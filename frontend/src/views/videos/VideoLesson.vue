@@ -146,7 +146,7 @@
               <p v-if="shadowAttempt.status === 'GRADED' && shadowAttempt.adminFeedback" class="mt-2 text-sm font-medium leading-relaxed">
                 💬 {{ shadowAttempt.adminFeedback }}
               </p>
-              <audio v-if="shadowAttempt.mediaUrl" :src="shadowAttempt.mediaUrl" controls class="mt-3 w-full h-10" @loadedmetadata="fixWebmDuration" />
+              <audio v-if="shadowAttempt.mediaUrl" :src="resolveMediaUrl(shadowAttempt.mediaUrl)" controls class="mt-3 w-full h-10" @loadedmetadata="fixWebmDuration" />
               <AppButton class="mt-4" variant="secondary" size="sm" @click="gotoShadow(shadowIndex + 1)"
                 :disabled="shadowIndex >= transcript.length - 1">Làm câu tiếp theo →</AppButton>
             </div>
@@ -248,6 +248,7 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 import videoLessonService from '@/services/videoLessonService'
 import vocabularyService from '@/services/vocabularyService'
 import deckService from '@/services/deckService'

@@ -4,11 +4,11 @@
     <p class="text-muted-foreground mb-6">Tạo tài khoản miễn phí để làm bài tập tương tác, lưu lịch sử học và theo dõi tiến độ.</p>
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
       <router-link to="/register"
-        class="inline-flex items-center justify-center border-2 border-foreground bg-accent px-6 py-3 font-black uppercase tracking-wider text-white shadow-pop-sm transition-transform hover:-translate-y-0.5">
+        class="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-accent px-6 py-3 font-black uppercase tracking-wider text-white shadow-pop transition-all duration-300 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-sm">
         Đăng ký miễn phí
       </router-link>
       <router-link to="/login"
-        class="inline-flex items-center justify-center border-2 border-foreground bg-white px-6 py-3 font-black uppercase tracking-wider shadow-pop-sm transition-transform hover:-translate-y-0.5">
+        class="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-white px-6 py-3 font-black uppercase tracking-wider shadow-pop-sm transition-all duration-300 ease-bounce hover:bg-tertiary">
         Đăng nhập
       </router-link>
     </div>

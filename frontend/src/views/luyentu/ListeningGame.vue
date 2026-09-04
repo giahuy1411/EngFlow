@@ -12,7 +12,7 @@
 
       <!-- Audio play button — icon-only circular control (w-20 h-20); keep raw <button> to preserve the circular layout -->
       <div v-if="currentWord" class="mb-8">
-        <button @click="playAudio"
+        <button @click="playAudio" aria-label="Nghe từ"
           class="w-20 h-20 bg-accent border-2 border-foreground rounded-full flex items-center justify-center mx-auto text-white hover:bg-accent/90 transition-all shadow-pop-xl active:shadow-pop-active animate-pop-in"
         >
           <Volume2 class="w-10 h-10" />

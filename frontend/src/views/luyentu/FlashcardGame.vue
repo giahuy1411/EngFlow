@@ -69,7 +69,7 @@
             </div>
 
             <!-- Audio button — tiny circular icon-only overlay control; keep raw <button> to preserve absolute layout -->
-            <button v-if="currentWord.audioUrl" @click.stop="playAudio(currentWord.audioUrl)"
+            <button v-if="currentWord.audioUrl" @click.stop="playAudio(currentWord.audioUrl)" :aria-label="'Phát âm ' + currentWord.word"
               class="absolute top-4 left-4 w-10 h-10 bg-foreground/20 border-2 border-foreground rounded-full flex items-center justify-center text-background hover:bg-foreground/30 transition-all shadow-pop-sm"
             >
               <Volume2 class="w-5 h-5" />

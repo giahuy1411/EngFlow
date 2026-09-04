@@ -69,6 +69,11 @@ services:
       - AI_EXERCISE_OLLAMA_BASE_URL=${AI_EXERCISE_OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
       - AI_SPEAKING_OLLAMA_MODEL=${AI_SPEAKING_OLLAMA_MODEL:-qwen2.5:3b}
       - AI_SPEAKING_WHISPER_BASE_URL=${AI_SPEAKING_WHISPER_BASE_URL:-http://whisper:9002}
+      # audit-v6 F29: local LLM calls (rubric assess, ai-grade, translate) can
+      # exceed the 120s default when qwen2.5:3b is cold or the batch is large;
+      # 180s matches the frontend axios timeout so the UI stops seeing "failed"
+      # while the backend is still working.
+      - AI_SPEAKING_LLM_TIMEOUT_SECONDS=${AI_SPEAKING_LLM_TIMEOUT_SECONDS:-180}
       - AI_EXERCISE_TTS_SUPERTONIC_URL=${AI_EXERCISE_TTS_SUPERTONIC_URL:-http://supertonic:8001}
       - SEPAY_WEBHOOK_SECRET=${SEPAY_WEBHOOK_SECRET}
       - SEPAY_BANK_ACCOUNT=${SEPAY_BANK_ACCOUNT}

@@ -122,8 +122,8 @@
           <div class="space-y-4">
             <div class="bg-muted/60 border-2 border-foreground p-4 rounded-md">
               <label class="block text-xs font-black uppercase tracking-wider mb-2">Bản ghi âm bài nói</label>
-              <audio v-if="isAudio(s.videoUrl)" :src="s.videoUrl" controls class="w-full" preload="metadata" />
-              <video v-else-if="s.videoUrl" :src="s.videoUrl" controls class="max-h-72 w-full border-2 border-foreground bg-foreground rounded" preload="metadata" />
+              <audio v-if="isAudio(s.videoUrl)" :src="resolveMediaUrl(s.videoUrl)" controls class="w-full" preload="metadata" />
+              <video v-else-if="s.videoUrl" :src="resolveMediaUrl(s.videoUrl)" controls class="max-h-72 w-full border-2 border-foreground bg-foreground rounded" preload="metadata" />
               <p v-else class="border-2 border-dashed border-border p-6 text-center text-muted-foreground font-bold text-sm">Không có media ghi âm.</p>
             </div>
 
@@ -229,7 +229,8 @@ import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
-import { useToast } from '@/composables/useToast'
+import { useToast} from '@/composables/useToast'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 
 const toast = useToast()
 

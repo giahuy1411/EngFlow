@@ -126,8 +126,9 @@ function answerState(idx) {
   if (!answered.value) return 'bg-card hover:bg-tertiary/10'
   const word = currentWord.value.options[idx]
   const correctAnswer = currentWord.value.answer
-  if (word === correctAnswer) return 'bg-quaternary/20 border-quaternary text-quaternary'
-  if (idx === selectedAnswer.value) return 'bg-secondary/20 border-secondary text-secondary'
+  // audit-v6 F25: colored text on tinted bg fails contrast — dark ink + colored border
+  if (word === correctAnswer) return 'bg-quaternary/20 border-quaternary text-foreground'
+  if (idx === selectedAnswer.value) return 'bg-secondary/20 border-secondary text-foreground'
   return 'opacity-50'
 }
 

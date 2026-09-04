@@ -34,18 +34,21 @@
             <p class="font-black uppercase tracking-wider">Video #{{ a.videoLessonId }} · Câu {{ a.lineIndex + 1 }}</p>
             <p class="text-xs font-bold text-muted-foreground mt-1">{{ a.submittedAt?.replace('T', ' ').slice(0, 16) }} · {{ a.status === 'GRADED' ? `Đã chấm ${a.score}/10` : 'Chưa chấm' }}</p>
           </div>
-          <audio v-if="a.mediaUrl" :src="a.mediaUrl" controls class="h-10 max-w-full" @loadedmetadata="fixWebmDuration" />
+          <audio v-if="a.mediaUrl" :src="resolveMediaUrl(a.mediaUrl)" controls class="h-10 max-w-full" @loadedmetadata="fixWebmDuration" />
         </div>
         <div v-if="a.status !== 'GRADED'" class="mt-4 flex flex-wrap items-end gap-3 border-t-2 border-foreground/10 pt-4">
+          <AppButton variant="primary" :disabled="aiGrading[a.id]" @click="aiGrade(a)">
+            {{ aiGrading[a.id] ? 'AI đang chấm...' : '✨ AI chấm' }}
+          </AppButton>
           <div>
             <label :for="`score-${a.id}`" class="block text-xs font-bold uppercase mb-1">Điểm (0–10)</label>
             <input :id="`score-${a.id}`" v-model.number="grading[a.id].score" type="number" min="0" max="10" step="0.5"
-              class="w-24 border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded" />
+              class="w-24 border-2 border-border p-2 text-sm rounded-sm focus:border-accent focus:shadow-pop-accent outline-none" />
           </div>
           <div class="flex-1 min-w-[200px]">
             <label :for="`feedback-${a.id}`" class="block text-xs font-bold uppercase mb-1">Nhận xét</label>
             <input :id="`feedback-${a.id}`" v-model="grading[a.id].feedback" placeholder="Phát âm tốt ở..., cần chú ý ngữ điệu..."
-              class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded" />
+              class="w-full border-2 border-border p-2 text-sm rounded-sm focus:border-accent focus:shadow-pop-accent outline-none" />
           </div>
           <AppButton variant="tertiary" :disabled="grading[a.id].saving" @click="submitGrade(a)">
             {{ grading[a.id].saving ? 'Đang lưu...' : 'Chấm' }}
@@ -62,7 +65,8 @@ import { onMounted, reactive, ref } from 'vue'
 import { AudioLinesIcon } from 'lucide-vue-next'
 import videoLessonService from '@/services/videoLessonService'
 import AppButton from '@/components/ui/AppButton.vue'
-import { useToast } from '@/composables/useToast'
+import { useToast} from '@/composables/useToast'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 
 const toast = useToast()
 const attempts = ref([])
@@ -70,6 +74,7 @@ const loading = ref(true)
 const error = ref(null)
 const statusFilter = ref('SUBMITTED')
 const grading = reactive({})
+const aiGrading = reactive({})
 
 onMounted(load)
 
@@ -102,6 +107,24 @@ async function submitGrade(attempt) {
     toast.showError(err.response?.data?.detail || 'Chấm thất bại')
   } finally {
     entry.saving = false
+  }
+}
+
+/**
+ * AI grading runs Whisper + LLM synchronously (can take ~1-2 min on the local
+ * GPU), so each attempt shows its own busy state and the result reloads the list.
+ */
+async function aiGrade(attempt) {
+  if (aiGrading[attempt.id]) return
+  aiGrading[attempt.id] = true
+  try {
+    await videoLessonService.aiGradeAttempt(attempt.id)
+    toast.showSuccess('AI đã chấm xong')
+    await load()
+  } catch (err) {
+    toast.showError(err.response?.data?.detail || err.response?.data?.message || 'AI chấm thất bại')
+  } finally {
+    aiGrading[attempt.id] = false
   }
 }
 

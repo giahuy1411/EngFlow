@@ -48,117 +48,94 @@
       </button>
     </div>
 
-    <!-- Form -->
-    <form
-      v-if="showForm"
-      ref="formEl"
-      class="bg-white border-2 border-foreground p-6 shadow-pop rounded-md"
-      @submit.prevent="savePrompt"
-    >
-      <h3 class="font-black text-xl mb-4 uppercase tracking-wider">{{ editing ? 'Sửa đề bài' : 'Thêm đề bài mới' }}</h3>
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label for="prompt-title" class="app-form-field__label">Tiêu đề <span class="app-form-field__required">*</span></label>
-          <input
-            id="prompt-title"
-            v-model="form.title"
-            :class="['app-input', { 'app-input--invalid': formErrors.title }]"
-            @input="clearError('title')"
-          />
-          <p v-if="formErrors.title" class="app-form-field__error" role="alert">{{ formErrors.title }}</p>
+    <!-- Form modal -->
+    <AppModal v-model="showForm" :title="editing ? 'Sửa đề bài' : 'Thêm đề bài mới'" size="lg">
+      <form id="speaking-prompt-form" class="space-y-4" @submit.prevent="savePrompt">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="prompt-title" class="app-form-field__label">Tiêu đề <span class="app-form-field__required">*</span></label>
+            <input
+              id="prompt-title"
+              v-model="form.title"
+              :class="['app-input', { 'app-input--invalid': formErrors.title }]"
+              @input="clearError('title')"
+            />
+            <p v-if="formErrors.title" class="app-form-field__error" role="alert">{{ formErrors.title }}</p>
+          </div>
+          <div>
+            <label for="prompt-level" class="app-form-field__label">Level</label>
+            <select id="prompt-level" v-model="form.level" class="app-input">
+              <option value="">Chưa chọn cấp độ</option>
+              <option value="A1">A1 - Beginner</option>
+              <option value="A2">A2 - Elementary</option>
+              <option value="B1">B1 - Intermediate</option>
+              <option value="B2">B2 - Upper Intermediate</option>
+              <option value="C1">C1 - Advanced</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label for="prompt-desc" class="app-form-field__label">Mô tả ngắn</label>
+            <textarea id="prompt-desc" v-model="form.description" rows="2" class="app-input"></textarea>
+          </div>
+          <div>
+            <label for="prompt-mode" class="app-form-field__label">Chế độ luyện tập</label>
+            <select id="prompt-mode" v-model="form.mode" class="app-input">
+              <option value="READ_ALOUD">Đọc theo mẫu</option>
+              <option value="FREE_SPEAKING">Nói tự do</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <AppButton
+              type="button"
+              class="w-full"
+              :loading="generatingFull"
+              @click="aiGenerateFull"
+              variant="primary"
+            >
+              <SparklesIcon class="w-4 h-4" aria-hidden="true" />
+              {{ generatingFull ? 'AI đang tạo đề...' : 'Tạo đề bằng AI' }}
+            </AppButton>
+          </div>
+          <p class="md:col-span-2 text-xs font-medium text-muted-foreground -mt-2">
+            Nhập chủ đề vào ô "Tiêu đề" (ví dụ: Ordering coffee, Job interview...) rồi bấm "Tạo đề bằng AI" — hệ thống tự điền mô tả, hướng dẫn và đoạn đọc mẫu theo trình độ.
+          </p>
+          <div class="md:col-span-2">
+            <label for="prompt-body" class="app-form-field__label">Nội dung câu hỏi / Đề bài <span class="app-form-field__required">*</span></label>
+            <textarea
+              id="prompt-body"
+              v-model="form.prompt"
+              rows="3"
+              :class="['app-input', { 'app-input--invalid': formErrors.prompt }]"
+              @input="clearError('prompt')"
+            ></textarea>
+            <p v-if="formErrors.prompt" class="app-form-field__error" role="alert">{{ formErrors.prompt }}</p>
+          </div>
+          <div class="md:col-span-2">
+            <label for="prompt-reference" class="app-form-field__label">Nội dung đọc mẫu (referenceText)<span v-if="form.mode === 'READ_ALOUD'" class="app-form-field__required">*</span></label>
+            <textarea
+              id="prompt-reference"
+              v-model="form.referenceText"
+              rows="3"
+              :class="['app-input', { 'app-input--invalid': formErrors.referenceText }]"
+              @input="clearError('referenceText')"
+            ></textarea>
+            <p v-if="formErrors.referenceText" class="app-form-field__error" role="alert">{{ formErrors.referenceText }}</p>
+          </div>
+          <div>
+            <label for="prompt-duration" class="app-form-field__label">Thời lượng tối đa (giây)</label>
+            <input id="prompt-duration" v-model.number="form.maxDurationSeconds" type="number" min="15" max="300" class="app-input" />
+          </div>
+          <div>
+            <label for="prompt-attempts" class="app-form-field__label">Số lượt tối đa</label>
+            <input id="prompt-attempts" v-model.number="form.attemptLimit" type="number" min="1" max="100" class="app-input" />
+          </div>
         </div>
-        <div>
-          <label for="prompt-level" class="app-form-field__label">Level</label>
-          <select id="prompt-level" v-model="form.level" class="app-input">
-            <option value="">Chưa chọn cấp độ</option>
-            <option value="A1">A1 - Beginner</option>
-            <option value="A2">A2 - Elementary</option>
-            <option value="B1">B1 - Intermediate</option>
-            <option value="B2">B2 - Upper Intermediate</option>
-            <option value="C1">C1 - Advanced</option>
-          </select>
-        </div>
-        <div class="md:col-span-2">
-          <label for="prompt-desc" class="app-form-field__label">Mô tả ngắn</label>
-          <textarea id="prompt-desc" v-model="form.description" rows="2" class="app-input"></textarea>
-        </div>
-        <div class="md:col-span-2">
-          <label for="prompt-body" class="app-form-field__label">Nội dung câu hỏi / Đề bài <span class="app-form-field__required">*</span></label>
-          <textarea
-            id="prompt-body"
-            v-model="form.prompt"
-            rows="3"
-            :class="['app-input', { 'app-input--invalid': formErrors.prompt }]"
-            @input="clearError('prompt')"
-          ></textarea>
-          <p v-if="formErrors.prompt" class="app-form-field__error" role="alert">{{ formErrors.prompt }}</p>
-        </div>
-        <div>
-          <label for="prompt-category" class="app-form-field__label">Danh mục</label>
-          <input id="prompt-category" v-model="form.category" class="app-input" />
-        </div>
-        <div>
-          <label for="prompt-order" class="app-form-field__label">Thứ tự hiển thị</label>
-          <input id="prompt-order" v-model.number="form.orderIndex" type="number" class="app-input" />
-        </div>
-        <div>
-          <label for="prompt-lesson" class="app-form-field__label">Bài học (Tùy chọn)</label>
-          <select id="prompt-lesson" v-model="form.lessonId" class="app-input">
-            <option :value="null">Bài luyện độc lập</option>
-            <option v-for="lesson in lessons" :key="lesson.id" :value="lesson.id">{{ lesson.title }}</option>
-          </select>
-        </div>
-        <div>
-          <label for="prompt-mode" class="app-form-field__label">Chế độ luyện tập</label>
-          <select id="prompt-mode" v-model="form.mode" class="app-input">
-            <option value="READ_ALOUD">Đọc theo mẫu</option>
-            <option value="FREE_SPEAKING">Nói tự do</option>
-          </select>
-        </div>
-        <div class="md:col-span-2">
-          <label for="prompt-reference" class="app-form-field__label">Nội dung đọc mẫu (referenceText)</label>
-          <textarea
-            id="prompt-reference"
-            v-model="form.referenceText"
-            rows="3"
-            :class="['app-input', { 'app-input--invalid': formErrors.referenceText }]"
-            @input="clearError('referenceText')"
-          ></textarea>
-          <p v-if="formErrors.referenceText" class="app-form-field__error" role="alert">{{ formErrors.referenceText }}</p>
-          <AppButton
-            v-if="form.mode === 'FREE_SPEAKING'"
-            type="button"
-            class="mt-2"
-            :loading="generating"
-            @click="aiGenerate"
-            variant="primary"
-            size="sm"
-          >
-            Tạo nội dung bằng AI
-          </AppButton>
-        </div>
-        <div>
-          <label for="prompt-duration" class="app-form-field__label">Thời lượng tối đa (giây)</label>
-          <input id="prompt-duration" v-model.number="form.maxDurationSeconds" type="number" min="15" max="300" class="app-input" />
-        </div>
-        <div>
-          <label for="prompt-attempts" class="app-form-field__label">Số lượt tối đa</label>
-          <input id="prompt-attempts" v-model.number="form.attemptLimit" type="number" min="1" max="100" class="app-input" />
-        </div>
-        <div class="flex items-center gap-6 md:col-span-2">
-          <label class="flex items-center gap-2 text-sm font-bold cursor-pointer">
-            <input type="checkbox" class="geo-checkbox" v-model="form.isPremium" /> Premium
-          </label>
-          <label class="flex items-center gap-2 text-sm font-bold cursor-pointer">
-            <input type="checkbox" class="geo-checkbox" v-model="form.isPublished" /> Công khai
-          </label>
-        </div>
-      </div>
-      <div class="flex gap-3">
-        <AppButton type="submit" :loading="saving" variant="tertiary">Lưu đề bài</AppButton>
-        <AppButton type="button" variant="secondary" @click="closeForm">Hủy</AppButton>
-      </div>
-    </form>
+      </form>
+      <template #footer>
+        <AppButton variant="secondary" @click="closeForm">Hủy</AppButton>
+        <AppButton type="submit" form="speaking-prompt-form" :loading="saving" variant="tertiary">Lưu đề bài</AppButton>
+      </template>
+    </AppModal>
 
     <!-- Loading skeleton -->
     <div v-if="loading" class="bg-white border-2 border-foreground overflow-hidden rounded-md shadow-pop-lg" role="status" aria-label="Đang tải danh sách đề bài">
@@ -193,15 +170,12 @@
         <span class="font-bold text-xs uppercase tracking-widest text-white/80">{{ filteredPrompts.length }} đề bài</span>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[760px]">
+        <table class="w-full text-sm min-w-[640px]">
           <thead class="bg-accent/20 border-b-2 border-foreground font-black uppercase text-xs tracking-wider">
             <tr>
               <th class="text-left p-4 border-r-2 border-foreground">Tiêu đề</th>
               <th class="text-left p-4 border-r-2 border-foreground">Level</th>
               <th class="text-left p-4 border-r-2 border-foreground">Chế độ</th>
-              <th class="text-center p-4 border-r-2 border-foreground">Premium</th>
-              <th class="text-center p-4 border-r-2 border-foreground">Trạng thái</th>
-              <th class="text-center p-4 border-r-2 border-foreground">Thứ tự</th>
               <th class="text-center p-4">Thao tác</th>
             </tr>
           </thead>
@@ -217,20 +191,13 @@
                   {{ p.mode === 'FREE_SPEAKING' ? 'Nói tự do' : 'Đọc mẫu' }}
                 </span>
               </td>
-              <td class="p-4 border-r-2 border-foreground text-center font-bold">{{ p.isPremium ? 'Có' : 'Không' }}</td>
-              <td class="p-4 border-r-2 border-foreground text-center">
-                <span class="inline-block px-2 py-1 text-xs font-bold rounded-md border border-foreground" :class="p.isPublished ? 'bg-quaternary/30' : 'bg-muted text-muted-foreground'">
-                  {{ p.isPublished ? 'Công khai' : 'Ẩn' }}
-                </span>
-              </td>
-              <td class="p-4 border-r-2 border-foreground text-center tabular-nums">{{ p.orderIndex ?? '-' }}</td>
               <td class="p-4 text-center whitespace-nowrap">
                 <AppButton @click="editPrompt(p)" variant="secondary" size="sm" class="mr-2">Sửa</AppButton>
                 <AppButton @click="askDelete(p)" variant="danger" size="sm">Xóa</AppButton>
               </td>
             </tr>
             <tr v-if="filteredPrompts.length === 0">
-              <td colspan="7" class="p-6">
+              <td colspan="4" class="p-6">
                 <AppEmptyState
                   :title="hasActiveFilters ? 'Không tìm thấy đề bài phù hợp' : 'Chưa có đề bài nào'"
                   :description="hasActiveFilters ? 'Thử đổi từ khóa hoặc bỏ bớt bộ lọc.' : 'Tạo đề bài đầu tiên để học viên bắt đầu luyện nói.'"
@@ -288,10 +255,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
-import { Mic2Icon, PlusIcon, SearchIcon, AlertTriangleIcon, FileTextIcon } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import { Mic2Icon, PlusIcon, SearchIcon, AlertTriangleIcon, FileTextIcon, SparklesIcon } from 'lucide-vue-next'
 import speakingService from '@/services/speakingService'
-import lessonService from '@/services/lessonService'
 import api from '@/services/api'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -302,14 +268,12 @@ import { useToast } from '@/composables/useToast'
 const toast = useToast()
 
 const prompts = ref([])
-const lessons = ref([])
 const loading = ref(true)
 const error = ref(null)
 const showForm = ref(false)
 const editing = ref(null)
 const saving = ref(false)
-const generating = ref(false)
-const formEl = ref(null)
+const generatingFull = ref(false)
 
 const confirmDelete = ref(false)
 const promptToDelete = ref(null)
@@ -325,9 +289,8 @@ const formErrors = ref({})
 
 function defaultForm() {
   return {
-    title: '', description: '', prompt: '', level: '', category: '', isPremium: false,
-    thumbnailUrl: '', orderIndex: 0, isPublished: true, lessonId: null,
-    mode: 'READ_ALOUD', referenceText: '', referenceMediaUrl: '', maxDurationSeconds: 60, attemptLimit: 10
+    title: '', description: '', prompt: '', level: '',
+    mode: 'READ_ALOUD', referenceText: '', maxDurationSeconds: 60, attemptLimit: 10
   }
 }
 
@@ -360,9 +323,7 @@ function clearFilters() {
   currentPage.value = 1
 }
 
-onMounted(async () => {
-  await Promise.all([loadPrompts(), loadLessons()])
-})
+onMounted(loadPrompts)
 
 async function loadPrompts() {
   loading.value = true
@@ -377,26 +338,26 @@ async function loadPrompts() {
   }
 }
 
-async function loadLessons() {
-  try {
-    const res = await lessonService.getAll()
-    lessons.value = Array.isArray(res) ? res : (res.content || res.data || [])
-  } catch (err) {
-    console.error('Failed to load lessons:', err)
-  }
-}
-
 function openPromptForm(p = null) {
   if (p) {
     editing.value = p.id
-    form.value = { ...p, lessonId: p.lessonId || p.lesson?.id || null }
+    // Only keep fields the trimmed form still shows.
+    form.value = {
+      title: p.title || '',
+      description: p.description || '',
+      prompt: p.prompt || '',
+      level: p.level || '',
+      mode: p.mode || 'READ_ALOUD',
+      referenceText: p.referenceText || '',
+      maxDurationSeconds: p.maxDurationSeconds || 60,
+      attemptLimit: p.attemptLimit || 10
+    }
   } else {
     editing.value = null
     form.value = defaultForm()
   }
   formErrors.value = {}
   showForm.value = true
-  nextTick(() => formEl.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }))
 }
 
 function closeForm() {
@@ -470,23 +431,41 @@ async function confirmDeletePrompt() {
   }
 }
 
-async function aiGenerate() {
-  generating.value = true
+/**
+ * Full AI draft: uses the title box as the topic and fills description,
+ * prompt, referenceText and level from one LLM call. Existing values are
+ * kept — AI only fills blanks.
+ */
+async function aiGenerateFull() {
+  const topic = form.value.title?.trim()
+  if (!topic) {
+    toast.showError('Nhập chủ đề vào ô Tiêu đề trước khi tạo bằng AI')
+    return
+  }
+  if (generatingFull.value) return
+  generatingFull.value = true
   try {
-    const res = await api.post('/api/v1/admin/speaking-prompts/ai-generate', {
-      topic: form.value.title || form.value.description || 'General English',
-      level: form.value.level || 'A2'
-    })
-    if (res.data?.referenceText) {
-      form.value.referenceText = res.data.referenceText
-      if (!form.value.prompt) form.value.prompt = `Hãy nói về chủ đề: ${res.data.topic || form.value.title}`
+    // audit-v6 F23: local LLM can take 30-60s+ (model swap + generation);
+    // the default 10s axios timeout aborted the request mid-call.
+    const res = await api.post('/api/v1/admin/speaking-prompts/ai-generate-full', {
+      topic,
+      level: form.value.level || 'A2',
+      mode: form.value.mode
+    }, { timeout: 120000 })
+    const draft = res.data || {}
+    if (!form.value.title) form.value.title = draft.title || topic
+    if (!form.value.description && draft.description) form.value.description = draft.description
+    if (!form.value.prompt && draft.prompt) form.value.prompt = draft.prompt
+    if (!form.value.referenceText && draft.referenceText) {
+      form.value.referenceText = draft.referenceText
       clearError('referenceText')
-      toast.showSuccess('Đã tạo nội dung bằng AI')
     }
+    if (!form.value.level && draft.level) form.value.level = draft.level
+    toast.showSuccess('AI đã điền đề bài — kiểm tra lại trước khi lưu')
   } catch (err) {
-    toast.showError(err.response?.data?.message || 'Tạo AI thất bại. Hãy kiểm tra dịch vụ AI.')
+    toast.showError(err.response?.data?.error || err.response?.data?.message || 'Tạo đề bằng AI thất bại')
   } finally {
-    generating.value = false
+    generatingFull.value = false
   }
 }
 </script>

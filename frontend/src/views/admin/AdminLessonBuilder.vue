@@ -116,7 +116,7 @@
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Block
               </AppButton>
               <!-- icon-only control: kept raw -->
-              <button @click="confirmDeleteSection(section, si)"
+              <button @click="confirmDeleteSection(section, si)" :aria-label="'Xóa section ' + (si + 1)"
                       class="px-4 border-l-4 border-foreground text-white/40 hover:text-accent hover:bg-white/10 font-bold text-lg transition-all flex items-center">
                 &times;
               </button>
@@ -151,7 +151,7 @@
                           class="ml-1 w-2 h-2 rounded-full bg-tertiary inline-block"></span>
                   </div>
                   <!-- icon-only control: kept raw -->
-                  <button @click="deleteBlock(block.id, section.id, bi)"
+                  <button @click="deleteBlock(block.id, section.id, bi)" :aria-label="'Xóa block ' + (bi + 1)"
                           class="w-7 h-7 flex items-center justify-center border-2 border-foreground rounded-lg bg-white text-foreground/40 hover:text-accent hover:bg-accent/10 font-bold text-sm transition-all shadow-pop-sm">
                     &times;
                   </button>

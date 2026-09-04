@@ -20,7 +20,7 @@
     <div class="flex flex-wrap items-center gap-3">
       <div class="relative flex-1 min-w-[200px]">
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <input id="lesson-search" name="lesson-search" v-model="searchQuery" type="search" placeholder="Tìm tiêu đề, mô tả..."
+        <input id="lesson-search" name="lesson-search" v-model="searchQuery" type="search" aria-label="Tìm bài học" placeholder="Tìm tiêu đề, mô tả..."
                class="w-full border-2 border-foreground pl-10 pr-3 py-2.5 bg-white font-bold text-sm rounded-md
                       focus:outline-none focus:ring-2 focus:ring-accent transition-all shadow-pop-sm" />
       </div>
@@ -125,7 +125,9 @@
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4">
+    <!-- audit-v6 F26: legacy custom modal lacked role/aria-modal/Escape -->
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4" @keydown.esc="showModal = false"
+         role="dialog" aria-modal="true" aria-label="Form bài học" tabindex="-1">
       <div class="bg-white border-2 border-foreground w-full max-w-lg shadow-pop-xl rounded-md flex flex-col max-h-[90vh] overflow-hidden">
         <div class="bg-tertiary border-b-2 border-foreground p-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -213,6 +215,8 @@ const lessons = ref([])
 const loading = ref(true)
 const saving = ref(false)
 const showModal = ref(false)
+// audit-v6 F26: remember opener so focus returns after the dialog closes
+let lastFocused = null
 const editingLesson = ref(null)
 const levelFilter = ref('')
 const searchQuery = ref('')
@@ -303,10 +307,11 @@ const openModal = async (lesson = null) => {
     editingLesson.value = null
     formData.value = { ...initialForm }
   }
+  lastFocused = document.activeElement
   showModal.value = true
 }
 
-const closeModal = () => { showModal.value = false; editingLesson.value = null }
+const closeModal = () => { showModal.value = false; editingLesson.value = null; lastFocused?.focus?.() }
 
 const saveLesson = async () => {
   saving.value = true

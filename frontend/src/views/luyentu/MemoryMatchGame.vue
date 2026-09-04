@@ -31,6 +31,7 @@
       <div class="grid grid-cols-4 gap-3 max-w-xl mx-auto mb-8">
         <button v-for="(card, idx) in cards" :key="idx"
           @click="flipCard(idx)"
+          :aria-label="'Thẻ số ' + (idx + 1)"
           class="aspect-square border-2 border-foreground rounded-md flex items-center justify-center font-black text-lg uppercase transition-all duration-300 shadow-pop-sm"
           :class="getCardClass(card)"
           :disabled="card.matched || (flippedIndices.length >= 2)"
@@ -58,7 +59,7 @@
           <Check class="w-10 h-10 text-white" />
         </div>
         <p v-if="submitting" class="mb-6 font-bold text-sm uppercase tracking-wider text-muted-foreground">Đang lưu kết quả...</p>
-        <p v-else-if="submitResult" class="mb-6 font-black text-lg text-quaternary">
+        <p v-else-if="submitResult" class="mb-6 font-black text-lg text-foreground">
           Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm
         </p>
         <router-link :to="'/decks/' + deckId"
@@ -170,7 +171,8 @@ function resetFlipped() {
 }
 
 function getCardClass(card) {
-  if (card.matched) return 'bg-quaternary/20 border-quaternary text-quaternary'
+  // audit-v6 F25: dark ink on tinted bg for contrast
+  if (card.matched) return 'bg-quaternary/20 border-quaternary text-foreground'
   if (card.flipped) return 'bg-card shadow-pop-lg border-accent text-foreground'
   return 'bg-card text-transparent hover:bg-tertiary/10'
 }

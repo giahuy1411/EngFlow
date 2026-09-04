@@ -137,8 +137,10 @@
     </div>
 
     <!-- Modal -->
+    <!-- audit-v6 F26: legacy custom modal lacked role/aria-modal/Escape/focus-trap -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-3 sm:p-4"
-         @click.self="closeModal">
+         @click.self="closeModal" @keydown.esc="closeModal"
+         role="dialog" aria-modal="true" :aria-label="editingExercise ? 'Sửa bài tập' : 'Thêm bài tập mới'" tabindex="-1" ref="modalRef">
       <div class="bg-white border-2 border-foreground w-full max-w-6xl max-h-[92dvh] shadow-pop-xl rounded-md flex flex-col relative overflow-hidden"
            style="overscroll-behavior: contain;">
         <div class="bg-accent border-b-2 border-foreground px-4 py-3 flex items-center justify-between sticky top-0 z-10 shrink-0">
@@ -205,7 +207,7 @@
                            @input="showLessonDropdown = true"
                            class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
                     <!-- icon-only control: kept raw -->
-                    <button type="button" @click="clearLesson" v-if="formData.lessonId"
+                    <button type="button" @click="clearLesson" v-if="formData.lessonId" aria-label="Xóa lesson liên kết"
                             class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-accent transition-colors">
                       &times;
                     </button>
@@ -273,7 +275,7 @@
                            class="flex-1 border-2 border-foreground rounded-md p-2.5 bg-white font-bold text-sm
                                   focus:outline-none focus:ring-2 focus:ring-accent transition-all" />
                     <!-- icon-only control: kept raw -->
-                    <button type="button" @click="removeOption(i)" v-if="formData.options.length > 2"
+                    <button type="button" @click="removeOption(i)" v-if="formData.options.length > 2" :aria-label="'Xóa lựa chọn ' + (i + 1)"
                             class="w-8 h-8 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground
                                    hover:bg-accent hover:text-white hover:border-accent transition-colors font-black">
                       &times;
@@ -324,7 +326,8 @@
     </div>
 
     <!-- Delete confirmation modal -->
-    <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4" @click.self="deleteTarget = null">
+    <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4" @click.self="deleteTarget = null" @keydown.esc="deleteTarget = null"
+         role="alertdialog" aria-modal="true" aria-label="Xác nhận xóa bài tập" tabindex="-1">
       <div class="bg-white border-2 border-foreground w-full max-w-sm shadow-pop-xl rounded-md overflow-hidden">
         <div class="bg-accent border-b-2 border-foreground p-5 flex items-center gap-3">
           <div class="w-3 h-3 bg-white rotate-45 rounded"></div>
@@ -371,6 +374,8 @@ const showAiPanel = ref(false)
 const editingExercise = ref(null)
 const deleteTarget = ref(null)
 const imageError = ref(false)
+// audit-v6 F26: remember opener so focus returns after the dialog closes
+let lastFocused = null
 const toast = useToast()
 
 const searchQuery = ref('')
@@ -585,6 +590,7 @@ const openModal = (ex = null) => {
     }
   }
   showAiPanel.value = false
+  lastFocused = document.activeElement
   showModal.value = true
 }
 
@@ -592,6 +598,8 @@ const closeModal = () => {
   showAiPanel.value = false
   showModal.value = false
   editingExercise.value = null
+  // audit-v6 F26: return focus to the opener after closing the dialog
+  lastFocused?.focus?.()
 }
 
 const saveExercise = async () => {

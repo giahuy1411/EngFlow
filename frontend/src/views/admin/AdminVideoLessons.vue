@@ -17,58 +17,64 @@
       </AppButton>
     </div>
 
-    <!-- Form -->
-    <div v-if="showForm" class="bg-white border-2 border-foreground p-6 shadow-pop rounded-md">
-      <h3 class="font-black text-xl mb-4 uppercase tracking-wider">{{ editing ? 'Sửa bài học video' : 'Bài học video mới' }}</h3>
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label for="vl-title" class="block text-xs font-bold uppercase mb-1">Tiêu đề</label>
-          <input id="vl-title" v-model="form.title" class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded" required />
-        </div>
-        <div>
-          <label for="vl-level" class="block text-xs font-bold uppercase mb-1">Trình độ</label>
-          <select id="vl-level" v-model="form.level" class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded">
-            <option value="ELEMENTARY">Elementary (A1–A2)</option>
-            <option value="PRE_INTERMEDIATE">Pre-Intermediate (B1)</option>
-            <option value="INTERMEDIATE">Intermediate (B2)</option>
-            <option value="UPPER_INTERMEDIATE">Upper-Intermediate (C1)</option>
-          </select>
-        </div>
-        <div class="md:col-span-2">
-          <label for="vl-url" class="block text-xs font-bold uppercase mb-1">Link YouTube</label>
-          <input id="vl-url" v-model="form.youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded" required />
-          <p v-if="previewVideoId" class="mt-1 text-xs font-bold text-success">Video ID: {{ previewVideoId }}</p>
-        </div>
-        <div class="md:col-span-2">
-          <label for="vl-desc" class="block text-xs font-bold uppercase mb-1">Mô tả ngắn</label>
-          <textarea id="vl-desc" v-model="form.description" rows="2" class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded"></textarea>
-        </div>
-        <div>
-          <label for="vl-category" class="block text-xs font-bold uppercase mb-1">Danh mục</label>
-          <input id="vl-category" v-model="form.category" placeholder="Giao tiếp, IELTS..." class="w-full border-2 border-border p-2 text-sm focus:border-foreground outline-none rounded" />
-        </div>
-        <div class="flex items-end">
-          <label class="flex items-center gap-2 text-sm font-bold"><input type="checkbox" v-model="form.isPublished" /> Công khai</label>
-        </div>
-        <div class="md:col-span-2">
-          <label for="vl-transcript" class="block text-xs font-bold uppercase mb-1">Phụ đề (dán nội dung .srt / .vtt hoặc JSON)</label>
-          <textarea id="vl-transcript" v-model="form.transcriptText" rows="8" spellcheck="false"
-            placeholder="1&#10;00:00:01,000 --> 00:00:04,500&#10;Hello, dear English learners.&#10;&#10;2&#10;..."
-            class="w-full border-2 border-border p-2 text-xs font-mono focus:border-foreground outline-none rounded"></textarea>
-          <div class="flex items-center gap-3 mt-2">
-            <input id="vl-file" type="file" accept=".srt,.vtt,.txt" class="text-xs font-bold" @change="onFilePicked" />
-            <span v-if="parsedPreview.length" class="text-xs font-black text-success uppercase tracking-wider">Nhận {{ parsedPreview.length }} dòng</span>
+    <!-- Form modal -->
+    <AppModal v-model="showForm" :title="editing ? 'Sửa bài học video' : 'Bài học video mới'" size="lg">
+      <form id="video-lesson-form" class="space-y-4" @submit.prevent="save">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="vl-title" class="app-form-field__label">Tiêu đề <span class="app-form-field__required">*</span></label>
+            <input id="vl-title" v-model="form.title" class="app-input" required />
           </div>
-          <p v-if="transcriptError" class="mt-1 text-xs font-bold text-danger">{{ transcriptError }}</p>
+          <div>
+            <label for="vl-level" class="app-form-field__label">Trình độ</label>
+            <select id="vl-level" v-model="form.level" class="app-input">
+              <option value="ELEMENTARY">Elementary (A1–A2)</option>
+              <option value="PRE_INTERMEDIATE">Pre-Intermediate (B1)</option>
+              <option value="INTERMEDIATE">Intermediate (B2)</option>
+              <option value="UPPER_INTERMEDIATE">Upper-Intermediate (C1)</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label for="vl-url" class="app-form-field__label">Link YouTube <span class="app-form-field__required">*</span></label>
+            <div class="flex gap-2">
+              <input id="vl-url" v-model="form.youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." class="app-input flex-1" required />
+              <AppButton type="button" variant="primary" size="sm" :disabled="!previewVideoId || fetching" :loading="fetching" @click="fetchSubtitles">
+                <SparklesIcon class="w-4 h-4" aria-hidden="true" />
+                AI tạo phụ đề
+              </AppButton>
+            </div>
+            <p v-if="previewVideoId" class="mt-1 text-xs font-bold text-success">Video ID: {{ previewVideoId }}</p>
+            <p class="mt-1 text-xs font-medium text-muted-foreground">Dán link rồi bấm "AI tạo phụ đề" — hệ thống lấy phụ đề sẵn có của video (kể cả tự động) và dịch sang tiếng Việt, đồng thời điền tiêu đề + mô tả.</p>
+          </div>
+          <div class="md:col-span-2">
+            <label for="vl-desc" class="app-form-field__label">Mô tả ngắn</label>
+            <textarea id="vl-desc" v-model="form.description" rows="2" class="app-input"></textarea>
+          </div>
+          <div class="md:col-span-2">
+            <label for="vl-transcript" class="app-form-field__label">Phụ đề (dán nội dung .srt / .vtt hoặc JSON) <span class="app-form-field__required">*</span></label>
+            <textarea id="vl-transcript" v-model="form.transcriptText" rows="8" spellcheck="false"
+              placeholder="Bấm &quot;AI tạo phụ đề&quot; để tự điền, hoặc dán SRT/VTT tại đây..."
+              :class="['app-input font-mono text-xs', { 'app-input--invalid': transcriptError }]"
+              @input="onTranscriptEdited"></textarea>
+            <div class="flex flex-wrap items-center gap-3 mt-2">
+              <input id="vl-file" type="file" accept=".srt,.vtt,.txt" class="text-xs font-bold" @change="onFilePicked" />
+              <span v-if="parsedPreview.length" class="text-xs font-black text-success uppercase tracking-wider">Nhận {{ parsedPreview.length }} dòng</span>
+              <AppButton v-if="parsedPreview.length" type="button" variant="secondary" size="sm" :disabled="translating" :loading="translating" @click="translateSubtitles">
+                <LanguagesIcon class="w-4 h-4" aria-hidden="true" />
+                {{ translating ? 'AI đang dịch...' : 'AI dịch sang tiếng Việt' }}
+              </AppButton>
+            </div>
+            <p v-if="transcriptError" class="app-form-field__error" role="alert">{{ transcriptError }}</p>
+          </div>
         </div>
-      </div>
-      <div class="flex gap-3">
-        <AppButton @click="save" :disabled="saving" :loading="saving" variant="tertiary">
+      </form>
+      <template #footer>
+        <AppButton variant="secondary" @click="showForm = false">Hủy</AppButton>
+        <AppButton type="submit" form="video-lesson-form" :disabled="saving" :loading="saving" variant="tertiary">
           {{ saving ? 'Đang lưu...' : 'Lưu bài học' }}
         </AppButton>
-        <AppButton @click="showForm = false" variant="secondary">Hủy</AppButton>
-      </div>
-    </div>
+      </template>
+    </AppModal>
 
     <!-- Table -->
     <div v-if="loading" class="text-center py-12">
@@ -89,7 +95,6 @@
             <th class="text-left p-4 border-r-2 border-foreground">Tiêu đề</th>
             <th class="text-left p-4 border-r-2 border-foreground">Level</th>
             <th class="text-center p-4 border-r-2 border-foreground">Số câu</th>
-            <th class="text-center p-4 border-r-2 border-foreground">Công khai</th>
             <th class="text-center p-4">Thao tác</th>
           </tr>
         </thead>
@@ -98,14 +103,13 @@
             <td class="p-4 border-r-2 border-foreground font-bold">{{ l.title }}</td>
             <td class="p-4 border-r-2 border-foreground">{{ levelLabel(l.level) }}</td>
             <td class="p-4 border-r-2 border-foreground text-center tabular-nums">{{ l.lineCount }}</td>
-            <td class="p-4 border-r-2 border-foreground text-center">{{ l.isPublished ? 'Có' : 'Không' }}</td>
             <td class="p-4 text-center">
               <router-link :to="`/videos/${l.id}`" class="text-xs font-black uppercase tracking-wider underline mr-3">Xem</router-link>
               <AppButton @click="deleteLesson(l.id)" variant="danger" size="sm">Xóa</AppButton>
             </td>
           </tr>
           <tr v-if="lessons.length === 0">
-            <td colspan="5" class="p-6 text-center text-muted-foreground font-bold uppercase text-xs">Chưa có bài học video nào</td>
+            <td colspan="4" class="p-6 text-center text-muted-foreground font-bold uppercase text-xs">Chưa có bài học video nào</td>
           </tr>
         </tbody>
       </table>
@@ -115,10 +119,11 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { ClapperboardIcon, PlusIcon } from 'lucide-vue-next'
+import { ClapperboardIcon, PlusIcon, SparklesIcon, LanguagesIcon } from 'lucide-vue-next'
 import videoLessonService from '@/services/videoLessonService'
 import { parseSubtitlePreview } from '@/utils/subtitlePreview'
 import AppButton from '@/components/ui/AppButton.vue'
+import AppModal from '@/components/ui/AppModal.vue'
 import { useToast } from '@/composables/useToast'
 import { levelLabel } from '@/utils/lessonLevels'
 
@@ -131,11 +136,15 @@ const showForm = ref(false)
 const editing = ref(null)
 const saving = ref(false)
 const transcriptError = ref('')
+const translating = ref(false)
+const fetching = ref(false)
+// AI-translated Vietnamese lines, keyed by cue index; merged into the payload on save.
+const translatedLines = ref({})
 
 const form = ref(defaultForm())
 
 function defaultForm() {
-  return { title: '', description: '', youtubeUrl: '', level: 'ELEMENTARY', category: '', transcriptText: '', isPublished: true }
+  return { title: '', description: '', youtubeUrl: '', level: 'ELEMENTARY', transcriptText: '' }
 }
 
 const parsedPreview = computed(() => {
@@ -167,10 +176,15 @@ async function loadLessons() {
   }
 }
 
-function openForm() {
-  editing.value = null
-  form.value = defaultForm()
+function openForm(lesson = null) {
+  editing.value = lesson ? lesson.id : null
+  // audit-v6 F21: keep transcript empty in the box — an empty box now means
+  // "giữ phụ đề cũ" (backend keeps current transcript on update).
+  form.value = lesson
+    ? { title: lesson.title, description: lesson.description || '', youtubeUrl: lesson.youtubeUrl || '', level: lesson.level || 'ELEMENTARY', transcriptText: '' }
+    : defaultForm()
   transcriptError.value = ''
+  translatedLines.value = {}
   showForm.value = true
 }
 
@@ -178,26 +192,113 @@ function onFilePicked(event) {
   const file = event.target.files?.[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = () => { form.value.transcriptText = String(reader.result || '') }
+  reader.onload = () => {
+    form.value.transcriptText = String(reader.result || '')
+    translatedLines.value = {}
+  }
   reader.readAsText(file)
+}
+
+function onTranscriptEdited() {
+  transcriptError.value = ''
+}
+
+/**
+ * Fetches the video's existing captions (auto or human) and translates them
+ * to Vietnamese in one backend call; also pre-fills title and description.
+ */
+async function fetchSubtitles() {
+  if (!previewVideoId.value || fetching.value) return
+  fetching.value = true
+  try {
+    const result = await videoLessonService.fetchYoutubeTranscript(form.value.youtubeUrl)
+    const lines = (result.lines || []).map(l => ({ start: l.start, end: l.end, textEn: l.textEn, textVi: l.textVi }))
+    if (!lines.length) {
+      toast.showError('Video này không có phụ đề để lấy — hãy dán file .srt')
+      return
+    }
+    form.value.transcriptText = JSON.stringify(lines, null, 0)
+    // Backend already translated; key the Vietnamese by cue index directly.
+    const map = {}
+    let filled = 0
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].textVi) {
+        map[i] = lines[i].textVi
+        filled++
+      }
+    }
+    translatedLines.value = map
+    if (!form.value.title && result.title) form.value.title = result.title
+    if (!form.value.description && result.description) {
+      form.value.description = result.description.slice(0, 300)
+    }
+    transcriptError.value = ''
+    toast.showSuccess(filled > 0
+      ? `Đã lấy ${lines.length} dòng phụ đề (dịch ${filled}/${lines.length} câu tiếng Việt)`
+      : `Đã lấy ${lines.length} dòng phụ đề`)
+  } catch (err) {
+    toast.showError(err.response?.data?.detail || err.response?.data?.error || err.response?.data?.message || 'Không lấy được phụ đề — thử dán file .srt tay')
+  } finally {
+    fetching.value = false
+  }
+}
+
+/**
+ * Sends the parsed EN cues to the local LLM for Vietnamese translation and
+ * stores the result keyed by cue index; merged into the transcript on save.
+ */
+async function translateSubtitles() {
+  if (!parsedPreview.value.length || translating.value) return
+  translating.value = true
+  try {
+    const lines = parsedPreview.value.map(cue => ({ start: cue.start, end: cue.end, textEn: cue.text, textVi: null }))
+    const translated = await videoLessonService.translateTranscript(lines)
+    const map = {}
+    let filled = 0
+    for (let i = 0; i < translated.length; i++) {
+      if (translated[i]?.textVi) {
+        map[i] = translated[i].textVi
+        filled++
+      }
+    }
+    translatedLines.value = map
+    if (filled > 0) {
+      toast.showSuccess(`AI đã dịch ${filled}/${parsedPreview.value.length} dòng`)
+    } else {
+      toast.showError('AI chưa dịch được dòng nào — thử lại sau')
+    }
+  } catch (err) {
+    toast.showError(err.response?.data?.detail || 'Dịch phụ đề thất bại')
+  } finally {
+    translating.value = false
+  }
 }
 
 async function save() {
   transcriptError.value = ''
-  if (!parsedPreview.value.length && !form.value.transcriptText.trim().startsWith('[')) {
+  const isJson = form.value.transcriptText.trim().startsWith('[')
+  // audit-v6 F21: on EDIT, an empty transcript box = keep the existing one
+  // (backend null/empty-guard). Only CREATE requires ≥1 valid cue.
+  if (!editing.value && !parsedPreview.value.length && !isJson) {
     transcriptError.value = 'Phụ đề không hợp lệ — cần ít nhất 1 dòng SRT/VTT hoặc mảng JSON.'
     return
   }
   saving.value = true
   try {
+    // For pasted SRT/VTT the EN text comes from the parser; for AI-fetched or
+    // pasted JSON the transcriptText is already an array with textVi included.
+    let transcript = null
+    if (isJson) {
+      transcript = JSON.parse(form.value.transcriptText)
+    } else if (parsedPreview.value.length) {
+      transcript = parsedPreview.value.map((cue, i) => ({ start: cue.start, end: cue.end, textEn: cue.text, textVi: translatedLines.value[i] || null }))
+    }
     const meta = {
       title: form.value.title,
       description: form.value.description,
       youtubeUrl: form.value.youtubeUrl,
       level: form.value.level,
-      category: form.value.category,
-      transcript: parsedPreview.value.map(cue => ({ start: cue.start, end: cue.end, textEn: cue.text, textVi: null })),
-      isPublished: form.value.isPublished
+      transcript
     }
     if (editing.value) {
       await videoLessonService.update(editing.value, meta)

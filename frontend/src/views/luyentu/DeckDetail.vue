@@ -42,13 +42,13 @@
             class="px-6 py-3 bg-accent text-white font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
           >Flashcard</router-link>
           <router-link :to="`/decks/${deck.id}/play/quiz`"
-            class="px-6 py-3 bg-secondary text-white font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+            class="px-6 py-3 bg-secondary text-foreground font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
           >Quiz</router-link>
           <router-link :to="`/decks/${deck.id}/play/listening`"
             class="px-6 py-3 bg-tertiary text-foreground font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
           >Nghe</router-link>
           <router-link :to="`/decks/${deck.id}/play/typing`"
-            class="px-6 py-3 bg-quaternary text-white font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+            class="px-6 py-3 bg-quaternary text-foreground font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
           >Gõ từ</router-link>
           <router-link :to="`/decks/${deck.id}/play/memory`"
             class="px-6 py-3 bg-card font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
@@ -70,7 +70,7 @@
               <p class="font-medium text-foreground mt-1" v-html="sanitizeText(w.meaning)"></p>
               <p v-if="w.example" class="text-sm text-muted-foreground italic mt-1">"<span v-html="sanitizeText(w.example)"></span>"</p>
             </div>
-            <button v-if="w.audioUrl" @click="playAudio(w.audioUrl)"
+            <button v-if="w.audioUrl" @click="playAudio(w.audioUrl)" :aria-label="'Phát âm ' + w.word"
               class="w-9 h-9 bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent/90 transition-all shadow-pop-sm flex-shrink-0"
             ><Volume2 class="w-4 h-4" /></button>
           </div>

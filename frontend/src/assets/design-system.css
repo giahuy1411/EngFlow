@@ -232,7 +232,8 @@ body {
 
 .geo-btn-emerald {
   background: var(--geo-quaternary);
-  color: white;
+  /* audit-v6 F25: white on #34D399 ≈ 2:1 fails contrast — dark ink instead */
+  color: var(--geo-fg);
   border-radius: var(--geo-radius-full);
   box-shadow: var(--geo-shadow-md);
 }
@@ -600,6 +601,14 @@ input[type="checkbox"].geo-checkbox:checked {
   .geo-shadow-card {
     box-shadow: 4px 4px 0px 0px #E2E8F0;
   }
+  /* audit-v6 F27: spec requires reducing "pop" shadows to 2px on mobile —
+     the Tailwind utilities (used everywhere) were not covered by the
+     .geo-shadow-* rules above, so they kept 4-8px offsets on small screens. */
+  .shadow-pop, .shadow-pop-sm, .shadow-pop-lg, .shadow-pop-accent, .shadow-pop-pink {
+    box-shadow: 2px 2px 0px 0px #1E293B;
+  }
+  .shadow-pop-xl { box-shadow: 3px 3px 0px 0px #E2E8F0; }
+  .shadow-pop-featured { box-shadow: 3px 3px 0px 0px #F472B6; }
   .geo-heading-1 { font-size: var(--geo-text-3xl); }
   .geo-heading-2 { font-size: var(--geo-text-2xl); }
   .geo-heading-3 { font-size: var(--geo-text-xl); }
@@ -998,7 +1007,8 @@ input[type="checkbox"].geo-checkbox:checked {
 
 .app-btn--emerald {
   background: var(--geo-quaternary);
-  color: white;
+  /* audit-v6 F25: white on #34D399 ≈ 2:1 fails contrast — dark ink instead */
+  color: var(--geo-fg);
   box-shadow: var(--geo-shadow-md);
 }
 .app-btn--emerald:hover:not(:disabled) {

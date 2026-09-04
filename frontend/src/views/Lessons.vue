@@ -46,6 +46,7 @@
         <input
           v-model="searchQuery"
           type="search"
+          aria-label="Tìm bài học"
           placeholder="Tìm bài học..."
           class="w-full sm:w-96 border-2 border-foreground bg-white px-4 py-2.5 font-bold text-sm rounded-md shadow-pop-sm focus:outline-none focus:ring-2 focus:ring-accent"
         />

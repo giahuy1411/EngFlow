@@ -67,7 +67,7 @@
           <h2 class="font-black text-3xl uppercase tracking-tight mb-2">Hoàn thành!</h2>
           <p class="font-black text-5xl text-accent mb-5">{{ score }}/{{ questions.length }}</p>
           <p v-if="submitting" class="mb-6 font-bold text-sm uppercase tracking-wider text-muted-foreground">Đang lưu kết quả...</p>
-          <p v-else-if="submitResult" class="mb-6 font-black text-lg text-quaternary">
+          <p v-else-if="submitResult" class="mb-6 font-black text-lg text-foreground">
             Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm
           </p>
           <AppButton variant="primary" @click="restart">Luyện lại</AppButton>
@@ -148,8 +148,9 @@ function selectAnswer(index) {
 function optionClass(index) {
   if (!answered.value) return 'bg-card hover:bg-tertiary/10'
   const option = currentQuestion.value.options[index]
-  if (option === currentQuestion.value.correctAnswer) return 'bg-quaternary/20 border-quaternary text-quaternary'
-  if (index === selectedIndex.value) return 'bg-secondary/20 border-secondary text-secondary'
+  // audit-v6 F25: dark ink on tinted bg for contrast
+  if (option === currentQuestion.value.correctAnswer) return 'bg-quaternary/20 border-quaternary text-foreground'
+  if (index === selectedIndex.value) return 'bg-secondary/20 border-secondary text-foreground'
   return 'opacity-50'
 }
 

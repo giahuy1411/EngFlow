@@ -30,9 +30,11 @@
         <div class="flex items-center gap-3 px-6 pt-5 pb-2">
           <span class="font-black text-sm uppercase bg-foreground text-white px-3 py-1 rounded-full">{{ idx + 1 }}</span>
           <span class="px-3 py-1 bg-tertiary text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-foreground">{{ typeLabel(ex.exerciseType) }}</span>
-          <span v-if="ex.difficulty === 'EASY'" class="text-quaternary font-bold text-xs uppercase">Dễ</span>
-          <span v-else-if="ex.difficulty === 'MEDIUM'" class="text-tertiary font-bold text-xs uppercase">TB</span>
-          <span v-else-if="ex.difficulty === 'HARD'" class="text-accent font-bold text-xs uppercase">Khó</span>
+          <!-- audit-v6 F25: tertiary/quaternary as text fails contrast (~2:1) —
+               use badge chips (colored bg + foreground text) instead. -->
+          <span v-if="ex.difficulty === 'EASY'" class="px-2 py-0.5 bg-quaternary/20 text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-quaternary">Dễ</span>
+          <span v-else-if="ex.difficulty === 'MEDIUM'" class="px-2 py-0.5 bg-tertiary/20 text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-tertiary">TB</span>
+          <span v-else-if="ex.difficulty === 'HARD'" class="px-2 py-0.5 bg-accent/10 text-accent font-bold text-xs uppercase tracking-wider rounded-full border-2 border-accent">Khó</span>
         </div>
 
         <div class="p-6 pt-3">
@@ -86,7 +88,7 @@
               <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
                 <span>{{ cardStates[ex.id]?.ungradeable ? '⚪ Không chấm được' : (cardStates[ex.id]?.isCorrect ? '✅ Đúng' : '❌ Sai') }}</span>
               </div>
-              <p v-if="cardStates[ex.id]?.correctAnswer" class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ cardStates[ex.id].correctAnswer }}</span></p>
+              <p v-if="cardStates[ex.id]?.correctAnswer" class="font-bold text-sm">Đáp án: <span class="text-foreground font-black">{{ cardStates[ex.id].correctAnswer }}</span></p>
               <p v-else-if="cardStates[ex.id]?.ungradeable" class="text-sm text-muted-foreground">Bài tập này chưa có đáp án chuẩn nên không được tính điểm.</p>
               <p v-if="ex.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(ex.explanation)"></p>
             </div>

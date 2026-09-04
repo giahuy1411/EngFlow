@@ -53,7 +53,7 @@
         <p class="font-bold text-xs uppercase tracking-wider text-muted-foreground mb-2">Đã nối:</p>
         <div v-for="(pair, i) in matchedPairs" :key="'m-' + i"
           class="flex items-center gap-3 p-2.5 bg-quaternary/10 border-2 border-quaternary rounded-md">
-          <span class="font-black text-xs text-quaternary uppercase">{{ i + 1 }}</span>
+          <span class="font-black text-xs text-foreground uppercase">{{ i + 1 }}</span>
           <span class="font-bold text-sm truncate">{{ leftItems[pair.left] }}</span>
           <span class="text-muted-foreground" aria-hidden="true">→</span>
           <span class="font-medium text-sm truncate">{{ rightItems[pair.right] }}</span>
@@ -67,7 +67,7 @@
         <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
           <span>{{ !graded ? 'Đang chấm…' : (result.isCorrect ? '✓ Đúng' : '✕ Sai') }}</span>
         </div>
-        <p v-if="graded && result.correctAnswer" class="font-bold text-sm">Đáp án đúng: <span class="text-quaternary">{{ result.correctAnswer }}</span></p>
+        <p v-if="graded && result.correctAnswer" class="font-bold text-sm">Đáp án đúng: <span class="text-foreground font-black">{{ result.correctAnswer }}</span></p>
         <p v-if="exercise.explanation" class="mt-2 text-sm text-muted-foreground italic" v-html="sanitizeText(exercise.explanation)"></p>
       </div>
       <!-- Fallback result badge (unusable matching data) -->
@@ -76,7 +76,7 @@
         <div class="flex items-center gap-2 font-black text-sm uppercase mb-1">
           <span>{{ !graded ? 'Đang chấm…' : (result.isCorrect ? '✓ Đúng' : '✕ Sai') }}</span>
         </div>
-        <p v-if="graded" class="font-bold text-sm">Đáp án: <span class="text-quaternary">{{ result.correctAnswer || 'Chưa có đáp án' }}</span></p>
+        <p v-if="graded" class="font-bold text-sm">Đáp án: <span class="text-foreground font-black">{{ result.correctAnswer || 'Chưa có đáp án' }}</span></p>
       </div>
     </div>
   </div>

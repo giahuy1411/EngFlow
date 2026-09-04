@@ -59,12 +59,12 @@
           </div>
           <p v-else class="mt-5 text-sm leading-relaxed text-muted-foreground">{{ statusMeta(submission.status).description }}</p>
 
-          <AppButton v-if="submission.videoUrl" :id="`toggle-submission-${submission.id}`" class="mt-5" variant="secondary" :aria-expanded="playing === submission.id" @click="playing = playing === submission.id ? null : submission.id">
+          <AppButton v-if="resolveMediaUrl(submission.videoUrl)" :id="`toggle-submission-${submission.id}`" class="mt-5" variant="secondary" :aria-expanded="playing === submission.id" @click="playing = playing === submission.id ? null : submission.id">
             {{ playing === submission.id ? 'Ẩn bản ghi' : 'Mở bản ghi' }}
           </AppButton>
-          <template v-if="playing === submission.id && submission.videoUrl">
-            <audio v-if="isAudio(submission)" :src="submission.videoUrl" controls class="mt-4 w-full" preload="metadata" />
-            <video v-else :src="submission.videoUrl" controls class="mt-4 max-h-80 w-full bg-foreground" preload="metadata" />
+          <template v-if="playing === submission.id && resolveMediaUrl(submission.videoUrl)">
+            <audio v-if="isAudio(submission)" :src="resolveMediaUrl(submission.videoUrl)" controls class="mt-4 w-full" preload="metadata" />
+            <video v-else :src="resolveMediaUrl(submission.videoUrl)" controls class="mt-4 max-h-80 w-full bg-foreground" preload="metadata" />
           </template>
         </article>
 
@@ -83,6 +83,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { resolveMediaUrl } from '@/utils/mediaUrl'
 import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
@@ -123,8 +124,8 @@ function handlePageChange(page) {
 function statusMeta(status) {
   if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success font-black', description: 'Giáo viên đã hoàn tất chấm bài.' }
   if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-success font-black', description: 'AI đã chấm nội dung bài nói. Giáo viên có thể chấm lại.' }
-  if (status === 'PROCESSING') return { label: 'Đang chấm', className: 'text-tertiary font-black', description: 'AI đang phân tích bài nói của bạn.' }
-  if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-tertiary font-black', description: 'Giáo viên đang xem bài của bạn.' }
+  if (status === 'PROCESSING') return { label: 'Đang chấm', className: 'text-foreground font-black', description: 'AI đang phân tích bài nói của bạn.' }
+  if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-foreground font-black', description: 'Giáo viên đang xem bài của bạn.' }
   if (status === 'FAILED') return { label: 'Chờ chấm', className: 'text-muted-foreground font-black', description: 'AI chưa chấm được, giáo viên sẽ chấm tay bài này.' }
   return { label: 'Chờ chấm', className: 'text-muted-foreground font-black', description: 'Bài đã gửi và đang chờ giáo viên chấm.' }
 }
