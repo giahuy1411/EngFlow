@@ -37,4 +37,4 @@
 ## Phase 6 — Converge + Báo cáo
 - [x] T6.1 converge: REPORT §3 liệt kê rõ chưa làm + lý do; không task orphan
 - [x] T6.2 REPORT.md tiếng Việt (đã làm / chưa / fix+cách / skill đã nạp)
-- [ ] T6.3 Commit Conventional Commits
+- [x] T6.3 Commit Conventional Commits (eb5ae17, c78c19f, aab5785, 62d9fe8, c082094) — `.env`/fixture không vào git
