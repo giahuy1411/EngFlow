@@ -29,8 +29,12 @@ const WAYBACK_TIMEOUT = 120000;
 
 // SSRF guard: crawler chỉ được fetch đúng nguồn dữ liệu đã cho phép.
 // Chặn protocol lạ, hostname ngoài allowlist, và host loopback/private/reserved.
+// audit-v6: allowlist là deny-by-default — chỉ 3 hostname cụ thể, không có
+// wildcard/SNI bypass; IP-literal (dạng decimal/hex/octal của 127.0.0.1 v.v.)
+// cũng bị chặn vì không khớp hostname nào trong Set.
 const ALLOWED_HOSTS = new Set(['english-practice.net', 'www.english-practice.net', 'web.archive.org']);
 const BLOCKED_HOST_RE = /^(127\.|10\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1|f[cd][0-9a-f]{2}:)/i;
+const IP_LITERAL_RE = /^\[?[0-9a-f:.]+\]?$/i;
 
 function assertSafeUrl(rawUrl) {
   let parsed;
@@ -39,10 +43,31 @@ function assertSafeUrl(rawUrl) {
     throw new Error(`Blocked protocol ${parsed.protocol}: ${rawUrl}`);
   }
   const host = parsed.hostname.toLowerCase();
+  // Chặn mọi dạng IP literal (decimal/hex/octal IPv4, IPv6) trước khi xét allowlist.
+  if (IP_LITERAL_RE.test(host)) {
+    throw new Error(`Blocked IP-literal host ${host}: ${rawUrl}`);
+  }
   if (!ALLOWED_HOSTS.has(host) || BLOCKED_HOST_RE.test(host)) {
     throw new Error(`Blocked host ${host}: not in crawl allowlist`);
   }
   return rawUrl;
+}
+
+// audit-v6: hostname đã được allowlist khóa chặt ở trên, nhưng một resolver
+// độc vẫn có thể map tên domain đã duyệt về loopback/private (DNS rebinding).
+// Chặn thêm theo IP đã resolve trước khi kết nối.
+const net = require('net');
+function isPrivateAddress(host) {
+  if (net.isIPv4(host)) {
+    const [a, b] = host.split('.').map(Number);
+    return a === 127 || a === 10 || a === 0 || a === 169 && b === 254
+      || a === 192 && b === 168 || a === 172 && b >= 16 && b <= 31 || a >= 224;
+  }
+  if (net.isIPv6(host)) {
+    const h = host.toLowerCase().replace(/:/g, '');
+    return h === '1' || h.startsWith('fe80') || h.startsWith('fc') || h.startsWith('fd') || h.startsWith('ff');
+  }
+  return false;
 }
 
 function fetchUrl(url, retries = null) {
@@ -57,7 +82,19 @@ function fetchUrl(url, retries = null) {
       return;
     }
     const client = actualUrl.startsWith('https') ? https : http;
-    const req = client.get(actualUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }, (res) => {
+    const req = client.get(actualUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+      // audit-v6: từ chối redirect tự động — mỗi hop phải đi qua assertSafeUrl
+      // ở lời gọi fetchUrl tiếp theo, không để thư viện tự follow sang host lạ.
+      maxRedirects: 0,
+      lookup: (hostname, options, callback) => {
+        require('dns').lookup(hostname, options, (err, address, family) => {
+          if (err) return callback(err);
+          if (isPrivateAddress(address)) return callback(new Error(`Blocked DNS resolution to private address ${address} for ${hostname}`));
+          callback(null, address, family);
+        });
+      },
+    }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         const redirectUrl = res.headers.location.startsWith('http') ? res.headers.location : new URL(res.headers.location, actualUrl).href;
         fetchUrl(redirectUrl, maxRetries).then(resolve).catch(reject);
