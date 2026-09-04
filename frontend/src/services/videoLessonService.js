@@ -44,5 +44,22 @@ export default {
   gradeAttempt(id, score, feedback) {
     return api.patch(`/api/v1/admin/video-attempts/${id}/grade`, { score, feedback })
       .then(response => response.data)
+  },
+  // AI grading is synchronous (Whisper + LLM); allow up to 3 minutes.
+  aiGradeAttempt(id) {
+    return api.post(`/api/v1/admin/video-attempts/${id}/ai-grade`, null, { timeout: 180000 })
+      .then(response => response.data)
+  },
+  // AI subtitle translation (fail-soft); returns lines with textVi filled.
+  translateTranscript(lines) {
+    return api.post('/api/v1/admin/video-lessons/translate-transcript', lines, { timeout: 180000 })
+      .then(response => response.data)
+  },
+  // Fetches an existing YouTube transcript (auto or human captions) and has
+  // the local LLM translate every cue to Vietnamese; also returns title and
+  // description so the form can be pre-filled. Long local-LLM call → 3 min.
+  fetchYoutubeTranscript(url) {
+    return api.post('/api/v1/admin/video-lessons/fetch-youtube', { url }, { timeout: 180000 })
+      .then(response => response.data)
   }
 }

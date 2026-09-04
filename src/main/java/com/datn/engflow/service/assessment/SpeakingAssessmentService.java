@@ -43,7 +43,7 @@ public class SpeakingAssessmentService {
             @Value("${ai.speaking.whisper.base-url:}") String whisperBaseUrl,
             @Value("${ai.speaking.ollama.base-url:http://host.docker.internal:11434/v1}") String ollamaBaseUrl,
             @Value("${ai.speaking.ollama.model:qwen2.5:3b}") String ollamaModel,
-            @Value("${ai.speaking.llm.timeout-seconds:60}") long llmTimeoutSeconds,
+            @Value("${ai.speaking.llm.timeout-seconds:120}") long llmTimeoutSeconds,
             ObjectMapper objectMapper) {
         this.minioService = minioService;
         this.transcriptClient = new SpeakingTranscriptClient(whisperBaseUrl, Duration.ofSeconds(llmTimeoutSeconds));
@@ -90,22 +90,40 @@ public class SpeakingAssessmentService {
         try {
             rubric = rubricClient.score(prompt, transcript);
         } catch (Exception ex) {
-            log.warn("Rubric scoring failed for submission {}: {}", submission.getId(), ex.getMessage());
-            error = truncate("LLM rubric thất bại: " + ex.getMessage(), 500);
+            // Small local models time out when the GPU model slot was just swapped
+            // (load ~31s alone). One warm retry usually succeeds; two failures in a
+            // row means the model is genuinely unavailable.
+            log.warn("Rubric scoring failed for submission {}: {} — retrying once", submission.getId(), ex.getMessage());
+            try {
+                rubric = rubricClient.score(prompt, transcript);
+            } catch (Exception retryEx) {
+                log.warn("Rubric retry failed for submission {}: {}", submission.getId(), retryEx.getMessage());
+                error = truncate("LLM rubric thất bại: " + retryEx.getMessage(), 500);
+            }
         }
         return new SpeakingAssessmentOutcome(transcript, transcriptSource, alignment, rubric, PROVIDER, error);
     }
 
     private String transcribeFromAudio(SpeakingSubmission submission) {
-        String objectKey = submission.getMediaObjectKey();
+        return transcribe(submission.getMediaObjectKey(), submission.getMediaType());
+    }
+
+    /**
+     * Transcribes stored audio through the Whisper sidecar.
+     *
+     * @param objectKey MinIO object key of the recording
+     * @param mediaType MIME type reported by the browser recorder
+     * @return recognized text, or {@code null} when unavailable
+     */
+    public String transcribe(String objectKey, String mediaType) {
         if (objectKey == null || objectKey.isBlank()) {
             return null;
         }
         try (InputStream stream = minioService.getObject(objectKey).getInputStream()) {
             byte[] audio = stream.readAllBytes();
-            return transcriptClient.transcribe(audio, submission.getMediaType());
+            return transcriptClient.transcribe(audio, mediaType);
         } catch (Exception ex) {
-            log.warn("Transcription failed for submission {}: {}", submission.getId(), ex.getMessage());
+            log.warn("Transcription failed for object {}: {}", objectKey, ex.getMessage());
             return null;
         }
     }

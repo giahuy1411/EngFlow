@@ -61,7 +61,7 @@ export default {
     return api.get(`/api/v1/speaking-submissions/${id}`).then(response => response.data)
   },
   assessSubmission(id) {
-    return api.post(`/api/v1/speaking-submissions/${id}/assess`, null, { timeout: 120000 })
+    return api.post(`/api/v1/speaking-submissions/${id}/assess`, null, { timeout: 180000 })
       .then(response => response.data)
   },
   gradeSubmission(id, data) {
