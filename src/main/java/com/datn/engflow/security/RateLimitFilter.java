@@ -27,6 +27,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final StringRedisTemplate redisTemplate;
     private static final int MAX_REQUESTS_PER_MINUTE_LOGIN = 20; // Nới lỏng cho login
+    // audit-v6 F24: forgot/reset trigger SMTP email — cap them tighter than the
+    // global 100/min so the mail flow can't be abused for spam.
+    private static final int MAX_REQUESTS_PER_MINUTE_MAIL = 5;
     private static final int MAX_REQUESTS_PER_MINUTE_GLOBAL = 100; // Rate limit chung
     private static final long EXPIRE_MINUTES = 1;
 
@@ -37,10 +40,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         
         String requestURI = request.getRequestURI().replaceAll("/+$", "");
         boolean isAuthEndpoint = requestURI.startsWith("/api/auth/login") || requestURI.startsWith("/api/auth/register");
-        int limit = isAuthEndpoint ? MAX_REQUESTS_PER_MINUTE_LOGIN : MAX_REQUESTS_PER_MINUTE_GLOBAL;
+        boolean isMailEndpoint = requestURI.startsWith("/api/auth/forgot-password") || requestURI.startsWith("/api/auth/reset-password");
+        int limit = isAuthEndpoint ? MAX_REQUESTS_PER_MINUTE_LOGIN : isMailEndpoint ? MAX_REQUESTS_PER_MINUTE_MAIL : MAX_REQUESTS_PER_MINUTE_GLOBAL;
         
         String clientIp = getClientIP(request);
-        String redisKey = "rate_limit:" + clientIp + (isAuthEndpoint ? ":auth" : ":global");
+        String redisKey = "rate_limit:" + clientIp + (isAuthEndpoint ? ":auth" : isMailEndpoint ? ":mail" : ":global");
 
         Long currentCount = redisTemplate.opsForValue().increment(redisKey);
         

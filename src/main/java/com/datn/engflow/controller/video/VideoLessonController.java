@@ -11,8 +11,13 @@ import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.enums.LessonLevel;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.security.UserPrincipal;
+import com.datn.engflow.service.ShadowingAiGradingService;
 import com.datn.engflow.service.SubtitleParser;
+import com.datn.engflow.service.SubtitleTranslationService;
+import com.datn.engflow.service.YouTubeTranscriptService;
 import com.datn.engflow.service.VideoLessonService;
+import com.datn.engflow.model.entity.VideoAttempt;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
@@ -40,6 +45,9 @@ public class VideoLessonController {
     private final VideoLessonService videoLessonService;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final ShadowingAiGradingService shadowingAiGradingService;
+    private final SubtitleTranslationService subtitleTranslationService;
+    private final YouTubeTranscriptService youTubeTranscriptService;
 
     // ------------------------------------------------------------- public
 
@@ -161,6 +169,37 @@ public class VideoLessonController {
         return ResponseEntity.ok(videoLessonService.grade(id, userPrincipal.getId(), request));
     }
 
+    /** AI grading: Whisper transcript → coverage score → LLM feedback. */
+    @PostMapping("/api/v1/admin/video-attempts/{id}/ai-grade")
+    public ResponseEntity<VideoAttemptResponse> aiGrade(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long id) {
+        requireAdmin(userPrincipal);
+        return ResponseEntity.ok(videoAttemptResponse(shadowingAiGradingService.aiGrade(id)));
+    }
+
+    /** AI subtitle translation: fills textVi from textEn (fail-soft). */
+    @PostMapping("/api/v1/admin/video-lessons/translate-transcript")
+    public ResponseEntity<List<TranscriptLine>> translateTranscript(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody List<TranscriptLine> lines) {
+        requireAdmin(userPrincipal);
+        return ResponseEntity.ok(subtitleTranslationService.translate(lines));
+    }
+
+    /**
+     * Fetches an existing YouTube transcript (auto or human captions) and has
+     * the local LLM translate it to Vietnamese in one step. Also returns the
+     * video title and description so the admin form can be pre-filled.
+     */
+    @PostMapping("/api/v1/admin/video-lessons/fetch-youtube")
+    public ResponseEntity<YouTubeTranscriptService.YoutubeTranscriptResult> fetchYoutube(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody Map<String, String> body) {
+        requireAdmin(userPrincipal);
+        return ResponseEntity.ok(youTubeTranscriptService.fetchAndTranslate(body.getOrDefault("url", "")));
+    }
+
     // -------------------------------------------------------------- helpers
 
     private List<TranscriptLine> parseTranscriptInput(MultipartFile file, String rawText,
@@ -190,6 +229,22 @@ public class VideoLessonController {
         return SubtitleParser.parse(raw).stream()
                 .map(cue -> new TranscriptLine(cue.start(), cue.end(), cue.text(), null))
                 .toList();
+    }
+
+    private VideoAttemptResponse videoAttemptResponse(VideoAttempt attempt) {
+        // audit-v6 F28: relative media URL (see VideoLessonService.toResponse)
+        String mediaUrl = attempt.getMediaObjectKey() == null ? null
+                : "/api/v1/media/" + attempt.getMediaObjectKey();
+        return new VideoAttemptResponse(
+                attempt.getId(),
+                attempt.getVideoLesson().getId(),
+                attempt.getLineIndex(),
+                attempt.getStatus(),
+                attempt.getScore() == null ? null : attempt.getScore().doubleValue(),
+                attempt.getAdminFeedback(),
+                mediaUrl,
+                attempt.getSubmittedAt() == null ? null : attempt.getSubmittedAt().format(
+                        java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME));
     }
 
     private PageRequest pageRequest(int page, int size) {

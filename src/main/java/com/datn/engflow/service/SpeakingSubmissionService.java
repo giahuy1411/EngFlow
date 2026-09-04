@@ -201,15 +201,16 @@ public class SpeakingSubmissionService {
     }
 
     public String createMediaReadUrl(SpeakingSubmission submission) {
+        // audit-v6 F28: relative media URL — frontend resolves against API base
         if (submission.getMediaObjectKey() == null) {
             if (submission.getVideoUrl() != null) {
                 return submission.getVideoUrl().contains("minio:9000")
-                        ? "http://localhost:8080/api/v1/media/" + extractObjectKey(submission.getVideoUrl())
+                        ? "/api/v1/media/" + extractObjectKey(submission.getVideoUrl())
                         : submission.getVideoUrl();
             }
             return null;
         }
-        return "http://localhost:8080/api/v1/media/" + submission.getMediaObjectKey();
+        return "/api/v1/media/" + submission.getMediaObjectKey();
     }
 
     private static String extractObjectKey(String storedUrl) {

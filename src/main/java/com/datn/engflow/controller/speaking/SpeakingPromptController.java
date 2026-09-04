@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,6 +28,7 @@ public class SpeakingPromptController {
     private final SpeakingPromptService SpeakingPromptService;
     private final AiPromptService aiPromptService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping({"/api/v1/admin/speaking-prompts", "/api/v1/admin/video-prompts"})
     public ResponseEntity<Page<SpeakingPromptResponse>> getAllPromptsForAdmin(
             @RequestParam(required = false) String q,
@@ -58,6 +60,7 @@ public class SpeakingPromptController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping({"/api/v1/admin/speaking-prompts", "/api/v1/admin/video-prompts"})
     public ResponseEntity<SpeakingPromptResponse> createPrompt(
             @Valid @RequestBody CreateSpeakingPromptRequest request) {
@@ -65,6 +68,7 @@ public class SpeakingPromptController {
                 .body(SpeakingPromptResponse.from(SpeakingPromptService.createPrompt(request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping({"/api/v1/admin/speaking-prompts/{id}", "/api/v1/admin/video-prompts/{id}"})
     public ResponseEntity<SpeakingPromptResponse> updatePrompt(
             @PathVariable Long id,
@@ -72,12 +76,14 @@ public class SpeakingPromptController {
         return ResponseEntity.ok(SpeakingPromptResponse.from(SpeakingPromptService.updatePrompt(id, request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping({"/api/v1/admin/speaking-prompts/{id}", "/api/v1/admin/video-prompts/{id}"})
     public ResponseEntity<Map<String, String>> deletePrompt(@PathVariable Long id) {
         SpeakingPromptService.deletePrompt(id);
         return ResponseEntity.ok(Map.of("message", "Prompt deleted successfully"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping({"/api/v1/admin/speaking-prompts/ai-generate", "/api/v1/admin/video-prompts/ai-generate"})
     public ResponseEntity<Map<String, String>> aiGeneratePrompt(
             @RequestBody Map<String, String> body) {
@@ -102,6 +108,28 @@ public class SpeakingPromptController {
                 "content", result,
                 "referenceText", aiPromptService.extractReferenceText(result),
                 "topic", topic));
+    }
+
+    /**
+     * Full AI draft for the "tạo đề luyện nói bằng AI" button: fills
+     * title/description/prompt/referenceText/level in one LLM call.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping({"/api/v1/admin/speaking-prompts/ai-generate-full", "/api/v1/admin/video-prompts/ai-generate-full"})
+    public ResponseEntity<Map<String, String>> aiGenerateFullPrompt(
+            @RequestBody Map<String, String> body) {
+        String topic = body.getOrDefault("topic", "");
+        if (topic.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Cần nhập chủ đề"));
+        }
+        try {
+            return ResponseEntity.ok(aiPromptService.generateFullPrompt(
+                    topic, body.get("level"), body.get("mode")));
+        } catch (Exception ex) {
+            log.error("AI full prompt generation failed for topic '{}': {}", topic, ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(Map.of("error", "AI không phản hồi — thử lại sau"));
+        }
     }
 
     private PageRequest promptPageRequest(int page, int size) {

@@ -94,6 +94,18 @@ public class VideoLessonService {
     @Transactional
     public VideoLessonSummary update(Long id, VideoLessonRequest request) {
         VideoLesson lesson = getLesson(id);
+        // audit-v6 F21: the trimmed admin edit form drops `category` and starts
+        // with an empty transcript box. Null/empty in those fields means "keep
+        // current" on update — otherwise editing a title silently wipes the
+        // category and forces re-pasting the whole transcript (verified live).
+        if (request.category() == null) {
+            request = new VideoLessonRequest(request.title(), request.description(), request.youtubeUrl(),
+                    request.level(), lesson.getCategory(), request.transcript(), request.isPublished());
+        }
+        if (request.transcript() == null || request.transcript().isEmpty()) {
+            request = new VideoLessonRequest(request.title(), request.description(), request.youtubeUrl(),
+                    request.level(), request.category(), readTranscript(lesson.getTranscriptJson()), request.isPublished());
+        }
         apply(lesson, request);
         return toSummary(lessonRepository.save(lesson));
     }
@@ -237,7 +249,7 @@ public class VideoLessonService {
         }
     }
 
-    List<TranscriptLine> readTranscript(String json) {
+    public List<TranscriptLine> readTranscript(String json) {
         try {
             return objectMapper.readValue(json, new TypeReference<List<TranscriptLine>>() {
             });
@@ -261,9 +273,12 @@ public class VideoLessonService {
     }
 
     private VideoAttemptResponse toResponse(VideoAttempt attempt) {
+        // audit-v6 F28: relative media URL — the frontend resolves it against
+        // VITE_API_BASE_URL, so deploys behind another host/port (Tailscale
+        // funnel) no longer get broken absolute localhost:8080 links.
         String mediaUrl = attempt.getMediaObjectKey() == null
                 ? null
-                : "http://localhost:8080/api/v1/media/" + attempt.getMediaObjectKey();
+                : "/api/v1/media/" + attempt.getMediaObjectKey();
         return new VideoAttemptResponse(
                 attempt.getId(),
                 attempt.getVideoLesson().getId(),

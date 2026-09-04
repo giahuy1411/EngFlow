@@ -68,10 +68,26 @@ public class AiVocabController {
     }
 
     @PostMapping("/enrich-word")
-    public ResponseEntity<?> enrichWord(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> enrichWord(
+            @RequestBody Map<String, String> payload,
+            @AuthenticationPrincipal com.datn.engflow.security.UserPrincipal userPrincipal,
+            Authentication authentication) {
         String word = payload.get("word");
         if (word == null || word.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "word không được để trống"));
+        }
+        // audit-v6 F31: enrich-word hits the local LLM like generate-vocab —
+        // apply the same free-tier quota so it can't be used to burn GPU.
+        if (authentication != null && authentication.isAuthenticated() && userPrincipal != null) {
+            User user = userService.findEntityById(userPrincipal.getId());
+            if (!userService.hasUnlimitedAiGeneration(user)
+                    && !aiVocabService.hasAiGenerationQuota(user)) {
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
+                        "Bạn đã dùng hết 5 lần sinh từ vựng AI miễn phí. Đăng ký Premium để dùng không giới hạn.");
+                problem.setTitle("AI Generation Quota Exceeded");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+            }
+            aiVocabService.incrementAiGenerationQuota(user);
         }
         return ResponseEntity.ok(aiVocabService.enrichWord(word).block());
     }

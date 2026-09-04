@@ -104,20 +104,27 @@ public class SpeakingPromptService {
         prompt.setTitle(request.getTitle());
         prompt.setDescription(request.getDescription());
         prompt.setPrompt(request.getPrompt());
-        prompt.setLesson(resolveLesson(request.getLessonId()));
+        // audit-v6 F20: the trimmed admin form omits lesson/category/thumbnail/
+        // orderIndex/referenceMedia — null in those fields means "keep current",
+        // not "wipe". Without this guard, editing a prompt silently detached it
+        // from its lesson and erased category/thumbnail/order (verified live:
+        // PUT with only the 8 form fields nulled category/orderIndex/thumbnail).
+        if (request.getLessonId() != null || prompt.getLesson() == null) {
+            prompt.setLesson(resolveLesson(request.getLessonId()));
+        }
         prompt.setMode(mode);
         prompt.setReferenceText(request.getReferenceText());
-        prompt.setReferenceMediaObjectKey(request.getReferenceMediaObjectKey());
-        prompt.setReferenceMediaUrl(request.getReferenceMediaUrl());
+        if (request.getReferenceMediaObjectKey() != null) prompt.setReferenceMediaObjectKey(request.getReferenceMediaObjectKey());
+        if (request.getReferenceMediaUrl() != null) prompt.setReferenceMediaUrl(request.getReferenceMediaUrl());
         prompt.setMaxDurationSeconds(request.getMaxDurationSeconds() == null
                 ? prompt.getMaxDurationSeconds() : request.getMaxDurationSeconds());
         prompt.setAttemptLimit(request.getAttemptLimit() == null
                 ? prompt.getAttemptLimit() : request.getAttemptLimit());
         prompt.setLevel(request.getLevel());
-        prompt.setCategory(request.getCategory());
+        if (request.getCategory() != null) prompt.setCategory(request.getCategory());
         prompt.setIsPremium(request.getIsPremium() != null ? request.getIsPremium() : prompt.getIsPremium());
-        prompt.setThumbnailUrl(request.getThumbnailUrl());
-        prompt.setOrderIndex(request.getOrderIndex());
+        if (request.getThumbnailUrl() != null) prompt.setThumbnailUrl(request.getThumbnailUrl());
+        if (request.getOrderIndex() != null) prompt.setOrderIndex(request.getOrderIndex());
         prompt.setIsPublished(request.getIsPublished() != null ? request.getIsPublished() : prompt.getIsPublished());
         return repository.save(prompt);
     }
