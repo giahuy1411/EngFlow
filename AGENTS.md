@@ -40,7 +40,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 - **Ollama probe**: qua browser evaluate sẽ fail cross-origin với :8080 — chạy API call từ tab `localhost:5173`.
 - **YouTube embed**: xác minh player bằng a11y snapshot (`browser_find "Play video"`), KHÔNG dựa vào `iframe.contentDocument` (cross-origin → null). Error 153 trong Playwright embed là **false negative** (referrer block).
 - **Listening exercises**: 89/449 bài thiếu `audio_url` (sinh khi MCP venv chưa có supertonic). Fallback giọng máy trình duyệt: `frontend/src/utils/speech.js` (`speakEnglish`, `blankOutForSpeech` — che `____` thành `...` để không lộ đáp án fill-blank).
-- **TTS backend** (`CloudTtsService`): tên config `Z.ai` nhưng code gọi Google Cloud TTS, **không có key** → chỉ fail-soft (log warn). Đường TTS thật của dự án là supertonic trong MCP.
+- **TTS backend**: `SupertonicProxyTtsService` gọi sidecar supertonic (`/synthesize`) — đường TTS duy nhất. Class `CloudTtsService` ("Z.ai", thực chất gọi Google Cloud TTS, không key) đã xóa khỏi codebase (dead code từ restore `fad776d`).
 - **Model local đã đo trên máy này (RTX 2050 4GB, 2025-09-01)**: `qwen2.5:1.5b` = 82 tok/s (GPU), `qwen2.5:3b` = 46.5 tok/s (GPU) — chênh 1.75x là vật lý params, flash attention/ctx nhỏ không thu hẹp được. Đã test 6 model: gemma2:2b + qwen3:1.7b fail format hoàn toàn; llama3.2:3b (2.9GB) không vừa VRAM → hybrid CPU chậm 5x; phi3:mini hybrid. **1.5b KHÔNG đủ chấm rubric tiếng Việt** (2/2 fail: copy điểm ví dụ, feedback tiếng Anh) → rubric phải dùng 3b.
 - **Ollama host env (đã setx persistent)**: `OLLAMA_MAX_LOADED_MODELS=1` — GPU 4GB chỉ chứa 1 model; không có nó, model thứ 2 bị nhét CPU → call 558s (đã đo). `OLLAMA_FLASH_ATTENTION=1`. Model swap khi đổi tính năng: ~5.7s (bình thường).
 - **Temperature sinh bài = 0.5** (không phải 0.7): A/B đo valid-new 6 vs 2. Model nhỏ vẫn dao động mạnh (có run 0 valid) — guards + retry đa attempt là tầng chịu trách nhiệm chính, đừng kỳ vọng temperature thay được pipeline.
@@ -50,7 +50,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Kiến trúc sinh bài tập (2 đường)
 
-1. **Trong app** (admin UI): `AiExerciseService` → Ollama `qwen2.5:1.5b` → async 202 + Redis progress. Pipeline gồm: few-shot prompt (example lặp CUỐI prompt — attention decay), JSON salvage 3 lớp (fences → array regex → object salvage), schema validate, MATCHING slash-pair repair (`"a / b"` → `"a|b"`), example-copy guard, dedup within-batch + cross-lesson, tích lũy partial qua attempts, AI review. TTS backend (không key) chỉ dùng cho listening → audio sẽ trống.
+1. **Trong app** (admin UI): `AiExerciseService` → Ollama `qwen2.5:1.5b` → async 202 + Redis progress. Pipeline gồm: few-shot prompt (example lặp CUỐI prompt — attention decay), JSON salvage 3 lớp (fences → array regex → object salvage), schema validate, MATCHING slash-pair repair (`"a / b"` → `"a|b"`), example-copy guard, dedup within-batch + cross-lesson, tích lũy partial qua attempts, AI review. TTS backend supertonic chỉ dùng cho listening; sidecar không chạy thì audio trống (fallback giọng trình duyệt).
 2. **MCP Antigravity**: `generate_listening` → supertonic WAV → `POST /api/admin/audio-upload` → Cloudinary → `audioUrl`. **Đây là đường sinh listening có audio.**
 
 - **MATCHING contract frontend**: `MatchingExercise.vue` chỉ parse options `"left|right"` + correctAnswer `"l=r,..."` (MUST). Java prompt cũ dùng `:::` — đã sửa, đừng quay lại.

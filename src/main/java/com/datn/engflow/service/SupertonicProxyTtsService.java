@@ -2,7 +2,6 @@ package com.datn.engflow.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -11,8 +10,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+// Đường TTS duy nhất của dự án: sidecar supertonic trong docker compose.
+// (Class CloudTtsService "Z.ai" cũ đã xóa — nó không có key, không bao giờ chạy.)
 @Service
-@ConditionalOnProperty(name = "ai.exercise.tts.provider", havingValue = "supertonic")
 @Slf4j
 /**
  * class SupertonicProxyTtsService.
