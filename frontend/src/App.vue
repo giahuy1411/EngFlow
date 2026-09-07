@@ -39,11 +39,21 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import Header from '@/components/common/Header.vue'
 import Footer from '@/components/common/Footer.vue'
 import { useToast } from '@/composables/useToast'
+import { useAuthStore } from '@/store/modules/auth'
 
 const { toasts, remove, toastBackground } = useToast()
+const auth = useAuthStore()
+
+// Streak semantics: mọi lượt truy cập web của user đã đăng nhập đều tính là
+// một ngày học. fetchUser() gọi /api/auth/me → UserService.getProfile →
+// StreakService.recordAccess. Fire-and-forget, fail-soft (store tự logout khi 401).
+onMounted(() => {
+  if (auth.isLoggedIn) auth.fetchUser()
+})
 </script>
 
 <style>

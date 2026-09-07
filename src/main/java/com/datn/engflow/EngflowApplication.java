@@ -11,6 +11,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.time.Clock;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -37,5 +38,11 @@ public class EngflowApplication {
 					.count();
 			log.info("Flyway beans detected: {}", count);
 		};
+	}
+
+	/** Clock hệ thống cho scheduler (inject được → test giờ tĩnh). */
+	@Bean
+	public Clock clock() {
+		return Clock.systemDefaultZone();
 	}
 }

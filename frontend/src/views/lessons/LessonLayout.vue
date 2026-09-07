@@ -1,6 +1,6 @@
 <template>
   <div class="bg-background min-h-screen">
-    <StreakBanner />
+    <StreakBanner :streak="currentStreak" v-if="isLoggedIn" />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Tab bar -->
       <div role="tablist" aria-label="Nội dung bài học" class="flex gap-4 border-b-2 border-border mb-6">
@@ -31,16 +31,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
 import StreakBanner from './StreakBanner.vue'
 import LessonContent from './LessonContent.vue'
 import LessonExerciseTab from './LessonExerciseTab.vue'
 import LessonPreview from './LessonPreview.vue'
 import GuestCtaCard from '@/components/common/GuestCtaCard.vue'
+import streakService from '@/services/streakService'
 
 const auth = useAuthStore()
 const isLoggedIn = computed(() => auth.isLoggedIn)
+const currentStreak = ref(0)
+
+onMounted(async () => {
+  if (!isLoggedIn.value) return
+  try {
+    const streak = await streakService.getCurrentStreak()
+    currentStreak.value = streak.currentStreak || 0
+  } catch (e) { /* ignore — banner vẫn hiển thị 0 */ }
+})
 
 const tabs = [
   { id: 'content', label: 'Nội dung' },

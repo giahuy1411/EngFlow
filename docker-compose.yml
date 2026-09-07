@@ -50,6 +50,9 @@ services:
       - "8080:8080"
     environment:
       - TZ=Asia/Ho_Chi_Minh
+      # Streak reminder catch-up: chạy bù job 20:00 lỡ vì container khởi động
+      # muộn hơn cron (Spring chỉ đăng ký schedule sau khi context sẵn sàng).
+      - ENGFLOW_SCHEDULER_CATCHUP_ENABLED=true
       - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver:1433;databaseName=english_learning;encrypt=true;trustServerCertificate=true;
       - SPRING_DATASOURCE_USERNAME=sa
       - SPRING_DATASOURCE_PASSWORD=${SA_PASSWORD}

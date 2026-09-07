@@ -29,14 +29,13 @@
           <router-link v-else to="/premium" class="inline-flex shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-tertiary px-5 py-3 font-black shadow-pop transition-transform hover:-translate-y-0.5">Quản lý gói</router-link>
         </div>
       </section>
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
         <div class="bg-card border-2 border-foreground rounded-md p-6 shadow-pop-lg hover:-translate-y-1 transition-all duration-300"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-accent/10 border-2 border-foreground rounded-full flex items-center justify-center"><BookOpen class="w-5 h-5 text-accent" /></div><span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Bài học</span></div><p class="font-black text-3xl">{{ lessonCount }}</p></div>
         <div class="bg-card border-2 border-foreground rounded-md p-6 shadow-pop-lg hover:-translate-y-1 transition-all duration-300"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-secondary/10 border-2 border-foreground rounded-full flex items-center justify-center"><Zap class="w-5 h-5 text-secondary" /></div><span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Streak</span></div><p class="font-black text-3xl">{{ currentStreak }}</p></div>
-        <div class="bg-card border-2 border-foreground rounded-md p-6 shadow-pop-lg hover:-translate-y-1 transition-all duration-300"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-tertiary/10 border-2 border-foreground rounded-full flex items-center justify-center"><Award class="w-5 h-5 text-tertiary" /></div><span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Streak cao nhất</span></div><p class="font-black text-3xl">{{ user.bestStreak || currentStreak }}</p></div>
       </div>
       <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl mb-8">
         <h2 class="font-black text-xl uppercase tracking-tight mb-6 flex items-center gap-3"><Flame class="w-6 h-6 text-tertiary" />Lịch học</h2>
-        <StreakCalendar :history="streakData" />
+        <StreakCalendar :history="streakData" :current-streak="currentStreak" />
       </div>
     </div>
   </div>
@@ -47,7 +46,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
 import { usePremiumStore } from '@/store/modules/premium'
 import streakService from '@/services/streakService'
-import { BookOpen, Zap, Award, Flame } from 'lucide-vue-next'
+import { BookOpen, Zap, Flame } from 'lucide-vue-next'
 import StreakCalendar from '@/components/common/StreakCalendar.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 

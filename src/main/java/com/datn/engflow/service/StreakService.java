@@ -16,102 +16,128 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Streak tracking cho user.
+ *
+ * <p>Mô hình dữ liệu:
+ * <ul>
+ *   <li>{@code users.last_study_date} + {@code users.current_streak} (SQL Server) —
+ *       mốc cuối và chuỗi kèm mốc đó. Giá trị này có thể "treo" (stale) khi user
+ *       bỏ học nhiều ngày: nó chỉ được cập nhật khi user quay lại.</li>
+ *   <li>Redis Set {@code user:login_days:<id>} — lịch sử những ngày có hoạt động
+ *       (TTL 90 ngày) dùng cho {@code /api/streak/history} và lịch học trong Profile.</li>
+ * </ul>
+ *
+ * <p>Một "ngày học" được tính khi user (1) đăng nhập, (2) đã đăng nhập và truy cập
+ * SPA (App mount → GET /api/auth/me), hoặc (3) nộp kết quả game. Streak tăng khi
+ * khoảng cách từ lần học cuối đến hôm nay đúng 1 ngày; bỏ ≥ 2 ngày thì reset về 1.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-/**
- * class StreakService.
- */
 public class StreakService {
 
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
-    
+
     private static final String LOGIN_DAYS_KEY_PREFIX = "user:login_days:";
     private static final long LOGIN_DAYS_TTL_DAYS = 90;
 
+    /**
+     * Ghi nhận một hoạt động của user trong hôm nay và cập nhật streak.
+     * An toàn gọi nhiều lần trong ngày: lần sau trong cùng ngày là no-op.
+     */
     @Transactional
     public void recordAccess(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         LocalDate today = LocalDate.now();
-        
         LocalDate lastStudyDate = user.getLastStudyDate();
-        
-        boolean isFirstLoginToday = false;
-        
+
+        boolean firstActivityToday = lastStudyDate == null || !lastStudyDate.equals(today);
+        if (!firstActivityToday) {
+            return; // đã tính hôm nay rồi — không đổi streak, không đụng Redis
+        }
+
         if (lastStudyDate == null) {
-            user.setCurrentStreak(1);
-            isFirstLoginToday = true;
+            user.setCurrentStreak(1);                       // hoạt động đầu tiên
+        } else if (ChronoUnit.DAYS.between(lastStudyDate, today) == 1) {
+            user.setCurrentStreak(streakOrZero(user) + 1);  // học liên tục → +1
         } else {
-            long daysBetween = ChronoUnit.DAYS.between(lastStudyDate, today);
-            
-            if (daysBetween == 1) {
-                user.setCurrentStreak(user.getCurrentStreak() + 1);
-                isFirstLoginToday = true;
-            } else if (daysBetween > 1) {
-                user.setCurrentStreak(1);
-                isFirstLoginToday = true;
-            }
+            user.setCurrentStreak(1);                       // bỏ ≥ 2 ngày → reset
         }
 
         user.setLastStudyDate(today);
         userRepository.save(user);
-        
-        if (isFirstLoginToday) {
-            recordLoginDateInRedis(userId, today);
-        }
+        recordLoginDateInRedis(userId, today);
     }
-    
+
+    /**
+     * Check-in sau khi nộp game. totalQuestions/score không ảnh hưởng streak
+     * (đã từng dùng cho tính năng cũ đã gỡ).
+     */
     public void checkin(Long userId, Integer totalQuestions, int score) {
         recordAccess(userId);
     }
 
-    private void recordLoginDateInRedis(Long userId, LocalDate date) {
-        String key = LOGIN_DAYS_KEY_PREFIX + userId;
-        String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        
-        redisTemplate.opsForSet().add(key, dateStr);
-        // Ensure TTL is set
-        redisTemplate.expire(key, LOGIN_DAYS_TTL_DAYS, TimeUnit.DAYS);
+    /**
+     * Chuỗi đang hiệu lực của user: 0 nếu chưa từng học hoặc đã bỏ quá 1 ngày.
+     * Đây là nguồn sự thật cho hiển thị (Profile, mail) — khác với
+     * {@code user.getCurrentStreak()} vốn là giá trị thô có thể treo.
+     */
+    public Integer getCurrentStreak(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        return effectiveStreak(user, LocalDate.now());
     }
 
+    /**
+     * Danh sách ngày có hoạt động trong {@code days} ngày gần nhất (tính cả hôm nay),
+     * định dạng ISO {@code yyyy-MM-dd}, tăng dần — cho lịch học trong Profile.
+     */
     public List<String> getLoginDays(Long userId, int days) {
-        String key = LOGIN_DAYS_KEY_PREFIX + userId;
-        Set<String> loginDaysSet = redisTemplate.opsForSet().members(key);
-        
+        Set<String> loginDaysSet = redisTemplate.opsForSet().members(LOGIN_DAYS_KEY_PREFIX + userId);
         if (loginDaysSet == null || loginDaysSet.isEmpty()) {
             return List.of();
         }
-        
-        LocalDate cutoffDate = LocalDate.now().minusDays(days);
-        
+
+        LocalDate cutoff = LocalDate.now().minusDays(days - 1L);
         return loginDaysSet.stream()
-                .filter(dateStr -> {
-                    LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
-                    return !date.isBefore(cutoffDate);
-                })
+                .filter(dateStr -> !LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).isBefore(cutoff))
                 .sorted()
                 .collect(Collectors.toList());
     }
 
-    public Integer getCurrentStreak(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-        LocalDate lastStudyDate = user.getLastStudyDate();
-        
-        if (lastStudyDate == null) {
-            return 0;
-        }
-        
-        LocalDate today = LocalDate.now();
-        
-        if (ChronoUnit.DAYS.between(lastStudyDate, today) > 1) {
-            return 0;
-        }
-        return user.getCurrentStreak();
+    /**
+     * User active chưa học hôm nay nhưng <b>đã học yesterday</b> — streak còn sống,
+     * chỉ cần học hôm nay là +1. Nhóm nhận mail "cứu streak" lúc 20:00.
+     */
+    public List<User> getUsersWithStreakAtRisk() {
+        return userRepository.findActiveUsersWhoLastStudiedOn(LocalDate.now().minusDays(1));
     }
 
-    public List<User> getUsersWhoHaveNotLoggedInFor24Hours() {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        return userRepository.findUsersWhoHaveNotLoggedInSince(yesterday);
+    /**
+     * User active chưa học hôm nay và <b>đã bỏ ≥ 2 ngày</b> (hoặc chưa từng học).
+     * Streak đã gãy — nhận mail mời quay lại.
+     */
+    public List<User> getUsersWithBrokenStreak() {
+        return userRepository.findUsersWhoHaveNotLoggedInSince(LocalDate.now().minusDays(1));
+    }
+
+    /** Streak hiệu lực của một user entity đã load: gap > 1 ngày → 0. */
+    private Integer effectiveStreak(User user, LocalDate today) {
+        LocalDate lastStudyDate = user.getLastStudyDate();
+        if (lastStudyDate == null || ChronoUnit.DAYS.between(lastStudyDate, today) > 1) {
+            return 0;
+        }
+        return streakOrZero(user);
+    }
+
+    private int streakOrZero(User user) {
+        return user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+    }
+
+    private void recordLoginDateInRedis(Long userId, LocalDate date) {
+        String key = LOGIN_DAYS_KEY_PREFIX + userId;
+        redisTemplate.opsForSet().add(key, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        redisTemplate.expire(key, LOGIN_DAYS_TTL_DAYS, TimeUnit.DAYS);
     }
 }

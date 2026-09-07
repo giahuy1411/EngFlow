@@ -28,13 +28,15 @@ const props = defineProps({
 const calendarDays = computed(() => {
   const days = []
   const today = new Date()
-  const startDate = new Date(today)
-  startDate.setDate(today.getDate() - 27)
-  const dayOfWeek = startDate.getDay() || 7
-  startDate.setDate(startDate.getDate() - (dayOfWeek - 1))
+  // Grid 28 ô (4 tuần) LUÔN kết thúc ở today: mọi ngày khác today là quá khứ,
+  // hôm nay luôn hiển thị ở ô cuối cùng của hàng cuối.
+  const lastCell = new Date(today)
+  const dayOfWeek = lastCell.getDay() || 7 // CN(0) → 7 cho khớp cột T2..CN
+  const firstCell = new Date(today)
+  firstCell.setDate(lastCell.getDate() - 27 - (dayOfWeek - 1))
   for (let i = 0; i < 28; i++) {
-    const d = new Date(startDate)
-    d.setDate(startDate.getDate() + i)
+    const d = new Date(firstCell)
+    d.setDate(firstCell.getDate() + i)
     days.push(d)
   }
   return days

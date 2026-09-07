@@ -10,12 +10,13 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+/**
+ * Gửi mail qua Gmail SMTP (fail-soft: lỗi SMTP chỉ log, không ném exception
+ * làm gãy request/job của caller).
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-/**
- * class EmailService.
- */
 public class EmailService {
 
   private final JavaMailSender mailSender;
@@ -24,74 +25,25 @@ public class EmailService {
   private String fromEmail;
 
   /**
-   * Send a streak reminder email to a user who hasn't studied today.
+   * Mail nhắc học cho user còn streak (học yesterday, chưa học hôm nay):
+   * "đừng để mất chuỗi N ngày" với N = streak hiệu lực.
    */
   public void sendStreakReminder(String toEmail, String fullName, int currentStreak) {
-    String subject = currentStreak > 0
-        ? "🔥 Đừng để mất chuỗi " + currentStreak + " ngày học liên tục!"
-        : "📚 Hôm nay bạn chưa học — quay lại EngFlow nhé!";
+    String subject = "🔥 Đừng để mất chuỗi " + currentStreak + " ngày học liên tục!";
 
-    String streakDisplay = currentStreak > 0
-        ? "<div style='font-size:64px;font-weight:900;color:#D02020;'>" + currentStreak
-            + "</div><div style='font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#666;'>ngày liên tục</div>"
-        : "<div style='font-size:24px;font-weight:900;color:#D02020;'>BẮT ĐẦU NGAY!</div>";
+    String html = buildStreakEmailBody(fullName, "streak-intro", currentStreak);
+    send(toEmail, subject, html, "streak reminder");
+  }
 
-    String html = """
-        <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;">
-          <!-- Header -->
-          <div style="background:#121212;padding:24px 32px;border-bottom:6px solid #D02020;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:14px;height:14px;border-radius:50%%;background:#D02020;border:2px solid #fff;"></div>
-              <div style="width:14px;height:14px;background:#1a56db;border:2px solid #fff;"></div>
-              <div style="width:14px;height:14px;background:#fceea7;border:2px solid #fff;"></div>
-              <span style="color:#fff;font-weight:900;font-size:20px;text-transform:uppercase;letter-spacing:-0.5px;margin-left:8px;">EngFlow</span>
-            </div>
-          </div>
+  /**
+   * Mail mời quay lại cho user đã bỏ học ≥ 2 ngày (streak đã gãy).
+   * lastStreak = chuỗi user từng đạt trước khi gãy (chỉ để nhắc kỷ niệm).
+   */
+  public void sendStreakComebackReminder(String toEmail, String fullName, int lastStreak) {
+    String subject = "📚 Chuỗi học đã tạm dừng — quay lại EngFlow nhé!";
 
-          <!-- Body -->
-          <div style="padding:40px 32px;text-align:center;">
-            <div style="font-size:48px;margin-bottom:16px;">🔥</div>
-            <h1 style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;margin:0 0 8px 0;color:#121212;">
-              Xin chào, %s!
-            </h1>
-            <p style="color:#666;font-size:15px;margin:0 0 32px 0;line-height:1.6;">
-              Hôm nay bạn chưa hoàn thành bài học nào. Đừng để chuỗi streak bị gãy nhé!
-            </p>
-
-            <!-- Streak Counter -->
-            <div style="border:4px solid #121212;padding:24px;margin:0 auto 32px auto;max-width:200px;box-shadow:6px 6px 0 0 #121212;">
-              %s
-            </div>
-
-            <!-- CTA Button -->
-            <a href="http://localhost:5173/lessons"
-               style="display:inline-block;background:#D02020;color:#fff;font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;padding:16px 48px;text-decoration:none;border:3px solid #121212;box-shadow:5px 5px 0 0 #121212;">
-              VÀO HỌC NGAY →
-            </a>
-          </div>
-
-          <!-- Footer -->
-          <div style="background:#f5f5f5;padding:20px 32px;border-top:3px solid #121212;text-align:center;">
-            <p style="color:#999;font-size:11px;margin:0;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
-              EngFlow — Nền tảng học Tiếng Anh tương tác
-            </p>
-          </div>
-        </div>
-        """
-        .formatted(fullName != null ? fullName : "bạn", streakDisplay);
-
-    try {
-      MimeMessage message = mailSender.createMimeMessage();
-      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom(fromEmail);
-      helper.setTo(toEmail);
-      helper.setSubject(subject);
-      helper.setText(html, true);
-      mailSender.send(message);
-      log.info("Streak reminder sent to: {}", toEmail);
-    } catch (MessagingException e) {
-      log.error("Failed to send streak reminder to {}: {}", toEmail, e.getMessage());
-    }
+    String html = buildStreakEmailBody(fullName, "comeback-intro", lastStreak);
+    send(toEmail, subject, html, "streak comeback reminder");
   }
 
   /**
@@ -131,7 +83,7 @@ public class EmailService {
             <a href="http://localhost:5173/reset-password"
                style="display:inline-block;background:#8B5CF6;color:#fff;font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;padding:16px 48px;text-decoration:none;border:3px solid #121212;box-shadow:5px 5px 0 0 #121212;">
               NHẬP MÃ NGAY →
-</a>
+            </a>
           </div>
 
           <div style="background:#f5f5f5;padding:20px 32px;border-top:3px solid #121212;text-align:center;">
@@ -143,6 +95,80 @@ public class EmailService {
         """
         .formatted(fullName != null ? fullName : "bạn", otp);
 
+    send(toEmail, subject, html, "password-reset OTP");
+  }
+
+  /**
+   * Thân mail streak dùng chung: intro + counter + CTA khác nhau theo loại
+   * (at-risk hiển thị "N ngày liên tục", comeback hiển thị "N ngày từng đạt").
+   */
+  private String buildStreakEmailBody(String fullName, String variant, int streak) {
+    boolean atRisk = "streak-intro".equals(variant);
+    String intro;
+    if (atRisk) {
+      intro = "Hôm nay bạn chưa học. Streak <strong>" + streak
+          + " ngày</strong> chỉ còn vài giờ nữa là mất — học một bài là giữ được!";
+    } else if (streak > 0) {
+      intro = "Chuỗi học đã tạm dừng (bạn từng đạt <strong>" + streak
+          + " ngày</strong> liên tục). Mỗi ngày lại một chuỗi mới — bắt đầu lại hôm nay!";
+    } else {
+      intro = "Bạn đã tạo tài khoản nhưng chuỗi học vẫn chưa bắt đầu. Mỗi ngày đều là một chuỗi mới — học ngay hôm nay!";
+    }
+    String counterCaption = atRisk ? "ngày liên tục — đang bị đe doạ" : "ngày bạn từng đạt";
+    String counterHtml = streak > 0
+        ? "<div style='font-size:64px;font-weight:900;color:#D02020;'>" + streak
+            + "</div><div style='font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#666;'>" + counterCaption + "</div>"
+        : "<div style='font-size:24px;font-weight:900;color:#D02020;'>BẮT ĐẦU NGAY!</div>";
+
+    return """
+        <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;">
+          <!-- Header -->
+          <div style="background:#121212;padding:24px 32px;border-bottom:6px solid #D02020;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:14px;height:14px;border-radius:50%%;background:#D02020;border:2px solid #fff;"></div>
+              <div style="width:14px;height:14px;background:#1a56db;border:2px solid #fff;"></div>
+              <div style="width:14px;height:14px;background:#fceea7;border:2px solid #fff;"></div>
+              <span style="color:#fff;font-weight:900;font-size:20px;text-transform:uppercase;letter-spacing:-0.5px;margin-left:8px;">EngFlow</span>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div style="padding:40px 32px;text-align:center;">
+            <div style="font-size:48px;margin-bottom:16px;">🔥</div>
+            <h1 style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;margin:0 0 8px 0;color:#121212;">
+              Xin chào, %s!
+            </h1>
+            <p style="color:#666;font-size:15px;margin:0 0 32px 0;line-height:1.6;">
+              %s
+            </p>
+
+            <!-- Streak Counter -->
+            <div style="border:4px solid #121212;padding:24px;margin:0 auto 32px auto;max-width:200px;box-shadow:6px 6px 0 0 #121212;">
+              %s
+            </div>
+
+            <!-- CTA Button -->
+            <a href="http://localhost:5173/lessons"
+               style="display:inline-block;background:#D02020;color:#fff;font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;padding:16px 48px;text-decoration:none;border:3px solid #121212;box-shadow:5px 5px 0 0 #121212;">
+              VÀO HỌC NGAY →
+            </a>
+          </div>
+
+          <!-- Footer -->
+          <div style="background:#f5f5f5;padding:20px 32px;border-top:3px solid #121212;text-align:center;">
+            <p style="color:#999;font-size:11px;margin:0;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
+              EngFlow — Nền tảng học Tiếng Anh tương tác
+            </p>
+          </div>
+        </div>
+        """
+        .formatted(fullName != null ? fullName : "bạn",
+            intro,
+            counterHtml);
+  }
+
+  /** Gửi thực sự + fail-soft mọi exception (MessagingException và runtime MailException). */
+  private void send(String toEmail, String subject, String html, String purpose) {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -151,9 +177,9 @@ public class EmailService {
       helper.setSubject(subject);
       helper.setText(html, true);
       mailSender.send(message);
-      log.info("Password-reset OTP sent to: {}", toEmail);
-    } catch (MessagingException e) {
-      log.error("Failed to send OTP to {}: {}", toEmail, e.getMessage());
+      log.info("{} sent to: {}", purpose, toEmail);
+    } catch (Exception e) {
+      log.error("Failed to send {} to {}: {}", purpose, toEmail, e.getMessage());
     }
   }
 }
