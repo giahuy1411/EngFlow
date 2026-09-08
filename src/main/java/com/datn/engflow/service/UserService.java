@@ -90,7 +90,10 @@ public class UserService {
         return mapToUserResponse(savedUser, jwt);
     }
 
-    @Transactional(readOnly = true)
+    // Phải là read-write: login ghi streak (StreakService.recordAccess) vào DB.
+    // readOnly sẽ set flush mode MANUAL → UPDATE streak bị nuốt mất khi commit
+    // (Redis vẫn ghi vì không nằm trong transaction → DB/Redis lệch nhau).
+    @Transactional
     public UserResponse login(LoginRequest request) {
         log.info("Bắt đầu đăng nhập cho email: {}", request.getEmail());
 
