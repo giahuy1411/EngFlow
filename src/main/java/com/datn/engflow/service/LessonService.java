@@ -24,8 +24,6 @@ import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.VocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,7 +54,6 @@ public class LessonService {
     private final SpeakingPromptRepository speakingPromptRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "lessons", key = "#userEmail != null ? #userEmail : 'anonymous'")
     public List<LessonResponse> getAllLessons(String userEmail) {
         log.info("Lấy danh sách bài học cho user: {}", userEmail);
 
@@ -222,7 +219,6 @@ public class LessonService {
     }
 
     @Transactional
-    @CacheEvict(value = "lessons", allEntries = true)
     public LessonResponse createLesson(LessonRequest lessonRequest) {
         log.info("Tạo bài học mới: title={}", lessonRequest.getTitle());
         Lesson lesson = Lesson.builder()
@@ -242,7 +238,6 @@ public class LessonService {
     }
 
     @Transactional
-    @CacheEvict(value = "lessons", allEntries = true)
     public LessonResponse updateLesson(Long id, LessonRequest lessonRequest) {
         log.info("Cập nhật bài học: id={}", id);
         Lesson lesson = lessonRepository.findById(id)
@@ -285,7 +280,6 @@ public class LessonService {
     }
 
     @Transactional
-    @CacheEvict(value = "lessons", allEntries = true)
     public void deleteLesson(Long id) {
         log.info("Xóa bài học: id={}", id);
         Lesson lesson = lessonRepository.findById(id)
