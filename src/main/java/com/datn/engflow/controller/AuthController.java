@@ -8,6 +8,7 @@ import com.datn.engflow.service.CloudinaryService;
 import com.datn.engflow.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 /**
  * class AuthController.
  */
@@ -96,8 +98,14 @@ public class AuthController {
             UserResponse response = userService.updateAvatar(authentication.getName(), avatarUrl);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            // CloudinaryService ném loại này cho input không hợp lệ (file rỗng, không phải
+            // ảnh) → 400 là đúng. Ghi log để lỗi từ phía client không bị im lặng.
+            log.warn("Avatar upload rejected for {}: {}", authentication.getName(), e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
+            // Lỗi hạ tầng (Cloudinary/DB): vẫn trả 500 rỗng để giữ nguyên API shape, nhưng
+            // ghi log kèm stack để vận hành chẩn đoán được — trước đây nuốt lỗi hoàn toàn.
+            log.error("Avatar upload failed for {}", authentication.getName(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
