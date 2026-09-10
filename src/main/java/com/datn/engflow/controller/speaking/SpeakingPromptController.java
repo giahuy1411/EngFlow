@@ -2,7 +2,6 @@ package com.datn.engflow.controller.speaking;
 
 import com.datn.engflow.model.dto.request.CreateSpeakingPromptRequest;
 import com.datn.engflow.model.dto.response.SpeakingPromptResponse;
-import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.security.UserPrincipal;
 import com.datn.engflow.service.AiPromptService;
 import com.datn.engflow.service.SpeakingPromptService;
@@ -32,7 +31,6 @@ public class SpeakingPromptController {
     private final SpeakingPromptService SpeakingPromptService;
     private final AiPromptService aiPromptService;
     private final UserService userService;
-    private final UserRepository userRepository;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping({"/api/v1/admin/speaking-prompts", "/api/v1/admin/video-prompts"})
@@ -73,9 +71,10 @@ public class SpeakingPromptController {
 
     /**
      * Hai endpoint trên permitAll (khách vãng lai vẫn xem được danh sách), nên
-     * principal có thể null. Quyền premium đọc từ DB qua UserService — cùng nguồn
-     * sự thật với gate nộp bài, do đó tài khoản hết hạn gói không còn thấy đề
-     * premium dù flag "premium" trong JWT của nó chưa kịp hết hạn.
+     * principal có thể null. Quyền premium đọc từ {@link UserService#hasPremiumAccess}
+     * — cùng nguồn sự thật với gate nộp bài. Thực thể đã được {@code CustomUserDetailsService}
+     * nạp fresh từ DB ở chính request này (JWT stateless, không cache), nên không cần
+     * gọi repository lần nữa; tài khoản hết hạn gói vẫn không thấy đề premium.
      *
      * @param principal người dùng đã đăng nhập, null với khách vãng lai
      * @return true nếu được xem đề premium
@@ -84,9 +83,7 @@ public class SpeakingPromptController {
         if (principal == null) {
             return false;
         }
-        return userRepository.findById(principal.getId())
-                .map(userService::hasPremiumAccess)
-                .orElse(false);
+        return userService.hasPremiumAccess(principal.getUser());
     }
 
 
