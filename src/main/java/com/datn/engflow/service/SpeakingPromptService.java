@@ -28,30 +28,9 @@ public class SpeakingPromptService {
     private final LessonRepository lessonRepository;
     private final SpeakingSubmissionRepository submissionRepository;
 
-    public List<SpeakingPrompt> getAllPrompts() {
-        return getAllPrompts((String) null);
-    }
-
-    public List<SpeakingPrompt> getAllPrompts(String keyword) {
-        List<SpeakingPrompt> prompts = repository.findByIsPublishedTrueOrderByOrderIndexAsc();
-        if (keyword == null || keyword.isBlank()) {
-            return prompts;
-        }
-        String q = keyword.trim().toLowerCase();
-        return prompts.stream()
-                .filter(p -> (p.getTitle() != null && p.getTitle().toLowerCase().contains(q))
-                        || (p.getDescription() != null && p.getDescription().toLowerCase().contains(q))
-                        || (p.getCategory() != null && p.getCategory().toLowerCase().contains(q)))
-                .toList();
-    }
-
-    public Page<SpeakingPrompt> getAllPrompts(Pageable pageable, boolean premiumViewer) {
-        return getAllPrompts(null, pageable, premiumViewer);
-    }
-
     /**
      * Danh sách công khai, lọc theo quyền của người xem. {@code premiumViewer = false}
-     * ẩn đề {@code isPremium = true}. Không còn overload nào mặc định "xem hết":
+     * ẩn đề {@code isPremium = true}. Không có overload nào mặc định "xem hết":
      * caller phải khai báo quyền, kể cả khi chỉ thêm một endpoint trong tương lai.
      *
      * @param keyword       từ khóa tìm kiếm, null/blank là lấy toàn bộ đã publish

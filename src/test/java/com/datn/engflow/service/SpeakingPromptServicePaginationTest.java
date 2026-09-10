@@ -34,7 +34,7 @@ class SpeakingPromptServicePaginationTest {
         Page<SpeakingPrompt> expected = new PageImpl<>(List.of(prompt), pageable, 1);
         when(repository.findByIsPublishedTrue(pageable)).thenReturn(expected);
 
-        Page<SpeakingPrompt> result = service.getAllPrompts(pageable, true);
+        Page<SpeakingPrompt> result = service.getAllPrompts(null, pageable, true);
 
         assertThat(result.getContent()).containsExactly(prompt);
         verify(repository).findByIsPublishedTrue(pageable);
@@ -47,7 +47,7 @@ class SpeakingPromptServicePaginationTest {
         Page<SpeakingPrompt> expected = Page.empty(pageable);
         when(repository.findByIsPremiumFalseAndIsPublishedTrue(pageable)).thenReturn(expected);
 
-        assertThat(service.getAllPrompts(pageable, false)).isSameAs(expected);
+        assertThat(service.getAllPrompts(null, pageable, false)).isSameAs(expected);
         verify(repository).findByIsPremiumFalseAndIsPublishedTrue(pageable);
     }
 

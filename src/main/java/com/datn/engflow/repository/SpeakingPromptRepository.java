@@ -16,8 +16,6 @@ import java.util.List;
  */
 public interface SpeakingPromptRepository extends JpaRepository<SpeakingPrompt, Long> {
     Page<SpeakingPrompt> findByIsPublishedTrue(Pageable pageable);
-    List<SpeakingPrompt> findByIsPublishedTrueOrderByOrderIndexAsc();
-    List<SpeakingPrompt> findByIsPremiumFalseAndIsPublishedTrueOrderByOrderIndexAsc();
     List<SpeakingPrompt> findAllByOrderByOrderIndexAsc();
 
     Page<SpeakingPrompt> findByIsPremiumFalseAndIsPublishedTrue(Pageable pageable);
