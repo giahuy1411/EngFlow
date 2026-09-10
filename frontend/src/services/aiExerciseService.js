@@ -14,9 +14,6 @@ export default {
   generateBatch: (force = false) =>
     api.post(`/api/admin/exercises/ai/generate-batch?force=${force}`).then(r => r.data),
 
-  saveExercises: (exercises) =>
-    api.post('/api/admin/exercises/ai/save', exercises).then(r => r.data),
-
   validateExercises: (exercises, useAiReview = false) =>
     api.post('/api/admin/exercises/ai/validate', { exercises, useAiReview }).then(r => r.data),
 

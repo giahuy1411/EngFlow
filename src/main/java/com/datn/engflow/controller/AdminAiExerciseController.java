@@ -8,7 +8,6 @@ import com.datn.engflow.model.dto.response.BatchGenerateStatus;
 import com.datn.engflow.model.entity.Exercise;
 import com.datn.engflow.model.entity.Lesson;
 import com.datn.engflow.model.enums.ExerciseType;
-import com.datn.engflow.repository.ExerciseRepository;
 import com.datn.engflow.repository.LessonRepository;
 import com.datn.engflow.service.AiExerciseService;
 import jakarta.validation.Valid;
@@ -35,7 +34,6 @@ public class AdminAiExerciseController {
 
     private final AiExerciseService aiExerciseService;
     private final LessonRepository lessonRepository;
-    private final ExerciseRepository exerciseRepository;
 
     @PostMapping("/generate-async")
     public ResponseEntity<Map<String, String>> generateExercisesAsync(@Valid @RequestBody AiGenerateRequest request) {
@@ -87,18 +85,6 @@ public class AdminAiExerciseController {
                 .errors(progress.errors)
                 .running(progress.running)
                 .currentLesson(progress.currentLesson)
-                .build());
-    }
-
-    @PostMapping("/save")
-    public ResponseEntity<AiExerciseResult> saveExercises(@RequestBody List<Exercise> exercises) {
-        List<Exercise> saved = exerciseRepository.saveAll(exercises);
-        return ResponseEntity.ok(AiExerciseResult.builder()
-                .generated(saved.size())
-                .valid(saved.size())
-                .errors(0)
-                .exercises(saved)
-                .errorDetails(List.of())
                 .build());
     }
 
