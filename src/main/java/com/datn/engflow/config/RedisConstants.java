@@ -9,9 +9,9 @@ public final class RedisConstants {
     // Streak / login history
     public static final String LOGIN_DAYS_KEY_PREFIX = "user:login_days:";
     public static final long LOGIN_DAYS_TTL_DAYS = 90L;
-    public static final Duration LOGIN_DAYS_TTL = Duration.ofDays(90);
 
     // Game session & daily points cap
+    public static final String GAME_SESSION_KEY_PREFIX = "game:session:";
     public static final Duration GAME_SESSION_TTL = Duration.ofHours(24);
     public static final String GAME_POINTS_KEY_PREFIX = "game:points:today:";
     public static final Duration GAME_POINTS_TTL = Duration.ofHours(25);

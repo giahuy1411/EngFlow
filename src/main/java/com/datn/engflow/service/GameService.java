@@ -52,7 +52,7 @@ public class GameService {
                 .answerMap(answerMap)
                 .build();
 
-        String key = "game:session:" + sessionId;
+        String key = RedisConstants.GAME_SESSION_KEY_PREFIX + sessionId;
         redisTemplate.opsForValue().set(key, session, RedisConstants.GAME_SESSION_TTL.toHours(), TimeUnit.HOURS);
         log.info("Created temporary game session in Redis: {}", sessionId);
         return session;
@@ -201,7 +201,7 @@ public class GameService {
 
     @Transactional
     public Map<String, Object> submitGameResult(Long userId, String sessionId, int clientCorrectAnswers, List<Map<String, Object>> userAnswers) {
-        String key = "game:session:" + sessionId;
+        String key = RedisConstants.GAME_SESSION_KEY_PREFIX + sessionId;
         GameSessionRedisDTO redisSession = (GameSessionRedisDTO) redisTemplate.opsForValue().get(key);
 
         if (redisSession == null) {

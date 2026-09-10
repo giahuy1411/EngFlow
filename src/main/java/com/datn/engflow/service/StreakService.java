@@ -1,5 +1,6 @@
 package com.datn.engflow.service;
 
+import com.datn.engflow.config.RedisConstants;
 import com.datn.engflow.model.entity.User;
 import com.datn.engflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,6 @@ public class StreakService {
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
     private final Clock clock;
-
-    private static final String LOGIN_DAYS_KEY_PREFIX = "user:login_days:";
-    private static final long LOGIN_DAYS_TTL_DAYS = 90;
 
     /**
      * Ghi nhận một hoạt động của user trong hôm nay và cập nhật streak.
@@ -98,7 +96,7 @@ public class StreakService {
     public List<String> getLoginDays(Long userId, int days) {
         Set<String> loginDaysSet;
         try {
-            loginDaysSet = redisTemplate.opsForSet().members(LOGIN_DAYS_KEY_PREFIX + userId);
+            loginDaysSet = redisTemplate.opsForSet().members(RedisConstants.LOGIN_DAYS_KEY_PREFIX + userId);
         } catch (Exception e) {
             log.warn("Redis unavailable for getLoginDays userId={}: {}", userId, e.getMessage());
             return List.of();
@@ -113,7 +111,7 @@ public class StreakService {
                     try {
                         return !LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).isBefore(cutoff);
                     } catch (Exception e) {
-                        log.warn("Invalid date in Redis set {}: {}", LOGIN_DAYS_KEY_PREFIX + userId, dateStr);
+                        log.warn("Invalid date in Redis set {}: {}", RedisConstants.LOGIN_DAYS_KEY_PREFIX + userId, dateStr);
                         return false;
                     }
                 })
@@ -151,10 +149,10 @@ public class StreakService {
     }
 
     private void recordLoginDateInRedis(Long userId, LocalDate date) {
-        String key = LOGIN_DAYS_KEY_PREFIX + userId;
+        String key = RedisConstants.LOGIN_DAYS_KEY_PREFIX + userId;
         try {
             redisTemplate.opsForSet().add(key, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
-            redisTemplate.expire(key, LOGIN_DAYS_TTL_DAYS, TimeUnit.DAYS);
+            redisTemplate.expire(key, RedisConstants.LOGIN_DAYS_TTL_DAYS, TimeUnit.DAYS);
         } catch (Exception e) {
             log.warn("Redis unavailable for recordLoginDate userId={}: {}", userId, e.getMessage());
         }

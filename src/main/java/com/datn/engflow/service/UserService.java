@@ -24,10 +24,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.LocalDate;
+
+/**
+ * class UserService.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    /** Sinh OTP 6 số, dùng nguồn ngẫu nhiên an toàn. */
+    private static final SecureRandom OTP_RANDOM = new SecureRandom();
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,9 +53,11 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 
+    /** Admin hoặc premium đang còn hạn thì không giới hạn sinh từ AI. */
     public boolean hasUnlimitedAiGeneration(User user) {
-        return Boolean.TRUE.equals(user.getIsPremium())
-                && (user.getPremiumExpiry() == null || !user.getPremiumExpiry().isBefore(java.time.LocalDate.now()));
+        return Boolean.TRUE.equals(user.getIsAdmin())
+                || (Boolean.TRUE.equals(user.getIsPremium())
+                    && (user.getPremiumExpiry() == null || !user.getPremiumExpiry().isBefore(LocalDate.now())));
     }
 
     @Transactional
@@ -119,7 +131,7 @@ public class UserService {
                     redisTemplate.expire(failKey, RedisConstants.LOGIN_FAIL_TTL);
                 }
                 if (fails >= RedisConstants.MAX_LOGIN_FAILS) {
-                    redisTemplate.opsForValue().set(lockKey, "1", java.time.Duration.ofMinutes(RedisConstants.LOGIN_LOCKOUT_MINUTES));
+                    redisTemplate.opsForValue().set(lockKey, "1", Duration.ofMinutes(RedisConstants.LOGIN_LOCKOUT_MINUTES));
                     log.warn("Tài khoản {} bị khóa {} phút do {} lần đăng nhập sai", normalizedEmail, RedisConstants.LOGIN_LOCKOUT_MINUTES, fails);
                     throw new BadRequestException("Tài khoản tạm khóa do đăng nhập sai " + RedisConstants.MAX_LOGIN_FAILS + " lần. Thử lại sau " + RedisConstants.LOGIN_LOCKOUT_MINUTES + " phút.");
                 }
@@ -155,29 +167,32 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Sinh OTP 6 số lưu Redis 10 phút rồi gửi qua email.
+     * Trả về message chung chung cho mọi email (không leak user tồn tại).
+     */
     public String requestPasswordReset(String email) {
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
             return "Nếu email tồn tại, mã OTP đã được gửi. Kiểm tra hộp thư.";
         }
         User user = userOpt.get();
-        String rlKey = RedisConstants.OTP_RESET_PREFIX.replace("reset:", "rate:") + email;
-        // Use otp:rate: prefix
-        rlKey = "otp:rate:" + email;
+        String rateLimitKey = RedisConstants.OTP_RATE_PREFIX + email;
         try {
-            Long count = redisTemplate.opsForValue().increment(rlKey);
+            Long count = redisTemplate.opsForValue().increment(rateLimitKey);
             if (count != null && count == 1) {
-                redisTemplate.expire(rlKey, java.time.Duration.ofMinutes(15));
+                redisTemplate.expire(rateLimitKey, RedisConstants.OTP_RATE_TTL);
             }
-            if (count != null && count > 3) {
-                throw new BadRequestException("Quá nhiều yêu cầu. Thu lai sau 15 phút.");
+            if (count != null && count > RedisConstants.OTP_MAX_PER_WINDOW) {
+                throw new BadRequestException("Quá nhiều yêu cầu. Thử lại sau "
+                        + RedisConstants.OTP_RATE_TTL.toMinutes() + " phút.");
             }
         } catch (BadRequestException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Redis unavailable for OTP rate limit {}: {} - fail-open", rlKey, e.getMessage());
+            log.warn("Redis unavailable for OTP rate limit {}: {} - fail-open", rateLimitKey, e.getMessage());
         }
-        String otp = String.format("%06d", new java.security.SecureRandom().nextInt(1_000_000));
+        String otp = String.format("%06d", OTP_RANDOM.nextInt(1_000_000));
         try {
             redisTemplate.opsForValue().set(RedisConstants.OTP_RESET_PREFIX + email, otp, RedisConstants.OTP_RESET_TTL);
         } catch (Exception e) {
@@ -187,6 +202,7 @@ public class UserService {
         return "Nếu email tồn tại, mã OTP đã được gửi. Kiểm tra hộp thư.";
     }
 
+    /** Xác thực OTP rồi đặt mật khẩu mới. Xóa OTP sau khi dùng (one-time). */
     @Transactional
     public void resetPassword(String email, String otp, String newPassword) {
         String key = RedisConstants.OTP_RESET_PREFIX + email;
