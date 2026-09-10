@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 
@@ -46,6 +47,10 @@ public class UserService {
     private final StreakService streakService;
     private final StringRedisTemplate redisTemplate;
     private final EmailService emailService;
+    private final Clock clock;
+
+    /** Số lượt sinh từ AI miễn phí mỗi ngày cho tài khoản thường. */
+    public static final int AI_GENERATIONS_PER_DAY = 5;
 
     @Transactional(readOnly = true)
     public User findEntityById(Long userId) {
@@ -53,11 +58,83 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 
-    /** Admin hoặc premium đang còn hạn thì không giới hạn sinh từ AI. */
+    /**
+     * Quyền premium: admin có toàn quyền nên luôn được tính như premium, kể cả khi
+     * không mua gói hoặc gói đã hết hạn. Tài khoản thường cần {@code isPremium} bật
+     * và hạn chưa qua ({@code premiumExpiry} null được coi là không thời hạn).
+     *
+     * <p>Đây là nguồn sự thật duy nhất cho mọi ranh giới premium trong ứng dụng
+     * (sinh từ AI, luyện nói). Giới hạn ngày lấy từ {@link #clock} để test được
+     * mà không phụ thuộc đồng hồ máy.
+     *
+     * @param user thực thể người dùng, không được null
+     * @return true nếu được dùng tính năng premium
+     */
+    public boolean hasPremiumAccess(User user) {
+        if (Boolean.TRUE.equals(user.getIsAdmin())) {
+            return true;
+        }
+        if (!Boolean.TRUE.equals(user.getIsPremium())) {
+            return false;
+        }
+        LocalDate expiry = user.getPremiumExpiry();
+        return expiry == null || !expiry.isBefore(LocalDate.now(clock));
+    }
+
+    /** Premium và admin không bị giới hạn số lượt sinh từ AI. */
     public boolean hasUnlimitedAiGeneration(User user) {
-        return Boolean.TRUE.equals(user.getIsAdmin())
-                || (Boolean.TRUE.equals(user.getIsPremium())
-                    && (user.getPremiumExpiry() == null || !user.getPremiumExpiry().isBefore(LocalDate.now())));
+        return hasPremiumAccess(user);
+    }
+
+    /**
+     * Số lượt sinh AI đã dùng <em>trong ngày hôm nay</em>. Bộ đếm chỉ có nghĩa khi
+     * {@code aiQuotaDate} khớp ngày hiện tại; ngày khác hoặc chưa từng dùng trả về 0.
+     *
+     * @param user thực thể người dùng, không được null
+     * @return lượt đã dùng hôm nay, luôn từ 0 trở lên
+     */
+    public int aiGenerationsUsedToday(User user) {
+        if (user.getAiQuotaDate() == null || !user.getAiQuotaDate().isEqual(LocalDate.now(clock))) {
+            return 0;
+        }
+        Integer count = user.getAiGenerationCount();
+        return count == null || count < 0 ? 0 : count;
+    }
+
+    /** Còn hạn mức sinh AI hôm nay không (premium/admin luôn trả về true). */
+    public boolean hasAiGenerationQuota(User user) {
+        return hasUnlimitedAiGeneration(user) || aiGenerationsUsedToday(user) < AI_GENERATIONS_PER_DAY;
+    }
+
+    /**
+     * Số lượt còn lại hôm nay, hoặc {@code null} nếu không giới hạn.
+     * Dùng cho UI hiển thị "x / 5 lượt còn lại".
+     */
+    public Integer remainingAiGenerations(User user) {
+        if (hasUnlimitedAiGeneration(user)) {
+            return null;
+        }
+        return AI_GENERATIONS_PER_DAY - aiGenerationsUsedToday(user);
+    }
+
+    /**
+     * Ghi nhận một lượt sinh AI, tự reset bộ đếm khi sang ngày mới.
+     * Không tăng cho premium/admin vì họ không giới hạn.
+     *
+     * @param user thực thể người dùng sẽ được lưu
+     */
+    @Transactional
+    public void consumeAiGenerationQuota(User user) {
+        if (hasUnlimitedAiGeneration(user)) {
+            return;
+        }
+        LocalDate today = LocalDate.now(clock);
+        int used = user.getAiQuotaDate() == null || !user.getAiQuotaDate().isEqual(today)
+                ? 0
+                : aiGenerationsUsedToday(user);
+        user.setAiQuotaDate(today);
+        user.setAiGenerationCount(used + 1);
+        userRepository.save(user);
     }
 
     @Transactional
@@ -250,7 +327,9 @@ public class UserService {
                 .lastLoginAt(user.getLastStudyDate() != null ? user.getLastStudyDate().toString() : null)
                 .isPremium(Boolean.TRUE.equals(user.getIsPremium()))
                 .premiumExpiry(user.getPremiumExpiry() != null ? user.getPremiumExpiry().toString() : null)
-                .aiGenerationCount(user.getAiGenerationCount() != null ? user.getAiGenerationCount() : 0)
+                .aiGenerationCount(aiGenerationsUsedToday(user))
+                .hasPremiumAccess(hasPremiumAccess(user))
+                .aiGenerationsRemainingToday(remainingAiGenerations(user))
                 .token(token)
                 .build();
     }

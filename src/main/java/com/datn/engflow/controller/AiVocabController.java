@@ -47,22 +47,22 @@ public class AiVocabController {
             return ResponseEntity.badRequest().body(Map.of("error", "count phải từ 1 đến 50"));
         }
 
-        // Quota: 5 generations for free users; premium/admin unlimited.
+        // Quota: 5 lượt sinh AI miễn phí mỗi ngày cho tài khoản thường; premium/admin không giới hạn.
         User user = null;
         if (authentication != null && authentication.isAuthenticated() && userPrincipal != null) {
             user = userService.findEntityById(userPrincipal.getId());
-            if (!userService.hasUnlimitedAiGeneration(user)
-                    && !aiVocabService.hasAiGenerationQuota(user)) {
+            if (!userService.hasAiGenerationQuota(user)) {
                 ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
-                        "Bạn đã dùng hết 5 lần sinh từ vựng AI miễn phí. Đăng ký Premium để sinh không giới hạn.");
+                        "Bạn đã dùng hết " + UserService.AI_GENERATIONS_PER_DAY
+                                + " lượt sinh từ vựng AI miễn phí hôm nay. Đăng ký Premium để sinh không giới hạn.");
                 problem.setTitle("AI Generation Quota Exceeded");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
             }
         }
 
         List<Vocabulary> generated = aiVocabService.generateVocabByTopic(topic, level, count).block();
-        if (user != null && !userService.hasUnlimitedAiGeneration(user)) {
-            aiVocabService.incrementAiGenerationQuota(user);
+        if (user != null) {
+            userService.consumeAiGenerationQuota(user);
         }
         return ResponseEntity.ok(generated);
     }
@@ -78,18 +78,24 @@ public class AiVocabController {
         }
         // audit-v6 F31: enrich-word hits the local LLM like generate-vocab —
         // apply the same free-tier quota so it can't be used to burn GPU.
+        User user = null;
         if (authentication != null && authentication.isAuthenticated() && userPrincipal != null) {
-            User user = userService.findEntityById(userPrincipal.getId());
-            if (!userService.hasUnlimitedAiGeneration(user)
-                    && !aiVocabService.hasAiGenerationQuota(user)) {
+            user = userService.findEntityById(userPrincipal.getId());
+            if (!userService.hasAiGenerationQuota(user)) {
                 ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
-                        "Bạn đã dùng hết 5 lần sinh từ vựng AI miễn phí. Đăng ký Premium để dùng không giới hạn.");
+                        "Bạn đã dùng hết " + UserService.AI_GENERATIONS_PER_DAY
+                                + " lượt sinh từ vựng AI miễn phí hôm nay. Đăng ký Premium để dùng không giới hạn.");
                 problem.setTitle("AI Generation Quota Exceeded");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
             }
-            aiVocabService.incrementAiGenerationQuota(user);
         }
-        return ResponseEntity.ok(aiVocabService.enrichWord(word).block());
+        // Đếm lượt SAU khi gọi AI thành công: lỗi phía dưới không được tính vào quota,
+        // và premium/admin được bỏ qua bên trong consumeAiGenerationQuota.
+        Vocabulary enriched = aiVocabService.enrichWord(word).block();
+        if (user != null) {
+            userService.consumeAiGenerationQuota(user);
+        }
+        return ResponseEntity.ok(enriched);
     }
 
     @PostMapping("/save-vocab")

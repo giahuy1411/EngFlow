@@ -83,7 +83,16 @@ public class User {
     @Column(name = "current_streak")
     private Integer currentStreak = 0;
 
+    /**
+     * Số lượt sinh từ AI đã dùng, tính trong ngày ghi ở {@link #aiQuotaDate}.
+     * Trước đây cột này là bộ đếm vĩnh viễn; từ khi quota tính theo ngày thì nó
+     * chỉ còn nghĩa "đã dùng bao nhiêu lượt của ngày {@code aiQuotaDate}".
+     */
     @Builder.Default
     @Column(name = "ai_generation_count")
     private Integer aiGenerationCount = 0;
+
+    /** Ngày mà {@link #aiGenerationCount} đang đếm. Null nghĩa là chưa dùng lượt nào. */
+    @Column(name = "ai_quota_date")
+    private LocalDate aiQuotaDate;
 }

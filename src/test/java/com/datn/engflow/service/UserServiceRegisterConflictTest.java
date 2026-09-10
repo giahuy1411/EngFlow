@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,6 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.datn.engflow.security.JwtTokenProvider;
 import com.datn.engflow.service.StreakService;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.lenient;
@@ -47,13 +50,20 @@ class UserServiceRegisterConflictTest {
     @Mock
     private StringRedisTemplate redisTemplate;
 
-    @InjectMocks
+    @Mock
+    private EmailService emailService;
+
     private UserService userService;
 
     private RegisterRequest request;
 
     @BeforeEach
     void setUp() {
+        // Khởi tạo tường minh thay vì @InjectMocks để Clock là đồng hồ thật, cố định:
+        // mọi nhánh đụng ranh giới ngày trong UserService đều test được.
+        userService = new UserService(userRepository, passwordEncoder, authenticationManager,
+                tokenProvider, streakService, redisTemplate, emailService,
+                Clock.fixed(Instant.parse("2026-08-17T00:00:00Z"), ZoneOffset.UTC));
         request = new RegisterRequest();
         request.setUsername("newuser");
         request.setEmail("new@example.com");

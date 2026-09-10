@@ -1,10 +1,8 @@
 package com.datn.engflow.service;
 
-import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.entity.Vocabulary;
 import com.datn.engflow.model.dto.VocabularyRequest;
 import com.datn.engflow.repository.VocabularyRepository;
-import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.model.enums.DeckSource;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,11 +28,8 @@ import java.util.Map;
  */
 public class AiVocabService {
 
-    private static final int AI_GENERATION_LIMIT = 5;
-
     private final WebClient webClient;
     private final VocabularyRepository vocabularyRepository;
-    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final String model;
 
@@ -43,32 +38,15 @@ public class AiVocabService {
             @Value("${openrouter.base-url}") String baseUrl,
             @Value("${openrouter.model}") String model,
             ObjectMapper objectMapper,
-            VocabularyRepository vocabularyRepository,
-            UserRepository userRepository) {
+            VocabularyRepository vocabularyRepository) {
         this.objectMapper = objectMapper;
         this.vocabularyRepository = vocabularyRepository;
-        this.userRepository = userRepository;
         this.model = model;
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
-    }
-
-    /**
-     * Kiểm tra quota trước khi gọi AI, không tăng bộ đếm.
-     */
-    public boolean hasAiGenerationQuota(User user) {
-        int used = user.getAiGenerationCount() == null ? 0 : user.getAiGenerationCount();
-        return used < AI_GENERATION_LIMIT;
-    }
-
-    @Transactional
-    public void incrementAiGenerationQuota(User user) {
-        int used = user.getAiGenerationCount() == null ? 0 : user.getAiGenerationCount();
-        user.setAiGenerationCount(used + 1);
-        userRepository.save(user);
     }
 
     public Mono<List<Vocabulary>> generateVocabByTopic(String topic, String cefrLevel, int count) {

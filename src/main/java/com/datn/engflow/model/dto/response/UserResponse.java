@@ -27,6 +27,15 @@ public class UserResponse {
     private String lastLoginAt;
     private Boolean isPremium;
     private String premiumExpiry;
+    /**
+     * Lượt sinh AI đã dùng trong ngày. Trước đây là bộ đếm vĩnh viễn; từ khi quota
+     * tính theo ngày thì nó chỉ đếm lượt của ngày hiện tại. Giữ nguyên tên field
+     * để tương thích client cũ.
+     */
     private Integer aiGenerationCount;
+    /** true nếu admin hoặc premium còn hạn — client dùng flag này thay vì tự suy ra. */
+    private Boolean hasPremiumAccess;
+    /** Lượt sinh AI còn lại hôm nay; null nghĩa là không giới hạn. */
+    private Integer aiGenerationsRemainingToday;
     private String token;
 }

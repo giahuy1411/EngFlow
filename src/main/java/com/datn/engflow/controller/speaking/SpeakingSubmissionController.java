@@ -8,6 +8,7 @@ import com.datn.engflow.model.entity.SpeakingSubmission;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.security.UserPrincipal;
 import com.datn.engflow.service.SpeakingSubmissionService;
+import com.datn.engflow.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-
 @RestController
 @RequiredArgsConstructor
 /**
@@ -31,6 +30,7 @@ public class SpeakingSubmissionController {
 
     private final SpeakingSubmissionService submissionService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @PostMapping({"/api/v1/speaking-submissions/upload", "/api/v1/video-submissions/upload"})
     public ResponseEntity<SpeakingSubmissionResponse> uploadSubmission(
@@ -40,7 +40,7 @@ public class SpeakingSubmissionController {
         requireAuthenticated(userPrincipal);
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        if (!isPremium(user)) {
+        if (!userService.hasPremiumAccess(user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Premium membership required");
         }
         SpeakingSubmission submission = submissionService.uploadSubmission(file, promptId, user);
@@ -147,10 +147,5 @@ public class SpeakingSubmissionController {
     private boolean isAdmin(UserPrincipal userPrincipal) {
         return userPrincipal.getAuthorities().stream()
                 .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
-    }
-
-    private boolean isPremium(User user) {
-        return Boolean.TRUE.equals(user.getIsPremium())
-                && (user.getPremiumExpiry() == null || !user.getPremiumExpiry().isBefore(LocalDate.now()));
     }
 }
