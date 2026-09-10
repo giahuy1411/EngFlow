@@ -41,7 +41,7 @@
       </div>
       <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl mb-8">
         <h2 class="font-black text-xl uppercase tracking-tight mb-6 flex items-center gap-3"><Flame class="w-6 h-6 text-tertiary" />Lịch học</h2>
-        <StreakCalendar :history="streakData" :current-streak="currentStreak" />
+        <StreakCalendar :history="streakData" :current-streak="currentStreak" :today="serverToday" />
       </div>
     </div>
   </div>
@@ -63,6 +63,7 @@ const user = ref(auth.user || {})
 const stats = ref({ completedLessons: 0, totalLessons: 0 })
 const currentStreak = ref(0)
 const streakData = ref([])
+const serverToday = ref(null)
 const lessonProgressPercent = computed(() => {
   if (!stats.value.totalLessons) return 0
   const percent = Math.min(100, (stats.value.completedLessons / stats.value.totalLessons) * 100)
@@ -75,7 +76,7 @@ const subscriptionLabel = computed(() => {
 const subscriptionDescription = computed(() => {
   if (auth.isAdmin) return 'Tài khoản admin được mở toàn bộ tính năng.'
   if (premiumStore.isPremium) return premiumStore.premiumExpiry ? `Có hiệu lực đến ${new Date(premiumStore.premiumExpiry).toLocaleDateString('vi-VN')}.` : 'Đã mở khóa luyện nói và AI không giới hạn.'
-  return 'AI miễn phí 5 lượt vĩnh viễn. Luyện nói cần Premium.'
+  return 'AI miễn phí 5 lượt mỗi ngày. Luyện nói cần Premium.'
 })
 
 onMounted(async () => {
@@ -88,6 +89,7 @@ onMounted(async () => {
   try {
     const streak = await streakService.getCurrentStreak()
     currentStreak.value = streak.currentStreak || 0
+    serverToday.value = streak.today || null
   } catch (e) { /* ignore */ }
   try {
     const dashStats = await dashboardService.getStats()

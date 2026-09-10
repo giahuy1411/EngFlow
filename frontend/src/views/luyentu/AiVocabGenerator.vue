@@ -22,12 +22,12 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Quyền sử dụng</p>
-            <h2 id="ai-quota-title" class="mt-1 text-xl font-black">{{ auth.isPremium || auth.isAdmin ? 'Không giới hạn' : `${remainingQuota} / ${AI_LIMIT} lượt còn lại` }}</h2>
-            <p class="mt-1 text-sm text-muted-foreground">{{ auth.isPremium || auth.isAdmin ? 'Premium và admin được sinh từ không giới hạn.' : 'Mỗi tài khoản miễn phí có 5 lượt vĩnh viễn, không reset.' }}</p>
+            <h2 id="ai-quota-title" class="mt-1 text-xl font-black">{{ unlimited ? 'Không giới hạn' : `${remainingQuota} / ${AI_LIMIT} lượt còn lại hôm nay` }}</h2>
+            <p class="mt-1 text-sm text-muted-foreground">{{ unlimited ? 'Premium và admin được sinh từ không giới hạn.' : 'Tài khoản miễn phí có 5 lượt sinh từ mỗi ngày, tự reset sang ngày mới.' }}</p>
           </div>
-          <router-link v-if="!auth.isPremium && !auth.isAdmin" to="/premium" class="inline-flex shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-tertiary px-5 py-2.5 text-sm font-black shadow-pop-sm transition-transform hover:-translate-y-0.5">Mở khóa không giới hạn</router-link>
+          <router-link v-if="!unlimited" to="/premium" class="inline-flex shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-tertiary px-5 py-2.5 text-sm font-black shadow-pop-sm transition-transform hover:-translate-y-0.5">Mở khóa không giới hạn</router-link>
         </div>
-        <div v-if="!auth.isPremium && !auth.isAdmin" class="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-muted" aria-hidden="true"><div class="h-full bg-accent transition-all" :style="{ width: `${quotaPercent}%` }"></div></div>
+        <div v-if="!unlimited" class="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-muted" aria-hidden="true"><div class="h-full bg-accent transition-all" :style="{ width: `${quotaPercent}%` }"></div></div>
       </section>
 
       <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl">
@@ -56,7 +56,7 @@
           </div>
 
           <p v-if="error" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ error }}</p>
-          <p v-if="quotaExhausted" role="alert" class="border-2 border-secondary bg-secondary/10 p-3 text-sm font-bold">Bạn đã hết 5 lượt sinh từ miễn phí. Nâng cấp Premium để tiếp tục.</p>
+          <p v-if="quotaExhausted" role="alert" class="border-2 border-secondary bg-secondary/10 p-3 text-sm font-bold">Bạn đã dùng hết {{ AI_LIMIT }} lượt sinh từ miễn phí hôm nay. Nâng cấp Premium để tiếp tục.</p>
 
           <AppButton type="submit" :disabled="generating || quotaExhausted" :loading="generating" variant="primary" size="lg" class="w-full">
             <span v-if="generating">Đang sinh...</span>
@@ -147,10 +147,16 @@ const saveSuccess = ref('')
 
 const allSaved = computed(() => generatedWords.value.length > 0 && savedIndexes.value.size === generatedWords.value.length)
 const unsavedCount = computed(() => generatedWords.value.length - savedIndexes.value.size)
-const usedQuota = computed(() => Math.min(auth.user?.aiGenerationCount || 0, AI_LIMIT))
-const remainingQuota = computed(() => Math.max(AI_LIMIT - usedQuota.value, 0))
+// Quyền và hạn mức lấy thẳng từ server (admin có toàn quyền → coi như unlimited).
+const unlimited = computed(() => auth.hasPremiumAccess)
+const remainingQuota = computed(() => {
+  if (unlimited.value) return AI_LIMIT
+  const r = auth.user?.aiGenerationsRemainingToday
+  return typeof r === 'number' ? Math.max(Math.min(r, AI_LIMIT), 0) : AI_LIMIT
+})
+const usedQuota = computed(() => AI_LIMIT - remainingQuota.value)
 const quotaPercent = computed(() => (usedQuota.value / AI_LIMIT) * 100)
-const quotaExhausted = computed(() => !auth.isPremium && !auth.isAdmin && remainingQuota.value === 0)
+const quotaExhausted = computed(() => !unlimited.value && remainingQuota.value === 0)
 
 async function generate() {
   error.value = ''

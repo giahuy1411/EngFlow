@@ -22,6 +22,38 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() => user.value?.isAdmin)
   // Guard /speaking/* đọc auth.isPremium — phải expose đúng từ user payload (UserResponse.isPremium)
   const isPremium = computed(() => user.value?.isPremium === true)
+  /**
+   * Quyền premium do server tính (admin luôn có toàn quyền). Fallback isAdmin để
+   * tài khoản còn cache trong localStorage từ trước khi có field này vẫn đúng.
+   */
+  const hasPremiumAccess = computed(
+    () => user.value?.hasPremiumAccess === true || user.value?.isAdmin === true
+  )
+
+  /**
+   * Chuẩn hoá payload UserResponse → state user. Tập trung ở một chỗ vì login,
+   * register và /me trả cùng hình dạng; thêm field mới chỉ cần sửa một nơi.
+   * Không nhét token vào đây: token là state riêng, lưu trùng dễ lộ JWT thêm chỗ.
+   */
+  function mapUser(data) {
+    return {
+      id: data.id,
+      username: data.username,
+      email: data.email,
+      fullName: data.fullName,
+      avatarUrl: data.avatarUrl,
+      isAdmin: data.isAdmin,
+      isPremium: data.isPremium === true,
+      premiumExpiry: data.premiumExpiry,
+      currentLevel: data.currentLevel,
+      totalPoints: data.totalPoints,
+      currentStreak: data.currentStreak,
+      // Quyền lợi và hạn mức AI hiển thị trên Profile / Luyện từ.
+      hasPremiumAccess: data.hasPremiumAccess === true,
+      aiGenerationCount: data.aiGenerationCount ?? 0,
+      aiGenerationsRemainingToday: data.aiGenerationsRemainingToday ?? null
+    }
+  }
 
   // Actions
   async function login(credentials) {
@@ -30,19 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const data = await authService.login(credentials)
       token.value = data.token
-      user.value = {
-        id: data.id,
-        username: data.username,
-        email: data.email,
-        fullName: data.fullName,
-        avatarUrl: data.avatarUrl,
-        isAdmin: data.isAdmin,
-        isPremium: data.isPremium === true,
-        premiumExpiry: data.premiumExpiry,
-        currentLevel: data.currentLevel,
-        totalPoints: data.totalPoints,
-        currentStreak: data.currentStreak
-      }
+      user.value = mapUser(data)
       localStorage.setItem('token', token.value)
       localStorage.setItem('user', JSON.stringify(user.value))
     } catch (e) {
@@ -60,19 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
       const data = await authService.register(userData)
       if (data.token) {
         token.value = data.token
-        user.value = {
-          id: data.id,
-          username: data.username,
-          email: data.email,
-          fullName: data.fullName,
-          avatarUrl: data.avatarUrl,
-          isAdmin: data.isAdmin,
-          isPremium: data.isPremium === true,
-          premiumExpiry: data.premiumExpiry,
-          currentLevel: data.currentLevel,
-          totalPoints: data.totalPoints,
-          currentStreak: data.currentStreak
-        }
+        user.value = mapUser(data)
         localStorage.setItem('token', token.value)
         localStorage.setItem('user', JSON.stringify(user.value))
       }
@@ -96,19 +104,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
     try {
       const data = await authService.getMe()
-      user.value = {
-        id: data.id,
-        username: data.username,
-        email: data.email,
-        fullName: data.fullName,
-        avatarUrl: data.avatarUrl,
-        isAdmin: data.isAdmin,
-        isPremium: data.isPremium === true,
-        premiumExpiry: data.premiumExpiry,
-        currentLevel: data.currentLevel,
-        totalPoints: data.totalPoints,
-        currentStreak: data.currentStreak
-      }
+      user.value = mapUser(data)
       localStorage.setItem('user', JSON.stringify(user.value))
     } catch (e) {
       logout()
@@ -135,5 +131,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { token, user, loading, error, isLoggedIn, isAdmin, isPremium, login, register, logout, fetchUser, forgotPassword }
+  return { token, user, loading, error, isLoggedIn, isAdmin, isPremium, hasPremiumAccess, login, register, logout, fetchUser, forgotPassword }
 })
