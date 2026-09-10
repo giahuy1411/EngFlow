@@ -46,17 +46,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final StringRedisTemplate redisTemplate;
 
-    private static final int MAX_REQUESTS_PER_MINUTE_LOGIN = 20; // Nới lỏng cho login
-
-    // audit-v6 F24: forgot/reset trigger SMTP email — cap them tighter than the
-
-    // global 100/min so the mail flow can't be abused for spam.
-
+        private static final int MAX_REQUESTS_PER_MINUTE_LOGIN = 20;
     private static final int MAX_REQUESTS_PER_MINUTE_MAIL = 5;
-
-    private static final int MAX_REQUESTS_PER_MINUTE_GLOBAL = 100; // Rate limit chung
-
-    private static final long EXPIRE_MINUTES = 1;
+    private static final int MAX_REQUESTS_PER_MINUTE_GLOBAL = 100;
+    private static final java.time.Duration RATE_LIMIT_TTL = java.time.Duration.ofMinutes(1);
 
     @Override
 
@@ -88,7 +81,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             
 
             if (currentCount != null && currentCount == 1) {
-                redisTemplate.expire(redisKey, Duration.ofMinutes(EXPIRE_MINUTES));
+                redisTemplate.expire(redisKey, RATE_LIMIT_TTL);
             }
         } catch (Exception e) {
             log.warn("Redis unavailable for rate limiting (IP={}, URI={}), fail-open: {}", clientIp, requestURI, e.getMessage());

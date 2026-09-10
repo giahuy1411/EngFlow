@@ -1,7 +1,6 @@
 package com.datn.engflow.service;
 
-import java.time.Duration;
-import java.time.LocalDate;
+import com.datn.engflow.config.RedisConstants;
 import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.exception.ConflictException;
 import com.datn.engflow.exception.ResourceNotFoundException;
@@ -28,13 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-/**
- * class UserService.
- */
 public class UserService {
-
-    private static final int MAX_LOGIN_FAILS = 5;
-    private static final long LOCKOUT_MINUTES = 15;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -50,93 +43,90 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 
-    /** Admin hoặc premium đang còn hạn thì không giới hạn sinh từ AI. */
     public boolean hasUnlimitedAiGeneration(User user) {
-        return Boolean.TRUE.equals(user.getIsAdmin())
-                || (Boolean.TRUE.equals(user.getIsPremium())
-                    && (user.getPremiumExpiry() == null || !user.getPremiumExpiry().isBefore(LocalDate.now())));
+        return Boolean.TRUE.equals(user.getIsPremium())
+                && (user.getPremiumExpiry() == null || !user.getPremiumExpiry().isBefore(java.time.LocalDate.now()));
     }
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
-        log.info("B\u1eaft \u0111\u1ea7u \u0111\u0103ng k\u00fd user m\u1edbi: username={}, email={}", request.getUsername(), request.getEmail());
-
         if (userRepository.existsByEmail(request.getEmail())) {
-            log.error("\u0110\u0103ng k\u00fd th\u1ea5t b\u1ea1i: Email {} \u0111\u00e3 t\u1ed3n t\u1ea1i", request.getEmail());
-            throw new ConflictException("Email \u0111\u00e3 t\u1ed3n t\u1ea1i tr\u00ean h\u1ec7 th\u1ed1ng");
+            throw new ConflictException("Email đã tồn tại");
         }
-
         if (userRepository.existsByUsername(request.getUsername())) {
-            log.error("\u0110\u0103ng k\u00fd th\u1ea5t b\u1ea1i: Username {} \u0111\u00e3 t\u1ed3n t\u1ea1i", request.getUsername());
-            throw new ConflictException("T\u00ean \u0111\u0103ng nh\u1eadp \u0111\u00e3 t\u1ed3n t\u1ea1i");
+            throw new ConflictException("Tên đăng nhập đã tồn tại");
         }
-
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
-                .isAdmin(false)
                 .currentLevel(LessonLevel.ELEMENTARY)
                 .avatarUrl("https://api.dicebear.com/7.x/adventurer/svg?seed=" + request.getUsername())
                 .totalPoints(0)
                 .isActive(true)
                 .build();
-
         User savedUser = userRepository.save(user);
-        log.info("\u0110\u0103ng k\u00fd th\u00e0nh c\u00f4ng user: id={}, t\u1ef1 \u0111\u1ed9ng t\u1ea1o token \u0111\u0103ng nh\u1eadp", savedUser.getId());
-
+        log.info("Đăng ký thành công user: id={}, tự động tạo token đăng nhập", savedUser.getId());
         String jwt = tokenProvider.generateToken(savedUser.getEmail(), Boolean.TRUE.equals(savedUser.getIsAdmin()) ? "ADMIN" : "USER", savedUser.getIsPremium());
         return mapToUserResponse(savedUser, jwt);
     }
 
-    // Phải là read-write: login ghi streak (StreakService.recordAccess) vào DB.
-    // readOnly sẽ set flush mode MANUAL → UPDATE streak bị nuốt mất khi commit
-    // (Redis vẫn ghi vì không nằm trong transaction → DB/Redis lệch nhau).
     @Transactional
     public UserResponse login(LoginRequest request) {
         log.info("Bắt đầu đăng nhập cho email: {}", request.getEmail());
-
         String normalizedEmail = request.getEmail() == null ? "" : request.getEmail().trim().toLowerCase();
-        String lockKey = "login_lock:" + normalizedEmail;
-        String failKey = "login_fail:" + normalizedEmail;
+        String lockKey = RedisConstants.LOGIN_LOCK_PREFIX + normalizedEmail;
+        String failKey = RedisConstants.LOGIN_FAIL_PREFIX + normalizedEmail;
 
-        // 1. Account-level lockout: blocked sau 5 lần sai liên tiếp.
-        String locked = redisTemplate.opsForValue().get(lockKey);
-        if (locked != null) {
-            long ttl = redisTemplate.getExpire(lockKey);
-            throw new BadRequestException("Tài khoản tạm khóa do đăng nhập sai nhiều lần. Thử lại sau "
-                    + Math.max(1, (ttl + 59) / 60) + " phút.");
+        // 1. Check lockout - fail-open if Redis down
+        try {
+            String locked = redisTemplate.opsForValue().get(lockKey);
+            if (locked != null) {
+                long ttl = redisTemplate.getExpire(lockKey);
+                throw new BadRequestException("Tài khoản tạm khóa do đăng nhập sai nhiều lần. Thử lại sau "
+                        + Math.max(1, (ttl + 59) / 60) + " phút.");
+            }
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Redis unavailable for lock check {}: {} - fail-open", lockKey, e.getMessage());
         }
 
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.getEmail()));
-
-            // 2. Thành công → reset bộ đếm fail.
-            redisTemplate.delete(failKey);
-
+            // 2. Success -> reset fail counter (best-effort)
+            try {
+                redisTemplate.delete(failKey);
+            } catch (Exception e) {
+                log.warn("Redis unavailable for delete {}: {} - ignore", failKey, e.getMessage());
+            }
             String jwt = tokenProvider.generateToken(user.getEmail(), Boolean.TRUE.equals(user.getIsAdmin()) ? "ADMIN" : "USER", user.getIsPremium());
             streakService.recordAccess(user.getId());
             user = userRepository.findById(user.getId()).orElse(user);
-
             log.info("Đăng nhập thành công cho user: id={}, isAdmin={}", user.getId(), user.getIsAdmin());
             return mapToUserResponse(user, jwt);
         } catch (BadCredentialsException ex) {
-            // 3. Sai mật khẩu → tăng bộ đếm, block khi đạt ngưỡng.
-            long fails = redisTemplate.opsForValue().increment(failKey);
-            if (fails == 1) {
-                redisTemplate.expire(failKey, Duration.ofMinutes(15));
-            }
-            if (fails >= MAX_LOGIN_FAILS) {
-                redisTemplate.opsForValue().set(lockKey, "1", Duration.ofMinutes(LOCKOUT_MINUTES));
-                log.warn("Tài khoản {} bị khóa {} phút do {} lần đăng nhập sai", normalizedEmail, LOCKOUT_MINUTES, fails);
-                throw new BadRequestException("Tài khoản tạm khóa do đăng nhập sai " + MAX_LOGIN_FAILS + " lần. Thử lại sau " + LOCKOUT_MINUTES + " phút.");
+            // 3. Wrong password -> increment fail counter (fail-open)
+            try {
+                long fails = redisTemplate.opsForValue().increment(failKey);
+                if (fails == 1) {
+                    redisTemplate.expire(failKey, RedisConstants.LOGIN_FAIL_TTL);
+                }
+                if (fails >= RedisConstants.MAX_LOGIN_FAILS) {
+                    redisTemplate.opsForValue().set(lockKey, "1", java.time.Duration.ofMinutes(RedisConstants.LOGIN_LOCKOUT_MINUTES));
+                    log.warn("Tài khoản {} bị khóa {} phút do {} lần đăng nhập sai", normalizedEmail, RedisConstants.LOGIN_LOCKOUT_MINUTES, fails);
+                    throw new BadRequestException("Tài khoản tạm khóa do đăng nhập sai " + RedisConstants.MAX_LOGIN_FAILS + " lần. Thử lại sau " + RedisConstants.LOGIN_LOCKOUT_MINUTES + " phút.");
+                }
+            } catch (BadRequestException e) {
+                throw e;
+            } catch (Exception e) {
+                log.warn("Redis unavailable for fail counter {}: {} - fail-open, propagate BadCredentials", failKey, e.getMessage());
             }
             throw ex;
         }
@@ -144,79 +134,81 @@ public class UserService {
 
     @Transactional
     public UserResponse getProfile(String email) {
-        log.info("L\u1ea5y th\u00f4ng tin profile cho email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         if (!user.getIsActive()) {
-            throw new BadRequestException("T\u00e0i kho\u1ea3n \u0111\u0103 b\u1ecb v\u00f4 hi\u1ec7u h\u00f3a");
+            throw new BadRequestException("Tài khoản đã bị vô hiệu hóa");
         }
-        
         streakService.recordAccess(user.getId());
         user = userRepository.findById(user.getId()).orElse(user);
-        
         return mapToUserResponse(user, null);
     }
 
     @Transactional
     public void changePassword(String email, ChangePasswordRequest request) {
-        log.info("Thay \u0111\u1ed5i m\u1eadt kh\u1ea9u cho email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
-
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
-            throw new BadRequestException("M\u1eadt kh\u1ea9u c\u0169 kh\u00f4ng ch\u00ednh x\u00e1c");
+            throw new BadRequestException("Mật khẩu cũ không chính xác");
         }
-
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
-        log.info("Thay \u0111\u1ed5i m\u1eadt kh\u1ea9u th\u00e0nh c\u00f4ng cho email: {}", email);
     }
 
-    /**
-     * Sinh OTP 6 số lưu Redis 10 phút rồi gửi qua email.
-     * Trả về message chung chung cho mọi email (không leak user tồn tại).
-     */
     public String requestPasswordReset(String email) {
-        log.info("Y\u00eau c\u1ea7u \u0111\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u cho email: {}", email);
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
-            // Không tiết lộ email tồn tại hay không — vẫn gửi "thành công"
-            return "N\u1ebfu email t\u1ed3n t\u1ea1i, m\u00e3 OTP \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1eedi. Ki\u1ec3m tra h\u1ed9p th\u01b0.";
+            return "Nếu email tồn tại, mã OTP đã được gửi. Kiểm tra hộp thư.";
         }
         User user = userOpt.get();
-
-        // Rate-limit: tối đa 3 OTP / email / 15 phút
-        String rlKey = "otp:rate:" + email;
-        Long count = redisTemplate.opsForValue().increment(rlKey);
-        if (count != null && count == 1) {
-            redisTemplate.expire(rlKey, Duration.ofMinutes(15));
+        String rlKey = RedisConstants.OTP_RESET_PREFIX.replace("reset:", "rate:") + email;
+        // Use otp:rate: prefix
+        rlKey = "otp:rate:" + email;
+        try {
+            Long count = redisTemplate.opsForValue().increment(rlKey);
+            if (count != null && count == 1) {
+                redisTemplate.expire(rlKey, java.time.Duration.ofMinutes(15));
+            }
+            if (count != null && count > 3) {
+                throw new BadRequestException("Quá nhiều yêu cầu. Thu lai sau 15 phút.");
+            }
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Redis unavailable for OTP rate limit {}: {} - fail-open", rlKey, e.getMessage());
         }
-        if (count != null && count > 3) {
-            throw new BadRequestException("Qu\u00e1 nhi\u1ec1u y\u00eau c\u1ea7u. Th\u1eed l\u1ea1i sau 15 ph\u00fat.");
-        }
-
         String otp = String.format("%06d", new java.security.SecureRandom().nextInt(1_000_000));
-        redisTemplate.opsForValue().set("otp:reset:" + email, otp, Duration.ofMinutes(10));
-
+        try {
+            redisTemplate.opsForValue().set(RedisConstants.OTP_RESET_PREFIX + email, otp, RedisConstants.OTP_RESET_TTL);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for OTP set {}: {} - continue to send mail", email, e.getMessage());
+        }
         emailService.sendOtpEmail(email, user.getFullName(), otp);
-        return "N\u1ebfu email t\u1ed3n t\u1ea1i, m\u00e3 OTP \u0111\u00e3 \u0111\u01b0\u1ee3c g\u1eedi. Ki\u1ec3m tra h\u1ed9p th\u01b0.";
+        return "Nếu email tồn tại, mã OTP đã được gửi. Kiểm tra hộp thư.";
     }
 
-    /** Xác thực OTP rồi đặt mật khẩu mới. Xóa OTP sau khi dùng (one-time). */
     @Transactional
     public void resetPassword(String email, String otp, String newPassword) {
-        String key = "otp:reset:" + email;
-        String saved = redisTemplate.opsForValue().get(key);
-        if (saved == null || !saved.equals(otp)) {
-            throw new BadRequestException("M\u00e3 OTP kh\u00f4ng \u0111\u00fang ho\u1eb7c \u0111\u00e3 h\u1ebft h\u1ea1n");
+        String key = RedisConstants.OTP_RESET_PREFIX + email;
+        String saved;
+        try {
+            saved = redisTemplate.opsForValue().get(key);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for OTP get {}: {} - treat as expired", key, e.getMessage());
+            throw new BadRequestException("Mã OTP không đúng hoặc đã hết hạn");
         }
-        redisTemplate.delete(key);
-
+        if (saved == null || !saved.equals(otp)) {
+            throw new BadRequestException("Mã OTP không đúng hoặc đã hết hạn");
+        }
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for OTP delete {}: {} - ignore", key, e.getMessage());
+        }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        log.info("\u0110\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u th\u00e0nh c\u00f4ng cho email: {}", email);
     }
 
     @Transactional
@@ -236,7 +228,7 @@ public class UserService {
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
                 .isAdmin(Boolean.TRUE.equals(user.getIsAdmin()))
-                .currentLevel(user.getCurrentLevel().name())
+                .currentLevel(user.getCurrentLevel() != null ? user.getCurrentLevel().name() : null)
                 .totalPoints(user.getTotalPoints())
                 .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)
                 .lastLoginAt(user.getLastStudyDate() != null ? user.getLastStudyDate().toString() : null)

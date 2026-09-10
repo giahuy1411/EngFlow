@@ -30,6 +30,9 @@ public final class RedisConstants {
     public static final String LOGIN_LOCK_PREFIX = "login_lock:";
     public static final String OTP_RESET_PREFIX = "otp:reset:";
     public static final Duration OTP_RESET_TTL = Duration.ofMinutes(10);
+    public static final String OTP_RATE_PREFIX = "otp:rate:";
+    public static final Duration OTP_RATE_TTL = Duration.ofMinutes(15);
+    public static final int OTP_MAX_PER_WINDOW = 3;
     public static final Duration LOGIN_FAIL_TTL = Duration.ofMinutes(15);
     public static final long LOGIN_LOCKOUT_MINUTES = 15L;
     public static final int MAX_LOGIN_FAILS = 5;
