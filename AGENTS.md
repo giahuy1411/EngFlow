@@ -4,7 +4,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Tech Stack
 
-- **Backend**: Spring Boot 3 (Java 17), SQL Server 2019, Redis, MinIO, Cloudinary. Chạy trong Docker (`engflow-backend` :8080).
+- **Backend**: Spring Boot 4.0.6 (Java 25), SQL Server 2019, Redis, MinIO, Cloudinary. Chạy trong Docker (`engflow-backend` :8080).
 - **Frontend**: Vue 3 + Vite (dev :5173), Tailwind, Vitest + jsdom, `lucide-vue-next` icons.
 - **AI 100% local**: Ollama `localhost:11434` (`qwen2.5:1.5b` exercises, `qwen2.5:3b` speaking rubric), Whisper sidecar `engflow-whisper` :9002 (faster-whisper base).
 - **MCP**: `~/.gemini/antigravity/mcp/engflow-language-mcp/` (FastMCP, stdio) — sinh bài tập qua Ollama, TTS supertonic, export vào Admin API. Dùng python trong `.venv` của nó.
