@@ -121,7 +121,9 @@ public class VideoLessonController {
     @PostMapping(value = "/api/v1/admin/video-lessons/upload", consumes = "multipart/form-data")
     public ResponseEntity<VideoLessonSummary> createWithTranscriptFile(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestPart("meta") VideoLessonRequest meta,
+            // @Valid chặn payload thiếu title/level chạy thẳng vào service
+            // (request.title().trim() NPE → 500); đường JSON cũng validate như vậy.
+            @Valid @RequestPart("meta") VideoLessonRequest meta,
             @RequestPart(value = "transcriptFile", required = false) MultipartFile transcriptFile,
             @RequestParam(value = "transcriptText", required = false) String transcriptText) {
         requireAdmin(userPrincipal);

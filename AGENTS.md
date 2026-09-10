@@ -11,7 +11,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **307 tests**.
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **311 tests**.
 - Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **79 tests / 16 files**.
 - Frontend build: `cmd /c "npx vite build"` trong `frontend/`.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
