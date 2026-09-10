@@ -51,19 +51,37 @@ import { computed } from 'vue'
 
 const props = defineProps({
   currentStreak: { type: Number, default: 0 },
-  history: { type: Array, default: () => [] }
+  history: { type: Array, default: () => [] },
+  // "Hôm nay" do server trả (ISO yyyy-MM-dd, múi giờ backend). Truyền vào để
+  // lịch khớp đúng ngày học, kể cả khi máy khách ở múi giờ khác VN.
+  today: { type: String, default: null }
 })
 
 const WEEKDAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
-// Tra cuu nhanh cac ngay da hoc, thay vi includes() tren array moi lan render.
+/**
+ * Date neo cho toàn bộ lịch. Parse yyyy-MM-dd thủ công thành nửa đêm GIỜ ĐỊA
+ * PHƯƠNG: new Date('2026-09-10') sẽ bị hiểu là nửa đêm UTC và lệch một ngày
+ * trên máy khách múi UTC-x. Nếu server chưa gửi thì fallback đồng hồ máy.
+ */
+const anchorToday = computed(() => {
+  const iso = props.today
+  if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    const [y, m, d] = iso.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate())
+})
+
+// Tra cứu nhanh các ngày đã học, thay vì includes() trên array mỗi lần render.
 const studiedSet = computed(() => new Set(props.history))
 
 const isoDate = (date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
 const calendarWeeks = computed(() => {
-  const today = new Date()
+  const today = anchorToday.value
   const dayOfWeek = today.getDay() || 7 // CN(0) → 7, khớp cột T2..CN
   // Hàng cuối của lưới luôn là TUẦN HIỆN TẠI: bắt đầu từ Thứ Hai của
   // 3 tuần trước → 28 ô = 4 hàng tuần chuẩn, hôm nay luôn nằm ở hàng cuối.
@@ -85,20 +103,13 @@ const calendarWeeks = computed(() => {
 
 const isStudied = (date) => studiedSet.value.has(isoDate(date))
 
-const isPast = (date) => {
-  const today = new Date()
-  today.setHours(23, 59, 59, 999)
-  return date <= today
-}
+const isPast = (date) => date <= anchorToday.value
 
-const isToday = (date) => {
-  const today = new Date()
-  return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
-}
+const isToday = (date) => isoDate(date) === isoDate(anchorToday.value)
 
 const formatDate = (date) => date.toLocaleDateString('vi-VN')
 
-// Trang bi cho screen reader: trang thai khong duoc chi truyen dat bang mau (WCAG 1.4.1).
+// Trang bị cho screen reader: trạng thái không được chỉ truyền đạt bằng màu (WCAG 1.4.1).
 const cellLabel = (date) => {
   const state = isStudied(date) ? 'đã học' : isPast(date) ? 'chưa học' : 'chưa đến'
   const marker = isToday(date) ? ' (hôm nay)' : ''

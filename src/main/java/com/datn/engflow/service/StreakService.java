@@ -90,6 +90,15 @@ public class StreakService {
     }
 
     /**
+     * "Hôm nay" theo đồng hồ server (múi VN), định dạng ISO {@code yyyy-MM-dd}.
+     * Cho lịch học trong Profile dùng để đóng khung ngày, thay vì để trình duyệt
+     * tự suy ra bằng {@code new Date()} vốn lệch khi máy khách ở múi giờ khác.
+     */
+    public String todayIso() {
+        return LocalDate.now(clock).toString();
+    }
+
+    /**
      * Danh sách ngày có hoạt động trong {@code days} ngày gần nhất (tính cả hôm nay),
      * định dạng ISO {@code yyyy-MM-dd}, tăng dần — cho lịch học trong Profile.
      */

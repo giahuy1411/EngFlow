@@ -66,6 +66,13 @@ class StreakServiceTest {
         return user;
     }
 
+    // ---- todayIso: nguồn ngày cho lịch học (server-authoritative) ----
+
+    @Test
+    void todayIso_returnsFixedClockDate() {
+        assertThat(streakService.todayIso()).isEqualTo("2026-09-10");
+    }
+
     // ---- recordAccess: điều kiện tăng chuỗi ----
 
     @Test

@@ -30,12 +30,19 @@ public class StreakController {
         return ResponseEntity.ok(streakService.getLoginDays(userPrincipal.getId(), days));
     }
 
+    /**
+     * Chuỗi hiện tại kèm "hôm nay" theo ngày server (ISO {@code yyyy-MM-dd}) để
+     * lịch học trong Profile đóng khung ngày đúng múi giờ backend, thay vì để
+     * trình duyệt tự suy ra từ đồng hồ máy khách.
+     */
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentStreak(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(Map.of("currentStreak", streakService.getCurrentStreak(userPrincipal.getId())));
+        return ResponseEntity.ok(Map.of(
+                "currentStreak", streakService.getCurrentStreak(userPrincipal.getId()),
+                "today", streakService.todayIso()));
     }
 }
