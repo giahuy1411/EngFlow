@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -79,7 +80,11 @@ class PaymentServiceTest {
 
     @BeforeEach
     void setUp() {
-        paymentService = new PaymentService(paymentTransactionRepository, userRepository, objectMapper, sePayApiService);
+        // Clock hệ thống giữ nguyên hành vi so với LocalDate.now() trong prod;
+        // bản thân ranh giới ngày giờ đã inject được nên test đồng hồ tĩnh có thể
+        // truyền Clock.fixed mà không đụng prod code (xem UserServicePremiumAndQuotaTest).
+        paymentService = new PaymentService(paymentTransactionRepository, userRepository,
+                objectMapper, sePayApiService, Clock.systemDefaultZone());
         ReflectionTestUtils.setField(paymentService, "webhookSecret", webhookSecret);
         ReflectionTestUtils.setField(paymentService, "sepayQrUrl", sepayQrUrl);
         ReflectionTestUtils.setField(paymentService, "bankAccount", bankAccount);

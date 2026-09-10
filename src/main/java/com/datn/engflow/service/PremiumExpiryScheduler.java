@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 
 @Component
@@ -18,11 +19,12 @@ import java.time.LocalDate;
 public class PremiumExpiryScheduler {
 
     private final UserRepository userRepository;
+    private final Clock clock;
 
     @Scheduled(cron = "0 0 2 * * ?")
     @Transactional
     public void checkExpiredPremium() {
-        int updated = userRepository.updateExpiredPremium(LocalDate.now());
+        int updated = userRepository.updateExpiredPremium(LocalDate.now(clock));
         if (updated > 0) {
             log.info("Downgraded {} expired premium users", updated);
         }

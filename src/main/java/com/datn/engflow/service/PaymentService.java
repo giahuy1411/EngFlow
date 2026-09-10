@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final SePayApiService sePayApiService;
+    private final Clock clock;
 
     @Value("${sepay.webhook.secret}")
     private String webhookSecret;
@@ -334,7 +336,7 @@ public class PaymentService {
         boolean isPremium = Boolean.TRUE.equals(user.getIsPremium());
         LocalDate expiry = user.getPremiumExpiry();
 
-        if (isPremium && expiry != null && expiry.isBefore(LocalDate.now())) {
+        if (isPremium && expiry != null && expiry.isBefore(LocalDate.now(clock))) {
             isPremium = false;
             user.setIsPremium(false);
             userRepository.save(user);
@@ -458,7 +460,7 @@ public class PaymentService {
     }
 
     private LocalDate calculateExpiry(String planType) {
-        LocalDate now = LocalDate.now();
+        LocalDate now = LocalDate.now(clock);
         if ("YEAR".equals(planType)) return now.plusYears(1);
         return now.plusMonths(1);
     }

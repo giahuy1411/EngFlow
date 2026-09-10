@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -36,6 +37,7 @@ public class AdminService {
     private final ExerciseRepository exerciseRepository;
     private final LessonSubmissionRepository lessonSubmissionRepository;
     private final LessonService lessonService;
+    private final Clock clock;
 
     public AdminStatsDTO getDashboardStats() {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
@@ -76,7 +78,7 @@ public class AdminService {
             user.setPremiumExpiry(null);
         } else {
             user.setIsPremium(true);
-            user.setPremiumExpiry(LocalDate.now().plusDays(30));
+            user.setPremiumExpiry(LocalDate.now(clock).plusDays(30));
         }
         User saved = userRepository.save(user);
         return mapToAdminUserDTO(saved);
