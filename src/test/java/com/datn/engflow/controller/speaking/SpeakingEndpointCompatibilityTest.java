@@ -11,8 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SpeakingEndpointCompatibilityTest {
     @Test
-    void promptControllerPublishesSpeakingAndLegacyPromptEndpoints() throws Exception {
-        Method list = SpeakingPromptController.class.getMethod("getAllPrompts", int.class, int.class);
+    void promptControllerPublishesSpeakingAndLegacyPromptEndpoints() {
+        // Pin chu yeu la URL mapping (legacy /video-prompts van song), khong phai
+        // tich phuong tham so — signature doi khi them @AuthenticationPrincipal.
+        Method list = Arrays.stream(SpeakingPromptController.class.getMethods())
+                .filter(method -> method.getName().equals("getAllPrompts"))
+                .filter(method -> method.isAnnotationPresent(GetMapping.class))
+                .findFirst()
+                .orElseThrow();
         assertMappings(list.getAnnotation(GetMapping.class).value(),
                 "/api/v1/speaking-prompts", "/api/v1/video-prompts");
     }

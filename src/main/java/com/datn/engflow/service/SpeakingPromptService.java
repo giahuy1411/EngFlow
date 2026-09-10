@@ -12,6 +12,7 @@ import com.datn.engflow.repository.SpeakingSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,15 +45,44 @@ public class SpeakingPromptService {
                 .toList();
     }
 
-    public Page<SpeakingPrompt> getAllPrompts(Pageable pageable) {
-        return getAllPrompts(null, pageable);
+    public Page<SpeakingPrompt> getAllPrompts(Pageable pageable, boolean premiumViewer) {
+        return getAllPrompts(null, pageable, premiumViewer);
     }
 
-    public Page<SpeakingPrompt> getAllPrompts(String keyword, Pageable pageable) {
+    /**
+     * Danh sách công khai, lọc theo quyền của người xem. {@code premiumViewer = false}
+     * ẩn đề {@code isPremium = true}. Không còn overload nào mặc định "xem hết":
+     * caller phải khai báo quyền, kể cả khi chỉ thêm một endpoint trong tương lai.
+     *
+     * @param keyword       từ khóa tìm kiếm, null/blank là lấy toàn bộ đã publish
+     * @param pageable      phân trang
+     * @param premiumViewer người xem có quyền premium (hoặc admin)
+     * @return trang đề nói mà người xem được phép thấy
+     */
+    public Page<SpeakingPrompt> getAllPrompts(String keyword, Pageable pageable, boolean premiumViewer) {
         if (keyword == null || keyword.isBlank()) {
-            return repository.findByIsPublishedTrue(pageable);
+            return premiumViewer
+                    ? repository.findByIsPublishedTrue(pageable)
+                    : repository.findByIsPremiumFalseAndIsPublishedTrue(pageable);
         }
-        return repository.searchByKeyword(keyword.trim(), pageable);
+        return repository.searchByKeyword(keyword.trim(), !premiumViewer, pageable);
+    }
+
+    /**
+     * Đọc một đề nói ở đường công khai, chặn theo quyền.
+     *
+     * @param id            đề nói cần đọc
+     * @param premiumViewer người xem có quyền premium (hoặc admin)
+     * @return đề nói
+     * @throws com.datn.engflow.exception.ResourceNotFoundException nếu không tồn tại
+     * @throws AccessDeniedException                                nếu đề premium mà người xem chưa có quyền
+     */
+    public SpeakingPrompt getPromptForViewer(Long id, boolean premiumViewer) {
+        SpeakingPrompt prompt = getPrompt(id);
+        if (!premiumViewer && Boolean.TRUE.equals(prompt.getIsPremium())) {
+            throw new AccessDeniedException("Đề luyện nói này dành cho thành viên Premium");
+        }
+        return prompt;
     }
 
     public List<SpeakingPrompt> getAllPromptsForAdmin() {

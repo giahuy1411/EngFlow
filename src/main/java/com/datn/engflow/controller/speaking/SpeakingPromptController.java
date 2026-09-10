@@ -2,8 +2,11 @@ package com.datn.engflow.controller.speaking;
 
 import com.datn.engflow.model.dto.request.CreateSpeakingPromptRequest;
 import com.datn.engflow.model.dto.response.SpeakingPromptResponse;
+import com.datn.engflow.repository.UserRepository;
+import com.datn.engflow.security.UserPrincipal;
 import com.datn.engflow.service.AiPromptService;
 import com.datn.engflow.service.SpeakingPromptService;
+import com.datn.engflow.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,6 +31,8 @@ public class SpeakingPromptController {
 
     private final SpeakingPromptService SpeakingPromptService;
     private final AiPromptService aiPromptService;
+    private final UserService userService;
+    private final UserRepository userRepository;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping({"/api/v1/admin/speaking-prompts", "/api/v1/admin/video-prompts"})
@@ -40,23 +46,47 @@ public class SpeakingPromptController {
 
     @GetMapping(value = {"/api/v1/speaking-prompts", "/api/v1/video-prompts"}, params = "q")
     public ResponseEntity<Page<SpeakingPromptResponse>> getAllPrompts(
+            @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         PageRequest pageable = promptPageRequest(page, size);
-        return ResponseEntity.ok(SpeakingPromptService.getAllPrompts(q, pageable).map(SpeakingPromptResponse::from));
+        return ResponseEntity.ok(SpeakingPromptService.getAllPrompts(q, pageable, premiumViewer(principal))
+                .map(SpeakingPromptResponse::from));
     }
 
     @GetMapping(value = {"/api/v1/speaking-prompts", "/api/v1/video-prompts"}, params = "!q")
     public ResponseEntity<Page<SpeakingPromptResponse>> getAllPrompts(
+            @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return getAllPrompts((String) null, page, size);
+        return getAllPrompts(principal, null, page, size);
     }
 
     @GetMapping({"/api/v1/speaking-prompts/{id}", "/api/v1/video-prompts/{id}"})
-    public ResponseEntity<SpeakingPromptResponse> getPrompt(@PathVariable Long id) {
-        return ResponseEntity.ok(SpeakingPromptResponse.from(SpeakingPromptService.getPrompt(id)));
+    public ResponseEntity<SpeakingPromptResponse> getPrompt(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(SpeakingPromptResponse.from(
+                SpeakingPromptService.getPromptForViewer(id, premiumViewer(principal))));
+    }
+
+    /**
+     * Hai endpoint trên permitAll (khách vãng lai vẫn xem được danh sách), nên
+     * principal có thể null. Quyền premium đọc từ DB qua UserService — cùng nguồn
+     * sự thật với gate nộp bài, do đó tài khoản hết hạn gói không còn thấy đề
+     * premium dù flag "premium" trong JWT của nó chưa kịp hết hạn.
+     *
+     * @param principal người dùng đã đăng nhập, null với khách vãng lai
+     * @return true nếu được xem đề premium
+     */
+    private boolean premiumViewer(UserPrincipal principal) {
+        if (principal == null) {
+            return false;
+        }
+        return userRepository.findById(principal.getId())
+                .map(userService::hasPremiumAccess)
+                .orElse(false);
     }
 
 

@@ -34,10 +34,21 @@ class SpeakingPromptServicePaginationTest {
         Page<SpeakingPrompt> expected = new PageImpl<>(List.of(prompt), pageable, 1);
         when(repository.findByIsPublishedTrue(pageable)).thenReturn(expected);
 
-        Page<SpeakingPrompt> result = service.getAllPrompts(pageable);
+        Page<SpeakingPrompt> result = service.getAllPrompts(pageable, true);
 
         assertThat(result.getContent()).containsExactly(prompt);
         verify(repository).findByIsPublishedTrue(pageable);
+    }
+
+    /** Viewer khong premium phai dung query loc isPremium = false. */
+    @Test
+    void freeViewersGetOnlyNonPremiumPage() {
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<SpeakingPrompt> expected = Page.empty(pageable);
+        when(repository.findByIsPremiumFalseAndIsPublishedTrue(pageable)).thenReturn(expected);
+
+        assertThat(service.getAllPrompts(pageable, false)).isSameAs(expected);
+        verify(repository).findByIsPremiumFalseAndIsPublishedTrue(pageable);
     }
 
     @Test
@@ -54,9 +65,20 @@ class SpeakingPromptServicePaginationTest {
     void keywordSearchUsesRepositoryQuery() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<SpeakingPrompt> expected = Page.empty(pageable);
-        when(repository.searchByKeyword("travel", pageable)).thenReturn(expected);
+        when(repository.searchByKeyword("travel", false, pageable)).thenReturn(expected);
 
-        assertThat(service.getAllPrompts(" travel ", pageable)).isSameAs(expected);
-        verify(repository).searchByKeyword("travel", pageable);
+        assertThat(service.getAllPrompts(" travel ", pageable, true)).isSameAs(expected);
+        verify(repository).searchByKeyword("travel", false, pageable);
+    }
+
+    /** Voi viewer khong premium, search phai bat loc premium trong chinh query. */
+    @Test
+    void keywordSearchHidesPremiumForFreeViewers() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<SpeakingPrompt> expected = Page.empty(pageable);
+        when(repository.searchByKeyword("travel", true, pageable)).thenReturn(expected);
+
+        assertThat(service.getAllPrompts(" travel ", pageable, false)).isSameAs(expected);
+        verify(repository).searchByKeyword("travel", true, pageable);
     }
 }
