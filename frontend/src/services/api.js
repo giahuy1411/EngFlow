@@ -45,6 +45,13 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
   res => res,
   async err => {
+    const data = err.response?.data
+    // Backend trả lỗi theo RFC 7807: thông báo tiếng Việt nằm ở `detail`, còn
+    // hầu hết component đọc `message`. Sao chép một lần tại đây để mọi call-site
+    // hiển thị đúng thông báo mà không phải sửa từng nơi.
+    if (data && typeof data === 'object' && data.detail && !data.message) {
+      data.message = data.detail
+    }
     // F7-BUG02 FIX: Handle both 401 (expired) and 403 (fallback) for auth failures
     if (err.response?.status === 401 || err.response?.status === 403) {
       const msg = err.response?.data?.message || ''

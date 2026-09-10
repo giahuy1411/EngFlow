@@ -11,8 +11,8 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **294 tests**.
-- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **75 tests / 15 files**.
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **297 tests**.
+- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **79 tests / 16 files**.
 - Frontend build: `cmd /c "npx vite build"` trong `frontend/`.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
 - SQL: `docker exec engflow-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourPassword123' -d english_learning -Q "..." -C`.
