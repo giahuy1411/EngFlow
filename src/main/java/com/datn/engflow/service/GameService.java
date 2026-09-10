@@ -1,5 +1,6 @@
 package com.datn.engflow.service;
 
+import com.datn.engflow.config.RedisConstants;
 import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.GameSessionRedisDTO;
@@ -13,7 +14,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class GameService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final com.datn.engflow.repository.UserRepository userRepository;
     private final DeckRepository deckRepository;
+    private final Clock clock;
 
     private void requireDeck(Long deckId) {
         if (deckId == null || !deckRepository.existsById(deckId)) {
@@ -48,9 +51,9 @@ public class GameService {
                 .totalQuestions(totalQuestions)
                 .answerMap(answerMap)
                 .build();
-        
+
         String key = "game:session:" + sessionId;
-        redisTemplate.opsForValue().set(key, session, 24, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(key, session, RedisConstants.GAME_SESSION_TTL.toHours(), TimeUnit.HOURS);
         log.info("Created temporary game session in Redis: {}", sessionId);
         return session;
     }
@@ -86,9 +89,6 @@ public class GameService {
             Collections.shuffle(options);
 
             question.put("options", options);
-            // Do not expose correct answer to client in response; server stores it in Redis
-            // Keep answer for backward compat but will be removed in future
-            question.put("answer", vocab.getMeaning());
             answerMap.put(String.valueOf(vocab.getId()), vocab.getMeaning());
             quiz.add(question);
         }
@@ -240,15 +240,19 @@ public class GameService {
         }
 
         // Daily cap to prevent farming: max 100 points per day via games
-        String dailyKey = "game:points:today:" + userId + ":" + java.time.LocalDate.now();
-        Integer already = (Integer) redisTemplate.opsForValue().get(dailyKey);
+        String dailyKey = RedisConstants.GAME_POINTS_KEY_PREFIX + userId + ":" + LocalDate.now(clock);
+        Integer already = null;
+        try {
+            already = (Integer) redisTemplate.opsForValue().get(dailyKey);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for daily cap check userId={}: {}", userId, e.getMessage());
+        }
         int alreadyPoints = already != null ? already : 0;
-        int dailyLimit = 100;
-        if (alreadyPoints >= dailyLimit) {
+        if (alreadyPoints >= RedisConstants.GAME_DAILY_LIMIT) {
             correctAnswers = 0;
             log.warn("Daily game points cap reached for user {}", userId);
-        } else if (alreadyPoints + correctAnswers > dailyLimit) {
-            correctAnswers = dailyLimit - alreadyPoints;
+        } else if (alreadyPoints + correctAnswers > RedisConstants.GAME_DAILY_LIMIT) {
+            correctAnswers = RedisConstants.GAME_DAILY_LIMIT - alreadyPoints;
         }
 
         streakService.checkin(userId, redisSession.getTotalQuestions(), 1);
@@ -256,15 +260,23 @@ public class GameService {
         // Cập nhật điểm cho user
         com.datn.engflow.model.entity.User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        user.setTotalPoints(user.getTotalPoints() + correctAnswers);
+        user.setTotalPoints((user.getTotalPoints() == null ? 0 : user.getTotalPoints()) + correctAnswers);
         userRepository.save(user);
 
-        // Update daily counter
-        redisTemplate.opsForValue().increment(dailyKey, correctAnswers);
-        redisTemplate.expire(dailyKey, 25, TimeUnit.HOURS);
+        // Update daily counter — fail-open if Redis down
+        try {
+            redisTemplate.opsForValue().increment(dailyKey, correctAnswers);
+            redisTemplate.expire(dailyKey, RedisConstants.GAME_POINTS_TTL.toHours(), TimeUnit.HOURS);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for daily counter update userId={}: {}", userId, e.getMessage());
+        }
 
-        // Xóa session khỏi Redis
-        redisTemplate.delete(key);
+        // Xóa session khỏi Redis — best-effort
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.warn("Failed to delete game session key {}: {}", key, e.getMessage());
+        }
         log.info("Submitted game session results and cleared Redis key: {}", sessionId);
 
         Map<String, Object> result = new HashMap<>();

@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -39,6 +40,7 @@ public class StreakService {
 
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
+    private final Clock clock;
 
     private static final String LOGIN_DAYS_KEY_PREFIX = "user:login_days:";
     private static final long LOGIN_DAYS_TTL_DAYS = 90;
@@ -50,7 +52,7 @@ public class StreakService {
     @Transactional
     public void recordAccess(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         LocalDate lastStudyDate = user.getLastStudyDate();
 
         boolean firstActivityToday = lastStudyDate == null || !lastStudyDate.equals(today);
@@ -86,7 +88,7 @@ public class StreakService {
      */
     public Integer getCurrentStreak(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
-        return effectiveStreak(user, LocalDate.now());
+        return effectiveStreak(user, LocalDate.now(clock));
     }
 
     /**
@@ -94,14 +96,27 @@ public class StreakService {
      * định dạng ISO {@code yyyy-MM-dd}, tăng dần — cho lịch học trong Profile.
      */
     public List<String> getLoginDays(Long userId, int days) {
-        Set<String> loginDaysSet = redisTemplate.opsForSet().members(LOGIN_DAYS_KEY_PREFIX + userId);
+        Set<String> loginDaysSet;
+        try {
+            loginDaysSet = redisTemplate.opsForSet().members(LOGIN_DAYS_KEY_PREFIX + userId);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for getLoginDays userId={}: {}", userId, e.getMessage());
+            return List.of();
+        }
         if (loginDaysSet == null || loginDaysSet.isEmpty()) {
             return List.of();
         }
 
-        LocalDate cutoff = LocalDate.now().minusDays(days - 1L);
+        LocalDate cutoff = LocalDate.now(clock).minusDays(days - 1L);
         return loginDaysSet.stream()
-                .filter(dateStr -> !LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).isBefore(cutoff))
+                .filter(dateStr -> {
+                    try {
+                        return !LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).isBefore(cutoff);
+                    } catch (Exception e) {
+                        log.warn("Invalid date in Redis set {}: {}", LOGIN_DAYS_KEY_PREFIX + userId, dateStr);
+                        return false;
+                    }
+                })
                 .sorted()
                 .collect(Collectors.toList());
     }
@@ -111,15 +126,15 @@ public class StreakService {
      * chỉ cần học hôm nay là +1. Nhóm nhận mail "cứu streak" lúc 20:00.
      */
     public List<User> getUsersWithStreakAtRisk() {
-        return userRepository.findActiveUsersWhoLastStudiedOn(LocalDate.now().minusDays(1));
+        return userRepository.findActiveUsersWhoLastStudiedOn(LocalDate.now(clock).minusDays(1));
     }
 
     /**
-     * User active chưa học hôm nay và <b>đã bỏ ≥ 2 ngày</b> (hoặc chưa từng học).
+     * User active chưa học hôm nay và <b>đã bỏ ≥ 2 ngày</b> (không gồm never-studied).
      * Streak đã gãy — nhận mail mời quay lại.
      */
     public List<User> getUsersWithBrokenStreak() {
-        return userRepository.findUsersWhoHaveNotLoggedInSince(LocalDate.now().minusDays(1));
+        return userRepository.findUsersWithBrokenStreak(LocalDate.now(clock).minusDays(1));
     }
 
     /** Streak hiệu lực của một user entity đã load: gap > 1 ngày → 0. */
@@ -137,7 +152,11 @@ public class StreakService {
 
     private void recordLoginDateInRedis(Long userId, LocalDate date) {
         String key = LOGIN_DAYS_KEY_PREFIX + userId;
-        redisTemplate.opsForSet().add(key, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
-        redisTemplate.expire(key, LOGIN_DAYS_TTL_DAYS, TimeUnit.DAYS);
+        try {
+            redisTemplate.opsForSet().add(key, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+            redisTemplate.expire(key, LOGIN_DAYS_TTL_DAYS, TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for recordLoginDate userId={}: {}", userId, e.getMessage());
+        }
     }
 }

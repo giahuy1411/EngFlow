@@ -37,11 +37,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByLastStudyDateAfter(LocalDate threshold);
 
-    /** User active đã bỏ học từ trước {@code threshold} (hoặc chưa từng học) — streak đã gãy. */
+    /** User active đã bỏ học từ trước threshold (kể cả never-studied) — legacy, giữ cho tương thích. */
     @Query("SELECT u FROM User u WHERE u.isActive = true AND (u.lastStudyDate IS NULL OR u.lastStudyDate < :threshold)")
     List<User> findUsersWhoHaveNotLoggedInSince(@Param("threshold") LocalDate threshold);
 
-    /** User active có hoạt động đúng {@code studyDate} yesterday — streak đang nguy hiểm hôm nay. */
+    /** User active đã bỏ ≥2 ngày (có từng học), loại never-studied — cho mail comeback. */
+    @Query("SELECT u FROM User u WHERE u.isActive = true AND u.lastStudyDate IS NOT NULL AND u.lastStudyDate < :threshold")
+    List<User> findUsersWithBrokenStreak(@Param("threshold") LocalDate threshold);
+
+    /** User active có hoạt động đúng studyDate yesterday — streak đang nguy hiểm hôm nay. */
     @Query("SELECT u FROM User u WHERE u.isActive = true AND u.lastStudyDate = :studyDate")
     List<User> findActiveUsersWhoLastStudiedOn(@Param("studyDate") LocalDate studyDate);
 

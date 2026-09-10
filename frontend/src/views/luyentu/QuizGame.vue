@@ -79,12 +79,13 @@ async function loadGame() {
     const data = await gameService.startQuiz(deckId)
     sessionId = data.sessionId
     deck.value = data
-    // Backend returns { sessionId, data: [{ vocabId, word, pronunciation, answer, options }] }
-    const questions = ((data.data || data.questions) || []).filter(q => q.word && (q.answer || q.meaning))
+    // Backend returns { sessionId, data: [{ vocabId, word, pronunciation, options }] } - answer stored server-side only
+    const questions = ((data.data || data.questions) || []).filter(q => q.word && Array.isArray(q.options) && q.options.length)
     words.value = questions.map(q => ({
-      ...q,
-      answer: q.answer || q.meaning,
-      options: Array.isArray(q.options) && q.options.length ? q.options : [q.answer || q.meaning],
+      vocabId: q.vocabId,
+      word: q.word,
+      pronunciation: q.pronunciation,
+      options: q.options,
     }))
     currentIndex.value = 0
     correct.value = 0
@@ -101,7 +102,8 @@ async function loadGame() {
 async function submitResult() {
   if (!sessionId) return
   try {
-    await gameService.submit(sessionId, userAnswers, correct.value)
+    const res = await gameService.submit(sessionId, userAnswers, 0)
+    if (res && typeof res.correctAnswers === 'number') correct.value = res.correctAnswers
   } catch (e) {
     console.error('Game submit failed:', e)
   }
@@ -112,24 +114,18 @@ function selectAnswer(idx) {
   answered.value = true
   selectedAnswer.value = idx
   total.value++
-  const isCorrect = currentWord.value.options[idx] === currentWord.value.answer
-  if (isCorrect) correct.value++
   userAnswers.push({ vocabId: currentWord.value.vocabId, answer: currentWord.value.options[idx] })
   if (currentIndex.value >= words.value.length - 1) {
-    setTimeout(() => submitResult(), 100)
+    setTimeout(() => submitResult(), 300)
   } else {
-    setTimeout(nextWord, isCorrect ? 1000 : 1500)
+    setTimeout(nextWord, 600)
   }
 }
 
 function answerState(idx) {
   if (!answered.value) return 'bg-card hover:bg-tertiary/10'
-  const word = currentWord.value.options[idx]
-  const correctAnswer = currentWord.value.answer
-  // audit-v6 F25: colored text on tinted bg fails contrast — dark ink + colored border
-  if (word === correctAnswer) return 'bg-quaternary/20 border-quaternary text-foreground'
-  if (idx === selectedAnswer.value) return 'bg-secondary/20 border-secondary text-foreground'
-  return 'opacity-50'
+  if (idx === selectedAnswer.value) return 'bg-accent/20 border-accent text-foreground'
+  return 'opacity-60'
 }
 
 function nextWord() {
