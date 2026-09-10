@@ -81,6 +81,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 
+    /**
+     * Bean Validation trên tham số phương thức — gồm {@code List<@Valid T>} vì
+     * {@code @Valid} đặt trên chính tham số không cascade vào phần tử List.
+     * Spring 6.1+ ném loại này (không phải MethodArgumentNotValidException);
+     * nếu không có handler riêng nó rơi vào catch-all và trả 500 thay vì 400.
+     */
+    @ExceptionHandler(org.springframework.web.method.annotation.HandlerMethodValidationException.class)
+    public ResponseEntity<ProblemDetail> handleHandlerMethodValidationException(
+            org.springframework.web.method.annotation.HandlerMethodValidationException ex) {
+        Map<String, String> validationErrors = new HashMap<>();
+        ex.getParameterValidationResults().forEach(result ->
+                result.getResolvableErrors().forEach(error -> {
+                    String code = error.getCodes() != null && error.getCodes().length > 0
+                            ? error.getCodes()[error.getCodes().length - 1] : "invalid";
+                    validationErrors.put(code, error.getDefaultMessage());
+                }));
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Dữ liệu đầu vào không hợp lệ");
+        problem.setTitle("Validation Failed");
+        problem.setProperty("errors", validationErrors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ProblemDetail> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());

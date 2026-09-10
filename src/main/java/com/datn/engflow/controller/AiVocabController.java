@@ -5,6 +5,7 @@ import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.entity.Vocabulary;
 import com.datn.engflow.service.AiVocabService;
 import com.datn.engflow.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -98,8 +99,16 @@ public class AiVocabController {
         return ResponseEntity.ok(enriched);
     }
 
+    /**
+     * Lưu loạt từ do AI sinh vào bảng từ vựng dùng chung.
+     *
+     * @param words danh sách từ đã sinh — mỗi phần tử được Bean Validation kiểm tra
+     *              (chuỗi {@code @Valid} trên tham số không cascade vào phần tử List,
+     *              phải đặt trong dấu ngoặc góc). Payload rác trả 400, không rơi xuống DB.
+     * @return các từ đã lưu kèm id
+     */
     @PostMapping("/save-vocab")
-    public ResponseEntity<List<Vocabulary>> saveVocab(@RequestBody List<VocabularyRequest> words) {
+    public ResponseEntity<List<Vocabulary>> saveVocab(@RequestBody List<@Valid VocabularyRequest> words) {
         return ResponseEntity.ok(aiVocabService.saveVocabBatch(words));
     }
 }
