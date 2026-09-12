@@ -46,5 +46,17 @@
     "B_deterministic_only": "only answer-key-verified fills (sample: 23/86 = 27% of first-100; MC-letter caveat applies to all options)",
     "C_manual_or_drop": "leave 5434 rows ungradeable",
     "D_delay": "defer decision"
+  },
+
+  "gate_3_4_DECISION": "USER CHOSE B (deterministic-only), 2026-09-12 20:45. Implemented as mode=deterministic param (commit 7303de9, test 21st: aiFilled=0 + no Ollama call).",
+  "final_batch_3_5": {
+    "pre_batch_backup": "engflow_2026-09-12-prebatch.bak (36MB, VERIFYONLY OK, docker cp to host staging) — taken 20:48 right before DML per convention",
+    "dry_run_full_deterministic": { "total": 5434, "processed": 5434, "filled": 586, "deterministic": 586, "ai": 0, "unfillable": 4848, "errors": 0, "elapsed_s": 6, "checkpoint_stayed": 0 },
+    "live_batch_deterministic": { "batch": "d9a6feec", "total": 5434, "processed": 5434, "filled": 586, "det": 586, "ai": 0, "unfillable": 4848, "errors": 0, "elapsed_s": 7, "checkpoint_after": 91900 },
+    "db_verify": "empty candidates 5434 -> 4848 (= -586 exactly); rows_updated_today=587 (586 batch + 1 reverted lesson-800 proof); after-export diff vs before-set: filled=586, stray=0, missing=0",
+    "quality_spot": "keys are answer-WORDS for FILL_BLANK ('were having', 'wasn't raining, were you doing', multi-gap comma lists) — deterministic layer never produced key-letter garbage",
+    "grading_proof_2way": "learner API POST /api/lessons/569/exercises/grade on real filled row 662274: 'were having' => correct=True 1/1; 'is having' => correct=False; '  Were HAVING  ' => correct=True (normalizer case/space-insensitive); 'was having' => correct=False",
+    "undo": "rollback-20260912-202821.sql (5434 ids -> '') OR .bak RESTORE; batch is also idempotent-safe: re-run skips filled rows by candidate definition",
+    "evidence_files": "C:/Users/ASUS/engflow-backups/{before-20260912-202821.csv, after-20260912-205426.csv, rollback-20260912-202821.sql, engflow_2026-09-12-prebatch.bak} (PII: host-only, never git)"
   }
 }

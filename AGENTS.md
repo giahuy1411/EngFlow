@@ -11,7 +11,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **327 tests** (audit-v7 wave cuối: 314 + 10 `AuditV7SecurityWaveTest` + 1 payment underpayment + 2 save-vocab). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **332 tests** (audit-v7: 327 + 5 backfill-orchestration regression P3: dry-run checkpoint / limit boundary / lesson-scope / deterministic-mode). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
 - Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **79 tests / 16 files**.
 - Frontend build: `cmd /c "npx vite build"` trong `frontend/`.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
@@ -50,6 +50,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 - jsdom không có `SpeechSynthesisUtterance` — mock `window.SpeechSynthesisUtterance` trong test nếu cần.
 - **Restore drill 2026-09-12: PASS** — `BACKUP ... WITH COMPRESSION,CHECKSUM` (25,018 pages) + `RESTORE VERIFYONLY` valid + drill thật `RESTORE DATABASE english_learning_drill WITH MOVE` → `exercises=43737, lessons=1471, empty_answers=5434` khớp live → `DROP DATABASE` + xóa file sạch. Backup staging: `C:\Users\ASUS\engflow-backups\` (`.bak` 36MB **chứa PII học viên — không bao giờ vào git/share** + bản copy `.env`).
 - **Convention backup-before-DML**: mọi phiên chạy DML hàng loạt (backfill answers, cleanup) phải backup lại theo `tasks/plan.md` Task 1.1 TRƯỚC khi mutate (~5'); khôi phục bằng drill pattern ở dòng trên.
+- **AI answer backfill — trạng thái 2026-09-12 (gate 3.4 chọn B)**: `POST /api/admin/exercises/ai/backfill-answers?mode=deterministic` đã fill **586/5.434** bài từ answer-key `<summary>ANSWER` (0 lỗi, idempotent — candidate = still-empty). **Còn 4.848 rỗng**, đa số là MC-fragment scrape lỗi (question không phải prompt thật → ungradeable-by-design, grader trả `ungradeable=true`, đừng "sửa" bằng cách nhét key). `mode=full` có gọi Ollama — ĐÃ ĐO: 1.5b trả key rác `"1. a"` cho gap ngữ pháp → chỉ dùng khi có guard chất lượng mới. Service có 3 fix TDD (JOIN FETCH / dry-run không dịch checkpoint / limit cắt nguyên lesson, TreeMap theo lesson-id) — xem `tasks/evidence/backfill-p3-proof.json`. Undo: `sweep/backfill-export.ps1 -Mode before|after|rollback` + `.bak` prebatch.
 
 ## Kiến trúc sinh bài tập (2 đường)
 

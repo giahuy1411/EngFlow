@@ -94,7 +94,7 @@ PaymentService underpayment (1), AiVocabSaveVocab (2), DeckControllerMyDecks (3,
 ## 3. CHƯA LÀM (có chủ đích, kèm lý do)
 
 1. **Drop `content_original` (~69MB = 34,7% DB) + 4 bảng `*_bak*`** — ràng buộc v6 "không xóa" + **DB chưa từng backup** (`msdb.backupset`=0). DROP khi chưa backup là risk mất dữ liệu không đảo được → chỉ để khuyến nghị §4.
-2. **Backfill 5.434 `correct_answer` rỗng (12,42% exercises)** — cần data source/nguồn đáp án thật, không phải code fix; thuộc việc của content owner.
+2. ~~**Backfill 5.434 `correct_answer` rỗng**~~ → **ĐÃ LÀM 2026-09-12 (plan P3, gate 3.4 chọn B)**: `mode=deterministic` fill **586/5.434** bài từ answer-key `<details><summary>ANSWER>` (0 garbage, 0 gọi Ollama); **còn 4.848 rỗng** — đa số là MC-fragment (question là mảnh scrape, không phải prompt thật → ungradeable-by-design, grader đã xử lý qua `ungradeable=true`). Bằng chứng: `tasks/evidence/backfill-p3-proof.json` + before/after CSV `C:\Users\ASUS\engflow-backups\` + 3 test regression orchestration + proof grading 2 chiều qua API learner.
 3. **Chuẩn hóa timezone naive-local writes** (backend UTC+7 vs SQL UTC; `SYSDATETIME()` UTC vs `LocalDateTime.now()` local) — đổi systemic, ảnh hưởng lịch sử streak/điểm danh quá khứ, cần user duyệt phương án; hiện là nguồn "future date" false-positive khi test.
 4. **SpecKit `analyze`/`converge`/`taskstoissues` standalone pass** — nội dung tương đương đã được cover: plan.md có constitution-check per-fix, tasks.md đánh dấu mọi task + follow-up có lý do, checklist all-green đối chiếu bằng chứng. Chạy thêm 3 skill nữa chỉ re-derive cùng dữ kiện; ưu tiên dành cho REPORT + vòng khép kín (mục 7 của yêu cầu).
 5. **`srs_interval` outlier 1914 ngày** (1 dòng do clock-drift) — data fix một dòng, không khẩn cấp, đưa vào §4.
