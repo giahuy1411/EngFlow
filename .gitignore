@@ -53,6 +53,8 @@ frontend/node_modules/
 
 # ---------- Logs ----------
 *.log
+# ...EXCEPT persisted evidence (scanned secret-free; referenced from AGENTS.md)
+!tasks/evidence/*.log
 *.err
 logs/
 *.out
