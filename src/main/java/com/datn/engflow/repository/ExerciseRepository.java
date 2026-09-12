@@ -49,7 +49,10 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
      * Returns exercises that have a non-null question and a missing or empty correctAnswer
      * (the backfill pipeline rewrites these with AI-generated keys). Returns a Page for memory
      * safety on the 43k-row exercises table.
+     * JOIN FETCH lesson: the backfill walks candidates outside any transaction and reads
+     * e.getLesson() (lazy) — without the fetch the very first access throws
+     * LazyInitializationException (bug (a), audit plan P3.1).
      */
-    @Query("SELECT e FROM Exercise e WHERE (e.correctAnswer IS NULL OR TRIM(e.correctAnswer) = '') AND e.question IS NOT NULL AND TRIM(e.question) <> '' ORDER BY e.id ASC")
+    @Query("SELECT e FROM Exercise e JOIN FETCH e.lesson WHERE (e.correctAnswer IS NULL OR TRIM(e.correctAnswer) = '') AND e.question IS NOT NULL AND TRIM(e.question) <> '' ORDER BY e.id ASC")
     List<Exercise> findBackfillCandidates(Pageable pageable);
 }

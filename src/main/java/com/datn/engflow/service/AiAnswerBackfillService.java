@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -86,6 +87,22 @@ public class AiAnswerBackfillService {
     public BackfillProgress getProgress(String batchId) { return progressMap.get(batchId); }
 
     public synchronized String startBackfill(boolean dryRun, int limit, boolean restart) {
+        return startBackfill(dryRun, limit, restart, null);
+    }
+
+    /**
+     * Starts a backfill batch.
+     *
+     * @param dryRun          measure only, persist nothing
+     * @param limit           whole-lesson budget (0 = all); oversized lessons are
+     *                        deferred whole, never split (see bug (c) note in run)
+     * @param restart         ignore the lesson checkpoint and start from 0
+     * @param lessonIdInScope when non-null, restrict the batch to that single lesson
+     *                        and do not advance the durable checkpoint (a scoped
+     *                        run must not mark unseen lessons done)
+     * @return the batch id to poll
+     */
+    public synchronized String startBackfill(boolean dryRun, int limit, boolean restart, Long lessonIdInScope) {
         for (Map.Entry<String, BackfillProgress> e : progressMap.entrySet()) {
             if (e.getValue().running) return e.getKey();
         }
@@ -96,26 +113,56 @@ public class AiAnswerBackfillService {
         progressMap.put(batchId, p);
         runningFlag.set(true);
         long fromLesson = (restart ? 0L : checkpointLessonId);
-        CompletableFuture.runAsync(() -> run(dryRun, limit, fromLesson, p, batchId), pool);
+        CompletableFuture.runAsync(() -> run(dryRun, limit, fromLesson, lessonIdInScope, p, batchId), pool);
         return batchId;
     }
 
-    private void run(boolean dryRun, int limit, long fromLessonExclusive, BackfillProgress progress, String batchId) {
+    private void run(boolean dryRun, int limit, long fromLessonExclusive, Long lessonIdInScope,
+                     BackfillProgress progress, String batchId) {
         long t0 = System.currentTimeMillis();
         try {
             List<Exercise> candidates = exerciseRepository.findBackfillCandidates(Pageable.unpaged());
-            if (fromLessonExclusive > 0) {
+            if (lessonIdInScope != null) {
+                candidates.removeIf(e -> e.getLesson() == null || e.getLesson().getId() == null
+                        || !lessonIdInScope.equals(e.getLesson().getId()));
+            } else if (fromLessonExclusive > 0) {
                 candidates.removeIf(e -> e.getLesson() != null && e.getLesson().getId() != null
                         && e.getLesson().getId() <= fromLessonExclusive);
             }
-            if (limit > 0 && candidates.size() > limit) candidates = candidates.subList(0, limit);
-            progress.totalExercises = candidates.size();
 
-            Map<Long, List<Exercise>> byLesson = new LinkedHashMap<>();
+            // LinkedHashMap keyed by lesson id, then re-sorted ascending: the
+            // durable checkpoint is a max-lesson-id, so whole-lesson truncation
+            // must drop only lessons with ids ABOVE every processed one —
+            // iterating candidates in exercise-id order could otherwise leave a
+            // lower-id lesson behind the checkpoint (same stranding as bug (c)).
+            Map<Long, List<Exercise>> grouped = new LinkedHashMap<>();
             for (Exercise e : candidates) {
                 Long lid = e.getLesson() != null ? e.getLesson().getId() : 0L;
-                byLesson.computeIfAbsent(lid, k -> new ArrayList<>()).add(e);
+                grouped.computeIfAbsent(lid, k -> new ArrayList<>()).add(e);
             }
+            Map<Long, List<Exercise>> byLesson = new java.util.TreeMap<>(grouped);
+
+            // limit is applied at whole-lesson boundaries (bug (c)): a lesson whose
+            // rows exceed the remaining budget is dropped in full — the old
+            // subList(0, limit) could fill part of a lesson while the checkpoint
+            // advanced past its id, stranding the tail forever on resume.  Every
+            // lesson after the first oversized one is dropped too, so the
+            // ID-max checkpoint can never skip over a hole.
+            if (limit > 0) {
+                int budget = limit;
+                boolean truncated = false;
+                Iterator<Map.Entry<Long, List<Exercise>>> it = byLesson.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<Long, List<Exercise>> entry = it.next();
+                    if (truncated || entry.getValue().size() > budget) {
+                        it.remove();
+                        truncated = true;
+                        continue;
+                    }
+                    budget -= entry.getValue().size();
+                }
+            }
+            for (List<Exercise> rows : byLesson.values()) progress.totalExercises += rows.size();
 
             for (Map.Entry<Long, List<Exercise>> entry : byLesson.entrySet()) {
                 List<Exercise> rows = entry.getValue();
@@ -130,7 +177,12 @@ public class AiAnswerBackfillService {
                 }
                 progress.processed = Math.min(progress.processed + rows.size(), progress.totalExercises);
                 long lid = entry.getKey() == null ? 0L : entry.getKey();
-                checkpointLessonId = Math.max(checkpointLessonId, lid);
+                // Bug (b): a dry-run must not move the durable checkpoint — the
+                // rows were never written, so skipping them on the next real
+                // run would strand them exactly like bug (c).  Scoped lesson runs
+                // likewise never advance it (they leave lessons unseen).
+                if (!dryRun && lessonIdInScope == null)
+                    checkpointLessonId = Math.max(checkpointLessonId, lid);
                 progress.checkpointLessonId = checkpointLessonId;
                 progress.elapsedMs = System.currentTimeMillis() - t0;
             }

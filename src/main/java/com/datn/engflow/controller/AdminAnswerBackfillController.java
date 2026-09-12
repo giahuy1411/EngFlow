@@ -26,27 +26,31 @@ public class AdminAnswerBackfillController {
     /**
      * Starts a backfill run.
      *
-     * @param dryRun  true → run the whole pipeline (Ollama included) but skip
-     *                persistence; used to measure the fill rate first.
-     * @param limit   max exercises to process this run; 0 = all.
-     * @param restart true → ignore the lesson checkpoint and start over.
+     * @param dryRun   true → run the whole pipeline (Ollama included) but skip
+     *                 persistence; used to measure the fill rate first.
+     * @param limit    max exercises to process this run (whole-lesson budget); 0 = all.
+     * @param restart  true → ignore the lesson checkpoint and start over.
+     * @param lessonId when set, restrict the run to that single lesson and leave
+     *                 the durable checkpoint untouched (proof / per-lesson fill).
      */
     @PostMapping("/backfill-answers")
     public ResponseEntity<Map<String, Object>> startBackfill(
             @RequestParam(defaultValue = "false") boolean dryRun,
             @RequestParam(defaultValue = "0") int limit,
-            @RequestParam(defaultValue = "false") boolean restart) {
+            @RequestParam(defaultValue = "false") boolean restart,
+            @RequestParam(required = false) Long lessonId) {
         if (backfillService.isRunning()) {
             return ResponseEntity.status(409).body(Map.of(
                     "status", "already-running",
                     "checkpointLessonId", backfillService.getCheckpointLessonId()));
         }
-        String batchId = backfillService.startBackfill(dryRun, limit, restart);
+        String batchId = backfillService.startBackfill(dryRun, limit, restart, lessonId);
         return ResponseEntity.accepted().body(Map.of(
                 "batchId", batchId,
                 "status", "started",
                 "dryRun", dryRun,
                 "limit", limit,
+                "lessonId", lessonId == null ? 0L : lessonId,
                 "checkpointLessonId", backfillService.getCheckpointLessonId()));
     }
 

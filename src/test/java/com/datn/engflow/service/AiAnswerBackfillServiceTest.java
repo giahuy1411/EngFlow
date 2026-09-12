@@ -1,17 +1,33 @@
 package com.datn.engflow.service;
 
 import com.datn.engflow.model.entity.Exercise;
+import com.datn.engflow.model.entity.Lesson;
 import com.datn.engflow.model.enums.ExerciseType;
+import com.datn.engflow.repository.ExerciseRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for AiAnswerBackfillService answer-key parsing, fragment
- * classification and untrusted-AI-output validation (LLM05 posture).
+ * classification and untrusted-AI-output validation (LLM05 posture), plus
+ * batch-orchestration regression tests for the three plan-P3.1 bugs
+ * (checkpoint written on dry-run, limit cutting mid-lesson, candidate
+ * lesson access) with a mocked repository so no Ollama call is attempted.
  */
 class AiAnswerBackfillServiceTest {
 
@@ -244,5 +260,163 @@ class AiAnswerBackfillServiceTest {
         assertThat(AiAnswerBackfillService.lookupNumbered(blocks, 1)).isEqualTo("a");
         assertThat(AiAnswerBackfillService.lookupNumbered(blocks, 3)).isEqualTo("z");
         assertThat(AiAnswerBackfillService.lookupNumbered(blocks, 9)).isNull();
+    }
+
+    // ── Batch orchestration regression (plan P3.1 bugs b + c) ──
+    //
+    // The mocked repository returns materialized entities, so bug (a) —
+    // LazyInitializationException on the detached candidate lesson — cannot be
+    // reproduced here; it is fixed by JOIN FETCH in findBackfillCandidates and
+    // proven end-to-end by the live single-lesson run in plan task 3.3
+    // (historic evidence: the endpoint always died with processed=0, errors++).
+
+    private ExerciseRepository repo;
+    private AiAnswerBackfillService service;
+
+    private void givenCandidates(List<Exercise> candidates) {
+        repo = Mockito.mock(ExerciseRepository.class);
+        // The service filters in place (removeIf), so hand it a private copy and
+        // keep the caller's list positionally intact for assertions.
+        when(repo.findBackfillCandidates(any())).thenReturn(new ArrayList<>(candidates));
+        service = new AiAnswerBackfillService(new ObjectMapper(), repo);
+    }
+
+    private void disposeService() {
+        if (service != null) service.shutdown();
+    }
+
+    /** Seed-style lesson: one numbered ANSWER block the positional layer consumes in order. */
+    private static final String KEY_CONTENT =
+            "<p>Practice.</p><details><summary>ANSWER</summary><p>1 taller 2 larger 3 faster</p></details>";
+
+    private Lesson lesson(long id) {
+        Lesson l = new Lesson();
+        l.setId(id);
+        l.setTitle("Unit " + id);
+        l.setContent(KEY_CONTENT);
+        return l;
+    }
+
+    /** Single-gap FILL_BLANK that consumes the next slot of the ANSWER block. */
+    private Exercise fill(Lesson l, int order) {
+        Exercise e = new Exercise();
+        e.setLesson(l);
+        e.setQuestion(order + ". Sentence number " + order + " has a gap here......");
+        e.setCorrectAnswer("");
+        e.setExerciseType(ExerciseType.FILL_BLANK);
+        return e;
+    }
+
+    private AiAnswerBackfillService.BackfillProgress awaitBatch(String batchId) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30);
+        while (System.currentTimeMillis() < deadline) {
+            AiAnswerBackfillService.BackfillProgress p = service.getProgress(batchId);
+            if (p != null && !p.running) return p;
+            Thread.sleep(25);
+        }
+        throw new AssertionError("backfill batch did not finish within 30s");
+    }
+
+    @Test
+    @DisplayName("batch: mọi candidate fill từ answer-key, saveAll đúng 1 lần")
+    void startBackfill_fillsEveryCandidateFromAnswerKeyAndPersists() throws Exception {
+        Lesson a = lesson(100L);
+        List<Exercise> candidates = new ArrayList<>(List.of(fill(a, 1), fill(a, 2), fill(a, 3)));
+        givenCandidates(candidates);
+        try {
+            String batchId = service.startBackfill(false, 0, true);
+            AiAnswerBackfillService.BackfillProgress p = awaitBatch(batchId);
+
+            assertThat(p.errorDetails).isEmpty();
+            assertThat(p.errors).isZero();
+            assertThat(p.backfilled).isEqualTo(3);
+            assertThat(p.deterministic).isEqualTo(3);
+            assertThat(p.aiFilled).isZero();
+            assertThat(candidates.get(0).getCorrectAnswer()).isEqualTo("taller");
+            assertThat(candidates.get(1).getCorrectAnswer()).isEqualTo("larger");
+            assertThat(candidates.get(2).getCorrectAnswer()).isEqualTo("faster");
+
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<Exercise>> saved = ArgumentCaptor.forClass(List.class);
+            verify(repo).saveAll(saved.capture());
+            assertThat(saved.getValue()).hasSize(3);
+        } finally {
+            disposeService();
+        }
+    }
+
+    @Test
+    @DisplayName("bug (b): dry-run không được dịch checkpoint, không saveAll")
+    void startBackfill_dryRun_doesNotAdvanceCheckpointOrPersist() throws Exception {
+        Lesson a = lesson(100L);
+        Lesson b = lesson(200L);
+        List<Exercise> candidates = new ArrayList<>(List.of(fill(a, 1), fill(a, 2), fill(b, 1)));
+        givenCandidates(candidates);
+        try {
+            long checkpointBefore = service.getCheckpointLessonId();
+            String batchId = service.startBackfill(true, 0, true);
+            AiAnswerBackfillService.BackfillProgress p = awaitBatch(batchId);
+
+            assertThat(p.errors).isZero();
+            assertThat(p.backfilled).isEqualTo(3);
+            assertThat(service.getCheckpointLessonId()).isEqualTo(checkpointBefore);
+            verify(repo, never()).saveAll(any());
+        } finally {
+            disposeService();
+        }
+    }
+
+    @Test
+    @DisplayName("bug (c): limit cắt theo nguyên lesson — lesson vượt budget không bị ăn một phần")
+    void startBackfill_limitTruncatesAtLessonBoundaryNeverMidLesson() throws Exception {
+        Lesson a = lesson(100L);
+        Lesson b = lesson(200L);
+        List<Exercise> candidates = new ArrayList<>(List.of(
+                fill(a, 1), fill(a, 2), fill(a, 3),
+                fill(b, 1), fill(b, 2), fill(b, 3)));
+        givenCandidates(candidates);
+        try {
+            // limit=4: lesson a (3 dòng) fits; lesson b phải NGUYÊN VẸN cho run sau.
+            // subList(0,4) cũ để lại 1 dòng b đã fill + checkpoint=200 → 2 dòng b
+            // còn lại bị removeIf(lessonId<=checkpoint) skip vĩnh viễn.
+            String batchId = service.startBackfill(false, 4, true);
+            AiAnswerBackfillService.BackfillProgress p = awaitBatch(batchId);
+
+            assertThat(p.errors).isZero();
+            assertThat(p.totalExercises).isEqualTo(3);
+            assertThat(p.backfilled).isEqualTo(3);
+            // lesson a's three exercises carry numbers 1..3 → slots 1,2,3 of
+            // the block are consumed IN ORDER.
+            assertThat(candidates.get(0).getCorrectAnswer()).isEqualTo("taller");
+            assertThat(candidates.get(1).getCorrectAnswer()).isEqualTo("larger");
+            assertThat(candidates.get(2).getCorrectAnswer()).isEqualTo("faster");
+            assertThat(candidates.get(3).getCorrectAnswer()).isEmpty();
+            assertThat(candidates.get(5).getCorrectAnswer()).isEmpty();
+            assertThat(service.getCheckpointLessonId()).isEqualTo(100L);
+        } finally {
+            disposeService();
+        }
+    }
+
+    @Test
+    @DisplayName("lessonId scope: chỉ fill bài của lesson đó, checkpoint đứng nguyên")
+    void startBackfill_lessonScoped_touchesNothingElseAndKeepsCheckpoint() throws Exception {
+        Lesson a = lesson(100L);
+        Lesson b = lesson(200L);
+        List<Exercise> candidates = new ArrayList<>(List.of(fill(a, 1), fill(a, 2), fill(b, 1)));
+        givenCandidates(candidates);
+        try {
+            String batchId = service.startBackfill(false, 0, true, 200L);
+            AiAnswerBackfillService.BackfillProgress p = awaitBatch(batchId);
+
+            assertThat(p.errors).isZero();
+            assertThat(p.totalExercises).isEqualTo(1);
+            assertThat(candidates.get(0).getCorrectAnswer()).isEmpty();
+            assertThat(candidates.get(2).getCorrectAnswer()).isEqualTo("taller");
+            // Scoped proof runs must never mark unseen lessons as done.
+            assertThat(service.getCheckpointLessonId()).isZero();
+        } finally {
+            disposeService();
+        }
     }
 }
