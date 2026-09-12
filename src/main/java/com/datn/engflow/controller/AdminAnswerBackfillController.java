@@ -26,31 +26,38 @@ public class AdminAnswerBackfillController {
     /**
      * Starts a backfill run.
      *
-     * @param dryRun   true → run the whole pipeline (Ollama included) but skip
-     *                 persistence; used to measure the fill rate first.
+     * @param dryRun   true → run the pipeline but skip persistence; used to measure
+     *                 the fill rate first.
      * @param limit    max exercises to process this run (whole-lesson budget); 0 = all.
      * @param restart  true → ignore the lesson checkpoint and start over.
      * @param lessonId when set, restrict the run to that single lesson and leave
      *                 the durable checkpoint untouched (proof / per-lesson fill).
+     * @param mode     "full" (default) → answer-key layers then Ollama residue;
+     *                 "deterministic" → answer-key layers only, never call the AI
+     *                 layer (gate 3.4-B: an unverified AI key grades worse than an
+     *                 empty one — measured "1. a" garbage on a grammar gap).
      */
     @PostMapping("/backfill-answers")
     public ResponseEntity<Map<String, Object>> startBackfill(
             @RequestParam(defaultValue = "false") boolean dryRun,
             @RequestParam(defaultValue = "0") int limit,
             @RequestParam(defaultValue = "false") boolean restart,
-            @RequestParam(required = false) Long lessonId) {
+            @RequestParam(required = false) Long lessonId,
+            @RequestParam(defaultValue = "full") String mode) {
+        boolean deterministicOnly = "deterministic".equalsIgnoreCase(mode);
         if (backfillService.isRunning()) {
             return ResponseEntity.status(409).body(Map.of(
                     "status", "already-running",
                     "checkpointLessonId", backfillService.getCheckpointLessonId()));
         }
-        String batchId = backfillService.startBackfill(dryRun, limit, restart, lessonId);
+        String batchId = backfillService.startBackfill(dryRun, limit, restart, lessonId, deterministicOnly);
         return ResponseEntity.accepted().body(Map.of(
                 "batchId", batchId,
                 "status", "started",
                 "dryRun", dryRun,
                 "limit", limit,
                 "lessonId", lessonId == null ? 0L : lessonId,
+                "mode", deterministicOnly ? "deterministic" : "full",
                 "checkpointLessonId", backfillService.getCheckpointLessonId()));
     }
 

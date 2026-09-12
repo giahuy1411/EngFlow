@@ -419,4 +419,37 @@ class AiAnswerBackfillServiceTest {
             disposeService();
         }
     }
+
+    @Test
+    @DisplayName("mode deterministic: answer-key miss → unfillable, KHÔNG gọi Ollama")
+    void startBackfill_deterministicMode_skipsAiLayerEntirely() throws Exception {
+        // Lesson content has NO ANSWER block → the deterministic layers find
+        // nothing; only the AI layer could have tried. In deterministic mode the
+        // row must land in unfillable with aiFilled=0 (and no HTTP call: a full
+        // mode run here would hit Ollama — this test would still pass if 1.5b
+        // answered, which is exactly why the mode gate must hold).
+        Lesson l = new Lesson();
+        l.setId(300L);
+        l.setTitle("No key");
+        l.setContent("<p>Practice sentences with gaps here...... but no answer block.</p>");
+        Exercise gap = new Exercise();
+        gap.setLesson(l);
+        gap.setQuestion("1. Something with a gap here......");
+        gap.setCorrectAnswer("");
+        gap.setExerciseType(ExerciseType.FILL_BLANK);
+        givenCandidates(new ArrayList<>(List.of(gap)));
+        try {
+            String batchId = service.startBackfill(false, 0, true, null, true);
+            AiAnswerBackfillService.BackfillProgress p = awaitBatch(batchId);
+
+            assertThat(p.errors).isZero();
+            assertThat(p.aiFilled).isZero();
+            assertThat(p.backfilled).isZero();
+            assertThat(p.unfillable).isEqualTo(1);
+            assertThat(gap.getCorrectAnswer()).isEmpty();
+            verify(repo, never()).saveAll(any());
+        } finally {
+            disposeService();
+        }
+    }
 }

@@ -87,22 +87,30 @@ public class AiAnswerBackfillService {
     public BackfillProgress getProgress(String batchId) { return progressMap.get(batchId); }
 
     public synchronized String startBackfill(boolean dryRun, int limit, boolean restart) {
-        return startBackfill(dryRun, limit, restart, null);
+        return startBackfill(dryRun, limit, restart, null, false);
+    }
+
+    public synchronized String startBackfill(boolean dryRun, int limit, boolean restart, Long lessonIdInScope) {
+        return startBackfill(dryRun, limit, restart, lessonIdInScope, false);
     }
 
     /**
      * Starts a backfill batch.
      *
-     * @param dryRun          measure only, persist nothing
-     * @param limit           whole-lesson budget (0 = all); oversized lessons are
-     *                        deferred whole, never split (see bug (c) note in run)
-     * @param restart         ignore the lesson checkpoint and start from 0
-     * @param lessonIdInScope when non-null, restrict the batch to that single lesson
-     *                        and do not advance the durable checkpoint (a scoped
-     *                        run must not mark unseen lessons done)
+     * @param dryRun             measure only, persist nothing
+     * @param limit              whole-lesson budget (0 = all); oversized lessons are
+     *                           deferred whole, never split (see bug (c) note in run)
+     * @param restart            ignore the lesson checkpoint and start from 0
+     * @param lessonIdInScope    when non-null, restrict the batch to that single lesson
+     *                           and do not advance the durable checkpoint (a scoped
+     *                           run must not mark unseen lessons done)
+     * @param deterministicOnly  gate 3.4-B: answer-key layers only, never call the
+     *                            Ollama AI layer (rows it can't verify stay empty
+     *                            rather than risk an unverified low-quality key)
      * @return the batch id to poll
      */
-    public synchronized String startBackfill(boolean dryRun, int limit, boolean restart, Long lessonIdInScope) {
+    public synchronized String startBackfill(boolean dryRun, int limit, boolean restart,
+                                             Long lessonIdInScope, boolean deterministicOnly) {
         for (Map.Entry<String, BackfillProgress> e : progressMap.entrySet()) {
             if (e.getValue().running) return e.getKey();
         }
@@ -113,11 +121,13 @@ public class AiAnswerBackfillService {
         progressMap.put(batchId, p);
         runningFlag.set(true);
         long fromLesson = (restart ? 0L : checkpointLessonId);
-        CompletableFuture.runAsync(() -> run(dryRun, limit, fromLesson, lessonIdInScope, p, batchId), pool);
+        CompletableFuture.runAsync(
+                () -> run(dryRun, limit, fromLesson, lessonIdInScope, deterministicOnly, p, batchId), pool);
         return batchId;
     }
 
     private void run(boolean dryRun, int limit, long fromLessonExclusive, Long lessonIdInScope,
+                     boolean deterministicOnly,
                      BackfillProgress progress, String batchId) {
         long t0 = System.currentTimeMillis();
         try {
@@ -169,7 +179,7 @@ public class AiAnswerBackfillService {
                 Lesson lesson = rows.get(0).getLesson();
                 progress.currentLesson = lesson != null ? lesson.getTitle() : ("lesson " + entry.getKey());
                 try {
-                    processLesson(lesson, rows, progress, dryRun);
+                    processLesson(lesson, rows, progress, dryRun, deterministicOnly);
                 } catch (Exception ex) {
                     progress.errors++;
                     if (progress.errorDetails.size() < 50) progress.errorDetails.add("lesson " + entry.getKey() + ": " + ex.getMessage());
@@ -203,7 +213,8 @@ public class AiAnswerBackfillService {
 
     // ── Per-lesson pipeline ──
 
-    private void processLesson(Lesson lesson, List<Exercise> exercises, BackfillProgress progress, boolean dryRun) {
+    private void processLesson(Lesson lesson, List<Exercise> exercises, BackfillProgress progress,
+                               boolean dryRun, boolean deterministicOnly) {
         String content = lesson != null ? lesson.getContent() : null;
         // The seed scraper put <details><summary>ANSWER</summary>...</details>
         // blocks that contain plain-text answer keys.  Seed lessons stack
@@ -287,8 +298,10 @@ public class AiAnswerBackfillService {
                 }
             }
 
-            // Layer 2: Ollama for the residue.
-            if (answer == null && content != null && !content.isBlank()) {
+            // Layer 2: Ollama for the residue.  Gate 3.4-B: in deterministic-only
+            // mode this layer is skipped — an unverified AI key (measured: "1. a"
+            // for a grammar gap) turns a gradeable-later blank into a false grade.
+            if (answer == null && !deterministicOnly && content != null && !content.isBlank()) {
                 String ai = askAi(lesson, ex);
                 if (ai != null && isValidAnswer(ai, ex)) {
                     answer = normalize(ai);
