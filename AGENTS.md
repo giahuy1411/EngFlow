@@ -27,6 +27,8 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 ## Boundaries
 
 - **Không seed data demo khi người dùng đã bỏ tính năng** (ví dụ: achievements đã gỡ triệt để — đừng tái tạo).
+- **Mật khẩu seed**: bất kỳ instance nào chạy ngoài laptop cá nhân phải set `DEFAULT_USER_PASSWORD` / `DEFAULT_ADMIN_PASSWORD` trong `.env` TRƯỚC khi boot (`DatabaseSeeder` default `password123` + WARN log F58 — đã verify 2026-09-12; không cần code thêm).
+- **`content_original` GIỮ vĩnh viễn, đóng issue** (quyết định P5.1, 2026-09-12): backfill không đọc nó (chỉ đọc `content`), 2 reader còn lại đều flag-off; chi phí 69MB/230MB ≈ 0 so với rủi ro vi phạm C2. Đừng đề nghị drop lại.
 - Không thêm dependency mới khi chưa cân nhắc bundle size / license.
 - Không commit `.env`, key, file fixture local (`frontend/public/*.wav`).
 - Schema DB do Hibernate `ddl-auto=update` quản lý, **Flyway disabled** — không viết migration file, đổi schema bằng SQL trực tiếp + entity.
@@ -50,6 +52,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 - jsdom không có `SpeechSynthesisUtterance` — mock `window.SpeechSynthesisUtterance` trong test nếu cần.
 - **Restore drill 2026-09-12: PASS** — `BACKUP ... WITH COMPRESSION,CHECKSUM` (25,018 pages) + `RESTORE VERIFYONLY` valid + drill thật `RESTORE DATABASE english_learning_drill WITH MOVE` → `exercises=43737, lessons=1471, empty_answers=5434` khớp live → `DROP DATABASE` + xóa file sạch. Backup staging: `C:\Users\ASUS\engflow-backups\` (`.bak` 36MB **chứa PII học viên — không bao giờ vào git/share** + bản copy `.env`).
 - **Convention backup-before-DML**: mọi phiên chạy DML hàng loạt (backfill answers, cleanup) phải backup lại theo `tasks/plan.md` Task 1.1 TRƯỚC khi mutate (~5'); khôi phục bằng drill pattern ở dòng trên.
+- **Validate check 2026-09-12: PASS (0 issues)** — boot-drill một lần với `SPRING_JPA_HIBERNATE_DDL_AUTO=validate` qua `docker compose run --rm --no-deps -T -e ... backend` (env override, `application.properties` KHÔNG đổi — vẫn `update`): `Started EngflowApplication in 14.5s`, 0 ERROR, 0 schema-warning; log `tasks/evidence/p4-validate-drill.log` (đã scan: không chứa secret). Kết luận: entity ↔ DB đang khớp, `update` không âm thầm bỏ table/column missing. Drill này chạy được lại bất kỳ lúc nào; cẩn thận `docker stop $(docker ps --filter ancestor=engflow-backend)` — ancestor-match dính cả container chính (đã tự kill engflow-backend 1 lần, restart là đủ).
 - **AI answer backfill — trạng thái 2026-09-12 (gate 3.4 chọn B)**: `POST /api/admin/exercises/ai/backfill-answers?mode=deterministic` đã fill **586/5.434** bài từ answer-key `<summary>ANSWER` (0 lỗi, idempotent — candidate = still-empty). **Còn 4.848 rỗng**, đa số là MC-fragment scrape lỗi (question không phải prompt thật → ungradeable-by-design, grader trả `ungradeable=true`, đừng "sửa" bằng cách nhét key). `mode=full` có gọi Ollama — ĐÃ ĐO: 1.5b trả key rác `"1. a"` cho gap ngữ pháp → chỉ dùng khi có guard chất lượng mới. Service có 3 fix TDD (JOIN FETCH / dry-run không dịch checkpoint / limit cắt nguyên lesson, TreeMap theo lesson-id) — xem `tasks/evidence/backfill-p3-proof.json`. Undo: `sweep/backfill-export.ps1 -Mode before|after|rollback` + `.bak` prebatch.
 
 ## Kiến trúc sinh bài tập (2 đường)
