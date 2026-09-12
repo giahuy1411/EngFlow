@@ -22,7 +22,7 @@
             <img :src="qrUrl" alt="Mã QR thanh toán" class="mx-auto w-64 h-64 border-2 border-foreground mb-4 rounded-md" />
             <div class="text-sm space-y-1">
               <p>Số tài khoản: <strong>{{ bankAccount }}</strong></p>
-              <p>Nội dung CK: <strong class="text-secondary">{{ orderCode }}</strong></p>
+              <p>Nội dung CK: <strong class="text-accent">{{ orderCode }}</strong></p>
               <p>Số tiền: <strong>{{ amount.toLocaleString('vi-VN') }}đ</strong></p>
             </div>
           </div>
@@ -32,7 +32,7 @@
           </AppButton>
 
           <div v-if="message" class="mt-4 p-3 text-center font-bold rounded-md"
-            :class="messageType === 'success' ? 'bg-quaternary/10 text-foreground border-2 border-quaternary' : 'bg-secondary/10 text-secondary border-2 border-secondary'">
+            :class="messageType === 'success' ? 'bg-quaternary/10 text-foreground border-2 border-quaternary' : 'bg-danger/10 text-danger border-2 border-danger'">
             {{ message }}
           </div>
         </template>

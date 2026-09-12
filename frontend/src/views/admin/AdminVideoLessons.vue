@@ -84,7 +84,7 @@
       <p class="font-bold text-danger">{{ error }}</p>
       <button @click="loadLessons" class="mt-2 text-sm font-bold underline">Thử lại</button>
     </div>
-    <div v-else class="bg-white border-2 border-foreground overflow-hidden rounded-md shadow-pop-lg">
+    <div v-else class="bg-white border-2 border-foreground overflow-x-auto rounded-md shadow-pop-lg">
       <div class="bg-foreground border-b-2 border-foreground px-6 py-3 flex items-center gap-3">
         <div class="w-2 h-2 bg-tertiary rotate-45 rounded"></div>
         <span class="font-bold text-xs uppercase tracking-widest text-white/60">{{ lessons.length }} bài học video</span>

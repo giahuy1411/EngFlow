@@ -143,6 +143,20 @@ src/main/resources/static/audio/*.mp3
 # ---------- 0-byte accidental file from old shell sessions ----------
 /$null
 
+# ---------- Local probe artifacts (contain live tokens / scratch data) ----------
+login-admin.json
+login-user.json
+e.json
+check1.txt
+wrong.json
+openapi.json
+sweep/*.token
+sweep/*.tmp
+sweep/login.json
+sweep/order.json
+sweep/body-r3.json
+.p0-backend-test.log
+
 # ---------- Audit artifacts (local only) ----------
 .mimosa/
 audit-v*-*.json

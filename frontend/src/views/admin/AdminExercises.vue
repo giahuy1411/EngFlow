@@ -44,7 +44,7 @@
       </select>
     </div>
 
-    <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-md overflow-hidden">
+    <div class="border-2 border-foreground bg-white shadow-pop-lg rounded-md overflow-x-auto">
       <div class="bg-foreground border-b-2 border-foreground px-6 py-3 flex items-center gap-3">
         <div class="w-2 h-2 bg-accent rotate-45 rounded"></div>
         <span class="font-bold text-xs uppercase tracking-widest text-white/60">{{ filteredExercises.length }} bài tập</span>

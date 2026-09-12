@@ -47,7 +47,7 @@
             </template>
           </FormField>
 
-          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-secondary text-center" role="alert">{{ error }}</p>
+          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-danger text-center" role="alert">{{ error }}</p>
 
           <AppButton type="submit" variant="primary" size="lg" class="w-full" :loading="loading">
             Tạo tài khoản

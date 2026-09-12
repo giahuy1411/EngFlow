@@ -28,7 +28,7 @@
             </div>
             <div>
               <p class="font-black text-sm uppercase">
-                <span :class="a.percentage >= 70 ? 'text-quaternary' : 'text-accent'">
+                <span :class="a.percentage >= 70 ? 'text-success' : 'text-danger'">
                   {{ a.percentage >= 70 ? 'Đạt' : 'Chưa đạt' }}
                 </span>
               </p>
@@ -56,7 +56,7 @@
               <span class="text-lg mt-0.5">{{ item.correct ? '✅' : '❌' }}</span>
               <div class="min-w-0 flex-1">
                 <div class="geo-markdown text-sm mb-1" v-html="parseMarkdown(item.question)"></div>
-                <p class="font-bold text-xs">Đáp án: <span class="text-quaternary">{{ item.correctAnswer }}</span></p>
+                <p class="font-bold text-xs">Đáp án: <span class="text-success">{{ item.correctAnswer }}</span></p>
                 <p v-if="!item.correct" class="text-xs text-accent">Bạn: {{ item.userAnswer }}</p>
                 <p v-if="item.explanation" class="text-xs text-muted-foreground italic mt-1" v-html="sanitizeText(item.explanation)"></p>
               </div>

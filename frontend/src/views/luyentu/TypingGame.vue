@@ -48,7 +48,7 @@
           />
           <AppButton @click="checkAnswer" variant="primary" size="lg" class="mt-4"
           :disabled="!userInput.trim()">Kiểm tra</AppButton>
-          <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-quaternary' : 'text-secondary'">
+          <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-success' : 'text-danger'">
             {{ lastAnswerCorrect ? 'Đúng!' : ('Sai. Đáp án: ' + feedback) }}
           </p>
         </div>
@@ -72,7 +72,7 @@
         </div>
         <h2 class="font-black text-3xl uppercase tracking-tight mb-4">Hoàn thành!</h2>
         <p v-if="submitting" class="mb-6 font-bold text-sm uppercase tracking-wider text-muted-foreground">Đang lưu kết quả...</p>
-        <p v-else-if="submitResult" class="mb-6 font-black text-lg text-quaternary">
+        <p v-else-if="submitResult" class="mb-6 font-black text-lg text-success">
           Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm
         </p>
         <router-link :to="'/decks/' + deckId"

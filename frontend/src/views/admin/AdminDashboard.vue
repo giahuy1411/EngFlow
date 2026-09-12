@@ -102,11 +102,13 @@ const loading = ref(true)
 const error = ref('')
 
 const contentBars = computed(() => {
+  // audit-v7 F63: --accent/--secondary/... chưa từng tồn tại (token thật là --geo-*
+  // chứa hex) → hsl(var(--x)) invalid, donut/canvas render màu nền mặc định (đen).
   const values = [
-    { label: 'Bài học', value: Number(stats.value.totalLessons || 0), color: 'hsl(var(--accent))' },
-    { label: 'Từ vựng', value: Number(stats.value.totalVocabulary || 0), color: 'hsl(var(--secondary))' },
-    { label: 'Bài tập', value: Number(stats.value.totalExercises || 0), color: 'hsl(var(--tertiary))' },
-    { label: 'Bài nộp', value: Number(stats.value.totalSubmissions || 0), color: 'hsl(var(--quaternary))' }
+    { label: 'Bài học', value: Number(stats.value.totalLessons || 0), color: 'var(--geo-accent)' },
+    { label: 'Từ vựng', value: Number(stats.value.totalVocabulary || 0), color: 'var(--geo-secondary)' },
+    { label: 'Bài tập', value: Number(stats.value.totalExercises || 0), color: 'var(--geo-tertiary)' },
+    { label: 'Bài nộp', value: Number(stats.value.totalSubmissions || 0), color: 'var(--geo-quaternary)' }
   ]
   const max = Math.max(...values.map(item => item.value), 1)
   return values.map(item => ({ ...item, width: item.value ? Math.max((item.value / max) * 100, 4) : 0 }))
@@ -127,7 +129,8 @@ const submissionsPerUser = computed(() => {
   return users ? (Number(stats.value.totalSubmissions || 0) / users).toFixed(1) : '0.0'
 })
 const donutStyle = computed(() => ({
-  background: `conic-gradient(hsl(var(--accent)) 0 ${activeRate.value}%, hsl(var(--foreground) / 0.12) ${activeRate.value}% 100%)`
+  // audit-v7 F63: hex token không dùng được alpha-slash → rgba literal của #1E293B
+  background: `conic-gradient(var(--geo-accent) 0 ${activeRate.value}%, rgba(30, 41, 59, 0.12) ${activeRate.value}% 100%)`
 }))
 
 onMounted(loadStats)

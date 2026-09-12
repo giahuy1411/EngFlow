@@ -11,7 +11,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **311 tests**.
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **327 tests** (audit-v7 wave cuối: 314 + 10 `AuditV7SecurityWaveTest` + 1 payment underpayment + 2 save-vocab). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
 - Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **79 tests / 16 files**.
 - Frontend build: `cmd /c "npx vite build"` trong `frontend/`.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).

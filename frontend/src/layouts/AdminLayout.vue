@@ -2,8 +2,15 @@
   <!-- audit-v5: inline font-family removed — body already inherits Be Vietnam Pro
        via --geo-font (main.css); the literal bypassed the token. -->
   <div class="flex h-screen bg-geo-bg overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="w-72 bg-foreground text-white flex flex-col flex-shrink-0 border-r-2 border-foreground relative">
+    <!-- audit-v7 F67: sidebar w-72 cứng + h-screen overflow-hidden làm admin
+         không dùng được trên mobile (375px không còn chỗ cho content, không có
+         cách mở menu). Nay là off-canvas drawer dưới lg, có overlay đóng lại. -->
+    <div v-if="sidebarOpen" class="fixed inset-0 z-40 bg-foreground/50 lg:hidden" @click="sidebarOpen = false"></div>
+    <aside
+      class="w-72 bg-foreground text-white flex flex-col flex-shrink-0 border-r-2 border-foreground relative z-50 max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:transition-transform max-lg:duration-200"
+      :class="sidebarOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'"
+      aria-label="Menu quản trị"
+    >
       <!-- Decorative shapes -->
       <div class="absolute top-4 right-4 w-3 h-3 rounded-full bg-accent"></div>
       <div class="absolute top-4 right-10 w-3 h-3 bg-secondary"></div>
@@ -74,9 +81,18 @@
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col overflow-hidden">
       <!-- Top Bar -->
-      <header class="h-24 border-b-2 border-foreground bg-card flex items-center justify-between px-10 shrink-0 relative">
+      <header class="h-24 border-b-2 border-foreground bg-card flex items-center justify-between px-10 max-lg:px-4 shrink-0 relative">
         <div class="absolute left-0 top-0 w-1 h-full bg-accent"></div>
         <div class="flex items-center gap-4">
+          <button
+            type="button"
+            class="lg:hidden w-10 h-10 border-2 border-foreground rounded-md flex items-center justify-center bg-card shadow-pop-sm"
+            aria-label="Mở menu quản trị"
+            :aria-expanded="sidebarOpen"
+            @click="sidebarOpen = !sidebarOpen"
+          >
+            <Menu class="w-5 h-5" />
+          </button>
           <div class="w-3 h-3 bg-tertiary rounded-blob"></div>
           <h1 class="font-black text-2xl tracking-tighter">{{ pageTitle }}</h1>
         </div>
@@ -88,7 +104,7 @@
       </header>
 
       <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-10 bg-geo-bg relative">
+      <div class="flex-1 overflow-y-auto p-10 max-lg:p-4 bg-geo-bg relative">
         <!-- Decorative Background Shapes -->
         <div class="absolute top-10 right-10 w-24 h-24 border-2 border-foreground/5 rounded-blob pointer-events-none"></div>
         <div class="absolute bottom-10 left-10 w-16 h-16 border-2 border-foreground/5 rotate-12 rounded-md pointer-events-none"></div>
@@ -99,16 +115,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
 import {
-  LayoutDashboard, BookOpen, PenTool, Users, CheckSquare, Clapperboard, AudioLines, Mic
+  LayoutDashboard, BookOpen, PenTool, Users, CheckSquare, Clapperboard, AudioLines, Mic, Menu
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+
+// audit-v7 F67: off-canvas admin sidebar (mobile); đóng lại mỗi lần đổi trang.
+const sidebarOpen = ref(false)
+watch(() => route.fullPath, () => { sidebarOpen.value = false })
 
 const navItems = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan', activeClass: 'bg-accent border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },

@@ -55,7 +55,7 @@
             />
           </div>
 
-          <p v-if="error" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ error }}</p>
+          <p v-if="error" role="alert" class="font-bold text-xs uppercase tracking-wider text-danger">{{ error }}</p>
           <p v-if="quotaExhausted" role="alert" class="border-2 border-secondary bg-secondary/10 p-3 text-sm font-bold">Bạn đã dùng hết {{ AI_LIMIT }} lượt sinh từ miễn phí hôm nay. Nâng cấp Premium để tiếp tục.</p>
 
           <AppButton type="submit" :disabled="generating || quotaExhausted" :loading="generating" variant="primary" size="lg" class="w-full">
@@ -80,7 +80,7 @@
             </AppButton>
           </div>
 
-          <p v-if="saveError" role="alert" class="font-bold text-xs uppercase tracking-wider text-secondary">{{ saveError }}</p>
+          <p v-if="saveError" role="alert" class="font-bold text-xs uppercase tracking-wider text-danger">{{ saveError }}</p>
           <p v-if="saveSuccess" role="status" aria-live="polite" class="font-bold text-xs uppercase tracking-wider text-success">{{ saveSuccess }}</p>
 
           <div v-for="(w, i) in generatedWords" :key="i"

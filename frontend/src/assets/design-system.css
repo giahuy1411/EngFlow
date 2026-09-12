@@ -470,6 +470,18 @@ body {
     transition-duration: 0.01ms !important;
   }
 
+  /* audit-v7 F65: transition-duration=0 vẫn để hover:-translate-* nhảy tức thì.
+     Giết luôn transform của utility Tailwind (class chứa chuỗi con đặc trưng). */
+  html {
+    scroll-behavior: auto !important;
+  }
+  [class*="hover:-translate"],
+  [class*="hover:translate"],
+  .group:hover [class*="group-hover:-translate"],
+  .group:hover [class*="group-hover:translate"] {
+    transform: none !important;
+  }
+
   .geo-card:hover {
     transform: none;
   }
@@ -609,6 +621,27 @@ input[type="checkbox"].geo-checkbox:checked {
   }
   .shadow-pop-xl { box-shadow: 3px 3px 0px 0px #E2E8F0; }
   .shadow-pop-featured { box-shadow: 3px 3px 0px 0px #F472B6; }
+  /* audit-v7 F64: patch v6 chỉ covers base state — 20 lượt hover:/active:shadow-pop-*
+     lọt lưới giữ 4-8px trên mobile. Dùng selector class chứa chuỗi con đặc trưng
+     để khớp utility escaped của Tailwind (.hover\:shadow-pop:hover). */
+  [class*="shadow-pop"] {
+    --pop-mobile: 2px 2px 0px 0px;
+  }
+  .shadow-pop:hover, .shadow-pop:active,
+  .shadow-pop-sm:hover, .shadow-pop-sm:active,
+  .shadow-pop-lg:hover, .shadow-pop-lg:active,
+  .shadow-pop-accent:hover, .shadow-pop-accent:active,
+  .shadow-pop-pink:hover, .shadow-pop-pink:active,
+  [class*="hover:shadow-pop"]:hover,
+  [class*="active:shadow-pop"]:active {
+    box-shadow: 2px 2px 0px 0px #1E293B;
+  }
+  [class*="hover:shadow-pop-accent"]:hover,
+  [class*="active:shadow-pop-accent"]:active {
+    box-shadow: 2px 2px 0px 0px #8B5CF6;
+  }
+  .shadow-pop-xl:hover, .shadow-pop-xl:active { box-shadow: 3px 3px 0px 0px #E2E8F0; }
+  .shadow-pop-featured:hover, .shadow-pop-featured:active { box-shadow: 3px 3px 0px 0px #F472B6; }
   .geo-heading-1 { font-size: var(--geo-text-3xl); }
   .geo-heading-2 { font-size: var(--geo-text-2xl); }
   .geo-heading-3 { font-size: var(--geo-text-xl); }
