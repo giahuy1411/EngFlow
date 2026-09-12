@@ -58,5 +58,15 @@
     "grading_proof_2way": "learner API POST /api/lessons/569/exercises/grade on real filled row 662274: 'were having' => correct=True 1/1; 'is having' => correct=False; '  Were HAVING  ' => correct=True (normalizer case/space-insensitive); 'was having' => correct=False",
     "undo": "rollback-20260912-202821.sql (5434 ids -> '') OR .bak RESTORE; batch is also idempotent-safe: re-run skips filled rows by candidate definition",
     "evidence_files": "C:/Users/ASUS/engflow-backups/{before-20260912-202821.csv, after-20260912-205426.csv, rollback-20260912-202821.sql, engflow_2026-09-12-prebatch.bak} (PII: host-only, never git)"
+  },
+
+  "t33_proof_channel_note": "Browser provider unavailable in this session ('no usable browser provider is registered'), so the plan's browser click-through proof ran through the HTTP API with the EXACT payload LessonExerciseTab.checkAnswer sends: POST /api/lessons/{id}/exercises/grade + {answers:[{exerciseId,userAnswer}]} under a learner token. MC submit-shape question (text vs letter) resolved from code+data: 5.039 MC candidates all have options=NULL -> UI falls back to text input -> text-vs-key equality is the real flow; lesson 800's 2 MC rows were the answer-key-fragment kind the guard marks unfillable (never written).",
+
+  "known_limitation_positional_drift": {
+    "finding": "40/586 filled rows share an identical normalized answer with a sibling exercise in the SAME lesson. Some are genuinely duplicate keys (the 'as…as' transformation drills in lesson 576 legitimately repeat answers); some MAY be positional-drift mis-fills where stacked ANSWER blocks (numbering restarts per block) shifted alignment by one against exercise order.",
+    "severity": "Low-Med. Inherent to seed structure and the positional layer's documented tradeoff — NOT a regression from the P3 fixes; the 40 concentrate in 12 lessons, the other 195 lessons touched have all-distinct answers.",
+    "kept": "Fills kept — net-positive vs 5434 previously ungradeable; bulk-reverting the 40 would also undo rows that are correct duplicate keys (content-owner judgment, not code's).",
+    "selective_rollback_ready": "C:/Users/ASUS/engflow-backups/audit-dup-answers-20260912.csv (40 rows exercise_id,lesson_id) + rollback-dup-subset-20260912.sql (UPDATE those ids back to '')",
+    "spot_check_pass": "10/10 sampled filled rows via admin includeAnswers API (662274 'were having', 662307, 662308, 662315 multi-gap list, 662604 MC full-sentence key, 662646, 662653, 662685, 662707, 662708) — all real answer text matching prompts, no key-letter garbage"
   }
 }

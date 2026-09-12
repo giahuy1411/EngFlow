@@ -1,7 +1,28 @@
 # Implementation Plan — Remediation sau audit-v7 (backup · timezone · backfill · ddl · hygiene)
 
 > Nguồn: `.specify/specs/audit-v7-full/REPORT.md` §4 + doubt-driven cycle 1 (adversarial review đọc code thật, 4 blocker đã verify).
-> Ngày: 2026-09-12. Trạng thái: **CHỜ user duyệt** — chưa task nào được execute.
+> Ngày: 2026-09-12. Trạng thái: **ĐÃ THỰC THI XONG 2026-09-12** — xem bảng trạng thái dưới đây.
+
+## Trạng thái thực thi (2026-09-12)
+
+| Task | Kết quả | Commit / evidence |
+|---|---|---|
+| P0.1 gitignore probe artifacts | ✅ `git check-ignore` khớp hết | `6c3d4c4` |
+| P0.2 suite xanh trước commit, 2 lô | ✅ 327/0 + 79/79, commit `b424a3d` + `6c3d4c4` | log run |
+| P1.1 BACKUP + .env copy ra `C:\Users\ASUS\engflow-backups\` | ✅ .bak 36MB + VERIFYONLY pass | AGENTS.md bullet |
+| P1.2 Restore drill thật, count khớp, drop sạch | ✅ PASS 43737/1471/5434 | AGENTS.md bullet |
+| P2.1 doc quy ước timezone naive-VN | ✅ | `63dabae` |
+| P2.2 false-positive future-date | ✅ bằng chứng dương: grep toàn `src/test` — các `Instant.now/currentTimeMillis` còn lại (media-ticket exp, SEPay HMAC, streak clocks) đều là epoch-millis-the-spec hoặc đã mang `ZoneId VN`; không còn so sánh naive-vs-UTC nào sót → không có diff code là đúng, không phải chưa làm | verify grep |
+| P3.1 3 bug TDD + lessonId overload | ✅ RED (stash-test) → GREEN; suite **332/0** | `ad4c9a9`, `7303de9` |
+| P3.2 undo tooling | ✅ before-CSV 5.434 + rollback SQL 6 chunks | `sweep/backfill-export.ps1` |
+| P3.3 proof lesson 800 + grading 2 chiều | ✅ qua API với đúng payload UI (browser provider unavailable — ghi rõ trong evidence); MC-shape chốt: options=NULL→text-input→text-equality là flow thật; 2 MC bài 800 bị guard chặn đúng thiết kế | `tasks/evidence/backfill-p3-proof.json` |
+| P3.4 GATE | ✅ **user chọn B** — `mode=deterministic` | commit `7303de9` |
+| P3 batch + 3.5 đóng evidence | ✅ dry-run full (586/0 err) → prebatch .bak → live 586 filled, empty 5434→**4848**; spot-check 10/10 pass qua admin API; diff stray=0 | `05a7c67` + evidence JSON |
+| P4.1 validate drill | ✅ **PASS 0 issues** (14.5s boot, 0 ERROR); properties không đổi | `48307fb`/`1f9d151` + `tasks/evidence/p4-validate-drill.log` |
+| P5.1 content_original | ✅ **GIỮ vĩnh viễn, đóng issue** | AGENTS.md Boundaries + REPORT §3.1 |
+| P5.2 password env doc | ✅ verify `DatabaseSeeder:91-98` rồi mới doc | AGENTS.md Boundaries |
+
+Known-limitation ghi nhận (không sửa dây chuyền, có đường rollback chọn lọc): 40/586 dòng fill trùng đáp án với sibling cùng lesson (12 lesson) — xem `backfill-p3-proof.json` §known_limitation_positional_drift.
 
 ## Assumptions (declared, sửa ngay nếu sai)
 
