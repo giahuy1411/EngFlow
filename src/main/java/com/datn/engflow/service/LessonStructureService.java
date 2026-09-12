@@ -29,7 +29,14 @@ public class LessonStructureService {
     private final LessonBlockRepository blockRepository;
     private final LessonRepository lessonRepository;
 
-    @Transactional
+    /**
+     * audit-v7 F56: GET-mutation removed. Previously this auto-INSERTed a
+     * section+block for every materialized lesson — on a PUBLIC endpoint
+     * (GET /api/lessons/{id}/structure), that is an unauthenticated DB write
+     * amplification (DoS). Reads are now pure: if nothing is materialized,
+     * synthesize a read-only view from lesson.content without persisting.
+     * Admin structure edits (add/update/delete) still materialize explicitly.
+     */
     public List<SectionResponse> getLessonStructure(Long lessonId) {
         List<LessonSection> sections = sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
         if (!sections.isEmpty()) {
@@ -40,20 +47,22 @@ public class LessonStructureService {
         if (lesson.getContent() == null || lesson.getContent().isBlank()) {
             return List.of();
         }
-        LessonSection section = LessonSection.builder()
-                .lesson(lesson)
+        return List.of(virtualSection(lesson));
+    }
+
+    /** Transient (never persisted) section view used when a lesson isn't materialized. */
+    private SectionResponse virtualSection(Lesson lesson) {
+        return SectionResponse.builder()
+                .id(null)
                 .title("Nội dung bài học")
                 .orderIndex(10)
+                .blocks(List.of(BlockResponse.builder()
+                        .id(null)
+                        .blockType(com.datn.engflow.model.enums.BlockType.TEXT.name())
+                        .data(lesson.getContent())
+                        .orderIndex(10)
+                        .build()))
                 .build();
-        section = sectionRepository.save(section);
-        LessonBlock block = LessonBlock.builder()
-                .section(section)
-                .blockType(BlockType.TEXT)
-                .data(lesson.getContent())
-                .orderIndex(10)
-                .build();
-        blockRepository.save(block);
-        return List.of(toSectionResponse(section));
     }
 
     @Transactional

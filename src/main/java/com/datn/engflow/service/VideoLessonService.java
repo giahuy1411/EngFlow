@@ -47,6 +47,7 @@ public class VideoLessonService {
     private final VideoLessonRepository lessonRepository;
     private final VideoAttemptRepository attemptRepository;
     private final MinioService minioService;
+    private final com.datn.engflow.security.MediaSigner mediaSigner;
     private final ObjectMapper objectMapper;
 
     // ---------------------------------------------------------------- queries
@@ -276,9 +277,10 @@ public class VideoLessonService {
         // audit-v6 F28: relative media URL — the frontend resolves it against
         // VITE_API_BASE_URL, so deploys behind another host/port (Tailscale
         // funnel) no longer get broken absolute localhost:8080 links.
+        // audit-v7 F55: signed (exp+sig) so the private proxy accepts it.
         String mediaUrl = attempt.getMediaObjectKey() == null
                 ? null
-                : "/api/v1/media/" + attempt.getMediaObjectKey();
+                : "/api/v1/media/" + attempt.getMediaObjectKey() + "?" + mediaSigner.paramsForObject(attempt.getMediaObjectKey());
         return new VideoAttemptResponse(
                 attempt.getId(),
                 attempt.getVideoLesson().getId(),

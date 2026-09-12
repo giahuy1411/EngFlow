@@ -174,6 +174,17 @@ public class PaymentService {
         }
 
         PaymentTransaction pending = pendingOpt.get();
+        // audit-v7 F57: số tiền chuyển phải khớp giá đơn đã tạo (plan 10.000/20.000đ).
+        // Trước đây webhook hợp lệ chữ ký là kích premium bất kể amount → chuyển
+        // 1.000đ đúng nội dung ENG… vẫn lên YEAR. Cho phép dung sai 0đ: thanh toán
+        // chuyển khoản là số chẵn theo giá niêm yết.
+        if (pending.getAmount() != null && amount.compareTo(pending.getAmount()) < 0) {
+            log.warn("Webhook rejected: transfer amount {} less than order amount {} for {}",
+                    amount, pending.getAmount(), pending.getOrderCode());
+            return Map.of("success", false, "error",
+                    "Amount mismatch: received " + amount.toPlainString()
+                            + " < order " + pending.getAmount().toPlainString());
+        }
         User user = pending.getUser();
         String planType = pending.getPlanType();
         LocalDate premiumExpiry = calculateExpiry(planType);

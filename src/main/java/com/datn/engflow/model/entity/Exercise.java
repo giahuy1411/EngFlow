@@ -37,7 +37,9 @@ public class Exercise {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String options; // JSON array: ["opt1","opt2","opt3","opt4"]
 
-    @Column(name = "correct_answer", nullable = false, length = 500)
+    // audit-v7 B-06: nvarchar(500) từng sát trần (max đo được 401; MATCHING lưu
+    // chuỗi cặp "l=r,..." dài) -> DB đã resize NVARCHAR(2000), entity giữ khớp.
+    @Column(name = "correct_answer", nullable = false, length = 2000)
     private String correctAnswer;
 
     @Enumerated(EnumType.STRING)

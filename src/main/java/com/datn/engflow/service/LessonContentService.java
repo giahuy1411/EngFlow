@@ -200,6 +200,40 @@ public class LessonContentService {
     }
 
     /**
+     * audit-v7 F53: runtime guard for scraped lessons whose answer key is still
+     * visible. Headings h1–h6 whose text starts with "ĐÁP ÁN"/"ANSWER(S| KEY)"
+     * and which are not already inside a &lt;details&gt; get collapsed together
+     * with the content up to the next heading. The offline cleaner added this
+     * conversion later, so 58 lessons predate it (measured 2026-09-12).
+     */
+    public String wrapAnswerSections(String html) {
+        if (html == null || html.isBlank()) return html;
+        Document doc = Jsoup.parseBodyFragment(html);
+        java.util.regex.Pattern keyHeading = java.util.regex.Pattern.compile(
+                "^\\s*(Đ\\s*ÁP\\s*ÁN|ANSWER)",
+                java.util.regex.Pattern.CASE_INSENSITIVE | java.util.regex.Pattern.UNICODE_CASE);
+        boolean changed = false;
+        for (Element h : doc.body().select("h1,h2,h3,h4,h5,h6")) {
+            if (h.closest("details") != null) continue;
+            if (!keyHeading.matcher(h.text()).find()) continue;
+            Element details = doc.createElement("details");
+            Element summary = doc.createElement("summary");
+            summary.text(h.text());
+            details.appendChild(summary);
+            h.before(details);
+            Element next = h.nextElementSibling();
+            while (next != null && !next.tagName().matches("h[1-6]")) {
+                Element sib = next.nextElementSibling();
+                details.appendChild(next);
+                next = sib;
+            }
+            h.remove();
+            changed = true;
+        }
+        return changed ? doc.body().html() : html;
+    }
+
+    /**
      * Convert Divi Answer toggle sections to native HTML5 details/summary elements.
      * Also handles standalone h5 "Answer" headings followed by content.
      */

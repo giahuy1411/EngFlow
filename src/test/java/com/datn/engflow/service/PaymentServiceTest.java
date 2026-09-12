@@ -605,6 +605,30 @@ class PaymentServiceTest {
         assertThat((String) actualResult.get("error")).contains("No pending order");
     }
 
+    /**
+     * audit-v7 F57: webhook amount < order amount (chuyển thiếu) phải bị từ chối,
+     * không kích hoạt premium.
+     */
+    @Test
+    void processSePayTransaction_underpayment_rejected() {
+        String orderCode = "ENGABCDEF123456";
+        String content = "Pay " + orderCode;
+        PaymentTransaction pending = pendingTx(orderCode, "MONTH", 99L);
+        when(paymentTransactionRepository.findByTransactionId("txUnder")).thenReturn(Optional.empty());
+        when(paymentTransactionRepository.existsByOrderCodeAndStatus(orderCode, "SUCCESS")).thenReturn(false);
+        when(paymentTransactionRepository.findFirstByOrderCodeAndStatusOrderByIdDesc(orderCode, "PENDING"))
+                .thenReturn(Optional.of(pending));
+
+        // pendingTx amount = 10000; webhook reports 9999 → dưới mức
+        Map<String, Object> actualResult = paymentService.processSePayTransaction(
+                "txUnder", content, new BigDecimal("9999"), "VCB", "{}");
+
+        assertThat(actualResult.get("success")).isEqualTo(false);
+        assertThat((String) actualResult.get("error")).contains("Amount mismatch");
+        verify(userRepository, never()).save(any());
+        verify(paymentTransactionRepository, never()).save(any());
+    }
+
     @Test
     void processSePayTransaction_yearPlan_calculatesExpiryPlusOneYear() {
         // Given

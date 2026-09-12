@@ -41,6 +41,7 @@ class SpeakingSubmissionServiceAuthorizationTest {
     void setUp() {
         service = new SpeakingSubmissionService(
                 submissionRepository,
+                new com.datn.engflow.security.MediaSigner("test-secret-0123456789abcdef"),
                 promptRepository,
                 userRepository,
                 minioService,

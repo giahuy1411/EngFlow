@@ -190,19 +190,12 @@ public class ExerciseService {
         return s.trim().toLowerCase().replaceAll("\\s+", " ");
     }
 
-    public List<ExerciseResponse> getAllExercises(Long lessonId, String type, String difficulty, String search) {
-        List<Exercise> exercises = lessonId != null
-                ? exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId)
-                : exerciseRepository.findAll();
-        if (search != null && !search.isBlank()) {
-            String keyword = search.trim().toLowerCase();
-            exercises = exercises.stream()
-                    .filter(e -> e.getQuestion() != null && e.getQuestion().toLowerCase().contains(keyword)
-                            || (e.getExplanation() != null && e.getExplanation().toLowerCase().contains(keyword)))
-                    .toList();
-        }
-        return exercises.stream().map(e -> toResponse(e, true)).toList();
-    }
+    // audit-v7 C-03a: method getAllExercises(lessonId,...) với nhánh
+    // exerciseRepository.findAll() (43.7k dòng, 2.3k reads/exec, query chậm nhất
+    // app đo được 308ms) đã BỊ XÓA — controller duy nhất dùng bài tập là
+    // AdminExerciseController vốn gọi getAdminExercisePage (paginated, push
+    // filter xuống SQL qua findAdminPage). Giữ lại đường không phân trang là
+    // tái introducing worst-scaling-query.
 
     public Page<ExerciseResponse> getAdminExercisePage(Long lessonId, String type, String difficulty, String search, Pageable pageable) {
         ExerciseType exerciseType = parseEnum(type, ExerciseType.class);
@@ -414,7 +407,9 @@ public class ExerciseService {
     public LessonContentInfo getCleanContent(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new EntityNotFoundException("Lesson not found: " + lessonId));
-        // Content is already deep-cleaned in DB with <details>/<summary> for Answers
-        return new LessonContentInfo(lesson.getContent());
+        // audit-v7 F53: DB content is mostly pre-cleaned with <details> for answers,
+        // but a runtime pass makes visible "ĐÁP ÁN" blocks collapsible even for the
+        // 58 lessons that predate the offline converter.
+        return new LessonContentInfo(lessonContentService.wrapAnswerSections(lesson.getContent()));
     }
 }

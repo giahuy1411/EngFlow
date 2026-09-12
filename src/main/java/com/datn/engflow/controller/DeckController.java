@@ -39,6 +39,12 @@ public class DeckController {
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "9") int size) {
+        // audit-v7 F34: GET /api/decks/** là permitAll nên principal có thể null —
+        // trước đây userPrincipal.getId() NPE -> 500. Trả 401 đúng hợp đồng auth.
+        if (userPrincipal == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Vui lòng đăng nhập"));
+        }
         size = Math.min(Math.max(size, 1), 100);
         return ResponseEntity.ok(deckService.getUserDeckPage(userPrincipal.getId(), q,
                 PageRequest.of(Math.max(page, 0), size, Sort.by("name").ascending().and(Sort.by("id")))));

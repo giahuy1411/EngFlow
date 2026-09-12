@@ -108,7 +108,30 @@ public class AiVocabController {
      * @return các từ đã lưu kèm id
      */
     @PostMapping("/save-vocab")
-    public ResponseEntity<List<Vocabulary>> saveVocab(@RequestBody List<@Valid VocabularyRequest> words) {
+    public ResponseEntity<?> saveVocab(
+            @RequestBody List<@Valid VocabularyRequest> words,
+            @AuthenticationPrincipal com.datn.engflow.security.UserPrincipal userPrincipal) {
+        // audit-v7 F60: trước đây payload bao nhiêu cũng nhận, không tốn quota →
+        // sinh 50 từ (quota) rồi nổ batch ghi vocab toàn cục vô hạn. Cap 50 +
+        // tính 1 lượt quota mỗi lần save cho user thường (premium/admin free).
+        if (words == null || words.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Danh sách từ trống"));
+        }
+        if (words.size() > 50) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Tối đa 50 từ mỗi lần lưu"));
+        }
+        // Endpoint đã bắt buộc authenticated ở SecurityConfig; userPrincipal null
+        // chỉ xảy ra trong standalone test context (không có filter chain).
+        if (userPrincipal != null) {
+            User user = userService.findEntityById(userPrincipal.getId());
+            if (!userService.hasAiGenerationQuota(user)) {
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
+                        "Bạn đã dùng hết lượt AI hôm nay. Đăng ký Premium để tiếp tục.");
+                problem.setTitle("AI Generation Quota Exceeded");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+            }
+            userService.consumeAiGenerationQuota(user);
+        }
         return ResponseEntity.ok(aiVocabService.saveVocabBatch(words));
     }
 }

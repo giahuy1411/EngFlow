@@ -42,6 +42,7 @@ public class SpeakingSubmissionService {
     private static final List<String> ALLOWED_MEDIA_TYPES = List.of("audio/", "video/");
 
     private final SpeakingSubmissionRepository repository;
+    private final com.datn.engflow.security.MediaSigner mediaSigner;
     private final SpeakingPromptRepository promptRepository;
     private final UserRepository userRepository;
     private final MinioService minioService;
@@ -202,15 +203,20 @@ public class SpeakingSubmissionService {
 
     public String createMediaReadUrl(SpeakingSubmission submission) {
         // audit-v6 F28: relative media URL — frontend resolves against API base
+        // audit-v7 F55: signed so the proxy accepts it (see MediaSigner).
         if (submission.getMediaObjectKey() == null) {
             if (submission.getVideoUrl() != null) {
                 return submission.getVideoUrl().contains("minio:9000")
-                        ? "/api/v1/media/" + extractObjectKey(submission.getVideoUrl())
+                        ? signedMediaUrl(extractObjectKey(submission.getVideoUrl()))
                         : submission.getVideoUrl();
             }
             return null;
         }
-        return "/api/v1/media/" + submission.getMediaObjectKey();
+        return signedMediaUrl(submission.getMediaObjectKey());
+    }
+
+    private String signedMediaUrl(String objectKey) {
+        return "/api/v1/media/" + objectKey + "?" + mediaSigner.paramsForObject(objectKey);
     }
 
     private static String extractObjectKey(String storedUrl) {

@@ -76,12 +76,18 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/vocabulary/search", "/api/vocabulary/dictionary/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/leaderboard").permitAll()
+                // audit-v7 F54: Spring chọn rule KHỚP ĐẦU TIÊN. Rule GET /api/lessons/**
+                // permitAll bên dưới đá chết rule attempts authenticated (trước đây đặt
+                // sau) → attempts history thành PUBLIC, principal null → NPE 500.
+                // Phải đặt rule cụ thể TRƯỚC rule phủ rộng.
+                .requestMatchers(HttpMethod.GET, "/api/lessons/*/exercises/attempts/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/lessons/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/speaking-prompts", "/api/v1/speaking-prompts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/video-prompts", "/api/v1/video-prompts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/video-lessons", "/api/v1/video-lessons/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/decks/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/shop/items").permitAll()
+                // audit-v7 F47: rule "/api/shop/items" permitAll đã XÓA — controller
+                // shop không tồn tại trong codebase (dead rule, attack-surface noise).
                 .requestMatchers("/api/webhook/sepay").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/ai/generate-vocab", "/api/ai/enrich-word").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/ai/save-vocab").authenticated()
@@ -101,7 +107,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/audio/**").permitAll()
+                // audit-v7 F55: media proxy giờ bắt buộc HMAC ticket (exp+sig) trong URL,
+                // ký server-side lúc dựng response cho owner/admin → vẫn GET-permitAll ở
+                // chain (ticket là khảbảo-chứng), nhưng key lộ không còn dùng được.
                 .requestMatchers(HttpMethod.GET, "/api/v1/media/**").permitAll()
+                // audit-v7 F59: lesson resource files (admin-uploaded images/pdf) are
+                // admin-created public teaching assets — serving them to guests is by
+                // design; upload endpoint is ADMIN-only and filenames are UUID-named.
                 .requestMatchers(HttpMethod.GET, "/api/resources/**").permitAll()
                 .anyRequest().authenticated()
             )

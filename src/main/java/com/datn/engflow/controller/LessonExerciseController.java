@@ -64,6 +64,11 @@ public class LessonExerciseController {
     public ResponseEntity<List<AttemptHistoryResponse>> getAttempts(
             @PathVariable Long lessonId,
             Authentication authentication) {
+        // audit-v7 F54: guard phòng thủ — security chain giờ bắt buộc authenticated
+        // cho /attempts/**, nhưng null principal không bao giờ được thành NPE 500.
+        if (!isRealUser(authentication)) {
+            return ResponseEntity.status(401).build();
+        }
         List<AttemptHistoryResponse> history = exerciseService.getAttemptHistory(lessonId, authentication.getName());
         return ResponseEntity.ok(history);
     }
@@ -73,8 +78,21 @@ public class LessonExerciseController {
             @PathVariable Long lessonId,
             @PathVariable Long attemptId,
             Authentication authentication) {
+        if (!isRealUser(authentication)) {
+            return ResponseEntity.status(401).build();
+        }
         AttemptDetailResponse detail = exerciseService.getAttemptDetail(lessonId, attemptId, authentication.getName());
         return ResponseEntity.ok(detail);
+    }
+
+    /** True only for an authenticated, non-anonymous principal. */
+    private static boolean isRealUser(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
+            return false;
+        }
+        return authentication.getName() != null && !"anonymousUser".equals(authentication.getName());
     }
 
     /**

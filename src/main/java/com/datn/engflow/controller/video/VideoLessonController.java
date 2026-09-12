@@ -48,6 +48,7 @@ public class VideoLessonController {
     private final ShadowingAiGradingService shadowingAiGradingService;
     private final SubtitleTranslationService subtitleTranslationService;
     private final YouTubeTranscriptService youTubeTranscriptService;
+    private final com.datn.engflow.security.MediaSigner mediaSigner;
 
     // ------------------------------------------------------------- public
 
@@ -235,8 +236,9 @@ public class VideoLessonController {
 
     private VideoAttemptResponse videoAttemptResponse(VideoAttempt attempt) {
         // audit-v6 F28: relative media URL (see VideoLessonService.toResponse)
+        // audit-v7 F55: signed (exp+sig) so the private proxy accepts it.
         String mediaUrl = attempt.getMediaObjectKey() == null ? null
-                : "/api/v1/media/" + attempt.getMediaObjectKey();
+                : "/api/v1/media/" + attempt.getMediaObjectKey() + "?" + mediaSigner.paramsForObject(attempt.getMediaObjectKey());
         return new VideoAttemptResponse(
                 attempt.getId(),
                 attempt.getVideoLesson().getId(),

@@ -31,6 +31,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final int MAX_REQUESTS_PER_MINUTE_LOGIN = 20;
     private static final int MAX_REQUESTS_PER_MINUTE_MAIL = 5;
     private static final int MAX_REQUESTS_PER_MINUTE_GLOBAL = 100;
+    // audit-v7 F61: các endpoint đắt/tốn tài nguyên (AI local pipeline, upload
+    // MinIO, tạo đơn thanh toán) trước đây chỉ chịu bucket global 100/phút/IP.
+    private static final int MAX_REQUESTS_PER_MINUTE_AI = 10;
+    private static final int MAX_REQUESTS_PER_MINUTE_UPLOAD = 15;
+    private static final int MAX_REQUESTS_PER_MINUTE_ORDER = 10;
     private static final Duration RATE_LIMIT_TTL = Duration.ofMinutes(1);
 
     @Override
@@ -41,11 +46,32 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI().replaceAll("/+$", "");
         boolean isAuthEndpoint = requestURI.startsWith("/api/auth/login") || requestURI.startsWith("/api/auth/register");
         boolean isMailEndpoint = requestURI.startsWith("/api/auth/forgot-password") || requestURI.startsWith("/api/auth/reset-password");
-        int limit = isAuthEndpoint ? MAX_REQUESTS_PER_MINUTE_LOGIN : isMailEndpoint ? MAX_REQUESTS_PER_MINUTE_MAIL : MAX_REQUESTS_PER_MINUTE_GLOBAL;
+        // audit-v7 F61: chọn bucket theo loại endpoint
+        String bucket = ":global";
+        int limit = MAX_REQUESTS_PER_MINUTE_GLOBAL;
+        if (isAuthEndpoint) {
+            bucket = ":auth";
+            limit = MAX_REQUESTS_PER_MINUTE_LOGIN;
+        } else if (isMailEndpoint) {
+            bucket = ":mail";
+            limit = MAX_REQUESTS_PER_MINUTE_MAIL;
+        } else if (requestURI.startsWith("/api/ai/")) {
+            bucket = ":ai";
+            limit = MAX_REQUESTS_PER_MINUTE_AI;
+        } else if ("POST".equals(request.getMethod())
+                && (requestURI.startsWith("/api/admin/upload") || requestURI.startsWith("/api/admin/audio-upload")
+                        || requestURI.contains("/submissions")
+                        || requestURI.startsWith("/api/v1/video-attempts"))) {
+            // chỉ tính POST — GET danh sách attempts/history không bị siết
+            bucket = ":upload";
+            limit = MAX_REQUESTS_PER_MINUTE_UPLOAD;
+        } else if (requestURI.startsWith("/api/payments/create-order") || requestURI.startsWith("/api/premium")) {
+            bucket = ":order";
+            limit = MAX_REQUESTS_PER_MINUTE_ORDER;
+        }
 
         String clientIp = getClientIP(request);
-        String redisKey = RedisConstants.RATE_LIMIT_PREFIX + clientIp
-                + (isAuthEndpoint ? ":auth" : isMailEndpoint ? ":mail" : ":global");
+        String redisKey = RedisConstants.RATE_LIMIT_PREFIX + clientIp + bucket;
 
         Long currentCount;
         try {

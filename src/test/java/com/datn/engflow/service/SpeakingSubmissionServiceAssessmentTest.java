@@ -44,7 +44,7 @@ class SpeakingSubmissionServiceAssessmentTest {
     @BeforeEach
     void setUp() throws Exception {
         service = new SpeakingSubmissionService(
-                submissionRepository, promptRepository, userRepository, minioService,
+                submissionRepository, new com.datn.engflow.security.MediaSigner("test-secret-0123456789abcdef"), promptRepository, userRepository, minioService,
                 assessmentService, new ObjectMapper());
         media = new MockMultipartFile("media", "recording.webm", "audio/webm", new byte[]{1, 2, 3});
         student = User.builder().id(7L).build();

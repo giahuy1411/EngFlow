@@ -21,4 +21,6 @@ public interface SpeakingSubmissionRepository extends JpaRepository<SpeakingSubm
     List<SpeakingSubmission> findAllByOrderBySubmittedAtDesc();
     Page<SpeakingSubmission> findByStatus(SpeakingSubmissionStatus status, Pageable pageable);
     boolean existsByPromptId(Long promptId);
+    // audit-v7 F55: media-proxy legacy-URL ownership fallback
+    boolean existsByMediaObjectKeyAndUserId(String mediaObjectKey, Long userId);
 }

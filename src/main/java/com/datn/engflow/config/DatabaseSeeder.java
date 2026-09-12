@@ -90,6 +90,13 @@ public class DatabaseSeeder implements CommandLineRunner {
     private void ensureDefaultUsers() {
         String userPassword = System.getenv().getOrDefault("DEFAULT_USER_PASSWORD", "password123");
         String adminPassword = System.getenv().getOrDefault("DEFAULT_ADMIN_PASSWORD", "password123");
+        // audit-v7 F58: dev/demo seed (AGENTS.md) dùng cặp password công khai. Khi
+        // deploy thật phải set 2 env trên; nếu không, chỉ ra log rằng tài khoản
+        // đang mang mật khẩu mặc định ai cũng biết.
+        if ("password123".equals(adminPassword) || "password123".equals(userPassword)) {
+            log.warn("SECURITY: default seed accounts use the fallback password 'password123'."
+                    + " Set DEFAULT_ADMIN_PASSWORD / DEFAULT_USER_PASSWORD before any non-local deploy.");
+        }
         ensureUserExists("user@gmail.com", "student", userPassword, "Học Viên Mẫu", 
                 false, com.datn.engflow.model.enums.LessonLevel.ELEMENTARY, 
                 "https://api.dicebear.com/7.x/adventurer/svg?seed=student");

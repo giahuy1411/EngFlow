@@ -53,6 +53,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * audit-v7 F62: `Level.valueOf("FOO")` (query/body enum params) threw
+     * IllegalArgumentException and fell through to the 500 catch-all. Bad input
+     * is a client error → 400 with the Vietnamese message the frontend shows.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Bad argument: {}", ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Giá trị không hợp lệ. Vui lòng kiểm tra lại đầu vào.");
+        problem.setTitle("Bad Request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    /**
      * JPA-level "not found" (thrown by ExerciseService and any repository orElseThrow)
      * must surface as 404, not fall through to the catch-all 500.
      *

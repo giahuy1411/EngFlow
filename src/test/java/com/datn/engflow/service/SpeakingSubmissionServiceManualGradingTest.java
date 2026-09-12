@@ -39,7 +39,7 @@ class SpeakingSubmissionServiceManualGradingTest {
     @BeforeEach
     void setUp() {
         service = new SpeakingSubmissionService(
-                submissionRepository, promptRepository, userRepository, minioService,
+                submissionRepository, new com.datn.engflow.security.MediaSigner("test-secret-0123456789abcdef"), promptRepository, userRepository, minioService,
                 assessmentService, new com.fasterxml.jackson.databind.ObjectMapper());
         submission = SpeakingSubmission.builder()
                 .id(20L)

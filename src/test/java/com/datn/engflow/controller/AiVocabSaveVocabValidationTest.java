@@ -82,4 +82,27 @@ class AiVocabSaveVocabValidationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].word").value("journey"));
     }
+
+    /** audit-v7 F60: batch quá 50 từ phải bị chặn ở controller (400), không xuống service. */
+    @Test
+    void saveVocab_oversizedBatch_returns400() throws Exception {
+        List<VocabularyRequest> many = new java.util.ArrayList<>();
+        for (int i = 0; i < 51; i++) {
+            many.add(VocabularyRequest.builder().word("w" + i).meaning("nghia " + i).build());
+        }
+
+        mockMvc.perform(post("/api/ai/save-vocab")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(many)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /** audit-v7 F60: payload rỗng [] trước đây lọt xuống batch save (200 vô nghĩa). */
+    @Test
+    void saveVocab_emptyList_returns400() throws Exception {
+        mockMvc.perform(post("/api/ai/save-vocab")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(List.of())))
+                .andExpect(status().isBadRequest());
+    }
 }
