@@ -105,6 +105,7 @@
             <td class="p-4 border-r-2 border-foreground text-center tabular-nums">{{ l.lineCount }}</td>
             <td class="p-4 text-center">
               <router-link :to="`/videos/${l.id}`" class="text-xs font-black uppercase tracking-wider underline mr-3">Xem</router-link>
+              <AppButton @click="openForm(l)" variant="secondary" size="sm" class="mr-2">Sửa</AppButton>
               <AppButton @click="deleteLesson(l.id)" variant="danger" size="sm">Xóa</AppButton>
             </td>
           </tr>
@@ -180,8 +181,19 @@ function openForm(lesson = null) {
   editing.value = lesson ? lesson.id : null
   // audit-v6 F21: keep transcript empty in the box — an empty box now means
   // "giữ phụ đề cũ" (backend keeps current transcript on update).
+  //
+  // audit-v8 F88: list admin trả VideoLessonSummary (có youtubeVideoId, KHÔNG có
+  // youtubeUrl), nên đọc lesson.youtubeUrl ra undefined -> ô "Link YouTube" (required)
+  // trống -> trình duyệt chặn submit, không có request nào và không có toast: nút Lưu im lặng.
+  // Dựng lại URL từ video id để form sửa có đủ dữ liệu.
   form.value = lesson
-    ? { title: lesson.title, description: lesson.description || '', youtubeUrl: lesson.youtubeUrl || '', level: lesson.level || 'ELEMENTARY', transcriptText: '' }
+    ? {
+        title: lesson.title,
+        description: lesson.description || '',
+        youtubeUrl: lesson.youtubeUrl || (lesson.youtubeVideoId ? `https://www.youtube.com/watch?v=${lesson.youtubeVideoId}` : ''),
+        level: lesson.level || 'ELEMENTARY',
+        transcriptText: ''
+      }
     : defaultForm()
   transcriptError.value = ''
   translatedLines.value = {}

@@ -1,5 +1,6 @@
 package com.datn.engflow.controller;
 
+import com.datn.engflow.security.SafeUploadNames;
 import com.datn.engflow.service.CloudinaryService;
 import com.datn.engflow.model.dto.request.BlockRequest;
 import com.datn.engflow.model.dto.request.SectionRequest;
@@ -71,12 +72,8 @@ public class LessonStructureController {
     @PostMapping("/api/admin/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            String originalName = file.getOriginalFilename();
-            String ext = "";
-            if (originalName != null && originalName.contains(".")) {
-                ext = originalName.substring(originalName.lastIndexOf("."));
-            }
-            String filename = UUID.randomUUID().toString() + ext;
+            String ext = SafeUploadNames.extensionOf(file.getOriginalFilename());
+            String filename = UUID.randomUUID().toString() + "." + ext;
             Path uploadDir = Paths.get("uploads");
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
@@ -102,16 +99,19 @@ public class LessonStructureController {
             if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
                 return ResponseEntity.notFound().build();
             }
-            String contentType = Files.probeContentType(filePath);
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
+            // audit-v8 F81: pin the type from the allowlisted extension instead of
+            // probing the file, so a .html/.svg/.js already on disk cannot be
+            // rendered as a first-party document.
+            String contentType = SafeUploadNames.contentTypeFor(clean);
             org.springframework.core.io.Resource res =
                     new org.springframework.core.io.FileSystemResource(filePath.toFile());
-            return ResponseEntity.ok()
+            ResponseEntity.BodyBuilder builder = ResponseEntity.ok()
                     .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
-                    .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofDays(7)))
-                    .body(res);
+                    .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofDays(7)));
+            if (SafeUploadNames.forceDownload(clean)) {
+                builder = builder.header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment");
+            }
+            return builder.body(res);
         } catch (Exception e) {
             log.error("Resource fetch failed: {}", filename, e);
             return ResponseEntity.internalServerError().build();

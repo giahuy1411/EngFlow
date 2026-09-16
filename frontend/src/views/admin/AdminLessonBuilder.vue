@@ -185,7 +185,7 @@
                            class="w-full border-2 border-foreground rounded-md p-2 bg-white font-medium text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                            placeholder="Chú thích (tùy chọn)..." />
                     <div v-if="blockData[block.id].imageUrl" class="border-2 border-foreground rounded-md bg-muted/60 p-2 overflow-hidden shadow-pop-sm">
-                      <img :src="blockData[block.id].imageUrl" class="max-h-48 mx-auto object-contain" />
+                      <img :src="blockData[block.id].imageUrl" :alt="blockData[block.id].caption || 'Xem trước hình ảnh của khối nội dung'" class="max-h-48 mx-auto object-contain" />
                       <p v-if="blockData[block.id].caption" class="text-center font-bold text-xs uppercase tracking-wider mt-2 text-muted-foreground">{{ blockData[block.id].caption }}</p>
                     </div>
                   </div>

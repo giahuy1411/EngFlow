@@ -68,24 +68,38 @@ public class GameController {
         if (userPrincipal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String sessionId = (String) payload.get("sessionId");
-        if (sessionId == null || sessionId.isBlank()) {
+        Object sessionIdRaw = payload.get("sessionId");
+        if (!(sessionIdRaw instanceof String) || ((String) sessionIdRaw).isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Session ID không được để trống"));
         }
+        String sessionId = (String) sessionIdRaw;
         // New secure path: if client sends detailed answers, server validates
         Object answersObj = payload.get("answers");
+        if (answersObj != null && !(answersObj instanceof java.util.List)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "answers phải là một danh sách"));
+        }
+        Object correctRawObj = payload.get("correctAnswers");
+        if (correctRawObj != null && !(correctRawObj instanceof Number)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "correctAnswers phải là một số"));
+        }
+        Number correctRaw = (Number) correctRawObj;
         if (answersObj instanceof java.util.List) {
+            java.util.List<?> rawAnswers = (java.util.List<?>) answersObj;
+            for (Object item : rawAnswers) {
+                if (!(item instanceof java.util.Map)) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", "mỗi phần tử answers phải là một đối tượng"));
+                }
+            }
             java.util.List<Map<String, Object>> answers = (java.util.List<Map<String, Object>>) answersObj;
-            Number correctRaw = (Number) payload.get("correctAnswers");
             int clientCorrect = correctRaw != null ? correctRaw.intValue() : 0;
             return ResponseEntity.ok(gameService.submitGameResult(userPrincipal.getId(), sessionId, clientCorrect, answers));
         }
-        Number correctAnswersRaw = (Number) payload.get("correctAnswers");
-        if (correctAnswersRaw == null) {
+        if (correctRaw == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "correctAnswers không được để trống"));
         }
-        int correctAnswers = correctAnswersRaw.intValue();
-        
+        int correctAnswers = correctRaw.intValue();
+
         return ResponseEntity.ok(gameService.submitGameResult(userPrincipal.getId(), sessionId, correctAnswers));
     }
 }

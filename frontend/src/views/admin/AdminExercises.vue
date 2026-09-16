@@ -234,7 +234,8 @@
                       <input type="file" accept="image/*" class="hidden" @change="uploadFile($event, 'imageUrl')" />
                     </AppButton>
                   </div>
-                  <img v-if="formData.imageUrl" :src="formData.imageUrl" class="mt-2 border-2 border-foreground max-h-32 object-contain bg-white rounded-md overflow-hidden"
+                  <img v-if="formData.imageUrl" :src="formData.imageUrl" alt="Xem trước hình ảnh của câu hỏi"
+                       class="mt-2 border-2 border-foreground max-h-32 object-contain bg-white rounded-md overflow-hidden"
                        @error="onImageError" />
                   <div v-if="formData.imageUrl && imageError" class="text-accent font-bold text-xs">Không thể tải hình ảnh từ URL này</div>
                 </div>

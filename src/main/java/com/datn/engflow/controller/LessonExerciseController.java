@@ -4,6 +4,7 @@ import com.datn.engflow.model.dto.request.GradeRequest;
 import com.datn.engflow.model.dto.response.*;
 import com.datn.engflow.service.ExerciseService;
 import com.datn.engflow.service.LessonContentService;
+import com.datn.engflow.service.LessonService;
 import com.datn.engflow.service.LessonContentService.LessonContentInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class LessonExerciseController {
 
     private final ExerciseService exerciseService;
     private final LessonContentService lessonContentService;
+    private final LessonService lessonService;
 
     @GetMapping
     public ResponseEntity<List<ExerciseResponse>> getExercises(
@@ -39,6 +41,8 @@ public class LessonExerciseController {
                 return ResponseEntity.status(403).build();
             }
         }
+        // audit-v8 F88: bai nhap khong duoc doc cong khai (admin bo qua de preview).
+        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
         List<ExerciseResponse> exercises = exerciseService.getExercisesByLesson(lessonId, includeAnswers);
         return ResponseEntity.ok(exercises);
     }
@@ -85,6 +89,19 @@ public class LessonExerciseController {
         return ResponseEntity.ok(detail);
     }
 
+    /** True khi principal that su co ROLE_ADMIN (anonymous user khong bao gio co). */
+    private static boolean isAdmin(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        String name = authentication.getName();
+        if (name == null || "anonymousUser".equals(name)) {
+            return false;
+        }
+        return authentication.getAuthorities() != null
+                && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+    }
+
     /** True only for an authenticated, non-anonymous principal. */
     private static boolean isRealUser(Authentication authentication) {
         if (authentication == null
@@ -100,7 +117,10 @@ public class LessonExerciseController {
      */
     @GetMapping("/content")
     public ResponseEntity<LessonContentInfo> getCleanContent(
-            @PathVariable Long lessonId) {
+            @PathVariable Long lessonId,
+            Authentication authentication) {
+        // audit-v8 F88: cung guard voi /exercises.
+        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
         LessonContentInfo info = exerciseService.getCleanContent(lessonId);
         return ResponseEntity.ok(info);
     }

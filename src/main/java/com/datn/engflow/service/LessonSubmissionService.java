@@ -10,6 +10,7 @@ import com.datn.engflow.model.enums.SkillType;
 import com.datn.engflow.repository.LessonRepository;
 import com.datn.engflow.repository.LessonSubmissionRepository;
 import com.datn.engflow.repository.UserRepository;
+import com.datn.engflow.security.SafeUploadNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -98,13 +99,14 @@ public class LessonSubmissionService {
             }
         }
 
+        // audit-v8 F81: the returned path is served by /api/resources/** to any
+        // visitor, so the recorder upload must not be able to carry a browser-active
+        // extension. Default to .webm only when the client sent no name at all.
         String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        } else {
-            extension = ".webm"; // Default format for media recorder in browsers
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            originalFilename = "recording.webm";
         }
+        String extension = "." + SafeUploadNames.extensionOf(originalFilename);
 
         String uniqueFileName = UUID.randomUUID().toString() + extension;
         Path targetPath = Paths.get("uploads", uniqueFileName);

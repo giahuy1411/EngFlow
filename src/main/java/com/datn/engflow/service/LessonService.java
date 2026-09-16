@@ -154,12 +154,37 @@ public class LessonService {
         });
     }
 
+    /**
+     * audit-v8 F88: chan doc noi dung nhap (is_published=false) qua cac endpoint public.
+     * Nem 404 thay vi 403 de khong tiet lo su ton tai cua ban nhap.
+     *
+     * @param lessonId id bai hoc
+     * @param requesterIsAdmin true thi bo qua guard (admin can preview/review ban nhap)
+     * @throws ResourceNotFoundException bai hoc khong ton tai, hoac la ban nhap voi nguoi thuong
+     */
+    @Transactional(readOnly = true)
+    public void assertLessonVisible(Long lessonId, boolean requesterIsAdmin) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
+        assertVisible(lesson, requesterIsAdmin);
+    }
+
+    private void assertVisible(Lesson lesson, boolean requesterIsAdmin) {
+        if (!requesterIsAdmin && !Boolean.TRUE.equals(lesson.getIsPublished())) {
+            throw new ResourceNotFoundException("Lesson", "id", lesson.getId());
+        }
+    }
+
     @Transactional
-    public LessonResponse getLessonDetails(Long lessonId, String userEmail) {
+    public LessonResponse getLessonDetails(Long lessonId, String userEmail, boolean requesterIsAdmin) {
         log.info("Lấy chi tiết bài học: id={}, user={}", lessonId, userEmail);
 
         Lesson lesson = lessonRepository.findByIdWithDetails(lessonId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
+
+        // audit-v8 F88: detail la endpoint permitAll con list thi da loc isPublished=true — ban
+        // nhap (is_published=false) phai 404 voi guest/student, chi admin duoc doc de preview.
+        assertVisible(lesson, requesterIsAdmin);
 
         if (userEmail == null) {
             return LessonResponse.builder()

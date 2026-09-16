@@ -25,7 +25,7 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     List<Exercise> findByLessonIdAndDifficultyOrderByOrderIndexAsc(Long lessonId, String difficulty);
     @Query("""
             SELECT e FROM Exercise e
-            JOIN FETCH e.lesson l
+            JOIN e.lesson l
             WHERE (:lessonId IS NULL OR l.id = :lessonId)
               AND (:type IS NULL OR :type = '' OR e.exerciseType = :type)
               AND (:difficulty IS NULL OR :difficulty = '' OR e.difficulty = :difficulty)

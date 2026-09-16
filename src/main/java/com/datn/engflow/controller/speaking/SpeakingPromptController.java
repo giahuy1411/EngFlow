@@ -115,6 +115,11 @@ public class SpeakingPromptController {
     public ResponseEntity<Map<String, String>> aiGeneratePrompt(
             @RequestBody Map<String, String> body) {
         String topic = body.getOrDefault("topic", "");
+        if (topic.isBlank()) {
+            // audit-v8: ai-generate-full already guards this; without the same check an
+            // empty topic still reached Ollama and came back as invented filler.
+            return ResponseEntity.badRequest().body(Map.of("error", "Cần nhập chủ đề"));
+        }
         String level = body.getOrDefault("level", "B1");
         // Blocking call with timeout: a Mono return value triggers an async error
         // redispatch that clears the SecurityContext and masks real failures as 401.

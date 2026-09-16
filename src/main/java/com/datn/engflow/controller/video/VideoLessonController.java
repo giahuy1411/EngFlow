@@ -72,7 +72,11 @@ public class VideoLessonController {
     public ResponseEntity<VideoLessonDetail> detail(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return ResponseEntity.ok(videoLessonService.getDetail(id, userPrincipal == null ? null : userPrincipal.getId()));
+        boolean isAdmin = userPrincipal != null && userPrincipal.getAuthorities() != null
+                && userPrincipal.getAuthorities().stream()
+                        .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        return ResponseEntity.ok(videoLessonService.getDetail(id,
+                userPrincipal == null ? null : userPrincipal.getId(), isAdmin));
     }
 
     // ------------------------------------------------------------- attempts

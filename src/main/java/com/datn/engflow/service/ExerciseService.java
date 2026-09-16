@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.datn.engflow.model.dto.projection.LessonTitle;
 import com.datn.engflow.service.LessonContentService.LessonContentInfo;
 
 @Slf4j
@@ -200,13 +201,48 @@ public class ExerciseService {
     public Page<ExerciseResponse> getAdminExercisePage(Long lessonId, String type, String difficulty, String search, Pageable pageable) {
         ExerciseType exerciseType = parseEnum(type, ExerciseType.class);
         ExerciseDifficulty exerciseDifficulty = parseEnum(difficulty, ExerciseDifficulty.class);
-        return exerciseRepository.findAdminPage(
-                        lessonId,
-                        exerciseType,
-                        exerciseDifficulty,
-                        search != null && !search.isBlank() ? search.trim() : null,
-                        pageable)
-                .map(e -> toResponse(e, true));
+        Page<Exercise> page = exerciseRepository.findAdminPage(
+                lessonId,
+                exerciseType,
+                exerciseDifficulty,
+                search != null && !search.isBlank() ? search.trim() : null,
+                pageable);
+        // audit-v8 perf: read the row labels straight from the lesson table as id+title.
+        // Hydrating the joined Lesson entity pulled content/content_original (NVARCHAR MAX)
+        // for every row on the page, which was the single most read-heavy statement the app
+        // issues (95k logical reads per page). One extra batched query replaces that.
+        java.util.Set<Long> lessonIds = page.getContent().stream()
+                .map(e -> e.getLesson() == null ? null : e.getLesson().getId())
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
+        Map<Long, String> titles = lessonIds.isEmpty() ? Map.of()
+                : lessonRepository.findTitlesById(lessonIds).stream()
+                        .collect(Collectors.toMap(LessonTitle::getLessonId, t -> t.getTitle() == null ? "" : t.getTitle(), (a, b) -> a));
+        return page.map(e -> toAdminRow(e, titles));
+    }
+
+    /**
+     * Admin row for the paginated list. Built from scalar exercise columns only: reading
+     * {@code ex.getLesson().getTitle()} would initialise the lazy Lesson proxy and pull the
+     * two NVARCHAR(MAX) columns for every row, which is exactly the cost this page must avoid.
+     * The lesson id comes from the proxy without a select; the title is looked up once per page.
+     */
+    private ExerciseResponse toAdminRow(Exercise ex, Map<Long, String> titles) {
+        Long lid = ex.getLesson() == null ? null : ex.getLesson().getId();
+        return ExerciseResponse.builder()
+                .id(ex.getId())
+                .lessonId(lid)
+                .lessonTitle(lid == null ? null : titles.get(lid))
+                .question(ex.getQuestion())
+                .options(ex.getOptions())
+                .correctAnswer(ex.getCorrectAnswer())
+                .exerciseType(ex.getExerciseType().name())
+                .difficulty(ex.getDifficulty() != null ? ex.getDifficulty().name() : null)
+                .explanation(ex.getExplanation())
+                .imageUrl(ex.getImageUrl())
+                .audioUrl(ex.getAudioUrl())
+                .orderIndex(ex.getOrderIndex())
+                .build();
     }
 
     private static <T extends Enum<T>> T parseEnum(String value, Class<T> enumClass) {

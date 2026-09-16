@@ -28,7 +28,11 @@ public final class VideoDtos {
             @NotBlank String youtubeUrl,
             @NotBlank String level,
             String category,
-            @NotNull List<TranscriptLine> transcript,
+            // audit-v8 F88: null = "giu nguyen phu de hien co" khi UPDATE (audit-v6 F21) nen KHONG
+            // duoc @NotNull o day — annotation do bien guard null trong service thanh dead code va
+            // moi lan admin sua bai (bo trong o phu de) deu 400. CREATE van bi chan boi
+            // VideoLessonService.validateTranscript: 400 "Transcript can it nhat 2 dong".
+            List<TranscriptLine> transcript,
             Boolean isPublished) {
     }
 

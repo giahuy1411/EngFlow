@@ -1,5 +1,6 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import './sanitize-a11y'
 
 // Configure marked options if needed
 marked.setOptions({

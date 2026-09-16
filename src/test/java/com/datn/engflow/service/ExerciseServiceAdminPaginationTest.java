@@ -1,5 +1,6 @@
 package com.datn.engflow.service;
 
+import com.datn.engflow.model.dto.projection.LessonTitle;
 import com.datn.engflow.model.dto.response.ExerciseResponse;
 import com.datn.engflow.model.entity.Exercise;
 import com.datn.engflow.model.entity.Lesson;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -46,6 +48,13 @@ class ExerciseServiceAdminPaginationTest {
     @InjectMocks
     private ExerciseService exerciseService;
 
+    private static LessonTitle title(Long id, String t) {
+        return new LessonTitle() {
+            @Override public Long getLessonId() { return id; }
+            @Override public String getTitle() { return t; }
+        };
+    }
+
     @Test
     void adminPageForwardsAllFiltersToRepository() {
         Pageable pageable = PageRequest.of(2, 20);
@@ -63,6 +72,9 @@ class ExerciseServiceAdminPaginationTest {
         when(exerciseRepository.findAdminPage(
                 5L, ExerciseType.MULTIPLE_CHOICE, ExerciseDifficulty.EASY, "school", pageable))
                 .thenReturn(page);
+        // audit-v8 perf: the row label now comes from one batched id+title query instead
+        // of hydrating the joined Lesson (which dragged content/content_original along).
+        when(lessonRepository.findTitlesById(Set.of(5L))).thenReturn(List.of(title(5L, "Grammar 101")));
 
         Page<ExerciseResponse> result = exerciseService.getAdminExercisePage(
                 5L, "multiple_choice", "easy", "  school  ", pageable);
@@ -77,10 +89,11 @@ class ExerciseServiceAdminPaginationTest {
         assertThat(dto.getCorrectAnswer()).isEqualTo("goes");
         verify(exerciseRepository)
                 .findAdminPage(5L, ExerciseType.MULTIPLE_CHOICE, ExerciseDifficulty.EASY, "school", pageable);
+        verify(lessonRepository).findTitlesById(Set.of(5L));
     }
 
     @Test
-    void adminPageWithoutFiltersPassesNulls() {
+    void adminPageSkipsTitleLookupWhenPageIsEmpty() {
         Pageable pageable = PageRequest.of(0, 20);
         when(exerciseRepository.findAdminPage(null, null, null, null, pageable))
                 .thenReturn(Page.empty(pageable));
@@ -90,6 +103,8 @@ class ExerciseServiceAdminPaginationTest {
 
         assertThat(result.getContent()).isEmpty();
         verify(exerciseRepository).findAdminPage(null, null, null, null, pageable);
+        // no ids on the page -> no second query at all
+        verify(lessonRepository, org.mockito.Mockito.never()).findTitlesById(org.mockito.ArgumentMatchers.anySet());
     }
 
     @Test

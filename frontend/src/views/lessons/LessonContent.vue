@@ -52,6 +52,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import DOMPurify from 'dompurify'
+import '../../utils/sanitize-a11y'
 import lessonService from '@/services/lessonService'
 import speakingService from '@/services/speakingService'
 import AppButton from '@/components/ui/AppButton.vue'

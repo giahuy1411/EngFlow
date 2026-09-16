@@ -39,6 +39,15 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
            "WHERE l.id = :id")
     Optional<Lesson> findByIdWithDetails(@Param("id") Long id);
 
+    /**
+     * Id + title only, for labelling the admin exercise page. Selecting the entity
+     * instead drags lesson.content and lesson.content_original (NVARCHAR MAX, 116 MB
+     * of LOB pages) into every row: measured 320 LOB logical reads and 32ms for a
+     * 20-row page versus 0 reads and 1ms when only the title is selected.
+     */
+    @Query("SELECT l.id AS lessonId, l.title AS title FROM Lesson l WHERE l.id IN :ids")
+    List<com.datn.engflow.model.dto.projection.LessonTitle> findTitlesById(@Param("ids") java.util.Collection<Long> ids);
+
     @Query("""
             SELECT l FROM Lesson l
             WHERE l.isPublished = true

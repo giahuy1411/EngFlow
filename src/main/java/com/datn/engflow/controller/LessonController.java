@@ -42,7 +42,11 @@ public class LessonController {
     @GetMapping("/{id}")
     public ResponseEntity<LessonResponse> getLessonDetails(@PathVariable Long id, Authentication authentication) {
         String email = authentication != null ? authentication.getName() : null;
-        LessonResponse lesson = lessonService.getLessonDetails(id, email);
+        // audit-v8 F88: admin duoc doc ban nhap qua endpoint public de preview.
+        boolean isAdmin = authentication != null && authentication.getAuthorities() != null
+                && authentication.getAuthorities().stream()
+                        .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        LessonResponse lesson = lessonService.getLessonDetails(id, email, isAdmin);
         return ResponseEntity.ok(lesson);
     }
 

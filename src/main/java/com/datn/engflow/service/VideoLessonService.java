@@ -66,8 +66,13 @@ public class VideoLessonService {
     }
 
     @Transactional(readOnly = true)
-    public VideoLessonDetail getDetail(Long id, Long userId) {
+    public VideoLessonDetail getDetail(Long id, Long userId, boolean requesterIsAdmin) {
         VideoLesson lesson = getLesson(id);
+        // audit-v8 F88: list da loc isPublished=true thi detail phai khop — ban nhap
+        // (is_published=false) khong duoc lo cho guest/student; admin van xem duoc de review.
+        if (!Boolean.TRUE.equals(lesson.getIsPublished()) && !requesterIsAdmin) {
+            throw new ResourceNotFoundException("VideoLesson", "id", id);
+        }
         List<Integer> completed = userId == null
                 ? List.of()
                 : attemptRepository.findCompletedLineIndexes(userId, id);
