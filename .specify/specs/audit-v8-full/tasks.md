@@ -1,0 +1,43 @@
+# Tasks — audit-v8-full
+
+- [x] T01 Đọc goal-objective + constitution + audit-v7 REPORT (baseline 327→332, 79 tests)
+- [x] T02 Backend suite vòng 1: 332/332 BUILD SUCCESS (43.8s)
+- [x] T03 Frontend suite vòng 1: 79/79 (16 files)
+- [x] T04 Sweep 42 endpoint v7 (42/42, slowest 374ms) + CRUD 43/43 → tái sử dụng làm baseline
+- [x] T05 Enumerate 139 mapping annotations → thiết kế sweep mới (p1/p2/p3a/p3b)
+- [x] T06 P1 public+role matrix: 124 probes → 0 fail (sau khi sửa 2 expectation sai của harness)
+- [x] T07 P2 CRUD: 61 probes → 0 fail (lesson/exercise/vocab/prompt/deck/structure/snapshot+restore/SRS/flashcard/game submit UI-shape)
+- [x] T08 P3a AI surface: 37 probes, 1 fail thật (F86) + 2 chất lượng (F84/F85); Ollama 1.5b/3b chạy thật
+- [x] T09 P3b uploads/payment/speaking: 19 probes, 0 fail; Whisper+3b assess 14.6s; shadowing ai-grade 6.8s; SePay order QR
+- [x] T10 Phát hiện + chứng minh stored XSS bằng Chromium thật (đánh cắp JWT 227 ký tự) → F81
+- [x] T11 Fix F81 (2 tầng) + rebuild + PoC chạy lại: upload 400, file cũ trên đĩa = text/plain/attachment
+- [x] T12 Fix F82 game submit (6 shape 500 → 400, đo sống)
+- [x] T13 DB audit: 4.7GB/2 file, 24 bảng, 0 orphan, empty_answer 4848, LISTENING thiếu audio 9/367 (khớp AGENTS)
+- [x] T14 REBUILD 2 index (đo trước/sau) + xác nhận count 43737 nguyên vẹn
+- [x] T15 Top-query analysis → 2 hotspot (197k reads backfill one-shot; 95k reads admin page) → F87
+- [x] T16 Fix F87 + đo lại: 95k→27k reads, 367→30.6ms; endpoint 60–105ms, titles đủ 20/20
+- [x] T17 Browser UI sweep 39 route × admin/guest + mobile 375px → 0 console error, 100% Be Vietnam Pro
+- [x] T18 Thiết kế audit: 0 font lạ, h1 weight 900, focus/skip-link, reduced-motion 0s; 0 target <24px
+- [x] T19 Fix UI-1 overflow header (đo 360→1920px cả guest+admin: 0 overflow)
+- [x] T20 Fix UI-2 alt + test; kiểm tra bundle: entry về 176.68kB baseline (hook lazy)
+- [x] T21 Rate-limit burst đo thô: global đúng 100→429, AI 10→429, order không → F83 fix
+- [x] T22 Suite cuối: 354/354 backend, 82/82 frontend, vite build OK
+- [x] T23 Vòng 2 trên bản dựng cuối: P1 124/124, P2 61/61, XSS PoC safe, overflow 0, dup-option rejected, order bucket 10→429
+- [x] T24 DB hygiene: xóa đúng row do tôi tạo (lessons/vocab/decks/prompts/payments/submissions/attempts + 2 file upload); parity về baseline
+- [x] T25 Artifacts spec (constitution→converge) + REPORT + phân tích lỗ hổng prompt
+- [x] T26 Xóa nghi vấn Cloudinary: key **có thật** trong `.env`, verify bằng file media thật → avatar + audio-upload **200 + URL Cloudinary** (2026-09-15)
+- [x] T27 Đóng gap coverage còn sốt (authz→write, CRUD video, multipart, manual grade): p4a–p4e, 287 probe, DB về baseline
+- [x] T28 Đính chính báo cáo: số probe 241→287, gỡ claim "demo creds", nhận 2 lần báo sối khi chưa có file bằng chứng ("21/21" p4c, "80 tests" frontend)
+- [x] T29 Vòng 3 — xác minh lại baseline trên bản dựng cuối: backend `354/354` (fresh), frontend `82/82` (17 files), `vite build` entry 176.68 kB
+- [x] T30 Vòng 3 — viết `sweep/v8/p5.js`: đăng ký/đăng nhập/lockout (15'), streak boundary trên DB thật (1 → +1 → no-op → đứt 3 ngày → reset 1), tìm kiếm/sắp xếp (lessons `q`/`level`, vocab, admin `q`/type/difficulty), tái xác minh F81/F83/F86 → **95 probe / 60 assert, 0 fail**
+- [x] T31 Vòng 3 — viết `sweep/v8/ui/v3.js` (browser thật, fake mic): đăng ký qua form, lịch streak khớp server clock, ô search `/lessons`, **ghi âm thật → upload → assess → row DB** → **30 assert, 0 fail, 0 console error**
+- [x] T32 Vòng 3 — cleanup + parity: xoá user tạm, submission + object MinIO (`mc rm`), file upload thử; parity về đúng baseline 1471/43 737/76/127/28/15/4/126/14/5/38, 0 orphan
+- [x] T34 Vòng 3 — fix UI-3: 2 ảnh preview admin thiếu hẳn `alt` (`AdminExercises.vue`, `AdminLessonBuilder.vue`); sửa metric false-positive của `design.js` (`alt=""` không phải vi phạm) + tách ngưỡng 24 px (AA) / 44 px (AAA) → `imgNoAlt=0`, `small24=0` trên 13 trang, mobile 375 px cũng 0; frontend vẫn `82/82`, bundle không đổi. Verify sống bằng `ui/v3b.js` (tạo lesson/section/block IMAGE tạm + mở modal bài tập) → **17 assert 0 fail**, dọn sạch về baseline
+- [x] T35 Vòng 3 — chạy lại 92 lượt route browser trên bản dựng hiện tại (admin 1440 + admin 375 + guest) → PROBLEM=0, 0 overflow, 0 font lạ
+- [x] T33 Vòng 3 — cập nhật REPORT (§1.2/§1.3/§1.4/§1.7/§3/§4/§5) + ghi 3 phát hiện vận hành (không có DELETE submission; `/api/vocabulary` list cần auth; admin `q=` full-scan ~185 ms)
+- [x] T36 Vòng 3 lần 2 — chạy lại TOÀN BỘ sweep trên bản dựng cuối: P1 124 · P2 61 · P3a 36 · P3b 19 · P4a 18 · P4b 16 · P4c 10 · P4d 6 · P4e 7 case · burst `hist` → **0 fail**; sửa expectation harness (enum `PRE_INTERMEDIATE`, update ≥ 2 dòng transcript, `transcript` phải có mặt, nháp → 404 guest) + `burst.js` in histogram
+- [x] T37 Vòng 3 lần 2 — **F88**: admin không lưu được bài học video (3 tầng: thiếu nút Sửa; `lesson.youtubeUrl` undefined vì summary trả `youtubeVideoId`; `transcript:null` bị `@NotNull` chặn → guard "giữ nguyên phụ đề" thành dead code). Fix cả 3 + verify browser thật `ui/v4edit.js` **13/13** (PUT 200, toast, phụ đề giữ nguyên) + 5 test backend + 3 test frontend
+- [x] T38 Vòng 3 lần 2 — **F89**: bài NHÁP `is_published=false` lộ công khai qua `/api/lessons/{id}`, `/api/v1/video-lessons/{id}`, `/api/lessons/{id}/exercises`, `/exercises/content` (đo thật: 6 bài nháp trả 200 + content cho guest). Fix bằng `assertLessonVisible` + guard `getDetail` → 404 cho guest/student, 200 cho admin; `p88live.js` **16/16** trên container đã rebuild + 10 test mới
+- [x] T39 Vòng 3 lần 2 — xác minh `openrouter.*` **không phải cloud**: 0 hit `openrouter.ai` trong code; 1 call `ai-generate` sinh đúng 1 dòng mới trong log Ollama local (5.24 s khớp latency). Ghi nhận: `.env` giữ API key OpenRouter thật (73 ký tự) nhưng không có egress → secret chết, ghi ở REPORT §3.12
+- [x] T40 Vòng 3 lần 2 — cleanup + parity: `clean_f88.sql` (1 user, 1 vocab, 3 submission, 1 video attempt, 1 lesson submission, 25 payment row) + `mc rm` 6 object MinIO mồ côi + move 5 `p*.json` về `sweep/v8`; parity về đúng baseline 1471/43737/76/127/28/15/4/126/14/5/38, 0 orphan
+- [x] T41 Vòng 3 lần 2 — chốt cuối (2026-09-16): backend `369/369` (`t-final3.log`, exit 0), frontend `85/85` / 18 files (`t-fe-final.log`), `vite build` entry `176.68 kB` (gzip 67.34), parity DB **đúng** baseline + `orphan_u=4` (row `zzprobe*` 12/09) + 0 row `ZZ%` sót; sửa nốt số stale trong docs (REPORT §2 UI-3 → 85/85, checklist A8/E1 → 369/85); trả `sweep/v7-crud-r3.json` + `sweep/v7-sweep-r4.json` về bản committed (harness ghi đè do chạy từ CWD khác); sửa nhãn case trong `p4e.js` (nhãn cũ ghi sai, expect 201 cho admin create) rồi chạy lại → 6/6 FAIL=0

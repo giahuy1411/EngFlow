@@ -216,8 +216,56 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 
+    /**
+     * audit-v8 F93: AI endpoints (e.g. {@code POST /api/ai/enrich-word}) run the
+     * reactive WebClient call to the local Ollama with a bare 30s timeout. Under
+     * GPU contention (a concurrent AI sweep) the model can exceed that budget and
+     * {@code .block()} leaks a {@code reactor.core.Exceptions$ReactiveException}
+     * (package-private, extends RuntimeException) wrapping
+     * {@code java.util.concurrent.TimeoutException} — the catch-all used to turn
+     * that into a generic 500. A timeout is a transient upstream condition, not a
+     * server fault: map ONLY the TimeoutException cause chain to 504 Gateway
+     * Timeout with a retryable message; every other error keeps the 500 path.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ProblemDetail> handleRuntimeTimeout(RuntimeException ex) {
+        if (containsTimeout(ex)) {
+            log.warn("AI upstream timeout: {}", ex.getMessage());
+            return timeoutProblem();
+        }
+        return problem500(ex);
+    }
+
+    @ExceptionHandler(java.util.concurrent.TimeoutException.class)
+    public ResponseEntity<ProblemDetail> handleTimeoutException(java.util.concurrent.TimeoutException ex) {
+        log.warn("Timeout: {}", ex.getMessage());
+        return timeoutProblem();
+    }
+
+    private static boolean containsTimeout(Throwable t) {
+        Throwable cur = t;
+        while (cur != null) {
+            if (cur instanceof java.util.concurrent.TimeoutException) {
+                return true;
+            }
+            cur = cur.getCause();
+        }
+        return false;
+    }
+
+    private ResponseEntity<ProblemDetail> timeoutProblem() {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.GATEWAY_TIMEOUT,
+                "AI đang chậm phản hồi hoặc quá tải. Vui lòng thử lại sau.");
+        problem.setTitle("Gateway Timeout");
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(problem);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGlobalException(Exception ex) {
+        return problem500(ex);
+    }
+
+    private ResponseEntity<ProblemDetail> problem500(Exception ex) {
         log.error("Internal server error", ex);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.");

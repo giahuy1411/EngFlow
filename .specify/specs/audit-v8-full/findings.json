@@ -1,0 +1,289 @@
+{
+ "runId": "r1-20260916",
+ "round": 1,
+ "generatedAt": "2026-09-16",
+ "note": "Findings discovered in audit-v8-full Round 1 (this session). IDs continue the existing F-series. Every entry requires: reproduction evidence, root cause, affected surface, fix/disposition, regression check, final status.",
+ "findings": [
+  {
+   "id": "F90",
+   "severity": "INFORMATIONAL (NOT A VULNERABILITY)",
+   "class": "SECURITY",
+   "title": "RateLimitFilter chạy SAU Spring Security (@Order(1) vs DEFAULT_FILTER_ORDER=-100) — đúng về mặt kỹ thuật nhưng KHÔNG tạo bypass khai thác được",
+   "reproduction": [
+    "Cơ chế: 60x anonymous POST /api/ai/enrich-word -> hist {401:60}, first429=null, redis keys=[] (sweep/v8/p7_ratelimit_order.js T1); 60x anonymous POST /api/admin/audio-upload -> {401:60}, keys=[] (T4)",
+    "Xác nhận thứ tự bằng decompile: spring-boot-security-4.0.6.jar → SecurityFilterProperties.class, javap: `public static final int DEFAULT_FILTER_ORDER = -100;` (constructor: bipush -100) ⇒ security(-100) chạy TRƯỚC rateLimit(+1)",
+    "FALSIFICATION (sweep/v8/p10_f90_falsify.js): đo TOÀN BỘ 17 surface permitAll của SecurityConfig → **0 surface nào không tốn bucket**. :auth tốn đúng ở request 21, :mail ở request 6, còn lại :global",
+    "60x anonymous POST /api/admin/exercises/ai/generate-async -> {401:60}, keys=[] — KHÔNG tốn bucket NHƯNG cũng KHÔNG chạy controller (không sinh việc)"
+   ],
+   "rootCause": "Request bị security từ chối (401/403) không tới limiter ⇒ không tốn budget. Nhưng request đó cũng chỉ nhận 401 và không thực thi business logic, nên không có tài nguyên nào bị tiêu thụ để bảo vệ.",
+   "affectedSurface": [
+    "src/main/java/com/datn/engflow/security/RateLimitFilter.java (chỉ về mặt thứ tự, không phải hành vi sai)"
+   ],
+   "impact": "KHÔNG có impact khai thác được. Mọi surface quan trọng đều là permitAll (:auth 20, :mail 5) hoặc authenticated (T2 chứng minh limiter vẫn chạy: 14 authed POST /api/ai/enrich-word → {400:10, 429:4}, first429=11).",
+   "disposition": "NOT-A-BUG — giữ nguyên thứ tự filter. Ghi lại vì đây là câu hỏi hợp lý và dễ bị phân loại nhầm thành HIGH. KHÔNG đổi @Order vì không có bằng chứng lợi ích, và đổi thứ tự filter là thay đổi rủi ro cao không cần thiết (karpathy-guidelines: thay đổi tối thiểu, không gold-plate).",
+   "regressionCheck": "sweep/v8/p10_f90_falsify.js (0/17 surface bypass)",
+   "evidence": [
+    "sweep/v8/p7_ratelimit_order.js",
+    "sweep/v8/p9_f90_scope.js",
+    "sweep/v8/p10_f90_falsify.js",
+    "sweep/v8/p10.json"
+   ],
+   "status": "CLOSED-NOT-A-BUG"
+  },
+  {
+   "id": "F91",
+   "severity": "MEDIUM",
+   "class": "SECURITY",
+   "title": "Bucket :ai chỉ khớp tiền tố literal /api/ai/ → 12 endpoint THỰC SỰ gọi Ollama nhưng nằm ngoài tiền tố đó đều rơi vào :global 100/phút thay vì :ai 10/phút",
+   "reproduction": [
+    "sweep/v8/p8_bucket_coverage.js: đo bucket thật bằng redis key sau MỖI prefix (probe path 404, 0 side effect, admin token hợp lệ)",
+    "CONTROL /api/ai/enrich-word -> :ai (đúng)",
+    "/api/admin/exercises/ai/generate|generate-async|generate-all|generate-batch|validate|backfill-answers -> :global (SAI)",
+    "/api/v1/admin/speaking-prompts/ai-generate|ai-generate-full -> :global (SAI)",
+    "/api/v1/admin/video-prompts/ai-generate (ALIAS) -> :global (SAI)",
+    "/api/v1/admin/video-lessons/translate-transcript|fetch-youtube -> :global (SAI)",
+    "/api/v1/admin/video-attempts/1/ai-grade -> :global (SAI)"
+   ],
+   "rootCause": "RateLimitFilter.java:58 `requestURI.startsWith(\"/api/ai/\")` — tiền tố này chỉ khớp AiVocabController. Cùng defect class với F83 (:order từng trỏ path không tồn tại).",
+   "affectedSurface": [
+    "src/main/java/com/datn/engflow/security/RateLimitFilter.java",
+    "AdminAiExerciseController, AdminAnswerBackfillController, SpeakingPromptController, VideoLessonController"
+   ],
+   "impact": "Một admin token có thể bắn 100 request/phút vào pipeline Ollama thay vì 10 — mỗi request `generate-all` đo được ~86 s CPU/GPU local ⇒ 10× tải GPU so với thiết kế. Cũng là DoS self-inflicted cho hàng đợi Ollama.",
+   "disposition": "FIXED Round 1 — thay so khớp tiền tố đơn bằng danh sách tiền tố + fragment, tách hàm isAiEndpoint(uri, method) có guard METHOD=POST (GET status/polling không tiêu budget generation)",
+   "fix": "RateLimitFilter.java: AI_PATH_PREFIXES = [/api/ai/, /api/admin/exercises/ai/, /api/v1/admin/{speaking,video}-prompts/ai-generate, /api/v1/admin/video-lessons/translate-transcript, /api/v1/admin/video-lessons/fetch-youtube]; AI_PATH_FRAGMENTS = [/ai-grade]",
+   "regressionCheck": "RateLimitFilterTest: 7 test cũ → 13 test (6 test mới phủ 13 endpoint AI + guard negative). Đo sống sau rebuild: sweep/v8/p8_bucket_coverage.js 13/13 → :ai; sweep/v8/p8b_ceiling.js first429=11 (đúng trần 10/min) trên cả 4 endpoint trước đây bị hở",
+   "verifiedAt": "2026-09-16, container engflow-backend rebuild từ image mới",
+   "evidence": [
+    "sweep/v8/p8_bucket_coverage.js",
+    "sweep/v8/p8.json",
+    "sweep/v8/p8b_ceiling.js",
+    "sweep/v8/p8b.json",
+    "src/test/java/com/datn/engflow/security/RateLimitFilterTest.java"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "F92",
+   "severity": "MEDIUM",
+   "class": "SECURITY",
+   "title": "Bucket :upload không phủ 2 đường upload thật (avatar upload, video-lessons multipart upload) → rơi vào :global",
+   "reproduction": [
+    "sweep/v8/p8_bucket_coverage.js:",
+    "/api/auth/avatar/upload (POST) -> :global (SAI, kỳ vọng :upload 15)",
+    "/api/v1/admin/video-lessons/upload (POST) -> :global (SAI, kỳ vọng :upload 15)",
+    "CONTROL /api/admin/audio-upload -> :upload (đúng)"
+   ],
+   "rootCause": "RateLimitFilter.java:62-64 chỉ khớp `/api/admin/upload`, `/api/admin/audio-upload`, URI chứa \"/submissions\", và prefix `/api/v1/video-attempts`.",
+   "affectedSurface": [
+    "src/main/java/com/datn/engflow/security/RateLimitFilter.java",
+    "AuthController (/api/auth/avatar/upload), VideoLessonController (/api/v1/admin/video-lessons/upload)"
+   ],
+   "impact": "Hai đường upload (gồm 1 đường gọi Cloudinary) chịu 100/phút thay vì 15/phút.",
+   "disposition": "FIXED Round 1 — bổ sung 2 tiền tố upload còn thiếu",
+   "fix": "RateLimitFilter.java: UPLOAD_PATH_PREFIXES thêm /api/auth/avatar/upload và /api/v1/admin/video-lessons/upload; logic /submissions và video-attempts giữ nguyên trong UPLOAD_PATH_FRAGMENTS",
+   "regressionCheck": "RateLimitFilterTest.avatarAndVideoLessonUploadsUseTheUploadBucket; đo sống p8 → cả 2 = :upload; p8b first429=16 (đúng trần 15/min)",
+   "verifiedAt": "2026-09-16, container engflow-backend rebuild từ image mới",
+   "evidence": [
+    "sweep/v8/p8_bucket_coverage.js",
+    "sweep/v8/p8.json",
+    "sweep/v8/p8b_ceiling.js",
+    "sweep/v8/p8b.json"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "GAP-COVERAGE-16",
+   "severity": "MEDIUM",
+   "class": "REGRESSION",
+   "title": "16/144 endpoint chưa từng được probe dù REPORT khẳng định '139 mapping phủ hết' — toàn bộ họ route ALIAS (video-prompts/video-submissions) + LessonController write path",
+   "reproduction": [
+    "sweep/v8/coverage_check.py (matcher theo segment, hiểu {var} và **) trên p1..p5 → uncovered=16",
+    "'GET /api/v1/admin/video-submissions' không có trong bất kỳ p*.json nào",
+    "'POST|PUT|DELETE /api/lessons' không có trong bất kỳ p*.json nào"
+   ],
+   "rootCause": "p2.js chỉ probe họ 'speaking-*'; các alias video-* (khai báo cùng handler bằng mảng @PostMapping({...})) chưa bao giờ được gọi. LessonController write path cũng không nằm trong p2 (chỉ /api/admin/lessons).",
+   "affectedSurface": [
+    "sweep/v8/p2.js",
+    ".specify/specs/audit-v8-full/REPORT.md (claim '139 mapping phủ hết')"
+   ],
+   "disposition": "FIXED Round 1: thêm sweep/v8/p6.js",
+   "regressionCheck": "sweep/v8/p6.js 52 probe / 0 FAIL; coverage_check.py → 144/144 covered, 0 uncovered",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    "sweep/v8/p6.js",
+    "sweep/v8/p6.json",
+    "sweep/v8/coverage_check.py",
+    ".specify/specs/audit-v8-full/evidence/coverage-round1.json"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "CLAIM-COUNT",
+   "severity": "LOW",
+   "class": "DESIGN_DRIFT",
+   "title": "Số liệu inventory trong REPORT.md không tái lập được từ source (ghi 139 annotation/97 handler, 26 controller)",
+   "reproduction": [
+    "sweep/v8/endpoint_inventory.py trên src/main/java/**/controller/**/*.java → 144 unique mapping (bare=10), 26 controller",
+    "grep thô '@(Get|Post|Put|Delete|Patch|Request)Mapping' → 149 annotation (bao gồm @RequestMapping class-level và giá trị trùng trong mảng alias)"
+   ],
+   "rootCause": "Số '139' đếm annotation thô ở thời điểm trước khi thêm route (F88/F89 thêm route mới); không có script sinh ra nó nên không tái lập được. 97 handler vs 144 mapping khác nhau vì mapping mảng alias (nhiều path → 1 handler).",
+   "affectedSurface": [
+    ".specify/specs/audit-v8-full/REPORT.md",
+    "AGENTS.md (không ghi số mapping nên không bị ảnh hưởng)"
+   ],
+   "disposition": "FIXED Round 1: sinh số bằng script (endpoint_inventory.py, tái lập được) + ghi rõ định nghĩa đếm trong endpoint-map.md",
+   "regressionCheck": "python sweep/v8/endpoint_inventory.py → 144 mapping / 26 controller, deterministic",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    ".specify/specs/audit-v8-full/evidence/endpoint-inventory.json",
+    ".specify/specs/audit-v8-full/endpoint-map.md"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "F93",
+   "severity": "MEDIUM",
+   "class": "RELIABILITY",
+   "title": "POST /api/ai/enrich-word (và các AI-vocab endpoint) trả 500 chung khi Ollama local timeout 30s dưới tải GPU — không phân biệt được lỗi transient, user không biết thử lại",
+   "reproduction": [
+    "p3a run 1 (sweep toàn diện AI chạy song song): 'FAIL ai enrich-word POST /api/ai/enrich-word as=user got=500 want=200 :: {\"detail\":\"Đã xảy ra lỗi hệ thống...\"}'",
+    "Backend log cùng thời điểm: 'AiVocabService: OpenRouter request failed' → 'GlobalExceptionHandler: Internal server error' với stack gốc `reactor.core.Exceptions$ReactiveException: java.util.concurrent.TimeoutException: Did not observe any item or terminal signal within 30000ms in 'flatMap'` tại AiVocabController.enrichWord:95 (.block())",
+    "Đo nhát 10x enrich-word SAU đó (sweep/v8/p11_enrich_reliability.js): 10/10 status 200, latency min=1000 med=1222 max=1274 ms — chứng minh lỗi là CONTENTION TRANSIENT, không phải lỗi code vĩnh viễn",
+    "Root: AiVocabService.callOpenRouter dùng .timeout(Duration.ofSeconds(30)) hardcode; OpenRouter là tên legacy (base-url trỏ host.docker.internal:11434/v1 = Ollama local)"
+   ],
+   "rootCause": ".timeout(30s) không có fallback; ngoại lệ thấm qua .block() thành ReactiveException → rơi vào catch-all Exception → 500 'Đã xảy ra lỗi hệ thống'. Timeout upstream là điều kiện transient, phải 504 Gateway Timeout + message retryable.",
+   "affectedSurface": [
+    "src/main/java/com/datn/engflow/exception/GlobalExceptionHandler.java",
+    "src/main/java/com/datn/engflow/service/AiVocabService.java (hardcode 30s)",
+    "frontend/src/views/luyentu/AiVocabGenerator.vue (chỉ đọc .message, không đọc .detail → người dùng thấy 'Sinh từ thất bại' chung)"
+   ],
+   "disposition": "FIXED Round 1 — RuntimeException handler walk cause-chain: TimeoutException → 504 Gateway Timeout 'AI đang chậm phản hồi hoặc quá tải. Vui lòng thử lại sau.'; mọi lỗi khác giữ 500. Thêm @ExceptionHandler(TimeoutException.class) trực tiếp. Frontend đọc fallback .detail.",
+   "fix": "GlobalExceptionHandler: handleRuntimeTimeout (containsTimeout walk cause chain) + handleTimeoutException + timeoutProblem(); AiVocabGenerator.vue:173 e.response?.data?.detail || e.response?.data?.message",
+   "regressionCheck": "GlobalExceptionHandlerProblemDetailTest 2→5 test (3 mới: ReactiveException-wrapped timeout → 504, plain TimeoutException → 504, IO/conn-refused → 500 vẫn giữ). Toàn bộ backend 378/378 pass",
+   "verificationBoundary": "ĐÃ xác minh: (a) 3 unit test mới xanh, (b) class trong container đang chạy THẬT SỰ chứa handler mới — kiểm bằng `unzip -p app.jar BOOT-INF/classes/.../GlobalExceptionHandler.class | strings | grep 'Gateway Timeout'` → 1 hit, (c) đường THÀNH CÔNG không bị handler RuntimeException quá rộng ăn mất: enrich-word sống 200 trong 1305ms, (d) security còn nguyên: ẩn danh 401. CHƯA xác minh: bản thân response 504 trên môi trường sống, vì phải ép Ollama vượt 30s — điều kiện race phụ thuộc tải GPU, không tái lập tất định. Đường 504 được phủ bằng unit test chứ không bằng chứng sống.",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    "sweep/v8/p11_enrich_reliability.js",
+    "sweep/v8/p11.json",
+    "sweep/v8/p12_f93_live.js",
+    "sweep/v8/p12.json",
+    "sweep/v8/p3a-r1.log (FAIL gốc)",
+    "src/test/java/com/datn/engflow/exception/GlobalExceptionHandlerProblemDetailTest.java"
+   ],
+   "status": "FIXED-VERIFIED (504 path phủ bằng unit test; chưa ép được timeout sống)"
+  },
+  {
+   "id": "F94",
+   "severity": "LOW",
+   "class": "DESIGN_DRIFT",
+   "title": "20 endpoint trên 6 controller trả lỗi theo shape cũ {\"error\":\"...\"} thay vì RFC 7807 ProblemDetail; interceptor frontend chỉ sao `detail`→`message` nên call-site đọc .detail/.message hiện chuỗi generic thay vì thông báo thật",
+   "reproduction": [
+    "sweep/v8/p13_error_contract.js: đo 10 response lỗi → 3 KHÔNG theo ProblemDetail:",
+    "  POST /api/ai/enrich-word word rỗng → 400 {\"error\":\"word không được để trống\"}",
+    "  POST /api/ai/enrich-word thiếu field → 400 {\"error\":\"word không được để trống\"}",
+    "  POST /api/ai/save-vocab [] → 400 {\"error\":\"Danh sách từ trống\"}",
+    "7/10 còn lại ĐÚNG ProblemDetail (bad JSON, 404 lesson, enum sai, 403, 401, 405)"
+   ],
+   "rootCause": "AiVocabController/GameController/DeckController/SrsController/LessonStructureController/SpeakingPromptController dùng ResponseEntity.badRequest().body(Map.of(\"error\", ...)). api.js interceptor (dòng 52) chỉ sao `detail` → `message`; AiVocabGenerator.generate đọc `e.response?.data?.message` → hiện 'Sinh từ thất bại' chung chung, mất thông báo 'topic không được để trống'.",
+   "affectedSurface": [
+    "frontend/src/services/api.js (interceptor chuẩn hoá)",
+    "20 call-site backend: AiVocabController(6), GameController(5), DeckController(1), SrsController(2), LessonStructureController(1), SpeakingPromptController(5)",
+    "13 call-site frontend đọc .error — chứng tỏ shape {\"error\"} là contract de-facto, KHÔNG đổi backend"
+   ],
+   "disposition": "FIXED Round 1 — chuẩn hoá tại MỘT chỗ (interceptor api.js) thay vì sửa 20 endpoint: nếu body có `error` dạng string thì backfill vào `detail` và `message` (chỉ khi chúng trống). Giữ nguyên backend vì 13 call-site frontend đang đọc .error (đổi backend sẽ là breaking change không cần thiết — karpathy: thay đổi tối thiểu).",
+   "fix": "api.js response interceptor: thêm nhánh `typeof data.error === 'string' && data.error` → if(!data.detail) data.detail=error; if(!data.message) data.message=error",
+   "regressionCheck": "api.test.js 4→8 test (4 mới: backfill cả detail+message, 403 legacy không logout, ưu tiên detail có sẵn, bỏ qua error không phải string). Toàn bộ frontend: 89/89 pass, 18 file",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    "sweep/v8/p13_error_contract.js",
+    "sweep/v8/p13.json",
+    "frontend/src/services/api.test.js"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "SWEEP-LEAK",
+   "severity": "LOW",
+   "class": "REGRESSION",
+   "title": "p3a bị harness timeout 120s giữa chừng → bước cleanup của chính nó không chạy → rò 1 lesson + 4 exercise vào DB thật",
+   "reproduction": [
+    "Chạy p3a lần 1 (job pwsh-6) → '[timed out after 120000ms]'",
+    "Đo parity sau đó: lessons=1472 (baseline 1471), exercises=43741 (baseline 43737)",
+    "Truy vết: SELECT ... WHERE title LIKE 'ZZ%' → lesson_id=101987 'ZZ v8 AI lesson 1789534482754' created 2026-09-16 11:54:42 + exercise_id 776212-776215"
+   ],
+   "rootCause": "p3a tạo lesson tạm rồi xoá ở bước cuối; khi job bị cắt giữa dòng, phần xoá không chạy. Không phải lỗi app.",
+   "affectedSurface": [
+    "sweep/v8/p3a.js (harness)"
+   ],
+   "disposition": "FIXED Round 1 — xoá đúng phạm vi (exercises theo lesson_id, lessons theo id + title LIKE 'ZZ%') bằng sweep/v8/clean_r2.sql với SET QUOTED_IDENTIFIER ON; đã kiểm tra 0 phụ thuộc (attempts/snapshots/submissions đều = 0) trước khi xoá",
+   "regressionCheck": "Parity sau dọn: lessons=1471, exercises=43737, users=76, vocabulary=127, speaking_submissions=28, video_attempts=15, lesson_submissions=4, payment_transactions=126, decks=14, lesson_snapshots=5 — khớp baseline CHÍNH XÁC; orphan ex/uvp_vocab/uvp_user/snap/sub = 0/0/0/0/0; zz_leftover=0",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    "sweep/v8/clean_r2.sql"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "PLANB-VERIFY",
+   "severity": "INFORMATIONAL (VERIFICATION PASS)",
+   "class": "DESIGN",
+   "title": "Plan B (Be Vietnam Pro design-system migration) — xác minh ĐẠT trên 5 viewport bắt buộc",
+   "reproduction": [
+    "sweep/v8/ui/design-v2.js — 12 route × 5 viewport (360/768/1280/1440/1920) = 60 tổ hợp, Chromium thật",
+    "Webfont LOADED thật (không chỉ khai báo): document.fonts.check('400|700|900 16px \"Be Vietnam Pro\"') = true/true/true, 15 face",
+    "7 685 element đang hiển thị được đọc getComputedStyle().fontFamily → **0 element không phải Be Vietnam Pro**",
+    "Tìm chuỗi Outfit/Plus Jakarta Sans/PlusJakarta/Inter/Roboto/Poppins trong fontFamily đầy đủ → **0 hit**",
+    "Horizontal overflow (scrollWidth-clientWidth, ngưỡng nhiễu scrollbar 16px) → **0/60 tổ hợp vượt ngưỡng**"
+   ],
+   "rootCause": "n/a — đây là bước XÁC MINH, không phải defect. Plan B đã được implement trước đó (audit-v5 gỡ Plus Jakarta Sans; tailwind fontFamily.sans/.heading/.mono đều trỏ BVP).",
+   "affectedSurface": [
+    "frontend/index.html (link Google Fonts BVP wght 400;500;600;700;900 + preconnect)",
+    "frontend/tailwind.config.js (sans/heading/mono → Be Vietnam Pro)",
+    "frontend/src/assets/design-system.css (--geo-font + 30 token --geo-*; --geo-bg #FFFDF5 cream)"
+   ],
+   "disposition": "VERIFIED — không cần sửa. Ghi lại vì audit prompt yêu cầu bằng chứng 5 viewport, và vì 'font được khai báo' ≠ 'font được load' (khai báo sai vẫn fallback system-ui im lặng).",
+   "regressionCheck": "design-v2.js tái chạy được bất kỳ lúc nào; kết quả thô design-v2.txt + design-v2.json",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    ".specify/specs/audit-v8-full/evidence/design-audit-r1.md",
+    "sweep/v8/ui/design-v2.js",
+    "sweep/v8/ui/design-v2.txt",
+    "sweep/v8/ui/design-v2.json"
+   ],
+   "status": "VERIFIED-PASS"
+  },
+  {
+   "id": "BASELINE-DRIFT",
+   "severity": "INFORMATIONAL",
+   "class": "REGRESSION",
+   "title": "Baseline trong AGENTS.md/REPORT.md (369 backend / 85 frontend) đã stale sau khi thêm 6 regression test F91/F92",
+   "reproduction": [
+    "Round 1 mở phiên: mvnw.cmd test → 369/369 (khớp baseline đã ghi) — sweep/v8/t-r1-baseline.log",
+    "Sau fix F91/F92: mvnw.cmd test → 375/375 BUILD SUCCESS — sweep/v8/t-r1-after-fix.log",
+    "Sau fix F93: mvnw.cmd test → **378/378** BUILD SUCCESS — sweep/v8/t-r1-after-f93.log",
+    "frontend: 85/85 (18 file) → sau fix F94: **89/89** (18 file) — sweep/v8/t-fe-r1.log, t-fe-r2.log",
+    "vite build: entry 176.68 kB → **176.80 kB** (gzip 67.34 → 67.39) — sweep/v8/build-r1.log, build-r2.log"
+   ],
+   "rootCause": "Baseline là số ĐO ĐƯỢC, không phải hằng số; mỗi kỳ audit phải đo lại (constitution P1).",
+   "affectedSurface": [
+    "AGENTS.md",
+    ".specify/specs/audit-v8-full/checklist.md",
+    ".specify/specs/audit-v8-full/REPORT.md"
+   ],
+   "disposition": "FIXED Round 1: cập nhật baseline backend 369 → 378, frontend 85 → 89, build 176.68 → 176.80 kB",
+   "regressionCheck": "log mới: t-r1-baseline.log, t-r1-after-fix.log, t-r1-after-f93.log, t-fe-r1.log, t-fe-r2.log, build-r1.log, build-r2.log",
+   "verifiedAt": "2026-09-16",
+   "evidence": [
+    "sweep/v8/t-r1-baseline.log",
+    "sweep/v8/t-r1-after-fix.log",
+    "sweep/v8/t-r1-after-f93.log",
+    "sweep/v8/t-fe-r1.log",
+    "sweep/v8/t-fe-r2.log",
+    "sweep/v8/build-r1.log",
+    "sweep/v8/build-r2.log"
+   ],
+   "status": "FIXED-VERIFIED"
+  }
+ ]
+}

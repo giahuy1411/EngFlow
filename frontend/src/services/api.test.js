@@ -65,4 +65,43 @@ describe('api response interceptor — ProblemDetail normalization', () => {
     const err = { response: { status: 500, data: 'Internal Server Error' } }
     await expect(runErrorInterceptor(err)).rejects.toBe(err)
   })
+
+  /**
+   * audit-v8 Round 1 — F94. 20 endpoint (6 controller: AiVocabController,
+   * GameController, DeckController, SrsController, LessonStructureController,
+   * SpeakingPromptController) trả lỗi theo shape CŨ `{"error": "..."}` chứ không
+   * phải ProblemDetail. Đo sống bằng sweep/v8/p13_error_contract.js: 3/10 response
+   * lỗi là LEGACY{error}. Interceptor chỉ sao `detail` → `message`, nên call-site
+   * đọc `.detail`/`.message` (vd AiVocabGenerator.generate) hiện chuỗi generic
+   * "Sinh từ thất bại" thay vì "topic không được để trống".
+   * Chuẩn hoá luôn `error` tại cùng một chỗ.
+   */
+  it('backfills message and detail from the legacy {error} shape', async () => {
+    const err = { response: { status: 400, data: { error: 'topic không được để trống' } } }
+    await expect(runErrorInterceptor(err)).rejects.toBe(err)
+    expect(err.response.data.message).toBe('topic không được để trống')
+    expect(err.response.data.detail).toBe('topic không được để trống')
+  })
+
+  it('legacy {error} on a 403 does not log the user out', async () => {
+    const err = { response: { status: 403, data: { error: 'Bạn không có quyền' } } }
+    await expect(runErrorInterceptor(err)).rejects.toBe(err)
+    expect(err.response.data.message).toBe('Bạn không có quyền')
+    expect(authMock.logout).not.toHaveBeenCalled()
+  })
+
+  it('prefers an existing detail over legacy error', async () => {
+    const err = {
+      response: { status: 400, data: { detail: 'Thông báo chuẩn', error: 'thông báo cũ' } }
+    }
+    await expect(runErrorInterceptor(err)).rejects.toBe(err)
+    expect(err.response.data.message).toBe('Thông báo chuẩn')
+    expect(err.response.data.detail).toBe('Thông báo chuẩn')
+  })
+
+  it('ignores a non-string error field', async () => {
+    const err = { response: { status: 400, data: { error: { nested: true } } } }
+    await expect(runErrorInterceptor(err)).rejects.toBe(err)
+    expect(err.response.data.message).toBeUndefined()
+  })
 })

@@ -1,0 +1,121 @@
+[
+ {
+  "method": "POST",
+  "path": "/api/auth/login",
+  "status": 400,
+  "bucket": "auth",
+  "noBucket": false
+ },
+ {
+  "method": "POST",
+  "path": "/api/auth/register",
+  "status": 400,
+  "bucket": "auth",
+  "noBucket": false
+ },
+ {
+  "method": "POST",
+  "path": "/api/auth/forgot-password",
+  "status": 400,
+  "bucket": "mail",
+  "noBucket": false
+ },
+ {
+  "method": "POST",
+  "path": "/api/auth/reset-password",
+  "status": 400,
+  "bucket": "mail",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/vocabulary/search?q=test",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/vocabulary/dictionary/travel",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/leaderboard",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/lessons",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/lessons/445",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/v1/speaking-prompts",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/v1/video-prompts",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/v1/video-lessons",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/decks",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "POST",
+  "path": "/api/webhook/sepay",
+  "status": 200,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/resources/none.bin",
+  "status": 404,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/api/v1/media/none.bin",
+  "status": 403,
+  "bucket": "global",
+  "noBucket": false
+ },
+ {
+  "method": "GET",
+  "path": "/audio/none.bin",
+  "status": 404,
+  "bucket": "global",
+  "noBucket": false
+ }
+]

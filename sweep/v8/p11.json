@@ -1,0 +1,72 @@
+[
+ {
+  "i": 0,
+  "word": "diligent",
+  "status": 200,
+  "ms": 1249,
+  "body": "{\"id\":null,\"word\":\"diligent\",\"pronunciation\":\"dɪˈlɪdʒənt\",\"meaning\":\"showing or characterized by diligence; diligent\",\"exampleSentence\":\"She is a diligent stude"
+ },
+ {
+  "i": 1,
+  "word": "resilient",
+  "status": 200,
+  "ms": 1226,
+  "body": "{\"id\":null,\"word\":\"resilient\",\"pronunciation\":\"riˈsɪlɪənt\",\"meaning\":\"able to withstand or recover quickly from difficulties or attempts to harm\",\"exampleSenten"
+ },
+ {
+  "i": 2,
+  "word": "meticulous",
+  "status": 200,
+  "ms": 1274,
+  "body": "{\"id\":null,\"word\":\"meticulous\",\"pronunciation\":\"ˈmɛtɪkləs\",\"meaning\":\"showing or characterized by great attention to detail; thorough and precise; meticulous\",\""
+ },
+ {
+  "i": 3,
+  "word": "pragmatic",
+  "status": 200,
+  "ms": 1222,
+  "body": "{\"id\":null,\"word\":\"pragmatic\",\"pronunciation\":\"prəˈɡæmɪk\",\"meaning\":\"具有实际性和处理情况的技巧；实际和现实的\",\"exampleSentence\":\"The manager emphasized the need for a pragmatic ap"
+ },
+ {
+  "i": 4,
+  "word": "eloquent",
+  "status": 200,
+  "ms": 1206,
+  "body": "{\"id\":null,\"word\":\"eloquent\",\"pronunciation\":\"ˈeləʊkwənt\",\"meaning\":\"speaking or writing in a way that impresses or convinces others\",\"exampleSentence\":\"Her elo"
+ },
+ {
+  "i": 5,
+  "word": "tenacious",
+  "status": 200,
+  "ms": 1150,
+  "body": "{\"id\":null,\"word\":\"tenacious\",\"pronunciation\":\"tɛnəˈtæʃən\",\"meaning\":\"be firmly attached or clinging; persist; be obstinate\",\"exampleSentence\":\"The dog was tena"
+ },
+ {
+  "i": 6,
+  "word": "ambiguous",
+  "status": 200,
+  "ms": 1236,
+  "body": "{\"id\":null,\"word\":\"ambiguous\",\"pronunciation\":\"əmˈbɪɡəs\",\"meaning\":\"not clear or definite; not definite or specific; having several possible meanings or interpr"
+ },
+ {
+  "i": 7,
+  "word": "candid",
+  "status": 200,
+  "ms": 1164,
+  "body": "{\"id\":null,\"word\":\"candid\",\"pronunciation\":\"kəˈdɪnd\",\"meaning\":\"showing or expressing honesty and sincerity; free from pretense or deceit\",\"exampleSentence\":\"Hi"
+ },
+ {
+  "i": 8,
+  "word": "lucid",
+  "status": 200,
+  "ms": 1000,
+  "body": "{\"id\":null,\"word\":\"lucid\",\"pronunciation\":\"lɪˈsɪk\",\"meaning\":\"清晰的；明白的\",\"exampleSentence\":\"The instructions were very lucid, making the task easy to follow.\",\"au"
+ },
+ {
+  "i": 9,
+  "word": "novel",
+  "status": 200,
+  "ms": 1185,
+  "body": "{\"id\":null,\"word\":\"novel\",\"pronunciation\":\"noh-VEEL\",\"meaning\":\"a book or story that is intended to be read or seen for the first time\",\"exampleSentence\":\"He wr"
+ }
+]

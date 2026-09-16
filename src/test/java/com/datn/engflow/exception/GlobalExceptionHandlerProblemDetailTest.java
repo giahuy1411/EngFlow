@@ -37,4 +37,51 @@ class GlobalExceptionHandlerProblemDetailTest {
         assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(response.getBody().getTitle()).isEqualTo("Not Found");
     }
+
+    // -------------------------------------------------------------------
+    // audit-v8 Round 1 — F93. POST /api/ai/enrich-word ran the reactive
+    // WebClient call to the LOCAL Ollama with a bare .timeout(30s); when the
+    // model exceeded that budget (GPU contention during the concurrent AI
+    // sweep) the TimeoutException leaked through .block() as
+    // reactor.core.Exceptions$ReactiveException and the catch-all mapped it
+    // to a generic 500 "Đã xảy ra lỗi hệ thống". A timeout is a transient
+    // upstream condition -> 504 Gateway Timeout with a retryable message.
+    // -------------------------------------------------------------------
+
+    @Test
+    void reactiveTimeoutMapsTo504GatewayTimeout() {
+        // reactor.core.Exceptions.propagate wraps a checked TimeoutException in
+        // the package-private ReactiveException (a RuntimeException) — exactly
+        // what .block() leaks when the WebClient budget expires.
+        RuntimeException wrapped = (RuntimeException) reactor.core.Exceptions.propagate(
+                new java.util.concurrent.TimeoutException("Did not observe any item within 30000ms"));
+        ResponseEntity<ProblemDetail> response = handler.handleRuntimeTimeout(wrapped);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT.value());
+        assertThat(response.getBody().getTitle()).isEqualTo("Gateway Timeout");
+        assertThat(response.getBody().getDetail()).contains("AI");
+    }
+
+    @Test
+    void plainTimeoutMapsTo504GatewayTimeout() {
+        ResponseEntity<ProblemDetail> response = handler.handleTimeoutException(
+                new java.util.concurrent.TimeoutException("30s"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
+        assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT.value());
+        assertThat(response.getBody().getTitle()).isEqualTo("Gateway Timeout");
+    }
+
+    @Test
+    void otherReactiveErrorsStayOn500Not504() {
+        // connection refused is NOT a timeout -> must keep the existing 500 path
+        RuntimeException wrapped = (RuntimeException) reactor.core.Exceptions.propagate(
+                new java.io.IOException("Connection refused"));
+        ResponseEntity<ProblemDetail> response = handler.handleRuntimeTimeout(wrapped);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
+    }
 }

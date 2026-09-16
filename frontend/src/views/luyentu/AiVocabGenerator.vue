@@ -170,7 +170,7 @@ async function generate() {
     generatedWords.value = result || []
     await auth.fetchUser()
   } catch (e) {
-    error.value = e.response?.data?.message || 'Sinh từ thất bại'
+    error.value = e.response?.data?.detail || e.response?.data?.message || 'Sinh từ thất bại'
   } finally {
     generating.value = false
   }

@@ -1,0 +1,126 @@
+[
+ {
+  "label": "empty word (validation)",
+  "method": "POST",
+  "path": "/api/ai/enrich-word",
+  "status": 400,
+  "kind": "LEGACY{error}",
+  "fields": [
+   "error"
+  ],
+  "body": "{\"error\":\"word không được để trống\"}"
+ },
+ {
+  "label": "missing word field",
+  "method": "POST",
+  "path": "/api/ai/enrich-word",
+  "status": 400,
+  "kind": "LEGACY{error}",
+  "fields": [
+   "error"
+  ],
+  "body": "{\"error\":\"word không được để trống\"}"
+ },
+ {
+  "label": "bad JSON body",
+  "method": "POST",
+  "path": "/api/ai/enrich-word",
+  "status": 400,
+  "kind": "ProblemDetail",
+  "fields": [
+   "detail",
+   "instance",
+   "status",
+   "title"
+  ],
+  "body": "{\"detail\":\"Dữ liệu JSON không hợp lệ hoặc sai định dạng.\",\"instance\":\"/api/ai/enrich-word\",\"status\":400,\"title\":\"Malformed Request\"}"
+ },
+ {
+  "label": "nonexistent lesson",
+  "method": "GET",
+  "path": "/api/lessons/999999999",
+  "status": 404,
+  "kind": "ProblemDetail",
+  "fields": [
+   "detail",
+   "instance",
+   "status",
+   "title"
+  ],
+  "body": "{\"detail\":\"Lesson not found with id : '999999999'\",\"instance\":\"/api/lessons/999999999\",\"status\":404,\"title\":\"Not Found\"}"
+ },
+ {
+  "label": "bad enum level",
+  "method": "GET",
+  "path": "/api/lessons?level=NOT_A_LEVEL",
+  "status": 400,
+  "kind": "ProblemDetail",
+  "fields": [
+   "detail",
+   "instance",
+   "status",
+   "title"
+  ],
+  "body": "{\"detail\":\"Tham số 'level' với giá trị 'NOT_A_LEVEL' không hợp lệ.\",\"instance\":\"/api/lessons\",\"status\":400,\"title\":\"Bad Request\"}"
+ },
+ {
+  "label": "nonexistent exercise submit",
+  "method": "POST",
+  "path": "/api/lessons/999999999/exercises/999999999/submit",
+  "status": 403,
+  "kind": "ProblemDetail",
+  "fields": [
+   "status",
+   "title",
+   "detail"
+  ],
+  "body": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
+ },
+ {
+  "label": "unknown route",
+  "method": "GET",
+  "path": "/api/definitely-not-a-route",
+  "status": 401,
+  "kind": "ProblemDetail",
+  "fields": [
+   "status",
+   "title",
+   "detail"
+  ],
+  "body": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
+ },
+ {
+  "label": "wrong method on login",
+  "method": "GET",
+  "path": "/api/auth/login",
+  "status": 405,
+  "kind": "ProblemDetail",
+  "fields": [
+   "detail",
+   "instance",
+   "status",
+   "title"
+  ],
+  "body": "{\"detail\":\"Phương thức HTTP không được hỗ trợ cho endpoint này.\",\"instance\":\"/api/auth/login\",\"status\":405,\"title\":\"Method Not Allowed\"}"
+ },
+ {
+  "label": "save-vocab empty array",
+  "method": "POST",
+  "path": "/api/ai/save-vocab",
+  "status": 400,
+  "kind": "LEGACY{error}",
+  "fields": [
+   "error"
+  ],
+  "body": "{\"error\":\"Danh sách từ trống\"}"
+ },
+ {
+  "label": "vocab search no q",
+  "method": "GET",
+  "path": "/api/vocabulary/search",
+  "status": 200,
+  "kind": "OTHER",
+  "fields": [],
+  "body": "[]"
+ }
+]

@@ -1,0 +1,130 @@
+[
+ {
+  "label": "CONTROL /api/ai/** (declared :ai 10)",
+  "method": "POST",
+  "prefix": "/api/ai/enrich-word",
+  "declared": "ai",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: admin exercises ai/generate-async",
+  "method": "POST",
+  "prefix": "/api/admin/exercises/ai/generate-async",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: admin exercises ai/generate",
+  "method": "POST",
+  "prefix": "/api/admin/exercises/ai/generate",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: admin exercises ai/generate-all",
+  "method": "POST",
+  "prefix": "/api/admin/exercises/ai/generate-all",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: admin exercises ai/generate-batch",
+  "method": "POST",
+  "prefix": "/api/admin/exercises/ai/generate-batch",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: admin exercises ai/validate",
+  "method": "POST",
+  "prefix": "/api/admin/exercises/ai/validate",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: backfill-answers",
+  "method": "POST",
+  "prefix": "/api/admin/exercises/ai/backfill-answers",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: speaking-prompts ai-generate",
+  "method": "POST",
+  "prefix": "/api/v1/admin/speaking-prompts/ai-generate",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: speaking-prompts ai-generate-full",
+  "method": "POST",
+  "prefix": "/api/v1/admin/speaking-prompts/ai-generate-full",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: video-prompts ai-generate (ALIAS)",
+  "method": "POST",
+  "prefix": "/api/v1/admin/video-prompts/ai-generate",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: video-lessons translate-transcript",
+  "method": "POST",
+  "prefix": "/api/v1/admin/video-lessons/translate-transcript",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: video-lessons fetch-youtube",
+  "method": "POST",
+  "prefix": "/api/v1/admin/video-lessons/fetch-youtube",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Ollama: video-attempts ai-grade",
+  "method": "POST",
+  "prefix": "/api/v1/admin/video-attempts/1/ai-grade",
+  "declared": "AI?",
+  "observedBucket": "ai",
+  "status": 404
+ },
+ {
+  "label": "Cloud: auth avatar/upload",
+  "method": "POST",
+  "prefix": "/api/auth/avatar/upload",
+  "declared": "upload 15",
+  "observedBucket": "upload",
+  "status": 404
+ },
+ {
+  "label": "Upload: video-lessons/upload",
+  "method": "POST",
+  "prefix": "/api/v1/admin/video-lessons/upload",
+  "declared": "upload 15",
+  "observedBucket": "upload",
+  "status": 404
+ },
+ {
+  "label": "CONTROL /api/admin/audio-upload (upload 15)",
+  "method": "POST",
+  "prefix": "/api/admin/audio-upload",
+  "declared": "upload",
+  "observedBucket": "upload",
+  "status": 404
+ }
+]

@@ -52,6 +52,14 @@ api.interceptors.response.use(
     if (data && typeof data === 'object' && data.detail && !data.message) {
       data.message = data.detail
     }
+    // audit-v8 F94: 20 endpoint (AiVocab/Game/Deck/Srs/LessonStructure/
+    // SpeakingPrompt controller) vẫn trả shape cũ `{"error": "..."}`. Không có
+    // nhánh này thì call-site đọc `.detail`/`.message` hiện chuỗi generic
+    // ("Sinh từ thất bại") thay vì thông báo thật của backend.
+    if (data && typeof data === 'object' && typeof data.error === 'string' && data.error) {
+      if (!data.detail) data.detail = data.error
+      if (!data.message) data.message = data.error
+    }
     // F7-BUG02 FIX: Handle both 401 (expired) and 403 (fallback) for auth failures
     if (err.response?.status === 401 || err.response?.status === 403) {
       const msg = err.response?.data?.message || ''

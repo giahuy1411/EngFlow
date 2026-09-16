@@ -1,0 +1,19 @@
+{
+ "probeFiles": [
+  "p1.json",
+  "p2.json",
+  "p3a.json",
+  "p3b.json",
+  "p4a.json",
+  "p4b.json",
+  "p4c.json",
+  "p4d.json",
+  "p5.json",
+  "p6.json"
+ ],
+ "probeRequestCount": 437,
+ "inventoryCount": 144,
+ "coveredCount": 144,
+ "uncoveredCount": 0,
+ "uncovered": []
+}
