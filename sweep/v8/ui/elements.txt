@@ -1,0 +1,29 @@
+login -> /lessons
+==== /lessons/445 path=/lessons/445 textLen=2755
+   heads: ["1. Complete the message. Use the affirma","2. Complete the first part of sentences ","3. Look at the chart. Write questions an","4. Writea oran.","5. Complete the dialogue witha,an orthe.","6. Choose the correct answers."]
+   inputs: []
+   buttons: ["Thoát","NỘI DUNG","BÀI TẬP","LỊCH SỬ","In tài liệu"]
+==== /decks/10006/play/quiz path=/decks/10006/play/quiz textLen=271
+   heads: ["TRẮC NGHIỆM TỪ VỰNG","FREQUENT"]
+   inputs: []
+   buttons: ["Thoát","xác định","điều tra","thường xuyên","duy trì"]
+==== /decks/10006/play/flashcard path=/decks/10006/play/flashcard textLen=276
+   heads: ["OXFORD 3000 (A1-B2)","AMBITIOUS"]
+   inputs: []
+   buttons: ["Thoát","Lại","Tiếp theo","Dễ"]
+==== /speaking/history path=/speaking/history textLen=1429
+   heads: ["LỊCH SỬ BÀI NÓI","E2E Manual Grading 2026-07-27","Test Prompt","E2E Manual Grading 2026-07-27","E2E Manual Grading 2026-07-27","E2E Manual Grading 2026-07-27","E2E Manual Grading 2026-07-27","E2E Manual Grading 2026-07-27","E2E Manual Grading 2026-07-27"]
+   inputs: [{"type":"text","ph":"","name":""}]
+   buttons: ["Thoát","Mở bản ghi","Mở bản ghi","Mở bản ghi","Mở bản ghi","Mở bản ghi","Mở bản ghi","Mở bản ghi","Mở bản ghi","← TRƯỚC","1","2","SAU →"]
+==== /profile path=/profile textLen=448
+   heads: ["HỌC VIÊN MẪU","Premium đang hoạt động","LỊCH HỌC","CHUỖI NGÀY HỌC"]
+   inputs: []
+   buttons: ["Thoát"]
+==== /search path=/search textLen=230
+   heads: ["TRA TỪ"]
+   inputs: [{"type":"text","ph":"Nhập từ cần tra...","name":""}]
+   buttons: ["Thoát"]
+==== /ai-vocab-generator path=/ai-vocab-generator textLen=370
+   heads: ["AI GENERATOR","Không giới hạn"]
+   inputs: [{"type":"text","ph":"e.g. Environment, Technology, Travel...","name":""},{"type":"select-one","ph":"","name":""},{"type":"number","ph":"","name":""}]
+   buttons: ["Thoát","Sinh từ vựng"]

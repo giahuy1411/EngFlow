@@ -1,0 +1,111 @@
+{
+ "cases": 21,
+ "fails": 0,
+ "rows": [
+  {
+   "case": "admin token passes the role gate (probe reaches handler)",
+   "ok": true,
+   "detail": "status=400 body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload html",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload svg",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload js",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload no extension",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload double extension .png.html",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload path traversal name",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload uppercase HTML",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"error\":\"Unsupported video format or file\"}"
+  },
+  {
+   "case": "upload null byte in name",
+   "ok": true,
+   "detail": "status=400 dangerousUrl=false body={\"detail\":\"Yêu cầu thiếu tham số hoặc cần dạng multipart/for"
+  },
+  {
+   "case": "absent exercise submit is not a 5xx",
+   "ok": true,
+   "detail": "status=200 body={\"percentage\":0,\"results\":[],\"score\":0,\"total\":0}"
+  },
+  {
+   "case": "real exercise submit grades the answer (total > 0)",
+   "ok": true,
+   "detail": "status=200 exerciseId=755989 total=1 body={\"percentage\":0,\"results\":[{\"correct\":false,\"correctAnswer\":\"have\",\"exerciseId\":755989,\"ungradeable\":false,\"us"
+  },
+  {
+   "case": "absent id grades nothing (total === 0, no phantom result)",
+   "ok": true,
+   "detail": "total=0 results=0"
+  },
+  {
+   "case": "size=100000 clamps to <=100",
+   "ok": true,
+   "detail": "status=200 rows=100 (cap 100)"
+  },
+  {
+   "case": "size=5000 clamps to <=100",
+   "ok": true,
+   "detail": "status=200 rows=100 (cap 100)"
+  },
+  {
+   "case": "size=-5 clamps to >=1",
+   "ok": true,
+   "detail": "status=200 rows=1 (cap 100)"
+  },
+  {
+   "case": "size=0 clamps to >=1",
+   "ok": true,
+   "detail": "status=200 rows=1 (cap 100)"
+  },
+  {
+   "case": "page=-1 clamps to 0",
+   "ok": true,
+   "detail": "status=200 rows=20 (cap 20)"
+  },
+  {
+   "case": "page beyond end is empty, not error",
+   "ok": true,
+   "detail": "status=200 rows=0 (cap 20)"
+  },
+  {
+   "case": "SQL metacharacters return exactly 0 rows",
+   "ok": true,
+   "detail": "status=200 rows=0 (vocabulary = 127)"
+  },
+  {
+   "case": "positive control 'the' returns rows (endpoint not broken)",
+   "ok": true,
+   "detail": "status=200 rows=9"
+  },
+  {
+   "case": "unmatched keyword returns empty list, not an error",
+   "ok": true,
+   "detail": "status=200 rows=0"
+  }
+ ]
+}

@@ -165,3 +165,7 @@ audit-v*-*.json
 audit-v*-shots/
 *.network-request
 *.network-response
+
+# ---------- Harness-generated scratch (regenerated every run, never commit) ----------
+# sweep/v8/ui/lib.js cleanupAuditPayments() rewrites this on each sweep.
+sweep/v8/_*.sql

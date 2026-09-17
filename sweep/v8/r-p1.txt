@@ -1,0 +1,18 @@
+=== PHASE1 total=124 FAIL=0
+--- slowest ---
+   19646ms  dictionary proxy word GET /api/vocabulary/dictionary/happy
+     773ms  admin exercises filter GET /api/admin/exercises?type=MULTIPLE_CHOICE&page=0&size=5
+     649ms  pub lesson 445 GET /api/lessons/445
+     299ms  pub lessons list GET /api/lessons?page=0&size=5
+     146ms  pub vocab search GET /api/vocabulary/search?q=travel
+     140ms  ai status noauth GET /api/admin/exercises/ai/status
+     117ms  vocab list as user GET /api/vocabulary?page=0&size=5
+     113ms  register missing fields POST /api/auth/register
+     100ms  pub missing lesson 404 GET /api/lessons/99999999
+      76ms  decks my GET /api/decks/my?page=0&size=5
+      61ms  reset bogus otp POST /api/auth/reset-password
+      59ms  progress user GET /api/users/progress
+      56ms  pub video-lessons GET /api/v1/video-lessons?page=0&size=5
+      55ms  pub decks list GET /api/decks?page=0&size=5
+      55ms  pub leaderboard GET /api/leaderboard?page=0&size=10
+wrote p1.json

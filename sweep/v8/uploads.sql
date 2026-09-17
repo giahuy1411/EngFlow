@@ -1,0 +1,2 @@
+SET NOCOUNT ON;
+SELECT files = COUNT(*) FROM sys.tables WHERE 1=0;

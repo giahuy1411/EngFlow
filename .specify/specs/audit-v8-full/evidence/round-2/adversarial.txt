@@ -1,0 +1,67 @@
+﻿=== [1] MALFORMED JSON BODY ===
+  OK   malformed JSON: truncated object               status=400 problemDetail=true
+  OK   malformed JSON: bare string                    status=400 problemDetail=true
+  OK   malformed JSON: array where object expected    status=400 problemDetail=true
+  OK   malformed JSON: null body                      status=400 problemDetail=true
+  OK   malformed JSON: invalid utf8 escape            status=400 problemDetail=true
+
+=== [2] DUPLICATE REGISTRATION ===
+  OK   first registration succeeds                    status=400 (400 = validation, still no crash)
+  OK   duplicate registration rejected, no 500        status=400 problemDetail=true
+
+=== [3] EMPTY / DEGENERATE SEARCH ===
+  OK   search: no keyword at all                      status=200
+  OK   search: empty keyword                          status=200
+  OK   search: whitespace only                        status=200
+  OK   search: single char                            status=200
+  OK   search: SQL metacharacters                     status=200
+  OK   search: very long keyword                      status=200
+  OK   search injection does not dump the table       status=200 results=0 (vocabulary has 127 rows)
+
+=== [4] OUT-OF-RANGE PAGINATION ===
+  OK   pagination: page beyond end                    status=200
+  OK   pagination: negative page                      status=200
+  OK   pagination: zero size                          status=200
+  OK   pagination: enormous size                      status=200
+  OK   pagination: non-numeric page                   status=400
+  OK   pagination: negative size                      status=200
+
+=== [5] STALE / ABSENT RESOURCE ===
+  OK   stale: absent lesson                           status=404
+  OK   stale: absent exercise submit                  status=200
+  OK   stale: absent deck                             status=404
+  OK   stale: absent speaking prompt                  status=404
+  OK   stale: absent video lesson                     status=404
+  OK   stale: non-numeric id                          status=400
+
+=== [6] INVALID UPLOAD ===
+  OK   upload: html upload                            status=403
+  OK   upload: svg upload                             status=403
+  OK   upload: js upload                              status=403
+  OK   upload: no extension                           status=403
+  OK   upload: double extension                       status=403
+  OK   upload: path traversal name                    status=403
+
+=== [7] SLOW NETWORK + SERVICE UNAVAILABLE (browser interception) ===
+  OK   slow network: page mounts while requests are pending mounted=true textLen=293
+  OK   slow network: no uncaught page error           pageErrors=[]
+  OK   service down: app shell still mounted (no white screen) mounted=true textLen=319
+  OK   service down: no uncaught page error           pageErrors=[]
+  OK   API 503: app shell still mounted               mounted=true textLen=326
+  OK   API 503: no uncaught page error                pageErrors=[]
+
+=== ADVERSARIAL SUMMARY ===
+cases : 38
+fails : 0
+  malformed JSON            5 cases, 0 fail
+  first registration succeeds1 cases, 0 fail
+  duplicate registration rejected, no 5001 cases, 0 fail
+  search                    6 cases, 0 fail
+  search injection does not dump the table1 cases, 0 fail
+  pagination                6 cases, 0 fail
+  stale                     6 cases, 0 fail
+  upload                    6 cases, 0 fail
+  slow network              2 cases, 0 fail
+  service down              2 cases, 0 fail
+  API 503                   2 cases, 0 fail
+wrote evidence/round-2/adversarial.json

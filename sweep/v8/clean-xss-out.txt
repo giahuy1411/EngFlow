@@ -1,0 +1,23 @@
+﻿--- BEFORE ---
+vocab_id|word|lesson_id|created_at
+--------|----|---------|----------
+50234|img|NULL|2026-09-16 13:10:27.2394241
+50235|img|NULL|2026-09-16 13:12:11.1412952
+50236|img|NULL|2026-09-16 13:16:43.1462682
+50237|img|NULL|2026-09-16 13:20:17.5757709
+
+(4 rows affected)
+
+(4 rows affected)
+--- AFTER (must be 0 rows) ---
+remaining
+---------
+0
+
+(1 rows affected)
+--- parity re-check (baseline is 127) ---
+vocabulary_total
+----------------
+127
+
+(1 rows affected)

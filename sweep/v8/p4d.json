@@ -1,0 +1,68 @@
+[
+ {
+  "name": "A meta+SRT file",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons/upload",
+  "as": "tok",
+  "code": 201,
+  "ms": 0,
+  "expect": "201/200/400",
+  "pass": true,
+  "snippet": "{\"id\":95,\"title\":\"ZZ v8 mp 1789500749940\",\"description\":\"probe\",\"youtubeVideoId\":\"4EtXW3nnfPI\",\"level\":\"ELEMENTARY\",\"category\":\"PROBE\",\"durationSeconds\":4,\"line"
+ },
+ {
+  "name": "B meta+transcriptText",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons/upload",
+  "as": "tok",
+  "code": 400,
+  "ms": 0,
+  "expect": "201/200/400",
+  "pass": true,
+  "snippet": "{\"detail\":\"Không nhận diện được dòng phụ đề nào (định dạng SRT/VTT?)\",\"instance\":\"/api/v1/admin/video-lessons/upload\",\"status\":400,\"title\":\"Bad Request\"}"
+ },
+ {
+  "name": "C bad youtube url",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons/upload",
+  "as": "tok",
+  "code": 400,
+  "ms": 0,
+  "expect": "400",
+  "pass": true,
+  "snippet": "{\"detail\":\"Không nhận diện được dòng phụ đề nào (định dạng SRT/VTT?)\",\"instance\":\"/api/v1/admin/video-lessons/upload\",\"status\":400,\"title\":\"Bad Request\"}"
+ },
+ {
+  "name": "D meta missing level",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons/upload",
+  "as": "tok",
+  "code": 400,
+  "ms": 0,
+  "expect": "400",
+  "pass": true,
+  "snippet": "{\"detail\":\"Dữ liệu đầu vào không hợp lệ\",\"instance\":\"/api/v1/admin/video-lessons/upload\",\"status\":400,\"title\":\"Validation Failed\",\"errors\":{\"level\":\"must not be"
+ },
+ {
+  "name": "E non-admin",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons/upload",
+  "as": "tok",
+  "code": 403,
+  "ms": 0,
+  "expect": "403",
+  "pass": true,
+  "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
+ },
+ {
+  "name": "cleanup A",
+  "method": "DELETE",
+  "path": "/api/v1/admin/video-lessons/95",
+  "as": "admin",
+  "code": 200,
+  "ms": 27,
+  "expect": "200/204",
+  "pass": true,
+  "snippet": "{\"message\":\"Đã xóa bài học video\"}"
+ }
+]

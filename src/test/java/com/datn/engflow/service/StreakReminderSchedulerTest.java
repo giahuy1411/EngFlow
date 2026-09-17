@@ -176,4 +176,52 @@ class StreakReminderSchedulerTest {
         field.setAccessible(true);
         field.setBoolean(s, value);
     }
-}
+    // ---- per-user idempotency: retry cùng ngày không gửi trùng (B2) ----
+
+    private String sentKey(Long userId) {
+        return "streak:sent:" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + ":" + userId;
+    }
+
+    @Test
+    void runReminderJob_userAlreadySentToday_skipsResend() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any())).thenReturn(true);
+        User atRisk = user(1L, "risk@test.com", LocalDate.now().minusDays(1), 6);
+        User broken = user(2L, "gone@test.com", LocalDate.now().minusDays(5), 4);
+        when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of(atRisk));
+        when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of(broken));
+        when(redisTemplate.hasKey(sentKey(1L))).thenReturn(true);
+        when(redisTemplate.hasKey(sentKey(2L))).thenReturn(true);
+
+        scheduler.sendDailyStreakReminders();
+
+        verify(emailService, never()).sendStreakReminder(anyString(), anyString(), anyInt());
+        verify(emailService, never()).sendStreakComebackReminder(anyString(), anyString(), anyInt());
+    }
+
+    @Test
+    void runReminderJob_successfulSend_marksUserSent() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any())).thenReturn(true);
+        User atRisk = user(1L, "risk@test.com", LocalDate.now().minusDays(1), 6);
+        User broken = user(2L, "gone@test.com", LocalDate.now().minusDays(5), 4);
+        when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of(atRisk));
+        when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of(broken));
+
+        scheduler.sendDailyStreakReminders();
+
+        verify(valueOperations).set(eq(sentKey(1L)), eq("1"), any());
+        verify(valueOperations).set(eq(sentKey(2L)), eq("1"), any());
+    }
+
+    @Test
+    void runReminderJob_failedSend_doesNotMarkUserSent() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any())).thenReturn(true);
+        User atRisk = user(1L, "risk@test.com", LocalDate.now().minusDays(1), 6);
+        when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of(atRisk));
+        when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of());
+        doThrow(new RuntimeException("SMTP down")).when(emailService)
+                .sendStreakReminder(anyString(), anyString(), anyInt());
+
+        scheduler.sendDailyStreakReminders();
+
+        verify(valueOperations, never()).set(eq(sentKey(1L)), anyString(), any());
+    }}

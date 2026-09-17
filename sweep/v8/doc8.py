@@ -1,0 +1,16 @@
+import io, sys
+p = ".specify/specs/audit-v8-full/REPORT.md"
+t = io.open(p, encoding="utf-8", newline="").read()
+crlf = t.count("\r\n") == t.count("\n")
+t = t.replace("\r\n", "\n")
+anchor = "\n---\n\n## 4. SKILL"
+extra = """12. **`openrouter.*` ch\u1ec9 l\u00e0 T\u00caN C\u0168, kh\u00f4ng ph\u1ea3i cloud** \u2014 \u0111\u00e3 \u0111o l\u1ea1i 2026-09-16 v\u00ec t\u00ean config g\u00e2y nghi ng\u1edd: `AiPromptService`/`AiVocabService` d\u00f9ng `WebClient` v\u1edbi `openrouter.base-url`, nh\u01b0ng gi\u00e1 tr\u1ecb th\u1ef1c trong container l\u00e0 `http://host.docker.internal:11434/v1` (Ollama local). B\u1eb1ng ch\u1ee9ng 2 chi\u1ec1u: (a) `rg "openrouter\\.ai|api\\.openai\\.com"` = **0 hit** trong `src/`+`frontend/`; (b) 1 call `ai-generate` \u2192 `%LOCALAPPDATA%\\Ollama\\server.log` t\u0103ng \u0111\u00fang **1** d\u00f2ng `POST /v1/chat/completions` (02:07:16, 5.24 s, client `127.0.0.1`) v\u00e0 to\u00e0n b\u1ed9 58 call trong log \u0111\u1ec1u t\u1eeb loopback. **C\u00f2n l\u1ea1i**: `.env` gi\u1eef m\u1ed9t **API key OpenRouter th\u1eadt** (`sk-or-v1-`, 73 k\u00fd t\u1ef1) \u0111\u01b0\u1ee3c g\u1eedi k\u00e8m `Authorization` t\u1edbi Ollama local \u2014 Ollama b\u1ecf qua n\u00ean **kh\u00f4ng c\u00f3 egress**, nh\u01b0ng l\u00e0 secret ch\u1ebft n\u00ean \u0111\u1ec3 l\u1ea1i hay \u0111\u1ed5i t\u00ean \u0111\u1ec1u \u0111\u01b0\u1ee3c (kh\u00f4ng t\u1ef1 xo\u00e1: c\u00f3 th\u1ec3 l\u00e0 key b\u1ea1n c\u00f2n d\u00f9ng \u1edf n\u01a1i kh\u00e1c).
+13. **AI th\u1ec9nh tho\u1ea3ng l\u1eabn k\u00fd t\u1ef1 CJK (\u0111\u1ecdt, ch\u01b0a t\u00e1i hi\u1ec7n)** \u2014 `sweep/v8/cjkcheck.js` ch\u1ea1y 15 l\u1ea7n `ai-generate` (5 ch\u1ee7 \u0111\u1ec1 \u00d7 3) = **0/15 c\u00f3 CJK**; nh\u01b0ng m\u1ed9t run `p3a` c\u00f9ng ng\u00e0y c\u00f3 `"description": "...cho ng\u01b0\u1eddi m\u1edbi b\u1eaft \u0111\u1ea7u h\u1ecdc\u82f1\u8bed\u5e76..."`. Kh\u00f4ng th\u00eam guard v\u00ec ch\u01b0a \u0111\u1ee7 b\u1eb1ng ch\u1ee9ng t\u00e1i hi\u1ec7n; n\u1ebfu c\u1ea7n th\u00ec guard deterministic `[\u4e00-\u9fff]` \u1edf t\u1ea7ng parse/validate (ch\u01b0a l\u00e0m \u0111\u1ec3 tr\u00e1nh ch\u1eb7n oan n\u1ed9i dung h\u1ee3p l\u1ec7 c\u00f3 H\u00e1n t\u1ef1 trong v\u00ed d\u1ee5 ng\u00f4n ng\u1eef h\u1ecdc).
+14. **Kh\u00f4ng c\u00f3 API xo\u00e1 `speaking_submissions` \u2192 row xo\u00e1 b\u1eb1ng SQL th\u00ec object MinIO th\u00e0nh m\u1ed3 c\u00f4i.** V\u00f2ng 3 l\u1ea7n 2 t\u1ea1o 6 object m\u1ed3 c\u00f4i (5 `speaking-submissions/*.wav` + 1 `video-attempts/.../c6381dd5...`) v\u00e0 \u0111\u00e3 d\u1ecdn b\u1eb1ng `mc rm --force` sau khi \u0111\u1ed1i chi\u1ebfu `media_object_key` trong DB. L\u00e0 h\u1ec7 qu\u1ea3 c\u1ee7a vi\u1ec7c kh\u00f4ng c\u00f3 API xo\u00e1, kh\u00f4ng ph\u1ea3i bug m\u1edbi.
+15. **Harness ghi JSON theo CWD** \u2014 `sweep/v8/*.js` `lib.dump()` v\u00e0 `ui/routes.js` ghi file t\u01b0\u01a1ng \u0111\u1ed1i, n\u00ean ph\u1ea3i ch\u1ea1y **t\u1eeb trong `sweep/v8`** (ch\u1ea1y t\u1eeb repo root s\u1ebd \u0111\u1ec3 l\u1ea1i `p*.json` \u1edf root \u2014 \u0111\u00e3 m\u1eafc v\u00e0 \u0111\u00e3 d\u1ecdn). L\u1ea7n sau ch\u1ea1y sweep: `Set-Location sweep\\v8` tr\u01b0\u1edbc.
+"""
+if anchor not in t:
+    print("ANCHOR NOT FOUND"); sys.exit(1)
+t = t.replace(anchor, extra + anchor, 1)
+io.open(p, "w", encoding="utf-8", newline="").write(t.replace("\n", "\r\n") if crlf else t)
+print("ok")

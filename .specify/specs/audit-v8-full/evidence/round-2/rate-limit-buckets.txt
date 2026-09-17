@@ -1,0 +1,22 @@
+﻿admin token: true
+
+bucket key observed per prefix (RateLimitFilter.java:47-75):
+
+  CONTROL /api/ai/** (declared :ai 10)           -> :ai        declared=ai         status=404
+  Ollama: admin exercises ai/generate-async      -> :ai        declared=AI?        status=404
+  Ollama: admin exercises ai/generate            -> :ai        declared=AI?        status=404
+  Ollama: admin exercises ai/generate-all        -> :ai        declared=AI?        status=404
+  Ollama: admin exercises ai/generate-batch      -> :ai        declared=AI?        status=404
+  Ollama: admin exercises ai/validate            -> :ai        declared=AI?        status=404
+  Ollama: backfill-answers                       -> :ai        declared=AI?        status=404
+  Ollama: speaking-prompts ai-generate           -> :ai        declared=AI?        status=404
+  Ollama: speaking-prompts ai-generate-full      -> :ai        declared=AI?        status=404
+  Ollama: video-prompts ai-generate (ALIAS)      -> :ai        declared=AI?        status=404
+  Ollama: video-lessons translate-transcript     -> :ai        declared=AI?        status=404
+  Ollama: video-lessons fetch-youtube            -> :ai        declared=AI?        status=404
+  Ollama: video-attempts ai-grade                -> :ai        declared=AI?        status=404
+  Cloud: auth avatar/upload                      -> :upload    declared=upload 15  status=404
+  Upload: video-lessons/upload                   -> :upload    declared=upload 15  status=404
+  CONTROL /api/admin/audio-upload (upload 15)    -> :upload    declared=upload     status=404
+
+wrote p8.json   (rate-limit keys cleared)

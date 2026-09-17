@@ -1,0 +1,37 @@
+  disposable id=180189 token=true
+-- change-password --
+  wrong old -> 400
+  short new -> 400
+  valid     -> 200
+  login NEW pw -> 200 (200 = change took effect)
+  login OLD pw -> 401 (must be 400/401)
+-- forgot -> OTP -> reset --
+  forgot -> 200
+  redis OTP present 44**
+  wrong otp -> 400
+  valid otp -> 200
+  login after reset -> 200
+  OTP consumed after use -> YES
+-- avatar PUT --
+  set url -> 200
+  blank   -> 400
+-- admin user toggles (on disposable) --
+=== PHASE4A-AUTH total=18 FAIL=0
+--- slowest ---
+     861ms  A0 register disposable POST /api/auth/register
+      71ms  T active PUT /api/admin/users/180189/toggle-active
+      29ms  T active back PUT /api/admin/users/180189/toggle-active
+      29ms  T premium on PUT /api/admin/users/180189/toggle-premium
+      29ms  T admin-flag PUT /api/admin/users/180189/toggle-admin
+      27ms  AV noauth 401 PUT /api/auth/avatar
+      27ms  T premium off PUT /api/admin/users/180189/revoke-premium
+      26ms  T unknown 404 PUT /api/admin/users/99999999/toggle-active
+      24ms  T admin-flag back PUT /api/admin/users/180189/toggle-admin
+      14ms  T user-role 403 PUT /api/admin/users/180189/toggle-active
+       9ms  T noauth 401 PUT /api/admin/users/180189/toggle-active
+       0ms  CP wrong old POST /api/auth/change-password
+       0ms  CP short new POST /api/auth/change-password
+       0ms  CP valid POST /api/auth/change-password
+       0ms  RP wrong otp POST /api/auth/reset-password
+wrote p4a.json
+DISPOSABLE_ID 180189 EMAIL zzp41789484603436@example.com

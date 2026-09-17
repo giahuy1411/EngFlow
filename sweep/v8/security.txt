@@ -1,0 +1,47 @@
+﻿=== [1] ADMIN SURFACE x ROLE (admin=2xx/4xx-business, user/anon=401|403) ===
+  OK   GET /api/admin/stats                                 admin=200 user=403 anon=401
+  OK   GET /api/admin/lessons?page=0&size=5                 admin=200 user=403 anon=401
+  OK   GET /api/admin/lessons/445/structure                 admin=200 user=403 anon=401
+  OK   GET /api/admin/exercises?page=0&size=5               admin=200 user=403 anon=401
+  OK   GET /api/admin/users?page=0&size=5                   admin=200 user=403 anon=401
+  OK   POST /api/admin/lessons                              admin=400 user=403 anon=401
+  OK   DELETE /api/admin/lessons/99999999                   admin=404 user=403 anon=401
+  OK   GET /api/admin/exercises/ai/status                   admin=200 user=403 anon=401
+  OK   GET /api/v1/admin/speaking-submissions?page=0&size=5 admin=200 user=403 anon=401
+  OK   GET /api/v1/admin/video-lessons                      admin=200 user=403 anon=401
+
+=== [1b] AUTHENTICATED SELF-SCOPED (200 for user, 401 for anon) ===
+  OK   GET /api/dashboard/stats                             user=200 anon=401
+  OK   GET /api/auth/me                                     user=200 anon=401
+
+=== [2] PUBLIC SURFACE (must NOT be 401/403) ===
+  OK   GET /api/v1/video-lessons                            anon=200
+  OK   GET /api/v1/video-lessons/1                          anon=200
+  OK   GET /api/vocabulary/search?keyword=work              anon=200
+  OK   POST /api/auth/login                                 anon=400
+
+=== [3] TOKEN HANDLING ===
+  OK   no token                                 -> 401
+  OK   garbage token                            -> 401
+  OK   well-formed but wrong signature          -> 401
+  OK   empty bearer                             -> 401
+
+=== [4] AI OUTPUT — raw-tag echo in API response (OBSERVATION, not a verdict) ===
+  OK   payload "<script>alert(1)</script>"        status=200 rawTagInResponse=false
+  OK   payload "\"><img src=x onerror=alert(1)>"  status=504 rawTagInResponse=false
+  OK   payload "'; DROP TABLE exercises;--"       status=200 rawTagInResponse=false
+  OK   payload "<svg/onload=alert(1)>"            status=200 rawTagInResponse=false
+  OK   payload "<iframe src=\"javascript:alert(1) status=200 rawTagInResponse=false
+  raw-tag echoes: 0/5  (verdict owned by xss-prove.js, not counted as a failure here)
+
+=== [5] AI OUTPUT XSS (browser execution proof) ===
+  -> moved to sweep/v8/xss-prove.js (see xss-prove.json);
+     it writes test rows and cleans them via clean-xss-probe.sql.
+
+=== SECURITY SUMMARY ===
+failures        : 0
+leak matches    : 0
+admin surfaces  : 10 (all role-gated: true)
+user-self       : 2 (all self-scoped: true)
+public surfaces : 4 (all reachable: true)
+wrote security.json

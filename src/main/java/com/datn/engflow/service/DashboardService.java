@@ -29,7 +29,7 @@ public class DashboardService {
     public DashboardStatsDTO getDashboardStats(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
-        int totalLessons = Math.toIntExact(lessonRepository.count());
+        int totalLessons = Math.toIntExact(lessonRepository.countByIsPublishedTrue());
         int completedLessons = Math.toIntExact(progressRepository.countByUserIdAndIsCompletedTrue(user.getId()));
         int totalVocabulary = Math.toIntExact(vocabularyRepository.count());
         int effectiveStreak = streakService.getCurrentStreak(user.getId());

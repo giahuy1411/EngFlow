@@ -1,0 +1,24 @@
+== GUEST
+   vw=360 client=360 scrollW=345  ok nav=off burger=flex linkMaxRight=0
+   vw=375 client=375 scrollW=360  ok nav=off burger=flex linkMaxRight=0
+   vw=414 client=414 scrollW=399  ok nav=off burger=flex linkMaxRight=0
+   vw=768 client=768 scrollW=753  ok nav=off burger=flex linkMaxRight=0
+   vw=1024 client=1024 scrollW=1009  ok nav=off burger=flex linkMaxRight=0
+   vw=1280 client=1280 scrollW=1265  ok nav=on burger=none linkMaxRight=879
+   vw=1366 client=1366 scrollW=1351  ok nav=on burger=none linkMaxRight=915
+   vw=1440 client=1440 scrollW=1425  ok nav=on burger=none linkMaxRight=952
+   vw=1500 client=1500 scrollW=1485  ok nav=on burger=none linkMaxRight=982
+   vw=1536 client=1536 scrollW=1521  ok nav=on burger=none linkMaxRight=1141
+   vw=1920 client=1920 scrollW=1905  ok nav=on burger=none linkMaxRight=1333
+== ADMIN
+   vw=360 client=360 scrollW=345  ok nav=off burger=flex linkMaxRight=0
+   vw=375 client=375 scrollW=360  ok nav=off burger=flex linkMaxRight=0
+   vw=414 client=414 scrollW=399  ok nav=off burger=flex linkMaxRight=0
+   vw=768 client=768 scrollW=753  ok nav=off burger=flex linkMaxRight=0
+   vw=1024 client=1024 scrollW=1009  ok nav=off burger=flex linkMaxRight=0
+   vw=1280 client=1280 scrollW=1265  ok nav=on burger=none linkMaxRight=975
+   vw=1366 client=1366 scrollW=1351  ok nav=on burger=none linkMaxRight=1011
+   vw=1440 client=1440 scrollW=1425  ok nav=on burger=none linkMaxRight=1048
+   vw=1500 client=1500 scrollW=1485  ok nav=on burger=none linkMaxRight=1078
+   vw=1536 client=1536 scrollW=1521  ok nav=on burger=none linkMaxRight=1255
+   vw=1920 client=1920 scrollW=1905  ok nav=on burger=none linkMaxRight=1447

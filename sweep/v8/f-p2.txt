@@ -1,0 +1,26 @@
+  lessonId=101928
+  exId=776158
+  vocabId=50218
+  promptId=60488
+  deckId=50050
+  gameSession=true items=10
+  sectionId=70027
+  snapshotId=30023
+=== PHASE2-CRUD total=61 FAIL=0
+--- slowest ---
+     207ms  Game submit (UI shape) POST /api/games/submit
+     165ms  L delete DELETE /api/admin/lessons/101928
+      83ms  L create POST /api/admin/lessons
+      80ms  SP blank title 400 POST /api/v1/admin/speaking-prompts
+      72ms  E submit persists POST /api/lessons/101928/exercises/submit
+      66ms  L update PUT /api/admin/lessons/101928
+      66ms  E create POST /api/admin/exercises
+      64ms  Flashcard review known POST /api/flashcards/review
+      62ms  SP delete DELETE /api/v1/admin/speaking-prompts/60488
+      60ms  D add word POST /api/decks/50050/words
+      60ms  SNAP create POST /api/admin/lessons/101928/snapshots
+      54ms  ST update block PUT /api/admin/blocks/40035
+      53ms  SRS review POST /api/srs/review
+      46ms  D delete DELETE /api/decks/50050
+      46ms  ST add block POST /api/admin/sections/70027/blocks
+wrote p2.json

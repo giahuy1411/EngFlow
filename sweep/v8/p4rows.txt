@@ -1,0 +1,3 @@
+| P4a (mới) | đổi mật khẩu (sai / ngắn / đúng), forgot → OTP trong Redis → reset (OTP **consumed** sau dùng), avatar PUT, **6 admin user-toggle** × role matrix (admin/user/noauth/unknown) | **18/18** |
+| P4b → P4c (mới) | speaking manual-grade validation (`score 11`, `7.55`, blank feedback → 400; valid → 200 `GRADED 8.5`; non-admin → 403) rồi **video-lesson CRUD** create 201 → public detail → update → delete → 404 | 7 (1 fail = probe sai enum `B1`) → **8/8** |
+| P4d → P4e (mới) | multipart `video-lessons/upload`: meta+SRT và meta+transcriptText → **201** (SRT parse đúng 2 dòng, `youtube_video_id` extract từ URL), YouTube lỗi → 400, user → 403 | 5 (415 do thiếu `Content-Type` part meta) → **8** |

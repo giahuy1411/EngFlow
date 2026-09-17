@@ -1,0 +1,112 @@
+[
+ {
+  "name": "VL create",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons",
+  "as": "admin",
+  "code": 201,
+  "ms": 31,
+  "expect": "200/201",
+  "pass": true,
+  "snippet": "{\"id\":93,\"title\":\"ZZ v8 vid 1789500749370\",\"description\":\"probe\",\"youtubeVideoId\":\"2VeQTuSSiI0\",\"level\":\"ELEMENTARY\",\"category\":\"PROBE\",\"durationSeconds\":4,\"lineCount\":2,\"isPublished\":false}"
+ },
+ {
+  "name": "VL draft detail guest 404",
+  "method": "GET",
+  "path": "/api/v1/video-lessons/93",
+  "as": "none",
+  "code": 404,
+  "ms": 12,
+  "expect": "404",
+  "pass": true,
+  "snippet": "{\"detail\":\"VideoLesson not found with id : '93'\",\"instance\":\"/api/v1/video-lessons/93\",\"status\":404,\"title\":\"Not Found\"}"
+ },
+ {
+  "name": "VL draft detail admin 200",
+  "method": "GET",
+  "path": "/api/v1/video-lessons/93",
+  "as": "admin",
+  "code": 200,
+  "ms": 16,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"id\":93,\"title\":\"ZZ v8 vid 1789500749370\",\"description\":\"probe\",\"youtubeVideoId\":\"2VeQTuSSiI0\",\"level\":\"ELEMENTARY\",\"category\":\"PROBE\",\"durationSeconds\":4,\"transcript\":[{\"start\":0.0,\"end\":2.0,\"textEn"
+ },
+ {
+  "name": "VL update",
+  "method": "PUT",
+  "path": "/api/v1/admin/video-lessons/93",
+  "as": "admin",
+  "code": 200,
+  "ms": 25,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"id\":93,\"title\":\"ZZ v8 vid 1789500749370b\",\"description\":\"p2\",\"youtubeVideoId\":\"2VeQTuSSiI0\",\"level\":\"INTERMEDIATE\",\"category\":\"PROBE\",\"durationSeconds\":4,\"lineCount\":2,\"isPublished\":true}"
+ },
+ {
+  "name": "VL bad level 400",
+  "method": "PUT",
+  "path": "/api/v1/admin/video-lessons/93",
+  "as": "admin",
+  "code": 400,
+  "ms": 24,
+  "expect": "400",
+  "pass": true,
+  "snippet": "{\"detail\":\"Trình độ không hợp lệ: B1\",\"instance\":\"/api/v1/admin/video-lessons/93\",\"status\":400,\"title\":\"Bad Request\"}"
+ },
+ {
+  "name": "VL 1 line 400",
+  "method": "PUT",
+  "path": "/api/v1/admin/video-lessons/93",
+  "as": "admin",
+  "code": 400,
+  "ms": 23,
+  "expect": "400",
+  "pass": true,
+  "snippet": "{\"detail\":\"Trình độ không hợp lệ: B1\",\"instance\":\"/api/v1/admin/video-lessons/93\",\"status\":400,\"title\":\"Bad Request\"}"
+ },
+ {
+  "name": "VL user create 403",
+  "method": "POST",
+  "path": "/api/v1/admin/video-lessons",
+  "as": "user",
+  "code": 403,
+  "ms": 14,
+  "expect": "403",
+  "pass": true,
+  "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
+ },
+ {
+  "name": "VL delete",
+  "method": "DELETE",
+  "path": "/api/v1/admin/video-lessons/93",
+  "as": "admin",
+  "code": 200,
+  "ms": 25,
+  "expect": "200/204",
+  "pass": true,
+  "snippet": "{\"message\":\"Đã xóa bài học video\"}"
+ },
+ {
+  "name": "VL gone 404",
+  "method": "GET",
+  "path": "/api/v1/video-lessons/93",
+  "as": "none",
+  "code": 404,
+  "ms": 16,
+  "expect": "404",
+  "pass": true,
+  "snippet": "{\"detail\":\"VideoLesson not found with id : '93'\",\"instance\":\"/api/v1/video-lessons/93\",\"status\":404,\"title\":\"Not Found\"}"
+ },
+ {
+  "name": "upload cleanup",
+  "method": "DELETE",
+  "path": "/api/v1/admin/video-lessons/94",
+  "as": "admin",
+  "code": 200,
+  "ms": 24,
+  "expect": "200/204",
+  "pass": true,
+  "snippet": "{\"message\":\"Đã xóa bài học video\"}"
+ }
+]

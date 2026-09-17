@@ -246,4 +246,19 @@ class RateLimitFilterTest {
         // DELETE/DELETE-family on an AI path must not be swept in either
         assertBucketFor("DELETE", "/api/admin/exercises/ai/generate-async", ":global");
     }
-}
+    @Test
+    void whenExpireFails_thenKeyDeletedBestEffortAndChainContinues() throws Exception {
+        // EXPIRE lỗi sau INCR thành công: key không được rò rỉ mất TTL (kẹt 429 vĩnh viễn
+        // cho IP+bucket đó). Filter tự dọn key và request hiện tại vẫn fail-open.
+        when(request.getRequestURI()).thenReturn("/api/lessons");
+        when(request.getRemoteAddr()).thenReturn("5.6.7.8");
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.increment(anyString())).thenReturn(1L);
+        doThrow(new RuntimeException("expire fail")).when(redisTemplate).expire(anyString(), any());
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(redisTemplate).delete("rate_limit:5.6.7.8:global");
+        verify(filterChain).doFilter(request, response);
+        verify(response, never()).setStatus(429);
+    }}

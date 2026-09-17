@@ -1,0 +1,47 @@
+﻿=== (A) sanitizeText allowlist vs payloads (the actual app config) ===
+  OK   "<img src=x onerror=\"window.__p='XSSPRO   -> ""
+  OK   "<svg/onload=window.__p='XSSPROBE1789542   -> ""
+  OK   "<script>window.__p='XSSPROBE17895423809   -> ""
+  OK   "<iframe src=\"javascript:window.__p='XS   -> ""
+  dangerous outputs: 0/4
+
+=== (B) end-to-end: hostile word -> save-vocab -> render page ===
+  "<img src=x onerror=\"window.__p='XS   gen=200 rawTagInResponse=false savedWord="img" save=200
+  "<svg/onload=window.__p='XSSPROBE178   gen=504 rawTagInResponse=false savedWord=undefined save=null
+  "<script>window.__p='XSSPROBE1789542   gen=200 rawTagInResponse=true savedWord="XSSPROBE1789542380932" save=200
+  "<iframe src=\"javascript:window.__p   gen=200 rawTagInResponse=false savedWord="iframe" save=200
+  decks visible to user: 9
+  pages opened: 6  executed=false  inlineHandlerAttrs=0
+
+=== (C) cleanup: removing the rows this run created ===
+--- rows to remove ---
+vocab_id|word|created_at
+--------|----|----------
+50250|img|2026-09-16 14:06:24.0601686
+50251|XSSPROBE1789542380932|2026-09-16 14:06:56.8837903
+50252|iframe|2026-09-16 14:06:58.6165816
+
+(3 rows affected)
+
+(3 rows affected)
+--- remaining from this run (must be 0) ---
+remaining
+---------
+0
+
+(1 rows affected)
+--- vocabulary total (baseline 127) ---
+vocabulary_total
+----------------
+127
+
+(1 rows affected)
+cleanup: no SQL error=true remaining=0 total=127 (baseline 127) -> PARITY RESTORED
+
+=== XSS VERDICT ===
+sanitizer neutralises all payloads : true
+no execution in real browser       : true
+no inline handler attr in DOM      : true
+rows created by this run cleaned   : true (vocabulary now 127, baseline 127)
+VERDICT: PASS - stored AI output cannot execute
+wrote xss-prove.json

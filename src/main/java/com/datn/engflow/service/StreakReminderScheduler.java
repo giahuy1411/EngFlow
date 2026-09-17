@@ -62,6 +62,7 @@ public class StreakReminderScheduler {
 
     private void runReminderJob(String trigger) {
         String markerKey = RedisConstants.REMINDER_MARKER_PREFIX + LocalDate.now(clock).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String sentDate = LocalDate.now(clock).format(DateTimeFormatter.ISO_LOCAL_DATE);
         Boolean markerAcquired = tryAcquireMarker(markerKey, trigger);
         if (Boolean.FALSE.equals(markerAcquired)) {
             log.info("Streak reminder already ran today (marker {}), skip {} trigger.", markerKey, trigger);
@@ -75,9 +76,14 @@ public class StreakReminderScheduler {
         List<User> atRiskUsers = streakService.getUsersWithStreakAtRisk();
         log.info("Found {} at-risk users (studied yesterday, not today).", atRiskUsers.size());
         for (User user : atRiskUsers) {
+            if (isAlreadySent(sentDate, user.getId())) {
+                log.info("Skip at-risk reminder for user {} — already sent today.", user.getId());
+                continue;
+            }
             int effectiveStreak = safeEffectiveStreak(user);
             try {
                 emailService.sendStreakReminder(user.getEmail(), user.getFullName(), effectiveStreak);
+                markSent(sentDate, user.getId());
             } catch (Exception e) {
                 allSucceeded = false;
                 log.error("Error sending at-risk reminder to {}: {}", user.getEmail(), e.getMessage());
@@ -91,9 +97,14 @@ public class StreakReminderScheduler {
                 log.info("Skip comeback mail for user {} — recently sent.", user.getId());
                 continue;
             }
+            if (isAlreadySent(sentDate, user.getId())) {
+                log.info("Skip comeback mail for user {} — already sent today.", user.getId());
+                continue;
+            }
             int lastStreak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
             try {
                 emailService.sendStreakComebackReminder(user.getEmail(), user.getFullName(), lastStreak);
+                markSent(sentDate, user.getId());
                 tryAcquireSuppression(user.getId());
             } catch (Exception e) {
                 allSucceeded = false;
@@ -139,6 +150,23 @@ public class StreakReminderScheduler {
             redisTemplate.opsForValue().setIfAbsent(key, "1", RedisConstants.COMEBACK_SUPPRESSION_TTL);
         } catch (Exception e) {
             log.warn("Redis unavailable for comeback suppression set userId={}: {}", userId, e.getMessage());
+        }
+    }
+
+    private boolean isAlreadySent(String sentDate, Long userId) {
+        try {
+            return Boolean.TRUE.equals(redisTemplate.hasKey(RedisConstants.STREAK_SENT_PREFIX + sentDate + ":" + userId));
+        } catch (Exception e) {
+            log.warn("Redis unavailable for sent check userId={}: {}", userId, e.getMessage());
+            return false;
+        }
+    }
+
+    private void markSent(String sentDate, Long userId) {
+        try {
+            redisTemplate.opsForValue().set(RedisConstants.STREAK_SENT_PREFIX + sentDate + ":" + userId, "1", RedisConstants.REMINDER_MARKER_TTL);
+        } catch (Exception e) {
+            log.warn("Redis unavailable for sent mark userId={}: {}", userId, e.getMessage());
         }
     }
 

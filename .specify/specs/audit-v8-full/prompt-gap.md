@@ -4,13 +4,13 @@
 
 | # | Vấn đề | Hệ quả nếu triển khai nguyên văn | Đã xử lý |
 |---|---|---|---|
-| G1 | Prompt yêu cầu font **Outfit** (headings) + **Plus Jakarta Sans** (body), rồi lại yêu cầu "thay toàn bộ font bằng Be Vietnam Pro" | Hai指令 mâu thuẫn; nếu làm theo phần đầu sẽ nạp 2 font thừa (~35–45 kB) vi phạm boundary "không thêm dependency" |已从 index.html bỏ Plus Jakarta Sans (audit-v5); chỉ Be Vietnam Pro, weights theo usage thật |
+| G1 | Prompt yêu cầu font **Outfit** (headings) + **Plus Jakarta Sans** (body), rồi lại yêu cầu "thay toàn bộ font bằng Be Vietnam Pro" | Hai chỉ thị mâu thuẫn; nếu làm theo phần đầu sẽ nạp 2 font thừa (~35–45 kB) vi phạm boundary "không thêm dependency" | Đã bỏ Plus Jakarta Sans khỏi index.html (audit-v5); chỉ còn Be Vietnam Pro, weights theo usage thật |
 | G2 | Token palette đặt tên `background/foreground/muted/accent/secondary/tertiary/quaternary/border/input/card/ring` theo Tailwind/shadcn; codebase dùng biến CSS `--geo-*` | Nếu viết thẳng `bg-background` sẽ không tồn tại → class chết, trang vỡ | Map 1-1: `--geo-bg/--geo-fg/--geo-accent/--geo-secondary/--geo-tertiary/--geo-quaternary` (đã kiểm tra: tất cả tồn tại) |
 | G3 | Shadow yêu cầu `8px 8px 0px #E2E8F0` cho card nhưng `4px 4px 0 #1E293B` cho pop | Hai chuẩn khác nhau cho cùng 1 component; mobile không được nhắc → overflow shadow | Đã có quy ước `shadow-pop-*` + patch mobile 2px (audit-v6/v7 F64) |
 | G4 | "Pattern Fills: Polka dots, grid lines, **diagonal stripes**" | `repeating-linear-gradient` cho sọc chéo **không có trong codebase** → nếu đòi "đồng bộ 100%" sẽ phải thêm CSS mới | Không phát minh: báo cáo ghi nhận là điểm prompt-vs-code duy nhất còn lệch (xem §4 REPORT) |
 | G5 | Layout `py-24` (96px) + `max-w-6xl` cho **toàn bộ** app | Với app học tập có bảng admin + sidebar, 96px dọc mỗi section làm trang kéo dài vô nghĩa | Áp dụng có chọn lọc: landing dùng nhịp lớn, admin dùng mật độ bảng |
 | G6 | Không định nghĩa breakpoint; "mobile: giảm pop shadow, ẩn shape trang trí" | Không có ngưỡng → mỗi lần sửa một ý khác nhau; đây chính là nguồn gốc bug header tràn ngang 1280–1535px (F-UI1) | Chuẩn hoá `@media (max-width:768px)` cho shadow/shape + band nén 1280–1535.98px |
-| G7 | A11y: "contrast AAA", "focus high-contrast", "respect prefers-reduced-motion" nhưng không nêu **WCAG SC** nào, không nói ảnh装饰 phải có alt | Không đo được; chính vì thiếu mà 30+ ảnh scraped trong lesson content không alt | Đã chốt WCAG 1.1.1 / 2.4.7 / 2.3.3 / 2.5.8 + hook DOMPurify tự điền alt |
+| G7 | A11y: "contrast AAA", "focus high-contrast", "respect prefers-reduced-motion" nhưng không nêu **WCAG SC** nào, không nói ảnh trang trí phải có alt | Không đo được; chính vì thiếu mà 30+ ảnh scraped trong lesson content không alt | Đã chốt WCAG 1.1.1 / 2.4.7 / 2.3.3 / 2.5.8 + hook DOMPurify tự điền alt |
 | G8 | Yêu cầu "verify giao diện đã đồng bộ" nhưng không cho **tiêu chí pass/fail** | Không thể kết luận; audit trước đó phải đoán | Nay mỗi mục có phép đo thật (computed style, scrollWidth, font-family tập hợp) |
 | G9 | Không nói gì về **text tiếng Việt** dù đây là app VN; prompt là thiết kế system tiếng Anh | Rủi ro: UI copy tiếng Anh lọt vào | Constitution P7 đã quy định; giữ nguyên |
 | G10 | Nhắc "Lucide **React**" trong stack Vue | Sai hệ sinh thái | Dùng `lucide-vue-next`, stroke 2.5, bọc trong hình tròn |
@@ -62,7 +62,7 @@ WCAG 1.1.1 (moi <img> co alt; anh trang tri = alt=""), 2.4.7 (focus-visible day 
 
 <motion>
 transition 300ms cubic-bezier(0.34,1.56,0.64,1); entrance pop scale 0->1; wiggle 3deg chi o 1280px+.
-</mition>
+</motion>
 
 <definition_of_done>
 1. `npx vitest run` xanh; `npx vite build` xanh VA entry chunk khong tang so voi baseline
@@ -79,4 +79,7 @@ transition 300ms cubic-bezier(0.34,1.56,0.64,1); entrance pop scale 0->1; wiggle
 
 Áp dụng nguyên tắc prompt-master: một prompt duy nhất, paste được; không thêm framework
 tự diễn kịch (MoE/ToT/GoT); không CoT cho model suy luận; giữ `<context>` dạng XML vì
-Codex đọc tốt cấu trúc rõ; mọi thành phần đều có tiêu chí nghiệm thu二元.
+Codex đọc tốt cấu trúc rõ; mọi thành phần đều có tiêu chí nghiệm thu đo được.
+
+**Bản prompt hoàn chỉnh, dán được nguyên khối: xem `prompt-rewritten.md`** (Task 2 yêu cầu
+file riêng). Bản trong §2 ở trên được giữ lại làm bản nháp đối chiếu.

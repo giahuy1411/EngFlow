@@ -3,70 +3,70 @@
   "i": 0,
   "word": "diligent",
   "status": 200,
-  "ms": 1249,
-  "body": "{\"id\":null,\"word\":\"diligent\",\"pronunciation\":\"dɪˈlɪdʒənt\",\"meaning\":\"showing or characterized by diligence; diligent\",\"exampleSentence\":\"She is a diligent stude"
+  "ms": 4757,
+  "body": "{\"id\":null,\"word\":\"diligent\",\"pronunciation\":\"dɪˈlɪdʒənt\",\"meaning\":\"showing or characterized by diligence\",\"exampleSentence\":\"She is very diligent in her work."
  },
  {
   "i": 1,
   "word": "resilient",
   "status": 200,
-  "ms": 1226,
-  "body": "{\"id\":null,\"word\":\"resilient\",\"pronunciation\":\"riˈsɪlɪənt\",\"meaning\":\"able to withstand or recover quickly from difficulties or attempts to harm\",\"exampleSenten"
+  "ms": 1188,
+  "body": "{\"id\":null,\"word\":\"resilient\",\"pronunciation\":\"riˈsɪlənt\",\"meaning\":\"able to withstand or recover from stress or pressure\",\"exampleSentence\":\"The tree was resil"
  },
  {
   "i": 2,
   "word": "meticulous",
   "status": 200,
-  "ms": 1274,
-  "body": "{\"id\":null,\"word\":\"meticulous\",\"pronunciation\":\"ˈmɛtɪkləs\",\"meaning\":\"showing or characterized by great attention to detail; thorough and precise; meticulous\",\""
+  "ms": 969,
+  "body": "{\"id\":null,\"word\":\"meticulous\",\"pronunciation\":\"ˈmɛtɪkləs\",\"meaning\":\"exacting; meticulous; thorough\",\"exampleSentence\":\"The meticulous gardener spent hours pru"
  },
  {
   "i": 3,
   "word": "pragmatic",
   "status": 200,
-  "ms": 1222,
-  "body": "{\"id\":null,\"word\":\"pragmatic\",\"pronunciation\":\"prəˈɡæmɪk\",\"meaning\":\"具有实际性和处理情况的技巧；实际和现实的\",\"exampleSentence\":\"The manager emphasized the need for a pragmatic ap"
+  "ms": 1203,
+  "body": "{\"id\":null,\"word\":\"pragmatic\",\"pronunciation\":\"prɑˈɡæmɪk\",\"meaning\":\"有实用性的；考虑实际结果的；实际的\",\"exampleSentence\":\"The company's new product is highly pragmatic, focusi"
  },
  {
   "i": 4,
   "word": "eloquent",
   "status": 200,
-  "ms": 1206,
-  "body": "{\"id\":null,\"word\":\"eloquent\",\"pronunciation\":\"ˈeləʊkwənt\",\"meaning\":\"speaking or writing in a way that impresses or convinces others\",\"exampleSentence\":\"Her elo"
+  "ms": 1042,
+  "body": "{\"id\":null,\"word\":\"eloquent\",\"pronunciation\":\"ˈeləmənt\",\"meaning\":\"善于表达，善于说服\",\"exampleSentence\":\"He is an eloquent speaker who can captivate the audience with h"
  },
  {
   "i": 5,
   "word": "tenacious",
   "status": 200,
-  "ms": 1150,
-  "body": "{\"id\":null,\"word\":\"tenacious\",\"pronunciation\":\"tɛnəˈtæʃən\",\"meaning\":\"be firmly attached or clinging; persist; be obstinate\",\"exampleSentence\":\"The dog was tena"
+  "ms": 1009,
+  "body": "{\"id\":null,\"word\":\"tenacious\",\"pronunciation\":\"tɛnəˈtæʃən\",\"meaning\":\"stubborn; persistent; clinging\",\"exampleSentence\":\"The dog was tenacious in its pursuit of"
  },
  {
   "i": 6,
   "word": "ambiguous",
   "status": 200,
-  "ms": 1236,
-  "body": "{\"id\":null,\"word\":\"ambiguous\",\"pronunciation\":\"əmˈbɪɡəs\",\"meaning\":\"not clear or definite; not definite or specific; having several possible meanings or interpr"
+  "ms": 1132,
+  "body": "{\"id\":null,\"word\":\"ambiguous\",\"pronunciation\":\"əmˈbɪs.ə.nəs\",\"meaning\":\"not clear or definite; indefinite\",\"exampleSentence\":\"The ambiguous statement left every"
  },
  {
   "i": 7,
   "word": "candid",
   "status": 200,
-  "ms": 1164,
-  "body": "{\"id\":null,\"word\":\"candid\",\"pronunciation\":\"kəˈdɪnd\",\"meaning\":\"showing or expressing honesty and sincerity; free from pretense or deceit\",\"exampleSentence\":\"Hi"
+  "ms": 1143,
+  "body": "{\"id\":null,\"word\":\"candid\",\"pronunciation\":\"kənˈdɪd\",\"meaning\":\"showing or expressing frankness, honesty, or sincerity without pretense or reserve\",\"exampleSent"
  },
  {
   "i": 8,
   "word": "lucid",
   "status": 200,
-  "ms": 1000,
-  "body": "{\"id\":null,\"word\":\"lucid\",\"pronunciation\":\"lɪˈsɪk\",\"meaning\":\"清晰的；明白的\",\"exampleSentence\":\"The instructions were very lucid, making the task easy to follow.\",\"au"
+  "ms": 981,
+  "body": "{\"id\":null,\"word\":\"lucid\",\"pronunciation\":\"lɪˈsɪk\",\"meaning\":\"清晰的；明白的\",\"exampleSentence\":\"The instructions were very lucid, making the task easy to understand.\""
  },
  {
   "i": 9,
   "word": "novel",
   "status": 200,
-  "ms": 1185,
-  "body": "{\"id\":null,\"word\":\"novel\",\"pronunciation\":\"noh-VEEL\",\"meaning\":\"a book or story that is intended to be read or seen for the first time\",\"exampleSentence\":\"He wr"
+  "ms": 1119,
+  "body": "{\"id\":null,\"word\":\"novel\",\"pronunciation\":\"noh-VEEL\",\"meaning\":\"a book or story that is written or told for the first time\",\"exampleSentence\":\"He wrote a novel "
  }
 ]

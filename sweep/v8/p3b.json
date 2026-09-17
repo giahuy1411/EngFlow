@@ -1,0 +1,211 @@
+[
+ {
+  "name": "MP /api/v1/speaking-submissions/upload?promptId=60014 as=user",
+  "method": "POST",
+  "path": "/api/v1/speaking-submissions/upload?promptId=60014",
+  "as": "user",
+  "code": 200,
+  "ms": 166,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": "{\"id\":40029,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":60014,\"promptTitle\":\"V6 fix probe\",\"videoUrl\":\"/api/v1/media/speaking-submissions/4e19d9a4-a5e2-408b-a31f-0c81bf8e7d6c"
+ },
+ {
+  "name": "assess 40029",
+  "method": "POST",
+  "path": "/api/v1/speaking-submissions/40029/assess",
+  "as": "user",
+  "code": 200,
+  "ms": 10998,
+  "expect": "200/202/400/502",
+  "pass": true,
+  "snippet": "{\"id\":40029,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":60014,\"promptTitle"
+ },
+ {
+  "name": "read back submission",
+  "method": "GET",
+  "path": "/api/v1/speaking-submissions/40029",
+  "as": "user",
+  "code": 200,
+  "ms": 21,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"id\":40029,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":60014,\"promptTitle"
+ },
+ {
+  "name": "cleanup submission",
+  "method": "DELETE",
+  "path": "/api/v1/admin/speaking-submissions/40029",
+  "as": "admin",
+  "code": 404,
+  "ms": 18,
+  "expect": "200/204/404/405",
+  "pass": true,
+  "snippet": "{\"detail\":\"Không tìm thấy tài nguyên yêu cầu.\",\"instance\":\"/api/v1/admin/speaking-submissions/40029\",\"status\":404,\"title\":\"Not Found\"}"
+ },
+ {
+  "name": "MP /api/v1/video-lessons/1/attempts as=user",
+  "method": "POST",
+  "path": "/api/v1/video-lessons/1/attempts",
+  "as": "user",
+  "code": 200,
+  "ms": 154,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": "{\"id\":17,\"videoLessonId\":1,\"lineIndex\":0,\"status\":\"SUBMITTED\",\"score\":null,\"adminFeedback\":null,\"mediaUrl\":\"/api/v1/media/video-attempts/lesson-1/line-0/c6381dd5-0a1b-4152-b7f6-234e7ec79c0f?exp=1789520226&sig=d45ac83ee448f2132c5f8f42cf24eddeea487aca7865d839b872d889f3be61e6\",\"submittedAt\":\"2026-09-16"
+ },
+ {
+  "name": "admin list attempt",
+  "method": "GET",
+  "path": "/api/v1/admin/video-attempts?page=0&size=3",
+  "as": "admin",
+  "code": 200,
+  "ms": 30,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"content\":[{\"id\":1,\"videoLessonId\":1,\"lineIndex\":0,\"status\":\"GRADED\",\"score\":8.5,\"adminFeedback\":\"Phát âm tốt, ngữ điệu tự nhiên.\",\"mediaUrl\":\"/api/v1/media/video-attempts/lesson-1/line-0/83c67e1f-35"
+ },
+ {
+  "name": "ai-grade attempt",
+  "method": "POST",
+  "path": "/api/v1/admin/video-attempts/17/ai-grade",
+  "as": "admin",
+  "code": 200,
+  "ms": 6127,
+  "expect": "200/400/502",
+  "pass": true,
+  "snippet": "{\"id\":17,\"videoLessonId\":1,\"lineIndex\":0,\"status\":\"GRADED\",\"score\":1.7,\"adminFeedback\":\"Bạn nói đúng 2/10 từ trong câu. Từ 'café' bị thiếu, hãy nghe lại và nhấn rõ từ này nhé.\",\"mediaUrl\":\"/api/v1/med"
+ },
+ {
+  "name": "manual grade attempt",
+  "method": "PATCH",
+  "path": "/api/v1/admin/video-attempts/17/grade",
+  "as": "admin",
+  "code": 200,
+  "ms": 67,
+  "expect": "200/400",
+  "pass": true,
+  "snippet": "{\"id\":17,\"videoLessonId\":1,\"lineIndex\":0,\"status\":\"GRADED\",\"score\":8.5,\"adminFeedback\":\"zz audit-v8 manual\",\"mediaUrl\":\"/api/v1/media/video-attempts/lesson-1/line-0/c6381dd5-0a1b-4152-b7f6-234e7ec79c0"
+ },
+ {
+  "name": "MP /api/lesson-submissions/upload-audio as=user",
+  "method": "POST",
+  "path": "/api/lesson-submissions/upload-audio",
+  "as": "user",
+  "code": 200,
+  "ms": 17,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": "{\"audioUrl\":\"/api/resources/b8aee201-266d-4825-8368-4b20cc23712f.wav\"}"
+ },
+ {
+  "name": "lesson-submissions submit",
+  "method": "POST",
+  "path": "/api/lesson-submissions/submit",
+  "as": "user",
+  "code": 200,
+  "ms": 57,
+  "expect": "200/201/400",
+  "pass": true,
+  "snippet": "{\"id\":9,\"userId\":2,\"username\":\"student\",\"fullName\":\"Học Viên Mẫu\",\"lessonId\":445,\"lessonTitle\":\"English Grammar Exercises for A1 – have got and articles\",\"skillType\":\"SPEAKING\",\"submissionText\":\"zz au"
+ },
+ {
+  "name": "read my submission",
+  "method": "GET",
+  "path": "/api/lesson-submissions/my/lesson/445/skill/SPEAKING",
+  "as": "user",
+  "code": 200,
+  "ms": 15,
+  "expect": "200/404",
+  "pass": true,
+  "snippet": "{\"id\":9,\"userId\":2,\"username\":\"student\",\"fullName\":\"Học Viên Mẫu\",\"lessonId\":445,\"lessonTitle\":\"English Grammar Exercises for A1 – have got and articles\",\"skillType\":\"SPEAKING\",\"submissionText\":\"zz au"
+ },
+ {
+  "name": "MP /api/admin/upload as=admin",
+  "method": "POST",
+  "path": "/api/admin/upload",
+  "as": "admin",
+  "code": 200,
+  "ms": 13,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": "{\"url\":\"/api/resources/43aabf63-bb2d-4cc3-aec2-13de41678cf2.png\"}"
+ },
+ {
+  "name": "serve uploaded png",
+  "method": "GET",
+  "path": "/api/resources/43aabf63-bb2d-4cc3-aec2-13de41678cf2.png",
+  "as": "none",
+  "code": 200,
+  "ms": 12,
+  "expect": "200",
+  "pass": true,
+  "snippet": "�PNG\r\n\u001a\n\u0000\u0000\u0000\rIHDR\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0001\b\u0006\u0000\u0000\u0000\u001f\u0015ĉ\u0000\u0000\u0000\nIDATx�c\u0000\u0001\u0000\u0000\u0005\u0000\u0001"
+ },
+ {
+  "name": "cleanup uploaded png",
+  "method": "DELETE",
+  "path": "/api/resources/43aabf63-bb2d-4cc3-aec2-13de41678cf2.png",
+  "as": "admin",
+  "code": 405,
+  "ms": 12,
+  "expect": "200/204/405/404",
+  "pass": true,
+  "snippet": "{\"detail\":\"Phương thức HTTP không được hỗ trợ cho endpoint này.\",\"instance\":\"/api/resources/43aabf63-bb2d-4cc3-aec2-13de41678cf2.png\",\"status\":405,\"title\":\"Method Not Allowed\"}"
+ },
+ {
+  "name": "MP /api/admin/upload as=admin",
+  "method": "POST",
+  "path": "/api/admin/upload",
+  "as": "admin",
+  "code": 400,
+  "ms": 12,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": "{\"detail\":\"Loại tệp không được hỗ trợ: html\",\"instance\":\"/api/admin/upload\",\"status\":400,\"title\":\"Bad Request\"}"
+ },
+ {
+  "name": "MP /api/admin/audio-upload as=admin",
+  "method": "POST",
+  "path": "/api/admin/audio-upload",
+  "as": "admin",
+  "code": 400,
+  "ms": 1120,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": "{\"error\":\"Unsupported video format or file\"}"
+ },
+ {
+  "name": "payment status",
+  "method": "GET",
+  "path": "/api/v1/payment/status",
+  "as": "user",
+  "code": 200,
+  "ms": 15,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"pollingEnabled\":true,\"premiumExpiry\":\"2026-10-03\",\"isPremium\":true}"
+ },
+ {
+  "name": "create-order MONTHLY",
+  "method": "POST",
+  "path": "/api/v1/payment/create-order",
+  "as": "user",
+  "code": 200,
+  "ms": 45,
+  "expect": "200/400/402",
+  "pass": true,
+  "snippet": "{\"orderCode\":\"ENG17E65A714895\",\"planType\":\"MONTHLY\",\"qrUrl\":\"https://qr.sepay.vn/img?acc=0706718329&amount=10000&des=ENG17E65A714895&bank=MBBank\",\"amount\":10000}"
+ },
+ {
+  "name": "MP /api/auth/avatar/upload as=user",
+  "method": "POST",
+  "path": "/api/auth/avatar/upload",
+  "as": "user",
+  "code": 500,
+  "ms": 1072,
+  "expect": "see-run",
+  "pass": true,
+  "snippet": ""
+ }
+]

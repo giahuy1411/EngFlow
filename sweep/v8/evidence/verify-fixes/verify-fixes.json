@@ -1,0 +1,62 @@
+{
+  "at": "2026-09-16T17:51:10.102Z",
+  "api": {
+    "rawStreak": 6,
+    "effective": 6,
+    "today": "2026-09-17",
+    "totalLessons": 1465
+  },
+  "checks": [
+    {
+      "name": "login",
+      "ok": true,
+      "detail": "token ok"
+    },
+    {
+      "name": "auth-me",
+      "ok": true,
+      "detail": "status=200 rawStreak=6"
+    },
+    {
+      "name": "streak-current",
+      "ok": true,
+      "detail": "status=200 effective=6 today=2026-09-17"
+    },
+    {
+      "name": "dashboard-stats",
+      "ok": true,
+      "detail": "status=200 totalLessons=1465"
+    },
+    {
+      "name": "profile-url",
+      "ok": true,
+      "detail": "http://localhost:5173/profile"
+    },
+    {
+      "name": "B1-header-equals-effective",
+      "ok": true,
+      "detail": "header=[\"6\",\"55\",\"N/A\"] effective=6 raw=6"
+    },
+    {
+      "name": "profile-calendar-title",
+      "ok": true,
+      "detail": "h3=Chuỗi ngày học"
+    },
+    {
+      "name": "B1-calendar-equals-effective",
+      "ok": true,
+      "detail": "calendar=6 effective=6"
+    },
+    {
+      "name": "profile-calendar-cells",
+      "ok": true,
+      "detail": "gridcells=28"
+    },
+    {
+      "name": "profile-console",
+      "ok": true,
+      "detail": "consoleErrors=0"
+    }
+  ],
+  "pass": true
+}

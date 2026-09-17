@@ -1,8 +1,8 @@
 {
  "runId": "r1-20260916",
- "round": 1,
+ "round": 3,
  "generatedAt": "2026-09-16",
- "note": "Findings discovered in audit-v8-full Round 1 (this session). IDs continue the existing F-series. Every entry requires: reproduction evidence, root cause, affected surface, fix/disposition, regression check, final status.",
+ "note": "Findings discovered in audit-v8-full Round 1 (this session). IDs continue the existing F-series. Every entry requires: reproduction evidence, root cause, affected surface, fix/disposition, regression check, final status. VÒNG 2 (Task 14, 2026-09-16): thêm 5 finding lớp AUDIT-HARNESS/AUDIT-ARTIFACT — 3 case pass-sai của p14, xss-prove.js không tự dọn (parity từng đọc sai 130 vs 127), delta payment_transactions do mount /premium, 8 tài liệu bằng chứng còn thiếu, và p8.json stale. Không có finding nào thuộc lớp ứng dụng ở vòng 2. | round 3: +HARNESS-TOKEN-ONLY-SEED (HIGH) — harness chỉ seed token làm 18 lượt admin đo nhầm trang chủ; đã sửa và re-run 228 lượt. | round 3: +HARNESS-TOKEN-ONLY-SEED (HIGH) — seed chỉ token làm 9/36 ảnh screenshot chụp nhầm trang chủ; A/B đã chứng minh routes-all.js KHÔNG bị ảnh hưởng. | round 3 hygiene: 1 evidence ref (F93) chua annotation trong chuoi path -> tach ra evidenceNotes; 72/72 evidence ref nay resolve that.",
  "findings": [
   {
    "id": "F90",
@@ -168,10 +168,13 @@
     "sweep/v8/p11.json",
     "sweep/v8/p12_f93_live.js",
     "sweep/v8/p12.json",
-    "sweep/v8/p3a-r1.log (FAIL gốc)",
+    "sweep/v8/p3a-r1.log",
     "src/test/java/com/datn/engflow/exception/GlobalExceptionHandlerProblemDetailTest.java"
    ],
-   "status": "FIXED-VERIFIED (504 path phủ bằng unit test; chưa ép được timeout sống)"
+   "status": "FIXED-VERIFIED (504 path phủ bằng unit test; chưa ép được timeout sống)",
+   "evidenceNotes": {
+    "sweep/v8/p3a-r1.log": "FAIL gốc"
+   }
   },
   {
    "id": "F94",
@@ -282,6 +285,153 @@
     "sweep/v8/t-fe-r2.log",
     "sweep/v8/build-r1.log",
     "sweep/v8/build-r2.log"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "HARNESS-FALSE-PASS-3",
+   "severity": "MEDIUM",
+   "class": "AUDIT-HARNESS",
+   "title": "3 case trong p14_adversarial.js 'pass' vì lý do SAI — không kiểm tra thứ nó tuyên bố",
+   "reproduction": [
+    "p14 báo 38 case / 0 fail. Kiểm lại từng case bằng probe đã sửa (p15_adversarial_deep.js).",
+    "CASE 1 (upload): p14 gửi token USER tới /api/admin/audio-upload (admin-only) → cả 6 case trả 403 do role gate; SafeUploadNames chưa từng chạy. Assert `status < 500` pass vô nghĩa.",
+    "CASE 2 (submit): p14 gửi {exerciseId, answer} nhưng GradeRequest là {answers:[{exerciseId, userAnswer}]} — sai cả 2 tên field → answers=null → không có gì để chấm → 200. Case chưa từng chạm tới id thiếu.",
+    "CASE 3 (pagination): p14 chỉ assert 'không 5xx' — sẽ pass cả khi server trả 100 000 row."
+   ],
+   "rootCause": "Assert quá lỏng (`status < 500`) kết hợp fixture sai shape. Một harness pass-sai nguy hiểm hơn harness fail vì nó tạo bằng chứng giả cho một kết luận đúng.",
+   "affectedSurface": "sweep/v8/p14_adversarial.js (harness, không phải app code)",
+   "impact": "3 kết luận 'pass' trong vòng 2 không có giá trị kiểm chứng cho tới khi sửa.",
+   "disposition": "Sửa assert: (1) upload dùng token ADMIN + baseline chứng minh token qua được role gate → 8/8 trả 400 `Unsupported video format or file`, dangerousUrl=false, test thêm .HTML hoa/double extension/path traversal/null byte; (2) submit dùng đúng shape + assert total===0 && results.length===0 VÀ positive control id thật → total=1; (3) pagination assert SỐ ROW bị clamp: size=100000→100 row, size=-5/0→1 row, page=-1→20, page=99999→0 (khớp LessonController.java:36).",
+   "regressionCheck": "p15_adversarial_deep.js → 21 case / 0 fail, mỗi assert kiểm tra đúng hành vi. p14 giữ lại làm vòng phủ rộng (38 case) nhưng kết luận của nó KHÔNG còn được dùng cho 3 case này.",
+   "evidence": [
+    "sweep/v8/p14-adversarial.txt",
+    "sweep/v8/p15-adversarial-deep.txt",
+    "sweep/v8/p15-adversarial-deep.json",
+    ".specify/specs/audit-v8-full/evidence/round-2/adversarial-deep.json"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "HARNESS-NO-CLEANUP",
+   "severity": "HIGH",
+   "class": "AUDIT-HARNESS",
+   "title": "xss-prove.js ghi row thật vào vocabulary nhưng KHÔNG tự dọn → parity từng bị đọc SAI (130 thay vì 127)",
+   "reproduction": [
+    "xss-prove.js ghi row thật vào `vocabulary` (chứng minh stored-XSS thì phải lưu thứ gì đó). Cleanup là bước thủ công riêng, không nằm trong harness.",
+    "Rác tích lũy qua các lần chạy; lần đọc sau ra 130 row thay vì baseline 127. Phát hiện chỉ vì harness adversarial ĐỌC LẠI BẢNG (p15-keyword-check.sql) thay vì tin con số cũ.",
+    "Row quan sát được: XSSPROBE1789542254414 ×2 + literal 'iframe' ×1 (model trích xuất danh từ ngắn từ payload → không mang marker)."
+   ],
+   "rootCause": "Hai lỗi trong chính cleanup: (1) timestamp run-start được tính LÚC CLEANUP thay vì lúc process khởi động → `created_at >= start` loại trừ đúng những row vừa ghi → batch khớp 0 row, no-op âm thầm; (2) coi 'không có lỗi SQL' là thành công trong khi lần chạy đầu in `cleanup ran without SQL error: true` mà vẫn để lại 3 row.",
+   "affectedSurface": "sweep/v8/xss-prove.js (harness); dữ liệu: bảng vocabulary",
+   "impact": "Một kết luận 'parity 127' trước đó là SAI. Mọi harness ghi row nghiệp vụ mà không tự dọn đều không đáng tin làm bằng chứng.",
+   "disposition": "Đưa cleanup vào TRONG cùng run: chốt RUN_START_NAIVE ở module load; assert PARITY (remaining=0 VÀ vocabulary_total=127) chứ không assert exit code; bộ lọc khớp `word LIKE 'XSSPROBE%'` HOẶC đúng các từ đã lưu (bắt được cả danh từ model tự trích xuất). Dọn 3 row tồn đọng bằng p15-clean-residue.sql → vocabulary về 127.",
+   "regressionCheck": "Chạy lại xss-prove.js end-to-end: `cleanup: no SQL error=true remaining=0 total=127 (baseline 127) -> PARITY RESTORED`; verdict PASS. p16-parity.sql xác nhận 10 bảng khớp baseline.",
+   "evidence": [
+    "sweep/v8/xss-prove.txt",
+    "sweep/v8/xss-prove.json",
+    "sweep/v8/p15-clean-residue.sql",
+    "sweep/v8/p16-parity.sql",
+    "sweep/v8/p16-orphans.sql"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "PAYMENT-SWEEP-DELTA",
+   "severity": "LOW",
+   "class": "AUDIT-HARNESS",
+   "title": "3 sweep UI mount /premium tạo 6 row PENDING thật trong payment_transactions (parity 126 → 132)",
+   "reproduction": [
+    "design.js + design-v2.js + routes-all.js đều mount /premium; PremiumCheckout.vue gọi POST /api/v1/payment/create-order lúc mount để dựng QR.",
+    "Đo parity: 126 → 132. Cả 6 row đều PENDING với transaction_id IS NULL = đơn tạo ra nhưng CHƯA TỪNG thanh toán."
+   ],
+   "rootCause": "Side effect đã biết của UI sweep (AGENTS.md ghi 2 sweep = 126→128). Vòng này chạy 3 sweep nên delta lớn hơn. Không phải bug ứng dụng.",
+   "affectedSurface": "payment_transactions (dữ liệu); sweep/v8/ui/*.js (harness)",
+   "impact": "Parity lệch 6 row nếu không dọn; không ảnh hưởng logic ứng dụng.",
+   "disposition": "p16-clean-payments.sql: xoá theo created_at của ngày chạy VÀ `status <> 'SUCCESS'` → KHÔNG THỂ xoá đơn đã trả tiền thật. Kiểm 6 row trước khi xoá (đều PENDING, transaction_id NULL).",
+   "regressionCheck": "Sau cleanup: payment_transactions = 126 (khớp baseline), 0 row còn lại từ hôm nay. p16-parity.sql xác nhận.",
+   "evidence": [
+    "sweep/v8/p16-clean-payments.sql",
+    "sweep/v8/p16-parity.sql"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "MISSING-EVIDENCE-LAYOUT-6",
+   "severity": "MEDIUM",
+   "class": "AUDIT-ARTIFACT",
+   "title": "8 tài liệu bắt buộc theo 'Required Evidence Layout' của plan chưa tồn tại (id giữ hậu tố -6 vì phát hiện ban đầu đếm 6, trước khi lộ ra analyze.md + converge.md)",
+   "reproduction": [
+    "Plan (Task 7) liệt kê danh sách tài liệu bắt buộc. Kiểm thư mục .specify/specs/audit-v8-full/: thiếu 8 mục — constitution.md, route-map.md, db-audit.md, performance.md, design-audit.md, security-audit.md (phát hiện trước), rồi analyze.md + converge.md (lộ ra khi kiểm lại danh sách đầy đủ).",
+    "Kiểm lại sau khi viết: đủ 16/16 tài liệu + evidence/ (16 file) + findings.json."
+   ],
+   "rootCause": "Workflow chạy qua implement nhưng bước sinh artifact bằng chứng bị bỏ qua — phần lớn bằng chứng tồn tại dưới dạng log/json rời trong sweep/v8 mà không có tài liệu nào diễn giải.",
+   "affectedSurface": ".specify/specs/audit-v8-full/ (artifact, không phải app code)",
+   "impact": "Không có tài liệu nào để một agent mới đọc lại kết luận; bằng chứng không truy vết được từ kết luận về lệnh.",
+   "disposition": "Viết đủ 8 tài liệu, MỖI tài liệu gắn với một harness chạy lại được (không viết văn xuôi suông): route-map.md, db-audit.md, performance.md, design-audit.md, security-audit.md, constitution.md, analyze.md, converge.md.",
+   "regressionCheck": "Kiểm lại danh sách layout: đủ 16/16 tài liệu + evidence/ (16 file) + findings.json (15 finding). Mỗi tài liệu trích dẫn file log/json cụ thể trong sweep/v8 hoặc evidence/round-2/ — không có tài liệu nào chỉ có văn xuôi.",
+   "evidence": [
+    ".specify/specs/audit-v8-full/route-map.md",
+    ".specify/specs/audit-v8-full/db-audit.md",
+    ".specify/specs/audit-v8-full/performance.md",
+    ".specify/specs/audit-v8-full/design-audit.md",
+    ".specify/specs/audit-v8-full/security-audit.md",
+    ".specify/specs/audit-v8-full/constitution.md",
+    ".specify/specs/audit-v8-full/analyze.md",
+    ".specify/specs/audit-v8-full/converge.md"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "STALE-P8-EVIDENCE",
+   "severity": "LOW",
+   "class": "AUDIT-ARTIFACT",
+   "title": "p8.json đã commit cho thấy 16/16 dòng status=404 và KHÔNG ghi bucket — tức bằng chứng cũ hơn bản fix",
+   "reproduction": [
+    "Đọc p8.json: mọi row có {status:404} và không có trường observedBucket mang giá trị. Nghĩa là file được sinh TRƯỚC khi F91/F92 fix, nhưng vẫn nằm trong repo như bằng chứng của fix.",
+    "Chạy lại p8_bucket_coverage.js → 13 endpoint AI ra :ai, 2 upload ra :upload + 2 control. Đúng như kỳ vọng sau fix."
+   ],
+   "rootCause": "'File bằng chứng tồn tại' KHÁC 'file bằng chứng cho thấy bản fix'. File cũ không bị ghi đè vì harness chỉ chạy khi được gọi thủ công.",
+   "affectedSurface": "sweep/v8/p8.json, p8-bucket-coverage.txt (harness evidence)",
+   "impact": "Người đọc sau có thể kết luận F91/F92 chưa được verify, hoặc tệ hơn là tin vào bằng chứng mâu thuẫn với kết luận.",
+   "disposition": "Chạy lại harness trên bản dựng hiện tại; ghi kết quả mới. Ghi chú trong analyze.md §A4 rằng đây là discrepancy đã tìm và xử lý.",
+   "regressionCheck": "p8-bucket-coverage.txt: 13/13 :ai + 2/2 :upload. p8b_ceiling.js: first429=11 (:ai trần 10/phút) và 16 (:upload trần 15/phút).",
+   "evidence": [
+    "sweep/v8/p8-bucket-coverage.txt",
+    "sweep/v8/p8.json",
+    ".specify/specs/audit-v8-full/evidence/round-2/rate-limit-buckets.txt"
+   ],
+   "status": "FIXED-VERIFIED"
+  },
+  {
+   "id": "HARNESS-TOKEN-ONLY-SEED",
+   "severity": "HIGH",
+   "class": "AUDIT-HARNESS",
+   "title": "Harness seed chỉ localStorage.token (không seed localStorage.user) → harness dùng context MỚI cho mỗi case render nhầm trang chủ ở 9 route admin",
+   "reproduction": [
+    "`ui/lib.js:seedToken()` chỉ gọi `localStorage.setItem('token', t)`.",
+    "`store/modules/auth.js:22` tính `isAdmin = user.value?.isAdmin`; `user` khởi tạo từ `localStorage.getItem('user')` — key chưa từng được ghi.",
+    "`main.js` KHÔNG gọi `fetchUser()` lúc boot ⇒ trang load với token mà không có user ⇒ `isAdmin === undefined`.",
+    "Router guard `index.js:220` `if (to.meta.requiresAdmin && !auth.isAdmin)` → redirect `/`.",
+    "`p18_redirect_audit.js` (context mới cho mỗi case): 18 case → 14 redirect; cả 9 route admin → `/`, h1 'HỌC TIẾNG ANH VUI VẺ'.",
+    "`p17_screenshots.js` (context mới cho mỗi shot): 9 shot admin đều có text=1524 = độ dài trang chủ."
+   ],
+   "rootCause": "Harness chỉ seed token. Trang chủ là trang hoàn toàn khỏe mạnh nên `mounted=Y, err=0, api4xx=0, ovf=-15` — không chỉ số nào phân biệt được 'render đúng route' với 'bị đá sang trang khác'. Harness không ghi `page.url()` sau điều hướng, và field `redirected` cũ chỉ được set khi `role === 'anon'`, nên redirect của role admin bị ẩn hoàn toàn.",
+   "affectedSurface": "sweep/v8/p17_screenshots.js (9/36 shot), sweep/v8/p18_redirect_audit.js — tức các harness dùng CONTEXT MỚI cho mỗi case. KHÔNG ảnh hưởng sweep/v8/ui/routes-all.js và ui/design-v2.js (đã đo bằng A/B, xem impact).",
+   "impact": "Phạm vi ĐÃ ĐO, không suy đoán: `p20_routes_all_old_seed_ab.js` chạy A/B seed cũ vs seed mới theo đúng thứ tự route của routes-all.js → **cả hai đều 0/9 bounce**, text giống hệt nhau (721/2800/2471/1151/921/4167/588/942/365). Lý do: app tự hydrate `user` qua `/api/auth/me` trong lúc đi các route trước đó, nên route admin ở CUỐI hành trình vẫn render đúng. `p19_why_design_v2_was_fine.js` case C xác nhận tương tự cho design-v2 (60 tổ hợp vẫn hợp lệ). Vậy thiệt hại thật: 9/36 ảnh screenshot là ảnh trang chủ đội lốt trang admin — bằng chứng hình ảnh sai, và bảng 'before/after' của PLAN.md Phase 5 sẽ nộp ảnh sai. Con số 152/228 lượt của routes-all.js KHÔNG bị ảnh hưởng.",
+   "disposition": "Thêm `loginFull()` + `mapUser()` + `seedAuth()` vào `ui/lib.js` để seed ĐÚNG shape mà `mapUser()` sinh ra (kèm comment giải thích). `p17_screenshots.js` nay seed token+user, từ chối chạy nếu `adminS.user.isAdmin` falsy, và đánh dấu `landedElsewhere` mỗi shot. `routes-all.js` nay chạy 3 role (admin/user/anon), ghi `finalPath` cho MỌI lượt, và assert hợp đồng landing guard × role ở CẢ HAI chiều (stay vs bounce). `design-v2.js` nay ghi `wrongPage` và exit 1 nếu lệch.",
+   "regressionCheck": "`node ui/routes-all.js` → 228 lượt (38 route × 2 viewport × 3 role), 0 console error, 0 API ≥400, 0 overflow, **0 wrong landing**, **18/18 lượt admin render trang admin thật**. `p17_screenshots.js` → 36/36 shot, 0 landed-on-wrong-page, admin shots nay text=721/2800/... (trước: 1524). `p18b_admin_after_seed_fix.js` → 9/9 route admin render, có bảng thật (20 lesson row, 20 exercise row, 10 user row). Đây là lỗi HARNESS, KHÔNG phải lỗi app: guard từ chối user không xác định là hành vi ĐÚNG.",
+   "evidence": [
+    "sweep/v8/p18_redirect_audit.json",
+    "sweep/v8/p18_redirect_audit.txt",
+    "sweep/v8/p18b_admin_after_seed_fix.json",
+    "sweep/v8/p18b.txt",
+    "sweep/v8/p19_why_design_v2_was_fine.js",
+    "sweep/v8/p19.txt",
+    "sweep/v8/p20_ab.json",
+    "sweep/v8/p20.txt",
+    "sweep/v8/ui/routes-all.txt",
+    "sweep/v8/p17_screenshots.txt"
    ],
    "status": "FIXED-VERIFIED"
   }

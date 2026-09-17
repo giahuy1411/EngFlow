@@ -160,7 +160,17 @@ public class RateLimitFilter extends OncePerRequestFilter {
         try {
             currentCount = redisTemplate.opsForValue().increment(redisKey);
             if (currentCount != null && currentCount == 1) {
-                redisTemplate.expire(redisKey, RATE_LIMIT_TTL);
+                try {
+                    redisTemplate.expire(redisKey, RATE_LIMIT_TTL);
+                } catch (Exception ex) {
+                    // EXPIRE lỗi sau INCR thành công → key rò rỉ không TTL (kẹt 429 vĩnh viễn
+                    // cho IP+bucket đó). Xoá best-effort để tự hồi phục; request hiện tại fail-open.
+                    try {
+                        redisTemplate.delete(redisKey);
+                    } catch (Exception ignored) {
+                    }
+                    log.warn("Rate limit EXPIRE failed for key {}, deleted best-effort: {}", redisKey, ex.getMessage());
+                }
             }
         } catch (Exception e) {
             log.warn("Redis unavailable for rate limiting (IP={}, URI={}), fail-open: {}", clientIp, requestURI, e.getMessage());

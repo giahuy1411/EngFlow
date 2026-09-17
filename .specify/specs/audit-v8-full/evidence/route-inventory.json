@@ -1,0 +1,415 @@
+{
+ "source": "frontend/src/router/index.js",
+ "withName": 37,
+ "totalRoutes": 39,
+ "byGuard": {
+  "public": 8,
+  "guestOnly": 4,
+  "auth+premium": 6,
+  "auth": 11,
+  "admin-redirect": 1,
+  "admin": 9
+ },
+ "routes": [
+  {
+   "path": "/",
+   "name": "Home",
+   "component": "@/views/Home.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/login",
+   "name": "Login",
+   "component": "@/views/Login.vue",
+   "guard": "guestOnly",
+   "redirectTo": "/lessons",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": true
+  },
+  {
+   "path": "/register",
+   "name": "Register",
+   "component": "@/views/Register.vue",
+   "guard": "guestOnly",
+   "redirectTo": "/lessons",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": true
+  },
+  {
+   "path": "/forgot-password",
+   "name": "ForgotPassword",
+   "component": "@/views/ForgotPassword.vue",
+   "guard": "guestOnly",
+   "redirectTo": "/lessons",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": true
+  },
+  {
+   "path": "/reset-password",
+   "name": "ResetPassword",
+   "component": "@/views/ResetPassword.vue",
+   "guard": "guestOnly",
+   "redirectTo": "/lessons",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": true
+  },
+  {
+   "path": "/lessons",
+   "name": "Lessons",
+   "component": "@/views/Lessons.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": false,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/lessons/:id",
+   "name": "LessonDetail",
+   "component": "@/views/lessons/LessonLayout.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": false,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/videos",
+   "name": "VideoLibrary",
+   "component": "@/views/videos/VideoLibrary.vue",
+   "guard": "auth+premium",
+   "redirectTo": "/premium?redirect=...",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": true,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/videos/:id",
+   "name": "VideoLesson",
+   "component": "@/views/videos/VideoLesson.vue",
+   "guard": "auth+premium",
+   "redirectTo": "/premium?redirect=...",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": true,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/profile",
+   "name": "Profile",
+   "component": "@/views/Profile.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/search",
+   "name": "Search",
+   "component": "@/views/SearchVocabulary.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/leaderboard",
+   "name": "Leaderboard",
+   "component": "@/views/Leaderboard.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks",
+   "name": "Decks",
+   "component": "@/views/luyentu/Decks.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": false,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id",
+   "name": "DeckDetail",
+   "component": "@/views/luyentu/DeckDetail.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id/play/flashcard",
+   "name": "FlashcardGame",
+   "component": "@/views/luyentu/FlashcardGame.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id/play/quiz",
+   "name": "QuizGame",
+   "component": "@/views/luyentu/QuizGame.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id/play/memory",
+   "name": "MemoryMatchGame",
+   "component": "@/views/luyentu/MemoryMatchGame.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id/play/typing",
+   "name": "TypingGame",
+   "component": "@/views/luyentu/TypingGame.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id/play/listening",
+   "name": "ListeningGame",
+   "component": "@/views/luyentu/ListeningGame.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/:id/play/mixed",
+   "name": "MixedGame",
+   "component": "@/views/luyentu/MixedGame.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/ai-vocab-generator",
+   "name": "AiVocabGenerator",
+   "component": "@/views/luyentu/AiVocabGenerator.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/decks/create",
+   "name": "DeckCreate",
+   "component": "@/views/luyentu/DeckCreate.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/speaking",
+   "name": "Speaking",
+   "component": "@/views/speaking/SpeakingList.vue",
+   "guard": "auth+premium",
+   "redirectTo": "/premium?redirect=...",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": true,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/speaking/history",
+   "name": "SpeakingHistory",
+   "component": "@/views/speaking/SubmissionHistory.vue",
+   "guard": "auth+premium",
+   "redirectTo": "/premium?redirect=...",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": true,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/speaking/:id",
+   "name": "SpeakingDetail",
+   "component": "@/views/speaking/SpeakingDetail.vue",
+   "guard": "auth+premium",
+   "redirectTo": "/premium?redirect=...",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": true,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/speaking/:id/record",
+   "name": "SpeakingRecord",
+   "component": "@/views/speaking/SpeakingRecord.vue",
+   "guard": "auth+premium",
+   "redirectTo": "/premium?redirect=...",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": true,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/premium",
+   "name": "PremiumPage",
+   "component": "@/views/premium/PremiumPage.vue",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/premium/checkout",
+   "name": "PremiumCheckout",
+   "component": "@/views/premium/PremiumCheckout.vue",
+   "guard": "auth",
+   "redirectTo": "/login",
+   "metaRequiresAuth": true,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/:pathMatch(.*)*",
+   "name": "",
+   "component": "",
+   "guard": "public",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null
+  },
+  {
+   "path": "/admin",
+   "name": "",
+   "component": "",
+   "guard": "admin-redirect",
+   "redirectTo": "/admin/dashboard",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/dashboard",
+   "name": "AdminDashboard",
+   "component": "@/views/admin/AdminDashboard.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/lessons",
+   "name": "AdminLessons",
+   "component": "@/views/admin/AdminLessons.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/exercises",
+   "name": "AdminExercises",
+   "component": "@/views/admin/AdminExercises.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/users",
+   "name": "AdminUsers",
+   "component": "@/views/admin/AdminUsers.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/speaking-prompts",
+   "name": "AdminSpeakingPrompts",
+   "component": "@/views/admin/AdminSpeakingPrompts.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/speaking-submissions",
+   "name": "AdminSpeakingSubmissions",
+   "component": "@/views/admin/AdminSpeakingSubmissions.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/videos",
+   "name": "AdminVideoLessons",
+   "component": "@/views/admin/AdminVideoLessons.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/video-attempts",
+   "name": "AdminVideoAttempts",
+   "component": "@/views/admin/AdminVideoAttempts.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  },
+  {
+   "path": "/admin/:id/build",
+   "name": "AdminLessonBuilder",
+   "component": "@/views/admin/AdminLessonBuilder.vue",
+   "guard": "admin",
+   "redirectTo": "",
+   "metaRequiresAuth": null,
+   "metaRequiresPremium": null,
+   "metaGuestOnly": null,
+   "inheritedFrom": "/admin"
+  }
+ ]
+}

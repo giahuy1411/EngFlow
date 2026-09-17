@@ -1,0 +1,2 @@
+SET NOCOUNT ON;
+SELECT submission_id, user_id, lesson_id, skill_type, CAST(submission_text AS nvarchar(80)) AS t, score, status, CAST(created_at AS varchar(19)) AS created FROM lesson_submissions ORDER BY submission_id;

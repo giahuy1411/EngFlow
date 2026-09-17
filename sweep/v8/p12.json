@@ -1,7 +1,7 @@
 {
  "deployed": "1",
  "normalStatus": 200,
- "normalMs": 1305,
+ "normalMs": 1021,
  "emptyWordStatus": 400,
  "unauthStatus": 401
 }

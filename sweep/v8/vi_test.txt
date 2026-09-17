@@ -1,0 +1,2 @@
+KEY=abc123
+Cloudinary đang dùng thật, không phải demo. Bắt buộc dùng file thật — đường §3.1

@@ -21,6 +21,7 @@ public final class RedisConstants {
     public static final String REMINDER_MARKER_PREFIX = "streak:reminder:";
     public static final Duration REMINDER_MARKER_TTL = Duration.ofDays(2);
     public static final String COMEBACK_SUPPRESSION_PREFIX = "streak:comeback:";
+    public static final String STREAK_SENT_PREFIX = "streak:sent:";
     public static final Duration COMEBACK_SUPPRESSION_TTL = Duration.ofDays(30);
     public static final int REMINDER_HOUR = 20;
 

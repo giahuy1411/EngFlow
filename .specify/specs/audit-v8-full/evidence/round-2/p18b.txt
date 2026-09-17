@@ -1,0 +1,25 @@
+﻿admin session isAdmin=true hasPremiumAccess=true
+user  session isAdmin=false hasPremiumAccess=true
+OK       /admin/dashboard               -> /admin/dashboard           h1="Tổng quan"                    text=  721 tbl=0 tr=0
+OK       /admin/lessons                 -> /admin/lessons             h1="Bài học"                      text= 2800 tbl=1 tr=20
+OK       /admin/exercises               -> /admin/exercises           h1="Bài tập"                      text= 2471 tbl=1 tr=20
+OK       /admin/users                   -> /admin/users               h1="Người dùng"                   text= 1151 tbl=1 tr=10
+OK       /admin/videos                  -> /admin/videos              h1="Video học tập"                text=  588 tbl=1 tr=5
+OK       /admin/video-attempts          -> /admin/video-attempts      h1="Chấm shadowing"               text=  942 tbl=0 tr=0
+OK       /admin/speaking-prompts        -> /admin/speaking-prompts    h1="Đề luyện nói"                 text=  921 tbl=1 tr=6
+OK       /admin/speaking-submissions    -> /admin/speaking-submissions h1="Chấm bài"                     text= 4167 tbl=0 tr=0
+OK       /admin/445/build               -> /admin/445/build           h1="Xây dựng bài học"             text=  365 tbl=0 tr=0
+OK       /videos                        -> /videos                    h1="VIDEO LEARNING"               text=  963 tbl=0 tr=0
+OK       /videos/1                      -> /videos/1                  h1="GỌI CÀ PHÊ BẰNG TIẾNG ANH"    text= 1822 tbl=0 tr=0
+OK       /speaking                      -> /speaking                  h1="LUYỆN NÓI"                    text=  997 tbl=0 tr=0
+OK       /speaking/history              -> /speaking/history          h1="LỊCH SỬ BÀI NÓI"              text= 1429 tbl=0 tr=0
+OK       /speaking/50007                -> /speaking/50007            h1="DAILY ROUTINE - READ ALOUD"   text=  898 tbl=0 tr=0
+OK       /premium                       -> /premium                   h1="ENGFLOW PREMIUM"              text=  565 tbl=0 tr=0
+OK       /profile                       -> /profile                   h1="HỌC VIÊN MẪU"                 text=  454 tbl=0 tr=0
+
+=== AFTER SEEDING token+user ===
+cases           : 16
+still redirected: 0
+admin routes rendering: 9/9
+VERDICT: the redirects were a HARNESS ARTIFACT (token-only seed). App guard is correct.
+wrote p18b_admin_after_seed_fix.json

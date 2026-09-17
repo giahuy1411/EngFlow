@@ -1,0 +1,12 @@
+login lands at /lessons
+  search: type travel + Enter               api=none  | GET /api/vocabulary/dictionary/travel
+     after search textLen=230
+  lessons: click a level filter chip        clicked ELEMENTARY  | GET /api/lessons?page=0&size=12&level=ELEMENTARY
+  lesson: click option + kiem tra           opts=1 no grade button
+  quiz: answer 1 question                   clicked Đăng nhập  | POST /api/auth/login ->400  CONSOLE_ERR ["Failed to load resource: the server responded with a status of 400 ()"]
+  flashcard: rate known/unknown             no rate button
+  speaking history: open first item         no item
+  profile render: {"streak":false,"len":137,"hasNumber":false}
+  premium textLen= 655
+  logout via header                         no logout button
+  after logout: {"path":"/premium","tok":false}

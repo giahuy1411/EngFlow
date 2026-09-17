@@ -1,0 +1,20 @@
+﻿--- A: /admin/dashboard first, token only
+    /admin/dashboard -> /  h1="HỌC TIẾNG ANH\nVUI VẺ" sampled=91 userSeeded=true
+--- B: public routes first, then /admin/dashboard
+    / -> /  h1="HỌC TIẾNG ANH\nVUI VẺ" sampled=91 userSeeded=true
+    /lessons -> /lessons  h1="BÀI HỌC" sampled=166 userSeeded=true
+    /lessons/445 -> /lessons/445  h1="" sampled=234 userSeeded=true
+    /admin/dashboard -> /admin/dashboard  h1="Tổng quan" sampled=68 userSeeded=true
+--- C: design-v2 order
+    / -> /  h1="HỌC TIẾNG ANH\nVUI VẺ" sampled=91 userSeeded=true
+    /lessons -> /lessons  h1="BÀI HỌC" sampled=166 userSeeded=true
+    /lessons/445 -> /lessons/445  h1="" sampled=234 userSeeded=true
+    /decks -> /decks  h1="BỘ TỪ VỰNG" sampled=111 userSeeded=true
+    /speaking -> /speaking  h1="LUYỆN NÓI" sampled=80 userSeeded=true
+    /premium -> /premium  h1="ENGFLOW PREMIUM" sampled=49 userSeeded=true
+    /login -> /lessons  h1="BÀI HỌC" sampled=166 userSeeded=true
+    /leaderboard -> /leaderboard  h1="BẢNG XẾP HẠNG" sampled=81 userSeeded=true
+    /videos -> /videos  h1="VIDEO LEARNING" sampled=81 userSeeded=true
+    /admin/dashboard -> /admin/dashboard  h1="Tổng quan" sampled=68 userSeeded=true
+    /admin/lessons -> /admin/lessons  h1="Bài học" sampled=196 userSeeded=true
+    /admin/exercises -> /admin/exercises  h1="Bài tập" sampled=214 userSeeded=true

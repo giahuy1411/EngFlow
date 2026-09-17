@@ -1,0 +1,196 @@
+{
+ "cases": 38,
+ "fails": 0,
+ "rows": [
+  {
+   "case": "malformed JSON: truncated object",
+   "ok": true,
+   "detail": "status=400 problemDetail=true"
+  },
+  {
+   "case": "malformed JSON: bare string",
+   "ok": true,
+   "detail": "status=400 problemDetail=true"
+  },
+  {
+   "case": "malformed JSON: array where object expected",
+   "ok": true,
+   "detail": "status=400 problemDetail=true"
+  },
+  {
+   "case": "malformed JSON: null body",
+   "ok": true,
+   "detail": "status=400 problemDetail=true"
+  },
+  {
+   "case": "malformed JSON: invalid utf8 escape",
+   "ok": true,
+   "detail": "status=400 problemDetail=true"
+  },
+  {
+   "case": "first registration succeeds",
+   "ok": true,
+   "detail": "status=400 (400 = validation, still no crash)"
+  },
+  {
+   "case": "duplicate registration rejected, no 500",
+   "ok": true,
+   "detail": "status=400 problemDetail=true"
+  },
+  {
+   "case": "search: no keyword at all",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "search: empty keyword",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "search: whitespace only",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "search: single char",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "search: SQL metacharacters",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "search: very long keyword",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "search injection does not dump the table",
+   "ok": true,
+   "detail": "status=200 results=0 (vocabulary has 127 rows)"
+  },
+  {
+   "case": "pagination: page beyond end",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "pagination: negative page",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "pagination: zero size",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "pagination: enormous size",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "pagination: non-numeric page",
+   "ok": true,
+   "detail": "status=400"
+  },
+  {
+   "case": "pagination: negative size",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "stale: absent lesson",
+   "ok": true,
+   "detail": "status=404"
+  },
+  {
+   "case": "stale: absent exercise submit",
+   "ok": true,
+   "detail": "status=200"
+  },
+  {
+   "case": "stale: absent deck",
+   "ok": true,
+   "detail": "status=404"
+  },
+  {
+   "case": "stale: absent speaking prompt",
+   "ok": true,
+   "detail": "status=404"
+  },
+  {
+   "case": "stale: absent video lesson",
+   "ok": true,
+   "detail": "status=404"
+  },
+  {
+   "case": "stale: non-numeric id",
+   "ok": true,
+   "detail": "status=400"
+  },
+  {
+   "case": "upload: html upload",
+   "ok": true,
+   "detail": "status=403"
+  },
+  {
+   "case": "upload: svg upload",
+   "ok": true,
+   "detail": "status=403"
+  },
+  {
+   "case": "upload: js upload",
+   "ok": true,
+   "detail": "status=403"
+  },
+  {
+   "case": "upload: no extension",
+   "ok": true,
+   "detail": "status=403"
+  },
+  {
+   "case": "upload: double extension",
+   "ok": true,
+   "detail": "status=403"
+  },
+  {
+   "case": "upload: path traversal name",
+   "ok": true,
+   "detail": "status=403"
+  },
+  {
+   "case": "slow network: page mounts while requests are pending",
+   "ok": true,
+   "detail": "mounted=true textLen=293"
+  },
+  {
+   "case": "slow network: no uncaught page error",
+   "ok": true,
+   "detail": "pageErrors=[]"
+  },
+  {
+   "case": "service down: app shell still mounted (no white screen)",
+   "ok": true,
+   "detail": "mounted=true textLen=319"
+  },
+  {
+   "case": "service down: no uncaught page error",
+   "ok": true,
+   "detail": "pageErrors=[]"
+  },
+  {
+   "case": "API 503: app shell still mounted",
+   "ok": true,
+   "detail": "mounted=true textLen=326"
+  },
+  {
+   "case": "API 503: no uncaught page error",
+   "ok": true,
+   "detail": "pageErrors=[]"
+  }
+ ]
+}

@@ -1,0 +1,138 @@
+###### search dictionary (user)
+  login -> /lessons
+  THREW page.fill: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type=text]')[22m
+
+  API calls: 4
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+  non-2xx: none
+  errors: none
+###### lessons filter + detail tabs (user)
+  login -> /lessons
+  chip: false
+  tab BÀI TẬP: true
+  textLen=1011
+  tab LỊCH SỬ: true
+  after history textLen=265
+  API calls: 13
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/streak/current 200
+     GET /api/lessons/445/exercises/content 200
+     GET /api/v1/speaking-prompts?page=0&size=100 200
+     GET /api/lessons/445/exercises 200
+     GET /audio/lesson_445_listening.mp3 206
+     GET /api/lessons/445/exercises/attempts 200
+  non-2xx: none
+  errors: none
+###### quiz game answer (user)
+  login -> /lessons
+  answer: false
+  before=270 after-snippet="ẮC NGHIỆM TỪ VỰNG\n\nCHỌN ĐÁP ÁN ĐÚNG CHO TỪ XUẤT HIỆN\n\n0/0\nBENEFIT\n\n/ˈben.ɪ.fɪt/\n\nthiết yếukhám pháthường xuyênlợi ích\nEngFlow\n\n© 2026 ENGFLOW. TỰ HỌC TIẾNG ANH."
+  API calls: 5
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/games/quiz/10006 200
+  non-2xx: none
+  errors: none
+###### flashcard review SRS (user)
+  login -> /lessons
+  next: true
+  easy: true
+  API calls: 7
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/decks/10006 200
+     POST /api/flashcards/review 200
+     POST /api/flashcards/review 200
+  non-2xx: none
+  errors: none
+###### speaking history open (user)
+  login -> /lessons
+  open: true
+  path=http://localhost:5173/speaking/history textLen=1429
+  API calls: 6
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/v1/speaking-submissions?page=0&size=8 200
+     GET /api/v1/media/speaking-submissions/12c35e99-f8d7-4b24-916a-70e435ef986 200
+  non-2xx: none
+  errors: none
+###### AI vocab generator (user, real Ollama)
+  login -> /lessons
+  THREW page.fill: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type=text]')[22m
+
+  API calls: 4
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+  non-2xx: none
+  errors: none
+###### admin lessons CRUD via UI
+  login -> /lessons
+  textLen=2800
+  search: has input Tìm tiêu đề, mô tả...
+  after filter textLen=2800
+  API calls: 5
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/admin/lessons?page=0&size=20 200
+  non-2xx: none
+  errors: none
+###### admin dashboard + users
+  login -> /lessons
+  donut: "conic-gradient(rgb(139, 92, 246) 0deg, rgb(139, 92, 246) 71%, rgba(30, 41, 59, 0.12) 71%, "
+  users textLen=1151
+  API calls: 7
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     GET /api/admin/stats 200
+     GET /api/auth/me 200
+     GET /api/admin/users?page=0&size=10 200
+  non-2xx: none
+  errors: none
+###### guest register form validation
+  login -> /lessons
+  inputs=4
+  after empty submit textLen=189
+  API calls: 5
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+     GET /api/auth/me 200
+     POST /api/auth/register 400
+  non-2xx: ["POST /api/auth/register 400"]
+  errors: ["CONSOLE Failed to load resource: the server responded with a status of 400 ()"]
+###### logout clears session
+  login -> /lessons
+  logged in at /lessons
+  Thoát: true
+  after: {"path":"/login","tok":false}
+  API calls: 3
+     POST /api/auth/login 200
+     GET /api/streak/current 200
+     GET /api/lessons?page=0&size=12 200
+  non-2xx: none
+  errors: none

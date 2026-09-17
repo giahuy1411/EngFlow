@@ -1,0 +1,4 @@
+after login: {"path":"/lessons","tok":true}
+/ client=1440 scrollW=1425 OVERFLOW=false offenders=0
+/lessons client=1440 scrollW=1425 OVERFLOW=false offenders=0
+/premium client=1440 scrollW=1425 OVERFLOW=false offenders=0

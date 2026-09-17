@@ -139,4 +139,4 @@ function dump(file) {
   require("fs").writeFileSync(file, JSON.stringify(rows, null, 1));
   console.log("wrote " + file);
 }
-module.exports = { initTokens, probe, report, dump, sleep, flushLimits, flushBucket, tightBucketFor, rows: rows, getAdmin: () => adminT, getUser: () => userT };
+module.exports = { initTokens, login, probe, report, dump, sleep, flushLimits, flushBucket, tightBucketFor, rows: rows, getAdmin: () => adminT, getUser: () => userT, BASE };

@@ -1,0 +1,37 @@
+﻿REDIRECT /admin/dashboard               -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/lessons                 -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/exercises               -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/users                   -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/videos                  -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/video-attempts          -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/speaking-prompts        -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/speaking-submissions    -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /admin/445/build               -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1524 tbl=0 rows=0
+REDIRECT /videos                        -> /premium?redirect=/videos      h1="ENGFLOW PREMIUM"                  text=  565 tbl=0 rows=0
+REDIRECT /videos/1                      -> /premium?redirect=/videos/1    h1="ENGFLOW PREMIUM"                  text=  565 tbl=0 rows=0
+REDIRECT /speaking                      -> /premium?redirect=/speaking    h1="ENGFLOW PREMIUM"                  text=  565 tbl=0 rows=0
+REDIRECT /speaking/history              -> /premium?redirect=/speaking/history h1="ENGFLOW PREMIUM"                  text=  565 tbl=0 rows=0
+REDIRECT /speaking/50007                -> /premium?redirect=/speaking/50007 h1="ENGFLOW PREMIUM"                  text=  565 tbl=0 rows=0
+OK       /premium                       -> /premium                       h1="ENGFLOW PREMIUM"                  text=  565 tbl=0 rows=0
+OK       /profile                       -> /profile                       h1="HỌC VIÊN MẪU"                     text=  454 tbl=0 rows=0
+OK       /lessons                       -> /lessons                       h1="BÀI HỌC"                          text= 1821 tbl=0 rows=0
+OK       /                              -> /                              h1="HỌC TIẾNG ANH\nVUI VẺ"            text= 1509 tbl=0 rows=0
+
+=== REDIRECT AUDIT ===
+cases            : 18
+redirected away  : 14
+   /admin/dashboard  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/lessons  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/exercises  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/users  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/videos  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/video-attempts  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/speaking-prompts  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/speaking-submissions  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /admin/445/build  ->  /   (h1="HỌC TIẾNG ANH\nVUI VẺ")
+   /videos  ->  /premium?redirect=/videos   (h1="ENGFLOW PREMIUM")
+   /videos/1  ->  /premium?redirect=/videos/1   (h1="ENGFLOW PREMIUM")
+   /speaking  ->  /premium?redirect=/speaking   (h1="ENGFLOW PREMIUM")
+   /speaking/history  ->  /premium?redirect=/speaking/history   (h1="ENGFLOW PREMIUM")
+   /speaking/50007  ->  /premium?redirect=/speaking/50007   (h1="ENGFLOW PREMIUM")
+wrote p18_redirect_audit.json

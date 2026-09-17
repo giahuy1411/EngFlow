@@ -1,0 +1,43 @@
+login: logged in at /lessons
+  /                                mounted=Y text= 1524 err=0 bad=0
+  /login                           mounted=Y text= 1836 err=0 bad=0
+  /register                        mounted=Y text= 1836 err=0 bad=0
+  /forgot-password                 mounted=Y text= 1836 err=0 bad=0
+  /reset-password                  mounted=Y text= 1836 err=0 bad=0
+  /lessons                         mounted=Y text= 1836 err=0 bad=0
+  /lessons/445                     mounted=Y text= 2770 err=0 bad=0
+  /lessons/447                     mounted=Y text= 4178 err=0 bad=0
+  /videos                          mounted=Y text=  978 err=0 bad=0
+  /videos/1                        mounted=Y text= 1837 err=0 bad=0
+  /leaderboard                     mounted=Y text= 1519 err=0 bad=0
+  /decks                           mounted=Y text= 1319 err=0 bad=0
+  /decks/10006                     mounted=Y text=  527 err=0 bad=0
+  /nonexistent-route-zz            mounted=Y text= 1524 err=0 bad=0
+  /profile                         mounted=Y text=  473 err=0 bad=0
+  /search                          mounted=Y text=  245 err=0 bad=0
+  /decks/create                    mounted=Y text=  343 err=0 bad=0
+  /decks/10006/play/flashcard      mounted=Y text=  291 err=0 bad=0
+  /decks/10006/play/quiz           mounted=Y text=  290 err=0 bad=0
+  /decks/10006/play/memory         mounted=Y text=  297 err=0 bad=0
+  /decks/10006/play/typing         mounted=Y text=  271 err=0 bad=0
+  /decks/10006/play/listening      mounted=Y text=  262 err=0 bad=0
+  /decks/10006/play/mixed          mounted=Y text=  340 err=0 bad=0
+  /ai-vocab-generator              mounted=Y text=  385 err=0 bad=0
+  /speaking                        mounted=Y text= 1012 err=0 bad=0
+  /speaking/history                mounted=Y text= 1789 err=0 bad=0
+  /speaking/60014                  mounted=Y text=  610 err=0 bad=0
+  /speaking/60014/record           mounted=Y text=  488 err=0 bad=0
+  /premium                         mounted=Y text=  580 err=0 bad=0
+  /premium/checkout                mounted=Y text=  322 err=0 bad=0
+  /admin/dashboard                 mounted=Y text=  721 err=0 bad=0
+  /admin/lessons                   mounted=Y text= 2800 err=0 bad=0
+  /admin/exercises                 mounted=Y text= 2471 err=0 bad=0
+  /admin/users                     mounted=Y text= 1151 err=0 bad=0
+  /admin/speaking-prompts          mounted=Y text=  921 err=0 bad=0
+  /admin/speaking-submissions      mounted=Y text= 4167 err=0 bad=0
+  /admin/videos                    mounted=Y text=  568 err=0 bad=0
+  /admin/video-attempts            mounted=Y text=  942 err=0 bad=0
+  /admin/447/build                 mounted=Y text= 1081 err=0 bad=0
+=== UI admin 1440px routes=39 PROBLEM=0
+  non-BVP fonts on: none
+  horizontal overflow: none

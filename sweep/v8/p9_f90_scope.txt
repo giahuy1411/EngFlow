@@ -1,0 +1,11 @@
+﻿=== F90 SCOPE: do permitAll buckets still fire? ===
+(nếu CÓ → F90 không tạo bypass ở nhóm permitAll; mọi endpoint authenticated đã được T2 chứng minh limiter vẫn chạy)
+
+  :auth  24x POST /api/auth/login (permitAll)         hist={"400":20,"429":4} first429=21  keys=["rate_limit:172.18.0.1:auth"]
+  :mail  9x POST /api/auth/forgot-password (permitAll) hist={"200":5,"429":4} first429=6  keys=["rate_limit:172.18.0.1:mail"]
+  :mail  9x POST /api/auth/reset-password (permitAll)  hist={"400":5,"429":4} first429=6  keys=["rate_limit:172.18.0.1:mail"]
+  webhook /api/webhook/sepay (permitAll POST) status=200 keys=["rate_limit:172.18.0.1:global"]
+  permitAll GET /api/resources + /api/v1/media keys=["rate_limit:172.18.0.1:global"]
+  [F90] 60x ANON POST ai/generate-async (auth-required) hist={"401":60} first429=null  keys=[]   <- no bucket, but no work done either
+
+(all rate_limit keys cleared)

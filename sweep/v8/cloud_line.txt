@@ -1,0 +1,16 @@
+1. **Cloudinary đang dùng thật — không phải demo.** `.env` có `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` thật (mask-verify 2026-09-15) và container nhận đủ ba biến. Upload bằng file media THẬT trả **200 + URL Cloudinary**: `POST /api/auth/avatar/upload` → `.../engflow/avatars/<public_id>.png`; `POST /api/admin/audio-upload` (WAV thật 563 kB) → `.../engflow/audio/<public_id>.wav` — đây chính là đường MCP sinh listening audio. Kết luận "demo creds" ở bản nháp audit-v8 là **SAI**: sinh ra vì fixture của tôi là bytes giả (không phải ảnh/audio thật). Bài học: verify đường upload bắt buộc dùng file thật.'@
+Set-Content -LiteralPath "$P\sweep\v8\splice_line105.py" -Encoding UTF8 -Value @'
+import io, sys
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="ascii", errors="backslashreplace")
+p = ".specify/specs/audit-v8-full/REPORT.md"
+new = open(r"sweep/v8/cloud_line.txt", encoding="utf-8-sig").read().rstrip(chr(10))
+assert u"Cloudinary \u0111ang" in new, "diacritics lost in source"
+L = open(p, encoding="utf-8-sig").read().split(chr(10))
+idx = [k for k, l in enumerate(L) if l.startswith("1. **Cloudinary")]
+assert len(idx) == 1, idx
+print("target", idx[0] + 1, "old ascii?", all(ord(c) < 128 for c in L[idx[0]]))
+L[idx[0]] = new
+open(p, "w", encoding="utf-8", newline="").write(chr(10).join(L))
+chk = open(p, encoding="utf-8-sig").read().split(chr(10))[idx[0]]
+print("new line diacritics:", u"\u0111ang d\u00f9ng" in chk)
+print(chk[:120].encode("ascii", "backslashreplace").decode())

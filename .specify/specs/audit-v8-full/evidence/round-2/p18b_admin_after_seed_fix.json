@@ -1,0 +1,181 @@
+{
+ "rows": [
+  {
+   "route": "/admin/dashboard",
+   "role": "admin",
+   "finalUrl": "/admin/dashboard",
+   "ok": true,
+   "h1": "Tổng quan",
+   "textLen": 721,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/lessons",
+   "role": "admin",
+   "finalUrl": "/admin/lessons",
+   "ok": true,
+   "h1": "Bài học",
+   "textLen": 2800,
+   "tables": 1,
+   "rows": 20,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/exercises",
+   "role": "admin",
+   "finalUrl": "/admin/exercises",
+   "ok": true,
+   "h1": "Bài tập",
+   "textLen": 2471,
+   "tables": 1,
+   "rows": 20,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/users",
+   "role": "admin",
+   "finalUrl": "/admin/users",
+   "ok": true,
+   "h1": "Người dùng",
+   "textLen": 1151,
+   "tables": 1,
+   "rows": 10,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/videos",
+   "role": "admin",
+   "finalUrl": "/admin/videos",
+   "ok": true,
+   "h1": "Video học tập",
+   "textLen": 588,
+   "tables": 1,
+   "rows": 5,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/video-attempts",
+   "role": "admin",
+   "finalUrl": "/admin/video-attempts",
+   "ok": true,
+   "h1": "Chấm shadowing",
+   "textLen": 942,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/speaking-prompts",
+   "role": "admin",
+   "finalUrl": "/admin/speaking-prompts",
+   "ok": true,
+   "h1": "Đề luyện nói",
+   "textLen": 921,
+   "tables": 1,
+   "rows": 6,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/speaking-submissions",
+   "role": "admin",
+   "finalUrl": "/admin/speaking-submissions",
+   "ok": true,
+   "h1": "Chấm bài",
+   "textLen": 4167,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": true
+  },
+  {
+   "route": "/admin/445/build",
+   "role": "admin",
+   "finalUrl": "/admin/445/build",
+   "ok": true,
+   "h1": "Xây dựng bài học",
+   "textLen": 365,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": true
+  },
+  {
+   "route": "/videos",
+   "role": "user",
+   "finalUrl": "/videos",
+   "ok": true,
+   "h1": "VIDEO LEARNING",
+   "textLen": 963,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": false
+  },
+  {
+   "route": "/videos/1",
+   "role": "user",
+   "finalUrl": "/videos/1",
+   "ok": true,
+   "h1": "GỌI CÀ PHÊ BẰNG TIẾNG ANH",
+   "textLen": 1822,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": true
+  },
+  {
+   "route": "/speaking",
+   "role": "user",
+   "finalUrl": "/speaking",
+   "ok": true,
+   "h1": "LUYỆN NÓI",
+   "textLen": 997,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": false
+  },
+  {
+   "route": "/speaking/history",
+   "role": "user",
+   "finalUrl": "/speaking/history",
+   "ok": true,
+   "h1": "LỊCH SỬ BÀI NÓI",
+   "textLen": 1429,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": false
+  },
+  {
+   "route": "/speaking/50007",
+   "role": "user",
+   "finalUrl": "/speaking/50007",
+   "ok": true,
+   "h1": "DAILY ROUTINE - READ ALOUD",
+   "textLen": 898,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": true
+  },
+  {
+   "route": "/premium",
+   "role": "user",
+   "finalUrl": "/premium",
+   "ok": true,
+   "h1": "ENGFLOW PREMIUM",
+   "textLen": 565,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": false
+  },
+  {
+   "route": "/profile",
+   "role": "user",
+   "finalUrl": "/profile",
+   "ok": true,
+   "h1": "HỌC VIÊN MẪU",
+   "textLen": 454,
+   "tables": 0,
+   "rows": 0,
+   "hasSidebar": false
+  }
+ ],
+ "redirected": 0
+}
