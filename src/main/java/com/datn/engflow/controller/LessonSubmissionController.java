@@ -4,6 +4,7 @@ import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.dto.request.LessonSubmissionRequest;
 import com.datn.engflow.model.dto.response.LessonSubmissionDTO;
 import com.datn.engflow.model.enums.SkillType;
+import com.datn.engflow.service.LessonService;
 import com.datn.engflow.service.LessonSubmissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,20 @@ import java.util.Map;
 public class LessonSubmissionController {
 
     private final LessonSubmissionService lessonSubmissionService;
+    private final LessonService lessonService;
+
+    /**
+     * audit-v10 F115: bài nháp phải vô hình với người thường trên MỌI đường chạm
+     * tới nó. F88 chặn đường đọc, F105 chặn đường chấm/nộp bài tập; đường nộp bài
+     * kỹ năng (writing/speaking/reading) còn hở nên phải dùng cùng guard.
+     */
+    private static boolean isAdmin(Authentication authentication) {
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)
+                && authentication.getAuthorities() != null
+                && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+    }
 
     @PostMapping("/submit")
     public ResponseEntity<LessonSubmissionDTO> submitLessonSkill(@Valid @RequestBody LessonSubmissionRequest request,
@@ -34,6 +49,7 @@ public class LessonSubmissionController {
         if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        lessonService.assertLessonVisible(request.getLessonId(), isAdmin(authentication));
         String email = authentication.getName();
         LessonSubmissionDTO dto = lessonSubmissionService.submitLessonSkill(request, email);
         return ResponseEntity.ok(dto);
@@ -65,6 +81,8 @@ public class LessonSubmissionController {
         if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        // audit-v10 F115: cùng guard — bài nháp không được lộ qua bài đã nộp.
+        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
         String email = authentication.getName();
         try {
             LessonSubmissionDTO dto = lessonSubmissionService.getLessonSkillSubmission(lessonId, skillType, email);

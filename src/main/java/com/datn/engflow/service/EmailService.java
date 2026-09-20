@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import jakarta.mail.internet.MimeMessage;
 
@@ -26,6 +27,9 @@ public class EmailService {
 
   @Value("${spring.mail.username}")
   private String fromEmail;
+
+  @Value("${engflow.frontend-url:http://localhost:5173}")
+  private String frontendUrl;
 
   /**
    * Mail nhắc học cho user còn streak (học yesterday, chưa học hôm nay):
@@ -54,6 +58,7 @@ public class EmailService {
    */
   public void sendOtpEmail(String toEmail, String fullName, String otp) {
     String subject = "🔐 Mã đặt lại mật khẩu EngFlow: " + otp;
+    String resetLink = HtmlUtils.htmlEscape(frontendPath("/reset-password"));
     String html = """
         <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:480px;margin:0 auto;background:#fff;">
           <div style="background:#121212;padding:24px 32px;border-bottom:6px solid #8B5CF6;">
@@ -82,7 +87,7 @@ public class EmailService {
               Mã có hiệu lực <strong>10 phút</strong>. Không chia sẻ mã này với ai.
             </p>
 
-            <a href="http://localhost:5173/reset-password"
+            <a href="%s"
               style="display:inline-block;background:#8B5CF6;color:#fff;font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;padding:16px 48px;text-decoration:none;border:3px solid #121212;box-shadow:5px 5px 0 0 #121212;">
               NHẬP MÃ NGAY →
             </a>
@@ -95,7 +100,8 @@ public class EmailService {
           </div>
         </div>
         """
-        .formatted(fullName != null ? fullName : "bạn", otp);
+        .formatted(HtmlUtils.htmlEscape(fullName != null ? fullName : "bạn"),
+            otp, resetLink);
 
     send(toEmail, subject, html, "password-reset OTP", false);
   }
@@ -139,7 +145,7 @@ public class EmailService {
             <div style="border:4px solid #121212;padding:24px;margin:0 auto 32px auto;max-width:200px;box-shadow:6px 6px 0 0 #121212;">
               %s
             </div>
-            <a href="http://localhost:5173/lessons"
+            <a href="%s"
               style="display:inline-block;background:#D02020;color:#fff;font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;padding:16px 48px;text-decoration:none;border:3px solid #121212;box-shadow:5px 5px 0 0 #121212;">
               VÀO HỌC NGAY →
             </a>
@@ -151,7 +157,30 @@ public class EmailService {
           </div>
         </div>
         """
-        .formatted(fullName != null ? fullName : "bạn", intro, counterHtml);
+        .formatted(HtmlUtils.htmlEscape(fullName != null ? fullName : "bạn"),
+            intro, counterHtml, HtmlUtils.htmlEscape(studyLink()));
+  }
+
+  /** Link trang học, dùng cho CTA của mail nhắc streak. */
+  private String studyLink() {
+    return frontendPath("/lessons");
+  }
+
+  /**
+   * Ghép một đường dẫn với {@code engflow.frontend-url} đã cấu hình.
+   *
+   * <p>URL được kiểm trước khi ghép: nếu cấu hình trỏ tới scheme lạ, có userinfo,
+   * query hoặc fragment thì ném thay vì âm thầm ghép ra một link sai — mail là
+   * đường một chiều, không có cách nào sửa sau khi đã gửi.</p>
+   */
+  private String frontendPath(String path) {
+    java.net.URI base = java.net.URI.create(frontendUrl);
+    if ((!"http".equalsIgnoreCase(base.getScheme()) && !"https".equalsIgnoreCase(base.getScheme()))
+        || base.getHost() == null || base.getUserInfo() != null || base.getQuery() != null
+        || base.getFragment() != null) {
+      throw new IllegalStateException("engflow.frontend-url must be an absolute HTTP(S) application URL");
+    }
+    return frontendUrl.replaceAll("/+$", "") + path;
   }
 
   private void send(String toEmail, String subject, String html, String purpose, boolean throwOnFailure) {

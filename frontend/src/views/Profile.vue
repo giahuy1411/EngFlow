@@ -39,16 +39,27 @@
         </div>
         <div class="bg-card border-2 border-foreground rounded-md p-6 shadow-pop-lg hover:-translate-y-1 transition-all duration-300"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-secondary/10 border-2 border-foreground rounded-full flex items-center justify-center"><Zap class="w-5 h-5 text-secondary" /></div><span class="font-bold text-xs uppercase tracking-wider text-muted-foreground">Streak</span></div><p class="font-black text-3xl">{{ currentStreak }}</p></div>
       </div>
-      <div class="bg-card border-2 border-foreground rounded-md p-8 shadow-pop-xl mb-8">
+      <div class="bg-card border-2 rounded-md p-4 sm:p-8 shadow-pop-xl mb-8"
+        :class="studySnapshot && !studyError && !studyLoading && !studySnapshot.studiedToday ? 'border-tertiary' : 'border-foreground'">
         <h2 class="font-black text-xl uppercase tracking-tight mb-6 flex items-center gap-3"><Flame class="w-6 h-6 text-tertiary" />Lịch học</h2>
-        <StreakCalendar :history="streakData" :current-streak="currentStreak" :today="serverToday" />
+        <p v-if="studyLoading" role="status">Đang tải lịch học…</p>
+        <div v-else-if="studyError" role="alert">
+          <p>Không tải được lịch học. Chưa thể xác định trạng thái hôm nay.</p>
+          <button data-testid="study-retry" class="mt-3 border-2 border-foreground px-4 py-3 font-bold" @click="loadStudy">Thử lại</button>
+        </div>
+        <StreakCalendar v-else-if="studySnapshot" :history="studySnapshot.studiedDays"
+          :current-streak="studySnapshot.currentStreak" :today="studySnapshot.today"
+          :effective-from="studySnapshot.effectiveFrom" :legacy-history="studySnapshot.legacyAccessDays" />
+        <p v-if="studySnapshot && !studySnapshot.legacyHistoryAvailable" class="mt-3 text-sm">
+          Lịch sử truy cập cũ hiện không khả dụng. Lịch học mới vẫn được giữ trong hệ thống.
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
 import { usePremiumStore } from '@/store/modules/premium'
 import streakService from '@/services/streakService'
@@ -61,9 +72,51 @@ const auth = useAuthStore()
 const premiumStore = usePremiumStore()
 const user = ref(auth.user || {})
 const stats = ref({ completedLessons: 0, totalLessons: 0 })
-const currentStreak = ref(0)
-const streakData = ref([])
-const serverToday = ref(null)
+const studySnapshot = ref(null)
+const studyLoading = ref(true)
+const studyError = ref(false)
+const currentStreak = computed(() => studyLoading.value || studyError.value ? '—' : studySnapshot.value?.currentStreak ?? '—')
+let studyRequest = 0
+let midnightTimer
+let disposed = false
+
+async function loadStudy() {
+  const requestId = ++studyRequest
+  studyLoading.value = true
+  studyError.value = false
+  try {
+    const snapshot = await streakService.getSnapshot()
+    if (!snapshot || !Array.isArray(snapshot.studiedDays) || !snapshot.today ||
+      !Number.isInteger(snapshot.currentStreak) || typeof snapshot.studiedToday !== 'boolean') {
+      throw new Error('Invalid study snapshot')
+    }
+    if (!disposed && requestId === studyRequest) studySnapshot.value = snapshot
+  } catch {
+    if (!disposed && requestId === studyRequest) studyError.value = true
+  } finally {
+    if (!disposed && requestId === studyRequest) studyLoading.value = false
+  }
+}
+
+function refreshVisibleStudy() {
+  if (document.visibilityState !== 'hidden') loadStudy()
+}
+
+function scheduleMidnight() {
+  const dayMilliseconds = 86400000
+  const vietnamMilliseconds = Date.now() + 7 * 3600000
+  midnightTimer = setTimeout(() => {
+    loadStudy()
+    scheduleMidnight()
+  }, dayMilliseconds - vietnamMilliseconds % dayMilliseconds + 50)
+}
+
+onUnmounted(() => {
+  disposed = true
+  clearTimeout(midnightTimer)
+  window.removeEventListener('focus', refreshVisibleStudy)
+  document.removeEventListener('visibilitychange', refreshVisibleStudy)
+})
 const lessonProgressPercent = computed(() => {
   if (!stats.value.totalLessons) return 0
   const percent = Math.min(100, (stats.value.completedLessons / stats.value.totalLessons) * 100)
@@ -80,6 +133,10 @@ const subscriptionDescription = computed(() => {
 })
 
 onMounted(async () => {
+  loadStudy()
+  scheduleMidnight()
+  window.addEventListener('focus', refreshVisibleStudy)
+  document.addEventListener('visibilitychange', refreshVisibleStudy)
   await premiumStore.checkStatus()
   if (auth.user) {
     auth.user.isPremium = premiumStore.isPremium
@@ -87,19 +144,11 @@ onMounted(async () => {
     localStorage.setItem('user', JSON.stringify(auth.user))
   }
   try {
-    const streak = await streakService.getCurrentStreak()
-    currentStreak.value = streak.currentStreak || 0
-    serverToday.value = streak.today || null
-  } catch (e) { /* ignore */ }
-  try {
     const dashStats = await dashboardService.getStats()
     stats.value = {
       completedLessons: dashStats.completedLessons || 0,
       totalLessons: dashStats.totalLessons || 0
     }
-  } catch (e) { /* ignore */ }
-  try {
-    streakData.value = await streakService.getHistory(30)
   } catch (e) { /* ignore */ }
 })
 </script>

@@ -2,6 +2,7 @@ package com.datn.engflow.controller;
 
 import com.datn.engflow.security.SafeUploadNames;
 import com.datn.engflow.service.CloudinaryService;
+import com.datn.engflow.service.LessonService;
 import com.datn.engflow.model.dto.request.BlockRequest;
 import com.datn.engflow.model.dto.request.SectionRequest;
 import com.datn.engflow.model.dto.response.SectionResponse;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +33,7 @@ public class LessonStructureController {
 
     private final LessonStructureService lessonStructureService;
     private final CloudinaryService cloudinaryService;
+    private final LessonService lessonService;
 
     @GetMapping("/api/admin/lessons/{lessonId}/structure")
     public ResponseEntity<List<SectionResponse>> getAdminStructure(@PathVariable Long lessonId) {
@@ -130,7 +133,30 @@ public class LessonStructureController {
     }
 
     @GetMapping("/api/lessons/{lessonId}/structure")
-    public ResponseEntity<List<SectionResponse>> getLessonStructure(@PathVariable Long lessonId) {
+    public ResponseEntity<List<SectionResponse>> getLessonStructure(
+            @PathVariable Long lessonId,
+            Authentication authentication) {
+        // audit-v10 F126: bai nhap khong duoc doc cong khai (admin bo qua de preview).
+        //
+        // Day la duong DOC noi dung bai hoc — cung ho voi F88 (/exercises),
+        // F105 (/grade, /submit) va F115 (/lesson-submissions). No bi bo sot
+        // khi guard duoc ap tay tung controller, va do duoc la RO RI THAT:
+        // lesson 10889 (is_published=0) tra 8.013 byte noi dung bai hoc that
+        // cho student, trong khi GET /api/lessons/10889 tra 404.
+        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
         return ResponseEntity.ok(lessonStructureService.getLessonStructure(lessonId));
+    }
+
+    /** True khi principal that su co ROLE_ADMIN (anonymous user khong bao gio co). */
+    private static boolean isAdmin(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        String name = authentication.getName();
+        if (name == null || "anonymousUser".equals(name)) {
+            return false;
+        }
+        return authentication.getAuthorities() != null
+                && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 }

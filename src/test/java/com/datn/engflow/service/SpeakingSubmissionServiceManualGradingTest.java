@@ -40,7 +40,7 @@ class SpeakingSubmissionServiceManualGradingTest {
     void setUp() {
         service = new SpeakingSubmissionService(
                 submissionRepository, new com.datn.engflow.security.MediaSigner("test-secret-0123456789abcdef"), promptRepository, userRepository, minioService,
-                assessmentService, new com.fasterxml.jackson.databind.ObjectMapper());
+                assessmentService, new com.fasterxml.jackson.databind.ObjectMapper(), org.mockito.Mockito.mock(StudyActivityService.class));
         submission = SpeakingSubmission.builder()
                 .id(20L)
                 .status(SpeakingSubmissionStatus.SUBMITTED)

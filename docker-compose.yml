@@ -53,6 +53,10 @@ services:
       # Streak reminder catch-up: chạy bù job 20:00 lỡ vì container khởi động
       # muộn hơn cron (Spring chỉ đăng ký schedule sau khi context sẵn sàng).
       - ENGFLOW_SCHEDULER_CATCHUP_ENABLED=true
+      # URL gốc của SPA cho link trong mail. Trong container, "localhost" là chính
+      # container backend — không phải máy người dùng — nên deployment thật phải
+      # override biến này bằng domain công khai, nếu không CTA trong mail chết.
+      - ENGFLOW_FRONTEND_URL=${ENGFLOW_FRONTEND_URL:-http://localhost:5173}
       - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver:1433;databaseName=english_learning;encrypt=true;trustServerCertificate=true;
       - SPRING_DATASOURCE_USERNAME=sa
       - SPRING_DATASOURCE_PASSWORD=${SA_PASSWORD}

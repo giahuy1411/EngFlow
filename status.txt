@@ -1,0 +1,109 @@
+ M frontend/src/App.vue
+ M frontend/src/assets/design-system.css
+ M frontend/src/components/common/StreakCalendar.vue
+ M frontend/src/services/streakService.js
+ M frontend/src/views/Profile.test.js
+ M frontend/src/views/Profile.vue
+ M src/main/java/com/datn/engflow/controller/LessonExerciseController.java
+ M src/main/java/com/datn/engflow/controller/StreakController.java
+ M src/main/java/com/datn/engflow/repository/ExerciseRepository.java
+ M src/main/java/com/datn/engflow/repository/UserRepository.java
+ M src/main/java/com/datn/engflow/service/AdminService.java
+ M src/main/java/com/datn/engflow/service/EmailService.java
+ M src/main/java/com/datn/engflow/service/ExerciseService.java
+ M src/main/java/com/datn/engflow/service/LeaderboardService.java
+ M src/main/java/com/datn/engflow/service/SpeakingSubmissionService.java
+ M src/main/java/com/datn/engflow/service/SrsService.java
+ M src/main/java/com/datn/engflow/service/StreakReminderScheduler.java
+ M src/main/java/com/datn/engflow/service/StreakService.java
+ M src/main/java/com/datn/engflow/service/UserService.java
+ M src/test/java/com/datn/engflow/service/SpeakingSubmissionServiceAssessmentTest.java
+ M src/test/java/com/datn/engflow/service/SpeakingSubmissionServiceAuthorizationTest.java
+ M src/test/java/com/datn/engflow/service/SpeakingSubmissionServiceManualGradingTest.java
+ M src/test/java/com/datn/engflow/service/StreakReminderSchedulerTest.java
+ M src/test/java/com/datn/engflow/service/StreakServiceTest.java
+ M sweep/v8/p1.json
+ M sweep/v8/p11.json
+ M sweep/v8/p2.js
+ M sweep/v8/p2.json
+ M sweep/v8/p3a.json
+ M sweep/v8/p3b.json
+ M sweep/v8/p4a.json
+ M sweep/v8/p4b.json
+ M sweep/v8/p4c.json
+ M sweep/v8/p4d.json
+ M sweep/v8/p4e.js
+ M sweep/v8/p5.json
+ M sweep/v8/p6.json
+ M sweep/v8/routes-all.json
+?? .specify/specs/audit-v9-full/
+?? _v8_plan_dump.txt
+?? frontend/src/components/common/StreakCalendar.test.js
+?? frontend/src/views/Profile.snapshot.test.js
+?? plan_copy.md
+?? src/main/java/com/datn/engflow/model/dto/projection/ExerciseLessonProjection.java
+?? src/main/java/com/datn/engflow/model/dto/response/StudySnapshot.java
+?? src/main/java/com/datn/engflow/model/entity/StudyDay.java
+?? src/main/java/com/datn/engflow/model/entity/StudyPolicy.java
+?? src/main/java/com/datn/engflow/repository/StudyDayRepository.java
+?? src/main/java/com/datn/engflow/repository/StudyPolicyRepository.java
+?? src/main/java/com/datn/engflow/service/StudyActivityService.java
+?? src/test/java/com/datn/engflow/controller/AuditV9ControllerGuardTest.java
+?? src/test/java/com/datn/engflow/controller/AuditV9DraftLessonGradeGuardTest.java
+?? src/test/java/com/datn/engflow/controller/AuditV9DraftSecuritySliceTest.java
+?? src/test/java/com/datn/engflow/controller/AuditV9ExerciseListProjectionTest.java
+?? src/test/java/com/datn/engflow/controller/StudySnapshotControllerTest.java
+?? src/test/java/com/datn/engflow/service/AuditV9SrsIntervalCapTest.java
+?? src/test/java/com/datn/engflow/service/AuditV9SrsIntervalOverflowTest.java
+?? src/test/java/com/datn/engflow/service/AuditV9SrsSqlServerRoundTripTest.java
+?? src/test/java/com/datn/engflow/service/ExerciseStudyActivityTest.java
+?? src/test/java/com/datn/engflow/service/SrsStudyActivityTest.java
+?? src/test/java/com/datn/engflow/service/StreakEmptyActivityTest.java
+?? src/test/java/com/datn/engflow/service/StudyActivityServiceTest.java
+?? src/test/java/com/datn/engflow/service/StudyReminderEmailTest.java
+?? src/test/java/com/datn/engflow/service/StudySqlIntegrationTest.java
+?? src/test/java/com/datn/engflow/service/UserServiceStudyActivityTest.java
+?? status.txt
+?? sweep/v8/__pycache__/
+?? sweep/v8/_deadcheck.py
+?? sweep/v8/_deadcss.py
+?? sweep/v8/_fix_p2.py
+?? sweep/v8/_patch_f105.py
+?? sweep/v8/_v9_left.sh
+?? sweep/v8/p21_design_tone.json
+?? sweep/v8/p21_design_tone_v9.js
+?? sweep/v8/p24_journeys.js
+?? sweep/v8/p24_journeys.json
+?? sweep/v8/p6_db_audit_v9.sql
+?? sweep/v8/p9_perf_probe_v9.js
+?? sweep/v8/p9_perf_v9_after.json
+?? sweep/v8/p9_perf_v9_before.json
+?? sweep/v8/reverify-current-run/
+?? sweep/v8/test_v9_coverage_check.py
+?? sweep/v8/v9-backup.sql
+?? sweep/v8/v9-class-identity.json
+?? sweep/v8/v9-clean-leftovers.sql
+?? sweep/v8/v9-reverify-before.patch
+?? sweep/v8/v9-reverify-manifest-2026-09-18.md
+?? sweep/v8/v9-reverify-status.txt
+?? sweep/v8/v9_cleanup_sweep.py
+?? sweep/v8/v9_coverage_check.py
+?? sweep/v8/v9_deadcss_check.py
+?? sweep/v8/v9_endpoint_inventory.py
+?? sweep/v8/v9_endpoint_map.py
+?? sweep/v8/v9_f105_verify.js
+?? sweep/v8/v9_f106_repro.js
+?? sweep/v8/v9_perf_exercise_list.js
+?? sweep/v8/v9_perf_exercise_list_after.json
+?? sweep/v8/v9_perf_exercise_list_after2.json
+?? sweep/v8/v9_perf_exercise_list_before.json
+?? sweep/v8/v9_probe_admin.js
+?? sweep/v8/v9_probe_deck.js
+?? sweep/v8/v9_probe_selectors.js
+?? sweep/v8/v9_route_inventory.py
+?? sweep/v8/v9_run_isolated_srs.ps1
+?? sweep/v8/v9_transforms.js
+?? sweep/v8/v9_vite_soak.js
+?? sweep/v8/v9b-db-audit.txt
+?? sweep/v8/verify-F106-repro.js
+?? tasks/streak-study/

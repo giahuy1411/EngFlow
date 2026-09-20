@@ -26,6 +26,7 @@ public class FlashcardService {
     private final UserVocabularyProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final VocabularyRepository vocabularyRepository;
+    private final StudyActivityService studyActivityService;
 
     @Transactional
     public void reviewFlashcard(FlashcardReviewRequest request, String email) {
@@ -63,6 +64,10 @@ public class FlashcardService {
 
         progress.setNextReviewDate(LocalDateTime.now().plusDays(daysToAdd));
         progressRepository.save(progress);
+        // Một lượt review là một hoạt động học thật, cùng ngữ nghĩa với
+        // SrsService.reviewWord — gọi trong chính transaction đang lưu tiến độ,
+        // nên tiến độ hỏng thì ngày học cũng không được ghi.
+        studyActivityService.recordStudy(user.getId());
     }
 
     @Transactional(readOnly = true)

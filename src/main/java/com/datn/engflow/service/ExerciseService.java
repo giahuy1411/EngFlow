@@ -24,13 +24,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.datn.engflow.model.dto.projection.LessonTitle;
+import com.datn.engflow.model.dto.projection.ExerciseLessonProjection;
 import com.datn.engflow.service.LessonContentService.LessonContentInfo;
 
 @Slf4j
@@ -46,14 +51,37 @@ public class ExerciseService {
     private final ExerciseAttemptRepository attemptRepository;
     private final UserRepository userRepository;
     private final LessonContentService lessonContentService;
+    private final StudyActivityService studyActivityService;
+    /** audit-v10 F127: doc {@code options} cua bai MATCHING (JSON array). */
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     // --- CRUD ---
 
     public List<ExerciseResponse> getExercisesByLesson(Long lessonId, boolean includeAnswers) {
-        List<Exercise> exercises = findExercisesForLesson(lessonId);
-        return exercises.stream()
-                .map(ex -> toResponse(ex, includeAnswers))
+        // audit-v9 F108: read path only. The JOIN FETCH entity variant is kept for
+        // the grading path (it needs managed entities, not a read model) but the
+        // list must not carry lesson.content/content_original per row.
+        return exerciseRepository.findLessonExercisesProjection(lessonId).stream()
+                .map(p -> toResponse(p, includeAnswers))
                 .toList();
+    }
+
+    /** audit-v9 F108: mapping from the flat list projection (no lesson LOBs). */
+    private ExerciseResponse toResponse(ExerciseLessonProjection p, boolean includeAnswers) {
+        return ExerciseResponse.builder()
+                .id(p.getId())
+                .lessonId(p.getLessonId())
+                .lessonTitle(p.getLessonTitle())
+                .question(p.getQuestion())
+                .options(p.getOptions())
+                .correctAnswer(includeAnswers ? p.getCorrectAnswer() : null)
+                .exerciseType(p.getExerciseType() != null ? p.getExerciseType().name() : null)
+                .difficulty(p.getDifficulty() != null ? p.getDifficulty().name() : null)
+                .explanation(includeAnswers ? p.getExplanation() : null)
+                .imageUrl(p.getImageUrl())
+                .audioUrl(p.getAudioUrl())
+                .orderIndex(p.getOrderIndex())
+                .build();
     }
 
     private List<Exercise> findExercisesForLesson(Long lessonId) {
@@ -149,7 +177,12 @@ public class ExerciseService {
             // Ungradeable: exercise has a null/blank answer key. Comparing "" to ""
             // would mark an empty user answer as correct (false-positive), so the item
             // is excluded from the score/total denominator instead.
-            boolean ungradeable = ex.getCorrectAnswer() == null || ex.getCorrectAnswer().isBlank();
+            // audit-v10 F127: MATCHING co nguon dap an rieng (options), nen no
+            // khong chiu rang buoc correct_answer. Mot bai MATCHING voi options
+            // hong cung phai duoc coi la khong cham duoc, dung nhu bai thieu
+            // correct_answer — neu khong se bi tinh la SAI thay vi bi loai.
+            boolean ungradeable = (ex.getCorrectAnswer() == null || ex.getCorrectAnswer().isBlank())
+                    || isMatchingUngradeable(ex);
             boolean correct = false;
             if (ungradeable) {
                 results.add(ExerciseGradeItem.builder()
@@ -162,8 +195,7 @@ public class ExerciseService {
                 continue;
             }
 
-            correct = normalizeAnswer(item.getUserAnswer())
-                    .equals(normalizeAnswer(ex.getCorrectAnswer()));
+            correct = isCorrectAnswer(ex, item.getUserAnswer());
             if (correct) score++;
             total++;
 
@@ -184,6 +216,112 @@ public class ExerciseService {
                 .total(total)
                 .percentage(Math.round(pct * 100.0) / 100.0)
                 .build();
+    }
+
+    /**
+     * So khớp câu trả lời cho một bài tập.
+     *
+     * <p><b>audit-v10 F127:</b> MATCHING KHÔNG được chấm bằng so khớp chuỗi với
+     * {@code correct_answer}. Hai lý do đo được, không phải suy đoán:
+     *
+     * <ol>
+     *   <li><b>Không khớp định dạng.</b> Đo 331 row MATCHING trong bài đã
+     *       published: 330 row lưu {@code correct_answer} dạng CHỮ
+     *       ({@code A=B,B=D,C=C,D=A} hoặc {@code word1=be,...}), chỉ 1 row dạng
+     *       chỉ số. Nhưng client gửi lên dạng CHỈ SỐ VỊ TRÍ
+     *       ({@code 0=0,1=1,2=2,3=3}). Thử 4 bài published, gửi đúng định dạng
+     *       client gửi: <b>cả 4 đều {@code correct=false}</b>, trong khi gửi
+     *       đúng chuỗi thô thì {@code true}. Tức học sinh nối đúng hết vẫn 0 điểm.</li>
+     *   <li><b>Chỉ số vô nghĩa với server.</b> {@code MatchingExercise.vue} XÁO
+     *       TRỘN cột phải (dòng 157-166), nên chỉ số hiển thị mà client gửi
+     *       KHÔNG bằng chỉ số gốc. Server không có cách nào dựng lại phép hoán
+     *       vị đó. Vì vậy sửa định dạng chỉ số là bất khả thi về nguyên tắc —
+     *       client phải gửi CHỮ.</li>
+     * </ol>
+     *
+     * <p>Cách chấm đúng: cặp đúng lấy từ {@code options} (mỗi phần tử là
+     * {@code "left|right"}), đối chiếu với tập cặp CHỮ mà client gửi lên, so
+     * khớp theo <b>tập hợp</b> nên thứ tự nối không ảnh hưởng kết quả.
+     *
+     * <p>{@code correct_answer} không dùng để chấm MATCHING nữa. Đo được nó
+     * lệch với {@code options} ở 96 row, và còn 19 row giữ nguyên placeholder
+     * {@code wordN=defN} chưa từng được điền — dùng nó làm nguồn sự thật sẽ
+     * chấm sai.
+     */
+    private boolean isCorrectAnswer(Exercise ex, String userAnswer) {
+        if (ex.getExerciseType() == ExerciseType.MATCHING) {
+            return matchingPairsMatch(userAnswer, ex.getOptions());
+        }
+        return normalizeAnswer(userAnswer).equals(normalizeAnswer(ex.getCorrectAnswer()));
+    }
+
+    /**
+     * True khi tập cặp người học nối BẰNG ĐÚNG tập cặp hợp lệ lấy từ options.
+     *
+     * <p>Không chấp nhận tập con: nối đúng 2/4 cặp là chưa hoàn thành bài.
+     */
+    private boolean matchingPairsMatch(String userAnswer, String optionsJson) {
+        Set<String> correct = pairsFromOptions(optionsJson);
+        if (correct.isEmpty()) return false;
+        return parsePairs(userAnswer).equals(correct);
+    }
+
+    /**
+     * Cặp hợp lệ lấy từ {@code options} — mỗi phần tử là {@code "left|right"}.
+     *
+     * <p>Trả về rỗng khi options không phải JSON mảng hoặc không phần tử nào có
+     * dấu {@code |}; khi đó bài tập được coi là KHÔNG CHẤM ĐƯỢC (xem
+     * {@link #isMatchingUngradeable}) thay vì âm thầm cho 0 điểm.
+     */
+    private Set<String> pairsFromOptions(String optionsJson) {
+        Set<String> pairs = new HashSet<>();
+        if (optionsJson == null || optionsJson.isBlank()) return pairs;
+        List<String> opts;
+        try {
+            opts = objectMapper.readValue(optionsJson, new TypeReference<List<String>>() {});
+        } catch (Exception notAJsonArray) {
+            return pairs;
+        }
+        if (opts == null) return pairs;
+        for (String opt : opts) {
+            if (opt == null) continue;
+            int bar = opt.indexOf('|');
+            if (bar <= 0) continue;
+            String left = normalizePairSide(opt.substring(0, bar));
+            String right = normalizePairSide(opt.substring(bar + 1));
+            if (!left.isEmpty() && !right.isEmpty()) pairs.add(left + "=" + right);
+        }
+        return pairs;
+    }
+
+    /** Tách chuỗi "X=Y,X=Y" client gửi thành tập cặp đã chuẩn hoá. */
+    private Set<String> parsePairs(String raw) {
+        Set<String> pairs = new HashSet<>();
+        if (raw == null || raw.isBlank()) return pairs;
+        for (String part : raw.split(",")) {
+            int eq = part.indexOf('=');
+            if (eq <= 0) continue;
+            String left = normalizePairSide(part.substring(0, eq));
+            String right = normalizePairSide(part.substring(eq + 1));
+            if (!left.isEmpty() && !right.isEmpty()) pairs.add(left + "=" + right);
+        }
+        return pairs;
+    }
+
+    /** Bỏ nháy/khoảng trắng thừa, hạ chữ thường, để "A = D" và "a=d" là một. */
+    private String normalizePairSide(String s) {
+        return s == null ? "" : s.trim().replaceAll("^['\"]|['\"]$", "").trim().toLowerCase();
+    }
+
+    /**
+     * Bài MATCHING không chấm được vì options không sinh ra cặp nào.
+     *
+     * <p>Cùng chính sách với {@code correct_answer} rỗng: loại khỏi tử số VÀ mẫu
+     * số, thay vì tính là sai. Đo được 11 row như vậy trong bài đã published.
+     */
+    private boolean isMatchingUngradeable(Exercise ex) {
+        return ex.getExerciseType() == ExerciseType.MATCHING
+                && pairsFromOptions(ex.getOptions()).isEmpty();
     }
 
     private String normalizeAnswer(String s) {
@@ -297,6 +435,11 @@ public class ExerciseService {
                 .build();
 
         attemptRepository.save(attempt);
+
+        if (grade.getResults().stream().anyMatch(item ->
+                item.getUserAnswer() != null && !item.getUserAnswer().isBlank())) {
+            studyActivityService.recordStudy(user.getId());
+        }
 
         return grade;
     }

@@ -1,5 +1,5 @@
 <template>
-  <span aria-hidden="true" :class="['decoconfetti', `decoconfetti--${kind}`, `decoconfetti--${size}`]">
+  <span aria-hidden="true" :class="['decoconfetti', `decoconfetti--${kind}`]" :style="styleVars">
     <svg v-if="kind === 'circle'" viewBox="0 0 24 24" :width="sizePx" :height="sizePx">
       <circle cx="12" cy="12" r="10" fill="currentColor" />
     </svg>
@@ -13,24 +13,46 @@
 </template>
 
 <script setup>
+/**
+ * audit-v10 fixes two real defects in the previous version:
+ *  1. `sizePx` was a module-level `const sizeMap.md` — every confetti rendered at
+ *     18px regardless of the `size` prop, so `sm`/`lg`/`xl` silently did nothing.
+ *  2. `color` was declared but never read; the colour came from a `size`-based
+ *     class, which conflated "how big" with "what colour". Passing `color` had no
+ *     effect at all.
+ *
+ * Size and colour are now independent: `size` drives the pixel dimensions and
+ * `color` drives the fill, defaulting to the design system's rotational palette
+ * (violet → pink → amber → mint) so existing call sites keep their look.
+ */
+import { computed } from 'vue'
+
 const sizeMap = { sm: 14, md: 18, lg: 24, xl: 32 }
-defineProps({
+const paletteBySize = {
+  sm: 'var(--geo-tertiary)',
+  md: 'var(--geo-secondary)',
+  lg: 'var(--geo-accent)',
+  xl: 'var(--geo-quaternary)',
+}
+
+const props = defineProps({
   kind: {
     type: String,
     default: 'circle',
     validator: (v) => ['circle', 'square', 'triangle'].includes(v),
   },
-  color: {
-    type: String,
-    default: '',
-  },
+  color: { type: String, default: '' },
   size: {
     type: String,
     default: 'md',
     validator: (v) => ['sm', 'md', 'lg', 'xl'].includes(v),
   },
 })
-const sizePx = sizeMap.md
+
+const sizePx = computed(() => sizeMap[props.size] ?? sizeMap.md)
+const styleVars = computed(() => ({
+  '--deco-confetti-color': props.color || paletteBySize[props.size] || paletteBySize.md,
+}))
 </script>
 
 <style scoped>
@@ -40,11 +62,8 @@ const sizePx = sizeMap.md
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: var(--deco-confetti-color, var(--geo-secondary));
 }
-.decoconfetti--sm { color: var(--geo-tertiary); }
-.decoconfetti--md { color: var(--geo-secondary); }
-.decoconfetti--lg { color: var(--geo-accent); }
-.decoconfetti--xl { color: var(--geo-quaternary); }
 
 @media (prefers-reduced-motion: reduce) {
   .decoconfetti { opacity: 0.7; }

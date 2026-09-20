@@ -1,0 +1,43 @@
+{
+ "/": {
+  "py24": 0,
+  "py16": 0,
+  "py20": 0,
+  "maxW6xl": 0,
+  "maxW7xl": 0,
+  "containerish": 0,
+  "maxPadTop": 96,
+  "containerWidths": [
+   1280
+  ],
+  "bigCircles": 17,
+  "dotish": 1,
+  "dotComponents": 8,
+  "transformCount": 7,
+  "rotatedish": 7,
+  "svgIcons": 12,
+  "radiusVariants": 9,
+  "hardShadowEls": 23
+ },
+ "/premium": {
+  "py24": 0,
+  "py16": 0,
+  "py20": 0,
+  "maxW6xl": 0,
+  "maxW7xl": 0,
+  "containerish": 3,
+  "maxPadTop": 32,
+  "containerWidths": [
+   896,
+   768
+  ],
+  "bigCircles": 11,
+  "dotish": 0,
+  "dotComponents": 2,
+  "transformCount": 2,
+  "rotatedish": 2,
+  "svgIcons": 1,
+  "radiusVariants": 5,
+  "hardShadowEls": 5
+ }
+}

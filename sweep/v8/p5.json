@@ -5,10 +5,10 @@
   "path": "/api/auth/register",
   "as": "none",
   "code": 201,
-  "ms": 234,
+  "ms": 90,
   "expect": "201",
   "pass": true,
-  "snippet": "{\"id\":180418,\"username\":\"zzv331333281\",\"email\":\"zzv331333281@example.com\",\"fullName\":\"ZZ v3\",\"avatarUrl\":\"https://api.dicebear.com/7.x/adventurer/svg?seed=zzv331333281\",\"isAdmin\":false,\"currentLevel\":"
+  "snippet": "{\"id\":191048,\"username\":\"zzv371536996\",\"email\":\"zzv371536996@example.com\",\"fullName\":\"ZZ v3\",\"avatarUrl\":\"https://api.dicebear.com/7.x/adventurer/svg?seed=zzv371536996\",\"isAdmin\":false,\"currentLevel\":"
  },
  {
   "name": "register -> 201",
@@ -19,7 +19,7 @@
   "ms": 0,
   "expect": "201",
   "pass": true,
-  "snippet": "got=201 :: {\"id\":180418,\"username\":\"zzv331333281\",\"email\":\"zzv331333281@example.com\",\"fullName\":\"ZZ v3\",\"avatarUrl\":\"http"
+  "snippet": "got=201 :: {\"id\":191048,\"username\":\"zzv371536996\",\"email\":\"zzv371536996@example.com\",\"fullName\":\"ZZ v3\",\"avatarUrl\":\"http"
  },
  {
   "name": "register tự đăng nhập (trả token)",
@@ -41,7 +41,7 @@
   "ms": 0,
   "expect": "true",
   "pass": true,
-  "snippet": "got=true :: user_id=180418"
+  "snippet": "got=true :: user_id=191048"
  },
  {
   "name": "register dup email",
@@ -49,7 +49,7 @@
   "path": "/api/auth/register",
   "as": "none",
   "code": 409,
-  "ms": 85,
+  "ms": 12,
   "expect": "409",
   "pass": true,
   "snippet": "{\"detail\":\"Email đã tồn tại\",\"instance\":\"/api/auth/register\",\"status\":409,\"title\":\"Conflict\"}"
@@ -71,7 +71,7 @@
   "path": "/api/auth/register",
   "as": "none",
   "code": 409,
-  "ms": 24,
+  "ms": 14,
   "expect": "409",
   "pass": true,
   "snippet": "{\"detail\":\"Tên đăng nhập đã tồn tại\",\"instance\":\"/api/auth/register\",\"status\":409,\"title\":\"Conflict\"}"
@@ -93,7 +93,7 @@
   "path": "/api/auth/register",
   "as": "none",
   "code": 400,
-  "ms": 70,
+  "ms": 15,
   "expect": "400",
   "pass": true,
   "snippet": "{\"detail\":\"Dữ liệu đầu vào không hợp lệ\",\"instance\":\"/api/auth/register\",\"status\":400,\"title\":\"Validation Failed\",\"errors\":{\"email\":\"Email không đúng định dạng\"}}"
@@ -115,7 +115,7 @@
   "path": "/api/auth/register",
   "as": "none",
   "code": 400,
-  "ms": 10,
+  "ms": 9,
   "expect": "400",
   "pass": true,
   "snippet": "{\"detail\":\"Dữ liệu đầu vào không hợp lệ\",\"instance\":\"/api/auth/register\",\"status\":400,\"title\":\"Validation Failed\",\"errors\":{\"password\":\"Mật khẩu phải tối thiểu 6 ký tự\"}}"
@@ -159,7 +159,7 @@
   "path": "/api/auth/me",
   "as": "none",
   "code": 401,
-  "ms": 11,
+  "ms": 8,
   "expect": "401",
   "pass": true,
   "snippet": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
@@ -181,10 +181,10 @@
   "path": "/api/auth/me",
   "as": "temp-user",
   "code": 200,
-  "ms": 40,
+  "ms": 21,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"id\":180418,\"username\":\"zzv331333281\",\"email\":\"zzv331333281@example.com\",\"fullName\":\"ZZ v3\",\"avatarUrl\":\"https://api.dicebear.com/7.x/adventurer/svg?seed=zzv331333281\",\"isAdmin\":false,\"currentLevel\":"
+  "snippet": "{\"id\":191048,\"username\":\"zzv371536996\",\"email\":\"zzv371536996@example.com\",\"fullName\":\"ZZ v3\",\"avatarUrl\":\"https://api.dicebear.com/7.x/adventurer/svg?seed=zzv371536996\",\"isAdmin\":false,\"currentLevel\":"
  },
  {
   "name": "me (token tạm) -> 200 + email đúng",
@@ -203,7 +203,7 @@
   "path": "/api/auth/login",
   "as": "none",
   "code": 401,
-  "ms": 87,
+  "ms": 81,
   "expect": "401",
   "pass": true,
   "snippet": "{\"detail\":\"Email hoặc mật khẩu không chính xác.\",\"instance\":\"/api/auth/login\",\"status\":401,\"title\":\"Unauthorized\"}"
@@ -297,26 +297,26 @@
   "snippet": "got=200"
  },
  {
-  "name": "streak current (mới)",
+  "name": "streak snapshot sau đăng nhập",
   "method": "GET",
-  "path": "/api/streak/current",
+  "path": "/api/streak/snapshot",
   "as": "temp-user",
   "code": 200,
-  "ms": 16,
+  "ms": 20,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"currentStreak\":1,\"today\":\"2026-09-17\"}"
+  "snippet": "{\"today\":\"2026-09-20\",\"currentStreak\":0,\"studiedToday\":false,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
  },
  {
-  "name": "đăng nhập xong -> streak 1",
+  "name": "đăng nhập KHÔNG tạo ngày học -> currentStreak 0",
   "method": "-",
   "path": "-",
   "as": "-",
   "code": 200,
   "ms": 0,
-  "expect": "1",
+  "expect": "0",
   "pass": true,
-  "snippet": "got=1 :: {\"currentStreak\":1,\"today\":\"2026-09-17\"}"
+  "snippet": "got=0 :: {\"today\":\"2026-09-20\",\"currentStreak\":0,\"studiedToday\":false,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
  },
  {
   "name": "today = ngày server VN",
@@ -325,144 +325,23 @@
   "as": "-",
   "code": 200,
   "ms": 0,
-  "expect": "2026-09-17",
+  "expect": "2026-09-20",
   "pass": true,
-  "snippet": "got=2026-09-17 :: {\"currentStreak\":1,\"today\":\"2026-09-17\"}"
+  "snippet": "got=2026-09-20 :: {\"today\":\"2026-09-20\",\"currentStreak\":0,\"studiedToday\":false,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
  },
  {
-  "name": "DB current_streak = 1",
+  "name": "studiedToday = false (chỉ đăng nhập)",
   "method": "-",
   "path": "-",
   "as": "-",
   "code": 200,
   "ms": 0,
-  "expect": "1",
+  "expect": "false",
   "pass": true,
-  "snippet": "got=1"
+  "snippet": "got=false :: {\"today\":\"2026-09-20\",\"currentStreak\":0,\"studiedToday\":false,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
  },
  {
-  "name": "DB last_study_date = hôm nay",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "2026-09-17",
-  "pass": true,
-  "snippet": "got=2026-09-17"
- },
- {
-  "name": "streak history 30d",
-  "method": "GET",
-  "path": "/api/streak/history?days=30",
-  "as": "temp-user",
-  "code": 200,
-  "ms": 18,
-  "expect": "200",
-  "pass": true,
-  "snippet": "[\"2026-09-17\"]"
- },
- {
-  "name": "history chứa hôm nay",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "true",
-  "pass": true,
-  "snippet": "got=true :: [\"2026-09-17\"]"
- },
- {
-  "name": "streak current (học hôm qua)",
-  "method": "GET",
-  "path": "/api/streak/current",
-  "as": "temp-user",
-  "code": 200,
-  "ms": 18,
-  "expect": "200",
-  "pass": true,
-  "snippet": "{\"currentStreak\":5,\"today\":\"2026-09-17\"}"
- },
- {
-  "name": "học hôm qua + streak 5 -> vẫn 5 (chưa học hôm nay)",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "5",
-  "pass": true,
-  "snippet": "got=5 :: {\"currentStreak\":5,\"today\":\"2026-09-17\"}"
- },
- {
-  "name": "ngày liên tiếp -> DB streak 6",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "6",
-  "pass": true,
-  "snippet": "got=6"
- },
- {
-  "name": "DB last_study_date = hôm nay",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "2026-09-17",
-  "pass": true,
-  "snippet": "got=2026-09-17"
- },
- {
-  "name": "streak current (+1)",
-  "method": "GET",
-  "path": "/api/streak/current",
-  "as": "temp-user",
-  "code": 200,
-  "ms": 22,
-  "expect": "200",
-  "pass": true,
-  "snippet": "{\"currentStreak\":6,\"today\":\"2026-09-17\"}"
- },
- {
-  "name": "API trả 6",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "6",
-  "pass": true,
-  "snippet": "got=6 :: {\"currentStreak\":6,\"today\":\"2026-09-17\"}"
- },
- {
-  "name": "đăng nhập lần 2 trong ngày = no-op (vẫn 6)",
-  "method": "-",
-  "path": "-",
-  "as": "-",
-  "code": 200,
-  "ms": 0,
-  "expect": "6",
-  "pass": true,
-  "snippet": "got=6"
- },
- {
-  "name": "streak current (đứt 3 ngày)",
-  "method": "GET",
-  "path": "/api/streak/current",
-  "as": "temp-user",
-  "code": 200,
-  "ms": 16,
-  "expect": "200",
-  "pass": true,
-  "snippet": "{\"currentStreak\":0,\"today\":\"2026-09-17\"}"
- },
- {
-  "name": "đứt 3 ngày -> streak hiệu lực 0",
+  "name": "study_days rỗng sau đăng nhập",
   "method": "-",
   "path": "-",
   "as": "-",
@@ -470,21 +349,32 @@
   "ms": 0,
   "expect": "0",
   "pass": true,
-  "snippet": "got=0 :: {\"currentStreak\":0,\"today\":\"2026-09-17\"}"
+  "snippet": "got=0"
  },
  {
-  "name": "DB thô vẫn 9 (stale by design)",
+  "name": "lấy được vocabId thật để review",
   "method": "-",
   "path": "-",
   "as": "-",
   "code": 200,
   "ms": 0,
-  "expect": "9",
+  "expect": "true",
   "pass": true,
-  "snippet": "got=9"
+  "snippet": "got=true :: vocabId=10017"
  },
  {
-  "name": "quay lại -> reset về 1",
+  "name": "SRS review -> 200",
+  "method": "POST",
+  "path": "/api/srs/review",
+  "as": "temp-user",
+  "code": 200,
+  "ms": 30,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"message\":\"Review recorded successfully\"}"
+ },
+ {
+  "name": "SRS review ghi 1 ngày học",
   "method": "-",
   "path": "-",
   "as": "-",
@@ -495,26 +385,103 @@
   "snippet": "got=1"
  },
  {
-  "name": "streak history 1d",
-  "method": "GET",
-  "path": "/api/streak/history?days=1",
+  "name": "SRS review lại (cùng ngày)",
+  "method": "POST",
+  "path": "/api/srs/review",
   "as": "temp-user",
   "code": 200,
-  "ms": 13,
+  "ms": 33,
   "expect": "200",
   "pass": true,
-  "snippet": "[\"2026-09-17\"]"
+  "snippet": "{\"message\":\"Review recorded successfully\"}"
  },
  {
-  "name": "history(days=1) = [hôm nay]",
+  "name": "review lại KHÔNG nhân đôi (unique index)",
   "method": "-",
   "path": "-",
   "as": "-",
   "code": 200,
   "ms": 0,
-  "expect": "[\"2026-09-17\"]",
+  "expect": "1",
   "pass": true,
-  "snippet": "got=[\"2026-09-17\"] :: [\"2026-09-17\"]"
+  "snippet": "got=1"
+ },
+ {
+  "name": "snapshot sau khi học",
+  "method": "GET",
+  "path": "/api/streak/snapshot",
+  "as": "temp-user",
+  "code": 200,
+  "ms": 18,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"today\":\"2026-09-20\",\"currentStreak\":1,\"studiedToday\":true,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[\"2026-09-20\"],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
+ },
+ {
+  "name": "studiedToday = true sau khi học",
+  "method": "-",
+  "path": "-",
+  "as": "-",
+  "code": 200,
+  "ms": 0,
+  "expect": "true",
+  "pass": true,
+  "snippet": "got=true :: {\"today\":\"2026-09-20\",\"currentStreak\":1,\"studiedToday\":true,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[\"2026-09-20\"],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
+ },
+ {
+  "name": "currentStreak = 1 sau khi học",
+  "method": "-",
+  "path": "-",
+  "as": "-",
+  "code": 200,
+  "ms": 0,
+  "expect": "1",
+  "pass": true,
+  "snippet": "got=1 :: {\"today\":\"2026-09-20\",\"currentStreak\":1,\"studiedToday\":true,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[\"2026-09-20\"],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
+ },
+ {
+  "name": "studiedDays chứa hôm nay",
+  "method": "-",
+  "path": "-",
+  "as": "-",
+  "code": 200,
+  "ms": 0,
+  "expect": "true",
+  "pass": true,
+  "snippet": "got=true :: [\"2026-09-20\"]"
+ },
+ {
+  "name": "snapshot sau khi xoá hết ngày học",
+  "method": "GET",
+  "path": "/api/streak/snapshot",
+  "as": "temp-user",
+  "code": 200,
+  "ms": 23,
+  "expect": "200",
+  "pass": true,
+  "snippet": "{\"today\":\"2026-09-20\",\"currentStreak\":0,\"studiedToday\":false,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
+ },
+ {
+  "name": "xoá hết ngày học -> streak 0",
+  "method": "-",
+  "path": "-",
+  "as": "-",
+  "code": 200,
+  "ms": 0,
+  "expect": "0",
+  "pass": true,
+  "snippet": "got=0 :: {\"today\":\"2026-09-20\",\"currentStreak\":0,\"studiedToday\":false,\"effectiveFrom\":\"2026-09-20\",\"studiedDays\":[],\"legacyAccessDays\":[],\"legacyHistoryAvailable\":true}"
+ },
+ {
+  "name": "DB current_streak vẫn là giá trị cũ (write-dead)",
+  "method": "-",
+  "path": "-",
+  "as": "-",
+  "code": 200,
+  "ms": 0,
+  "expect": "0",
+  "pass": true,
+  "snippet": "got=0"
  },
  {
   "name": "streak history noauth",
@@ -544,7 +511,7 @@
   "path": "/api/lessons?page=0&size=100",
   "as": "none",
   "code": 200,
-  "ms": 39,
+  "ms": 36,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"category\":null,\"completionPercentage\":0,\"description\":\"hello\",\"durationMinutes\":null,\"id\":41881,\"isCompleted\":false,\"level\":\"ELEMENTARY\",\"orderIndex\":null,\"skillType\":\"GR"
@@ -577,7 +544,7 @@
   "path": "/api/lessons?q=Admin&size=100",
   "as": "none",
   "code": 200,
-  "ms": 54,
+  "ms": 25,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"category\":null,\"completionPercentage\":0,\"description\":\"Test\",\"durationMinutes\":30,\"id\":81895,\"isCompleted\":false,\"level\":\"ELEMENTARY\",\"orderIndex\":null,\"skillType\":null,\""
@@ -610,7 +577,7 @@
   "path": "/api/lessons?level=ELEMENTARY&size=100",
   "as": "none",
   "code": 200,
-  "ms": 41,
+  "ms": 27,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"category\":null,\"completionPercentage\":0,\"description\":\"hello\",\"durationMinutes\":null,\"id\":41881,\"isCompleted\":false,\"level\":\"ELEMENTARY\",\"orderIndex\":null,\"skillType\":\"GR"
@@ -643,7 +610,7 @@
   "path": "/api/lessons?q=zzzznopezzzz",
   "as": "none",
   "code": 200,
-  "ms": 29,
+  "ms": 26,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[],\"empty\":true,\"first\":true,\"last\":true,\"number\":0,\"numberOfElements\":0,\"pageable\":{\"offset\":0,\"pageNumber\":0,\"pageSize\":12,\"paged\":true,\"sort\":{\"empty\":false,\"sorted\":true,\"unsorted\":fals"
@@ -665,7 +632,7 @@
   "path": "/api/vocabulary?size=5",
   "as": "none",
   "code": 401,
-  "ms": 7,
+  "ms": 6,
   "expect": "401",
   "pass": true,
   "snippet": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
@@ -687,7 +654,7 @@
   "path": "/api/vocabulary?size=5",
   "as": "user",
   "code": 200,
-  "ms": 60,
+  "ms": 39,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"id\":50154,\"word\":\"adminword\",\"pronunciation\":\"/test/\",\"meaning\":\"admin word\",\"exampleSentence\":null,\"audioUrl\":null,\"imageUrl\":null,\"wordType\":null,\"definitionEn\":null,\"cefrLevel\":null,\""
@@ -709,7 +676,7 @@
   "path": "/api/vocabulary/search?keyword=admi",
   "as": "none",
   "code": 200,
-  "ms": 94,
+  "ms": 12,
   "expect": "200",
   "pass": true,
   "snippet": "[{\"id\":50154,\"word\":\"adminword\",\"pronunciation\":\"/test/\",\"meaning\":\"admin word\",\"exampleSentence\":null,\"audioUrl\":null,\"imageUrl\":null,\"wordType\":null,\"definitionEn\":null,\"cefrLevel\":null,\"source\":nul"
@@ -742,7 +709,7 @@
   "path": "/api/vocabulary/search?keyword=t",
   "as": "none",
   "code": 200,
-  "ms": 7,
+  "ms": 8,
   "expect": "200",
   "pass": true,
   "snippet": "[]"
@@ -764,7 +731,7 @@
   "path": "/api/admin/exercises?q=the&size=20",
   "as": "admin",
   "code": 200,
-  "ms": 199,
+  "ms": 186,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"correctAnswer\":\"home activities\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":\"Your daily routine at home could include things like morning routine,"
@@ -775,7 +742,7 @@
   "path": "/api/admin/exercises?q=the&size=20",
   "as": "admin",
   "code": 200,
-  "ms": 193,
+  "ms": 179,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"correctAnswer\":\"home activities\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":\"Your daily routine at home could include things like morning routine,"
@@ -786,7 +753,7 @@
   "path": "/api/admin/exercises?q=the&size=20",
   "as": "admin",
   "code": 200,
-  "ms": 180,
+  "ms": 178,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"correctAnswer\":\"home activities\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":\"Your daily routine at home could include things like morning routine,"
@@ -822,7 +789,7 @@
   "ms": 0,
   "expect": "true",
   "pass": true,
-  "snippet": "got=true :: min=180ms"
+  "snippet": "got=true :: min=178ms"
  },
  {
   "name": "admin exercises type+difficulty",
@@ -830,7 +797,7 @@
   "path": "/api/admin/exercises?type=MULTIPLE_CHOICE&difficulty=EASY&size=5",
   "as": "admin",
   "code": 200,
-  "ms": 83,
+  "ms": 43,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[{\"audioUrl\":null,\"correctAnswer\":\"A\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":\"E\",\"id\":725532,\"imageUrl\":null,\"lessonId\":61882,\"lessonTitle\":\"TEST-DELETE-CASCADE\""
@@ -844,7 +811,7 @@
   "ms": 0,
   "expect": "true",
   "pass": true,
-  "snippet": "got=true :: rows=5 ms=83"
+  "snippet": "got=true :: rows=5 ms=43"
  },
  {
   "name": "admin exercises type không hợp lệ",
@@ -852,7 +819,7 @@
   "path": "/api/admin/exercises?type=ZZZZ&size=5",
   "as": "admin",
   "code": 400,
-  "ms": 18,
+  "ms": 14,
   "expect": "400",
   "pass": true,
   "snippet": "{\"detail\":\"Giá trị không hợp lệ. Vui lòng kiểm tra lại đầu vào.\",\"instance\":\"/api/admin/exercises\",\"status\":400,\"title\":\"Bad Request\"}"
@@ -874,7 +841,7 @@
   "path": "/api/v1/admin/speaking-prompts/ai-generate",
   "as": "admin",
   "code": 400,
-  "ms": 25,
+  "ms": 16,
   "expect": "400",
   "pass": true,
   "snippet": "{\"error\":\"Cần nhập chủ đề\"}"
@@ -888,7 +855,7 @@
   "ms": 0,
   "expect": "true",
   "pass": true,
-  "snippet": "got=true :: 25ms {\"error\":\"Cần nhập chủ đề\"}"
+  "snippet": "got=true :: 16ms {\"error\":\"Cần nhập chủ đề\"}"
  },
  {
   "name": "F86 topic khoảng trắng",
@@ -896,7 +863,7 @@
   "path": "/api/v1/admin/speaking-prompts/ai-generate",
   "as": "admin",
   "code": 400,
-  "ms": 15,
+  "ms": 12,
   "expect": "400",
   "pass": true,
   "snippet": "{\"error\":\"Cần nhập chủ đề\"}"
@@ -910,7 +877,7 @@
   "ms": 0,
   "expect": "400",
   "pass": true,
-  "snippet": "got=400 :: 15ms"
+  "snippet": "got=400 :: 12ms"
  },
  {
   "name": "F81 upload .html",
@@ -943,7 +910,7 @@
   "ms": 0,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"url\":\"/api/resources/8e59fdf1-d670-4228-bf7a-e311121864d8.png\"}"
+  "snippet": "{\"url\":\"/api/resources/511b861f-fd67-4a24-b88f-7594e8177e29.png\"}"
  },
  {
   "name": "F81: upload .png vẫn 200",
@@ -954,12 +921,12 @@
   "ms": 0,
   "expect": "200",
   "pass": true,
-  "snippet": "got=200 :: {\"url\":\"/api/resources/8e59fdf1-d670-4228-bf7a-e311121864d8.png\"}"
+  "snippet": "got=200 :: {\"url\":\"/api/resources/511b861f-fd67-4a24-b88f-7594e8177e29.png\"}"
  },
  {
   "name": "F81 serve file vừa upload",
   "method": "GET",
-  "path": "/api/resources/8e59fdf1-d670-4228-bf7a-e311121864d8.png",
+  "path": "/api/resources/511b861f-fd67-4a24-b88f-7594e8177e29.png",
   "as": "none",
   "code": 200,
   "ms": 0,
@@ -984,10 +951,10 @@
   "path": "/api/v1/payment/create-order",
   "as": "user",
   "code": 200,
-  "ms": 34,
+  "ms": 23,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"amount\":10000,\"qrUrl\":\"https://qr.sepay.vn/img?acc=0706718329&amount=10000&des=ENG52C8171A2556&bank=MBBank\",\"planType\":\"MONTH\",\"orderCode\":\"ENG52C8171A2556\"}"
+  "snippet": "{\"qrUrl\":\"https://qr.sepay.vn/img?acc=0706718329&amount=10000&des=ENG6DC331492A38&bank=MBBank\",\"amount\":10000,\"orderCode\":\"ENG6DC331492A38\",\"planType\":\"MONTH\"}"
  },
  {
   "name": "F83: /api/v1/payment/create-order -> 200 + orderCode",
@@ -998,7 +965,7 @@
   "ms": 0,
   "expect": "true",
   "pass": true,
-  "snippet": "got=true :: 200 orderCode=ENG52C8171A2556"
+  "snippet": "got=true :: 200 orderCode=ENG6DC331492A38"
  },
  {
   "name": "uploads/ về đúng baseline đầu phiên",
@@ -1007,9 +974,9 @@
   "as": "-",
   "code": 200,
   "ms": 0,
-  "expect": "6",
+  "expect": "12",
   "pass": true,
-  "snippet": "got=6 :: after=04c307ee-ccb0-4fa6-9b86-9c833b803a3b.txt,2c6477ca-1917-4076-8cdd-6a461af0aba1.txt,43aabf63-bb2d-4cc3-aec2-13de41678cf2.png,9dd45a63-eeb2-477f-ba91-e9443800af07.txt,b8aee201-266d-4825-8368-4b20cc"
+  "snippet": "got=12 :: after=04c307ee-ccb0-4fa6-9b86-9c833b803a3b.txt,18bb5611-dd82-4601-a4e4-084ce71cebb0.wav,2c6477ca-1917-4076-8cdd-6a461af0aba1.txt,43aabf63-bb2d-4cc3-aec2-13de41678cf2.png,6583b018-653b-420f-9ddb-4a62d8"
  },
  {
   "name": "user tạm đã xóa khỏi DB",
@@ -1023,7 +990,7 @@
   "snippet": "got=0"
  },
  {
-  "name": "redis login_days đã xóa",
+  "name": "study_days đã xóa sạch",
   "method": "-",
   "path": "-",
   "as": "-",

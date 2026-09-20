@@ -1,6 +1,8 @@
 <template>
   <div>
     <section class="app-hero">
+      <!-- Prompt: "A massive yellow circle behind the text." -->
+      <span class="app-hero__sun" aria-hidden="true" />
       <Container>
         <div class="app-hero__grid">
           <div class="app-hero__text">
@@ -36,6 +38,8 @@
             <span class="app-hero__shape app-hero__shape--sq" />
             <span class="app-hero__shape app-hero__shape--ci" />
             <span class="app-hero__shape app-hero__shape--tri" />
+            <!-- Prompt: "The image itself has a blob mask." -->
+            <span class="app-hero__shape app-hero__shape--blob" />
           </div>
         </div>
       </Container>
@@ -43,26 +47,44 @@
 
     <LearningPath />
 
+    <SquiggleDivider height="20px" />
+
     <PageSection title="Mọi thứ bạn cần" align="center">
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StickerCard v-for="(feature, i) in features" :key="i" interactive>
-          <template #icon>
-            <div class="app-features__icon" :class="feature.iconBg">
-              <component :is="feature.icon" class="w-6 h-6" />
-            </div>
-          </template>
-          <h3 class="app-features__card-title">{{ feature.title }}</h3>
-          <p class="app-features__card-desc">{{ feature.desc }}</p>
-        </StickerCard>
+      <div class="app-features__track">
+        <!-- Prompt: "Each card is connected by a dashed SVG line drawn in the background." -->
+        <svg class="app-features__connector" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 30 H1000" stroke="var(--geo-fg)" stroke-width="2" stroke-dasharray="10 10" fill="none" />
+        </svg>
+        <div class="app-features__grid">
+          <StickerCard v-for="(feature, i) in features" :key="i" interactive>
+            <template #icon>
+              <div class="app-features__icon" :class="feature.iconBg">
+                <component :is="feature.icon" class="w-6 h-6" />
+              </div>
+            </template>
+            <h3 class="app-features__card-title">{{ feature.title }}</h3>
+            <p class="app-features__card-desc">{{ feature.desc }}</p>
+          </StickerCard>
+        </div>
       </div>
     </PageSection>
+
+    <SquiggleDivider color="var(--geo-accent)" height="20px" />
+
+    <!-- Prompt: "Use infinite scrolling text for client logos or keywords." -->
+    <section class="app-marquee" aria-label="Chủ đề luyện tập">
+      <div class="app-marquee__track">
+        <span v-for="(word, i) in marqueeWords" :key="`a-${i}`" class="app-marquee__item">{{ word }}</span>
+        <span v-for="(word, i) in marqueeWords" :key="`b-${i}`" class="app-marquee__item" aria-hidden="true">{{ word }}</span>
+      </div>
+    </section>
 
     <section class="app-cta">
       <Container>
         <div class="app-cta__card">
           <h2 class="app-cta__title">Sẵn sàng bắt đầu?</h2>
           <p class="app-cta__subtitle">Hoàn toàn miễn phí.</p>
-          <AppButton as="router-link" to="/register" size="lg">Đăng ký miễn phí</AppButton>
+          <AppButton as="router-link" to="/register" size="lg" with-arrow>Đăng ký miễn phí</AppButton>
         </div>
       </Container>
     </section>
@@ -76,6 +98,7 @@ import AppButton from '@/components/ui/AppButton.vue'
 import Container from '@/components/layout/Container.vue'
 import PageSection from '@/components/layout/PageSection.vue'
 import DotBackground from '@/components/decor/DotBackground.vue'
+import SquiggleDivider from '@/components/decor/SquiggleDivider.vue'
 import LearningPath from '@/components/home/LearningPath.vue'
 
 const features = [
@@ -83,5 +106,13 @@ const features = [
   { icon: Brain, iconBg: 'app-features__icon--secondary', title: 'Luyện tập thông minh', desc: 'Flashcard, trắc nghiệm, nghe nói đọc viết đa dạng giúp luyện.' },
   { icon: Target, iconBg: 'app-features__icon--tertiary', title: 'Theo dõi tiến độ', desc: 'Theo dõi streak, điểm số và thành tích để duy trì động lực mỗi ngày.' },
   { icon: Sparkles, iconBg: 'app-features__icon--accent', title: 'AI hỗ trợ', desc: 'Sinh bài tập, đánh giá phát âm và gợi ý từ vựng cá nhân hóa.' },
+]
+
+// Prompt: marquee carries "client logos or keywords". Real topics the app
+// actually teaches, not filler — the list is duplicated in the template so the
+// -50% translate loop is seamless.
+const marqueeWords = [
+  'Từ vựng', 'Ngữ pháp', 'Nghe hiểu', 'Phát âm', 'Viết luận',
+  'Giao tiếp', 'Thì động từ', 'Cụm động từ', 'Thành ngữ', 'Luyện đề',
 ]
 </script>

@@ -35,7 +35,7 @@ public class UserPrincipal implements UserDetails {
         this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPasswordHash();
-        this.active = user.getIsActive();
+        this.active = Boolean.TRUE.equals(user.getIsActive());
         this.user = user;
         this.authorities = Collections.singletonList(
             new SimpleGrantedAuthority(Boolean.TRUE.equals(user.getIsAdmin()) ? "ROLE_ADMIN" : "ROLE_USER")

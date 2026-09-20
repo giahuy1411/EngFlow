@@ -166,6 +166,16 @@ audit-v*-shots/
 *.network-request
 *.network-response
 
+# ---------- Claude Code local settings (personal permissions, never commit) ----------
+.claude/settings.local.json
+
 # ---------- Harness-generated scratch (regenerated every run, never commit) ----------
 # sweep/v8/ui/lib.js cleanupAuditPayments() rewrites this on each sweep.
 sweep/v8/_*.sql
+
+# audit-v10: sweep/v10/prove-tts-path.js writes a real 276 KB WAV here as evidence
+# that the TTS sidecar produces a genuine file (RIFF/WAVE, 44.1 kHz mono) rather
+# than placeholder bytes. It is regenerated on every run and must not be committed
+# — the same rule AGENTS.md sets for frontend/public/*.wav fixtures.
+sweep/v10/*.wav
+sweep/v10/*.bak

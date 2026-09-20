@@ -7,9 +7,14 @@
  * Renders an anchor when as="a" is set (router-aware consumers pass href).
  * Forwards safe native attributes (aria-*, disabled, type).
  * Decorative icons should use aria-hidden via the leading/trailing slots.
+ *
+ * `withArrow` adds the design system's ArrowRight-in-a-white-circle affordance.
+ * It is opt-in rather than the default: ~100 existing call sites must not change
+ * shape, and the arrow is a decorative cue, so it is always aria-hidden.
  */
 import { computed, useAttrs } from 'vue'
 import { RouterLink } from 'vue-router'
+import { ArrowRight } from 'lucide-vue-next'
 
 const props = defineProps({
   variant: { type: String, default: 'primary' },
@@ -20,6 +25,7 @@ const props = defineProps({
   as: { type: [String, Object, Function], default: 'button' },
   href: { type: String, default: undefined },
   to: { type: [String, Object], default: undefined },
+  withArrow: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['click'])
@@ -73,6 +79,9 @@ function handleClick(event) {
     <span v-if="loading" class="app-btn__spinner" aria-hidden="true" />
     <span class="app-btn__label">
       <slot />
+    </span>
+    <span v-if="withArrow && !loading" class="app-btn__arrow" aria-hidden="true">
+      <ArrowRight class="app-btn__arrow-icon" />
     </span>
   </component>
 </template>

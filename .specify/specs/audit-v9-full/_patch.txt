@@ -1,0 +1,28 @@
+*** Begin Patch
+*** Update File: src/main/java/com/datn/engflow/controller/LessonExerciseController.java
+@@
+     @PostMapping("/grade")
+     public ResponseEntity<GradeResponse> gradeExercises(
+             @PathVariable Long lessonId,
+-            @RequestBody GradeRequest request) {
++            @RequestBody GradeRequest request,
++            Authentication authentication) {
++        // audit-v9 F105: bai nhap (isPublished=false) khong duoc grade/submit boi student.
++        // Dung cung guard voi GET /exercises va /content (F88/F89) de khong leak
++        // correctAnswer cua bai nhap. Admin van duoc phep preview.
++        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
+         GradeResponse response = exerciseService.gradeExercises(lessonId, request);
+         return ResponseEntity.ok(response);
+     }
+ 
+     @PostMapping("/submit")
+     public ResponseEntity<GradeResponse> submitExercises(
+             @PathVariable Long lessonId,
+             @RequestBody GradeRequest request,
+             Authentication authentication) {
++        // audit-v9 F105: guard tuong tu grade.
++        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
+         GradeResponse response = exerciseService.submitExercises(lessonId, request, authentication.getName());
+         return ResponseEntity.ok(response);
+     }
+*** End Patch

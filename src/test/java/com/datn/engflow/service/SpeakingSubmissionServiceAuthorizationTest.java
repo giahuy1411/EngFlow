@@ -46,7 +46,7 @@ class SpeakingSubmissionServiceAuthorizationTest {
                 userRepository,
                 minioService,
                 assessmentService,
-                new ObjectMapper()
+                new ObjectMapper(), org.mockito.Mockito.mock(StudyActivityService.class)
         );
         submission = SpeakingSubmission.builder()
                 .id(10L)

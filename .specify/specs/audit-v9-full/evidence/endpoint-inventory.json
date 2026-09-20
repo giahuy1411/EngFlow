@@ -1,0 +1,1340 @@
+{
+ "generatedFrom": "src/main/java/com/datn/engflow/controller/**/*.java",
+ "generator": "sweep/v8/endpoint_inventory.py",
+ "controllerCount": 26,
+ "mappingCount": 144,
+ "bareMappingsInheritingClassPrefix": 10,
+ "byHttpMethod": {
+  "DELETE": 10,
+  "GET": 61,
+  "PATCH": 3,
+  "POST": 54,
+  "PUT": 16
+ },
+ "perController": {
+  "AdminAiExerciseController": 6,
+  "AdminAnswerBackfillController": 2,
+  "AdminController": 16,
+  "AdminExerciseController": 5,
+  "AdminExerciseSeedController": 1,
+  "AiVocabController": 3,
+  "AuthController": 8,
+  "DashboardController": 1,
+  "DeckController": 7,
+  "FlashcardController": 2,
+  "GameController": 6,
+  "LeaderboardController": 1,
+  "LessonController": 5,
+  "LessonExerciseController": 6,
+  "LessonSnapshotController": 3,
+  "LessonStructureController": 11,
+  "LessonSubmissionController": 3,
+  "MediaProxyController": 1,
+  "PaymentController": 3,
+  "ProgressController": 1,
+  "SpeakingPromptController": 16,
+  "SpeakingSubmissionController": 14,
+  "SrsController": 3,
+  "StreakController": 2,
+  "VideoLessonController": 14,
+  "VocabularyController": 4
+ },
+ "endpoints": [
+  {
+   "controller": "AdminAiExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/ai/generate",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAiExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/ai/generate-all",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAiExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/ai/generate-async",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAiExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/ai/generate-batch",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAiExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/exercises/ai/status",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAiExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/ai/validate",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAnswerBackfillController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAnswerBackfillController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/ai/backfill-answers",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminAnswerBackfillController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminAnswerBackfillController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/exercises/ai/backfill-answers/status",
+   "classPrefix": "/api/admin/exercises/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/lessons",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/lessons",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/admin/lessons/{id}",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/lessons/{id}",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/lessons/{id}",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/lessons/{id}/toggle-publish",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/stats",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/users",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/users/{id}/revoke-premium",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/users/{id}/toggle-active",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/users/{id}/toggle-admin",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/users/{id}/toggle-premium",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/vocabulary",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/vocabulary",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/admin/vocabulary/{id}",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/vocabulary/{id}",
+   "classPrefix": "/api/admin",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/exercises",
+   "classPrefix": "/api/admin/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises",
+   "classPrefix": "/api/admin/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/admin/exercises/{id}",
+   "classPrefix": "/api/admin/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/exercises/{id}",
+   "classPrefix": "/api/admin/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/exercises/{id}",
+   "classPrefix": "/api/admin/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AdminExerciseSeedController",
+   "source": "src/main/java/com/datn/engflow/controller/AdminExerciseSeedController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/exercises/seed",
+   "classPrefix": "/api/admin/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AiVocabController",
+   "source": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+   "httpMethod": "POST",
+   "path": "/api/ai/enrich-word",
+   "classPrefix": "/api/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AiVocabController",
+   "source": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+   "httpMethod": "POST",
+   "path": "/api/ai/generate-vocab",
+   "classPrefix": "/api/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AiVocabController",
+   "source": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+   "httpMethod": "POST",
+   "path": "/api/ai/save-vocab",
+   "classPrefix": "/api/ai",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "PUT",
+   "path": "/api/auth/avatar",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "POST",
+   "path": "/api/auth/avatar/upload",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "POST",
+   "path": "/api/auth/change-password",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "POST",
+   "path": "/api/auth/forgot-password",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "POST",
+   "path": "/api/auth/login",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "GET",
+   "path": "/api/auth/me",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "POST",
+   "path": "/api/auth/register",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "AuthController",
+   "source": "src/main/java/com/datn/engflow/controller/AuthController.java",
+   "httpMethod": "POST",
+   "path": "/api/auth/reset-password",
+   "classPrefix": "/api/auth",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DashboardController",
+   "source": "src/main/java/com/datn/engflow/controller/DashboardController.java",
+   "httpMethod": "GET",
+   "path": "/api/dashboard/stats",
+   "classPrefix": "/api/dashboard",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "GET",
+   "path": "/api/decks",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "POST",
+   "path": "/api/decks",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "GET",
+   "path": "/api/decks/my",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/decks/{id}",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "GET",
+   "path": "/api/decks/{id}",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "PUT",
+   "path": "/api/decks/{id}",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "DeckController",
+   "source": "src/main/java/com/datn/engflow/controller/DeckController.java",
+   "httpMethod": "POST",
+   "path": "/api/decks/{id}/words",
+   "classPrefix": "/api/decks",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "FlashcardController",
+   "source": "src/main/java/com/datn/engflow/controller/FlashcardController.java",
+   "httpMethod": "POST",
+   "path": "/api/flashcards/review",
+   "classPrefix": "/api/flashcards",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "FlashcardController",
+   "source": "src/main/java/com/datn/engflow/controller/FlashcardController.java",
+   "httpMethod": "GET",
+   "path": "/api/flashcards/status/{vocabularyId}",
+   "classPrefix": "/api/flashcards",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "GameController",
+   "source": "src/main/java/com/datn/engflow/controller/GameController.java",
+   "httpMethod": "GET",
+   "path": "/api/games/listening/{deckId}",
+   "classPrefix": "/api/games",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "GameController",
+   "source": "src/main/java/com/datn/engflow/controller/GameController.java",
+   "httpMethod": "GET",
+   "path": "/api/games/memory/{deckId}",
+   "classPrefix": "/api/games",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "GameController",
+   "source": "src/main/java/com/datn/engflow/controller/GameController.java",
+   "httpMethod": "GET",
+   "path": "/api/games/mixed/{deckId}",
+   "classPrefix": "/api/games",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "GameController",
+   "source": "src/main/java/com/datn/engflow/controller/GameController.java",
+   "httpMethod": "GET",
+   "path": "/api/games/quiz/{deckId}",
+   "classPrefix": "/api/games",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "GameController",
+   "source": "src/main/java/com/datn/engflow/controller/GameController.java",
+   "httpMethod": "POST",
+   "path": "/api/games/submit",
+   "classPrefix": "/api/games",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "GameController",
+   "source": "src/main/java/com/datn/engflow/controller/GameController.java",
+   "httpMethod": "GET",
+   "path": "/api/games/typing/{deckId}",
+   "classPrefix": "/api/games",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LeaderboardController",
+   "source": "src/main/java/com/datn/engflow/controller/LeaderboardController.java",
+   "httpMethod": "GET",
+   "path": "/api/leaderboard",
+   "classPrefix": "/api/leaderboard",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons",
+   "classPrefix": "/api/lessons",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/lessons",
+   "classPrefix": "/api/lessons",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/lessons/{id}",
+   "classPrefix": "/api/lessons",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons/{id}",
+   "classPrefix": "/api/lessons",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonController.java",
+   "httpMethod": "PUT",
+   "path": "/api/lessons/{id}",
+   "classPrefix": "/api/lessons",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons/{lessonId}/exercises",
+   "classPrefix": "/api/lessons/{lessonId}/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons/{lessonId}/exercises/attempts",
+   "classPrefix": "/api/lessons/{lessonId}/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons/{lessonId}/exercises/attempts/{attemptId}",
+   "classPrefix": "/api/lessons/{lessonId}/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons/{lessonId}/exercises/content",
+   "classPrefix": "/api/lessons/{lessonId}/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/lessons/{lessonId}/exercises/grade",
+   "classPrefix": "/api/lessons/{lessonId}/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonExerciseController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "httpMethod": "POST",
+   "path": "/api/lessons/{lessonId}/exercises/submit",
+   "classPrefix": "/api/lessons/{lessonId}/exercises",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonSnapshotController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonSnapshotController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/lessons/{lessonId}/snapshots",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonSnapshotController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonSnapshotController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/lessons/{lessonId}/snapshots",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonSnapshotController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonSnapshotController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/lessons/{lessonId}/snapshots/{snapshotId}/restore",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/audio-upload",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/admin/blocks/{blockId}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/blocks/{blockId}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/lessons/{lessonId}/sections",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "GET",
+   "path": "/api/admin/lessons/{lessonId}/structure",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/admin/sections/{sectionId}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "PUT",
+   "path": "/api/admin/sections/{sectionId}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/sections/{sectionId}/blocks",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "POST",
+   "path": "/api/admin/upload",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "GET",
+   "path": "/api/lessons/{lessonId}/structure",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonStructureController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+   "httpMethod": "GET",
+   "path": "/api/resources/{filename:.+}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/lesson-submissions/my/lesson/{lessonId}/skill/{skillType}",
+   "classPrefix": "/api/lesson-submissions",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+   "httpMethod": "POST",
+   "path": "/api/lesson-submissions/submit",
+   "classPrefix": "/api/lesson-submissions",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "LessonSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+   "httpMethod": "POST",
+   "path": "/api/lesson-submissions/upload-audio",
+   "classPrefix": "/api/lesson-submissions",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "MediaProxyController",
+   "source": "src/main/java/com/datn/engflow/controller/MediaProxyController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/media/**",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "PaymentController",
+   "source": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/payment/create-order",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "PaymentController",
+   "source": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/payment/status",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "PaymentController",
+   "source": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+   "httpMethod": "POST",
+   "path": "/api/webhook/sepay",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "ProgressController",
+   "source": "src/main/java/com/datn/engflow/controller/ProgressController.java",
+   "httpMethod": "GET",
+   "path": "/api/users/progress",
+   "classPrefix": "/api/users",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/admin/speaking-prompts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/speaking-prompts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/speaking-prompts/ai-generate",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/speaking-prompts/ai-generate-full",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/v1/admin/speaking-prompts/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "PUT",
+   "path": "/api/v1/admin/speaking-prompts/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/admin/video-prompts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-prompts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-prompts/ai-generate",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-prompts/ai-generate-full",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/v1/admin/video-prompts/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "PUT",
+   "path": "/api/v1/admin/video-prompts/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/speaking-prompts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": "q"
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/speaking-prompts/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-prompts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": "q"
+  },
+  {
+   "controller": "SpeakingPromptController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-prompts/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/admin/speaking-submissions",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "PATCH",
+   "path": "/api/v1/admin/speaking-submissions/{id}/grade",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/admin/video-submissions",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "PATCH",
+   "path": "/api/v1/admin/video-submissions/{id}/grade",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/speaking-prompts/{promptId}/submissions",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/speaking-submissions",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/speaking-submissions/upload",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/speaking-submissions/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/speaking-submissions/{id}/assess",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-prompts/{promptId}/submissions",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-submissions",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/video-submissions/upload",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-submissions/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SpeakingSubmissionController",
+   "source": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/video-submissions/{id}/assess",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SrsController",
+   "source": "src/main/java/com/datn/engflow/controller/SrsController.java",
+   "httpMethod": "GET",
+   "path": "/api/srs/due/{deckId}",
+   "classPrefix": "/api/srs",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SrsController",
+   "source": "src/main/java/com/datn/engflow/controller/SrsController.java",
+   "httpMethod": "POST",
+   "path": "/api/srs/review",
+   "classPrefix": "/api/srs",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "SrsController",
+   "source": "src/main/java/com/datn/engflow/controller/SrsController.java",
+   "httpMethod": "GET",
+   "path": "/api/srs/stats",
+   "classPrefix": "/api/srs",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "StreakController",
+   "source": "src/main/java/com/datn/engflow/controller/StreakController.java",
+   "httpMethod": "GET",
+   "path": "/api/streak/current",
+   "classPrefix": "/api/streak",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "StreakController",
+   "source": "src/main/java/com/datn/engflow/controller/StreakController.java",
+   "httpMethod": "GET",
+   "path": "/api/streak/history",
+   "classPrefix": "/api/streak",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/admin/video-attempts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-attempts/{id}/ai-grade",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "PATCH",
+   "path": "/api/v1/admin/video-attempts/{id}/grade",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/admin/video-lessons",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-lessons",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-lessons/fetch-youtube",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-lessons/translate-transcript",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/admin/video-lessons/upload",
+   "classPrefix": "",
+   "consumes": "multipart/form-data",
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "DELETE",
+   "path": "/api/v1/admin/video-lessons/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "PUT",
+   "path": "/api/v1/admin/video-lessons/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-attempts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-lessons",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "GET",
+   "path": "/api/v1/video-lessons/{id}",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VideoLessonController",
+   "source": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+   "httpMethod": "POST",
+   "path": "/api/v1/video-lessons/{id}/attempts",
+   "classPrefix": "",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VocabularyController",
+   "source": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+   "httpMethod": "GET",
+   "path": "/api/vocabulary",
+   "classPrefix": "/api/vocabulary",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VocabularyController",
+   "source": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+   "httpMethod": "POST",
+   "path": "/api/vocabulary",
+   "classPrefix": "/api/vocabulary",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VocabularyController",
+   "source": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+   "httpMethod": "GET",
+   "path": "/api/vocabulary/dictionary/{word}",
+   "classPrefix": "/api/vocabulary",
+   "consumes": null,
+   "params": null
+  },
+  {
+   "controller": "VocabularyController",
+   "source": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+   "httpMethod": "GET",
+   "path": "/api/vocabulary/search",
+   "classPrefix": "/api/vocabulary",
+   "consumes": null,
+   "params": null
+  }
+ ]
+}

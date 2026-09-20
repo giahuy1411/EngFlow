@@ -12,7 +12,9 @@
   box-shadow: 0 4px 0 0 rgba(139, 92, 246, 0.35);
 }
 .app-navbar__inner {
-  max-width: 80rem;
+  /* audit-v10: matched to the .geo-container default (max-w-6xl / 72rem) so the
+     header's content lines up with the page content instead of overhanging it. */
+  max-width: 72rem;
   margin: 0 auto;
   padding: 0.75rem 1.25rem;
   display: flex;
@@ -238,7 +240,8 @@
   opacity: 0.25;
 }
 .app-footer__inner {
-  max-width: 80rem;
+  /* audit-v10: matched to .geo-container (max-w-6xl / 72rem). */
+  max-width: 72rem;
   margin: 0 auto;
   padding: 1.5rem 1.25rem;
   position: relative;
@@ -494,17 +497,26 @@
   padding: 4rem 1.25rem;
 }
 @media (min-width: 768px) { .app-hero { padding: 6rem 1.25rem; } }
-.app-hero__bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-.app-hero__blob {
+
+/* Prompt: "A massive yellow circle behind the text."
+   Decorative, clipped by .app-hero's overflow:hidden, and it never receives
+   pointer events — so it cannot steal a click from the CTA buttons. */
+.app-hero__sun {
   position: absolute;
-  border: 2px solid var(--geo-fg);
-  opacity: 0.15;
+  top: -10rem;
+  left: -10rem;
+  width: 34rem;
+  height: 34rem;
   border-radius: 50%;
+  background: var(--geo-tertiary);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
 }
-.app-hero__blob--lg { top: -8rem; left: -8rem; width: 24rem; height: 24rem; background: var(--geo-tertiary); }
-.app-hero__blob--md { top: 6rem; right: 2.5rem; width: 8rem; height: 8rem; background: var(--geo-accent); }
-.app-hero__blob--sm { bottom: 2.5rem; left: 33%; width: 4rem; height: 4rem; background: var(--geo-secondary); }
-.app-hero__inner { position: relative; z-index: 1; max-width: 80rem; margin: 0 auto; }
+@media (min-width: 768px) {
+  .app-hero__sun { top: -8rem; left: -6rem; width: 40rem; height: 40rem; }
+}
+
 .app-hero__grid { display: grid; gap: 3rem; align-items: center; }
 @media (min-width: 768px) { .app-hero__grid { grid-template-columns: 1fr 1fr; } }
 .app-hero__title {
@@ -536,12 +548,77 @@
 .app-hero__shape--ci { bottom: 0; left: 0; width: 14rem; height: 14rem; background: var(--geo-secondary); border-radius: 50%; box-shadow: var(--geo-shadow-lg); }
 .app-hero__shape--tri { top: 6rem; left: 6rem; width: 10rem; height: 10rem; background: var(--geo-tertiary); clip-path: polygon(50% 0%, 0% 100%, 100% 100%); box-shadow: var(--geo-shadow-sm); border: none; }
 
+/* Prompt: "The image itself has a blob mask."
+   The hero has no photograph, so the blob language is expressed on the shape
+   itself: the same asymmetric leaf/blob radius the prompt describes, applied to
+   a real element. The dot pattern behind the visual is DotBackground. */
+.app-hero__shape--blob {
+  bottom: 3rem;
+  right: 3rem;
+  width: 8rem;
+  height: 8rem;
+  background: var(--geo-quaternary);
+  border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
+  box-shadow: var(--geo-shadow-md);
+}
+@media (max-width: 767.98px) {
+  /* Prompt: mobile "hide complex background floating shapes that might overlap text". */
+  .app-hero__shape--blob { display: none; }
+}
+
 /* --- AppFeatures --- */
-.app-features { padding: 4rem 1.25rem; }
-.app-features__inner { max-width: 80rem; margin: 0 auto; }
-.app-features__title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; text-align: center; margin-bottom: 3rem; }
-.app-features__grid { display: grid; gap: 1.5rem; }
+.app-features__track { position: relative; }
+
+/* Prompt: "Each card is connected by a dashed SVG line drawn in the background."
+   Sits behind the cards (z-index 0 vs the grid's 1) and is removed on mobile,
+   where the prompt asks for vertical dividers instead of a horizontal line. */
+.app-features__connector {
+  position: absolute;
+  top: 2.75rem;
+  left: 0;
+  width: 100%;
+  height: 3.75rem;
+  z-index: 0;
+  opacity: 0.35;
+  pointer-events: none;
+}
+@media (max-width: 767.98px) { .app-features__connector { display: none; } }
+
+.app-features__grid { display: grid; gap: 1.5rem; position: relative; z-index: 1; }
 @media (min-width: 768px) { .app-features__grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .app-features__grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* --- Marquee (prompt: "infinite scrolling text for client logos or keywords") --- */
+.app-marquee {
+  overflow: hidden;
+  border-top: 2px solid var(--geo-fg);
+  border-bottom: 2px solid var(--geo-fg);
+  background: var(--geo-card);
+  padding: 1rem 0;
+}
+.app-marquee__track {
+  display: flex;
+  width: max-content;
+  gap: 2.5rem;
+  animation: marquee 30s linear infinite;
+}
+.app-marquee__item {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+.app-marquee__item::after {
+  content: '•';
+  margin-left: 2.5rem;
+  color: var(--geo-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Prompt: "Disable the bounce and wiggle effects if preferred." A moving
+     marquee is exactly the kind of motion that must stop. */
+  .app-marquee__track { animation: none; }
+}
 .app-features__icon { display: inline-flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; border-radius: var(--geo-radius-md); border: 2px solid var(--geo-fg); color: var(--geo-fg); }
 .app-features__icon--accent { background: var(--geo-accent); }
 .app-features__icon--secondary { background: var(--geo-secondary); color: #fff; }
@@ -613,11 +690,21 @@
 
 
 /* audit-v8: the eight desktop nav links need ~1400px but the navbar inner box is
-   capped at 80rem (1280px) and the links cannot shrink (white-space: nowrap), so
-   on any laptop-width screen the header pushed past the viewport and produced a
-   horizontal scrollbar. Compact the link padding for the 1280-1535 band only;
-   above 1536 the nav has room and keeps its normal size, below 1280 the hamburger
-   menu already takes over. */
+   capped and the links cannot shrink (white-space: nowrap), so on any
+   laptop-width screen the header pushed past the viewport and produced a
+   horizontal scrollbar. Compact the link padding in the band where the cap is
+   narrower than the links need; above that the nav has room and keeps its normal
+   size, below the hamburger menu already takes over.
+
+   audit-v10: the navbar/container cap moved from 80rem (1280px) down to 72rem
+   (1152px) to match the prompt's `max-w-6xl`. The band still has to START where
+   the desktop links first appear, which is Tailwind's `xl` (1280px) — the header
+   renders them as `hidden xl:flex` and shows the hamburger below that. The lower
+   edge therefore stays at 1280px on purpose: a band starting at 1152px would be
+   dead CSS, because in 1152-1279px the links are not rendered at all and the
+   hamburger is in charge. Widening the band down to 1152px was tried and
+   reverted for exactly this reason — it changed nothing and would have implied
+   a coverage that does not exist. */
 @media (min-width: 1280px) and (max-width: 1535.98px) {
   .app-navbar__inner { gap: 0.75rem; }
   .app-navbar__link { padding: 0.5rem 0.5rem; letter-spacing: 0.02em; }

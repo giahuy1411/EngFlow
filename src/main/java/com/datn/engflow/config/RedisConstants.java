@@ -25,6 +25,13 @@ public final class RedisConstants {
     public static final Duration COMEBACK_SUPPRESSION_TTL = Duration.ofDays(30);
     public static final int REMINDER_HOUR = 20;
 
+    // Retry budget: một ngày chỉ thử lại job nhắc học tối đa N lần. Không có trần
+    // này, một SMTP hỏng dai dẳng sẽ khiến marker bị xoá và job chạy lại vô hạn
+    // trong ngày (mỗi vòng lại quét toàn bộ user).
+    public static final String RETRY_ATTEMPTS_PREFIX = "streak:attempts:";
+    public static final Duration RETRY_ATTEMPTS_TTL = Duration.ofDays(2);
+    public static final int MAX_REMINDER_ATTEMPTS = 3;
+
     // Auth / rate limit / OTP
     public static final String RATE_LIMIT_PREFIX = "rate_limit:";
     public static final String LOGIN_FAIL_PREFIX = "login_fail:";

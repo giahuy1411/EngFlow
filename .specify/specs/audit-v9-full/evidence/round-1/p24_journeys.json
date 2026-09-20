@@ -1,0 +1,42 @@
+[
+ {
+  "journey": "J1 register",
+  "pass": true,
+  "detail": "register=201 landed=/lessons dbUsers=1"
+ },
+ {
+  "journey": "J1 login",
+  "pass": true,
+  "detail": "login=200 landed=/lessons"
+ },
+ {
+  "journey": "J2 lesson exercise grade",
+  "pass": true,
+  "detail": "checkBtn=1 grade=200 uiResult=true"
+ },
+ {
+  "journey": "J3 flashcard rating",
+  "pass": true,
+  "detail": "landed=/decks/10007/play/flashcard rateBtn=1 rate=Lại review=/api/flashcards/review 200"
+ },
+ {
+  "journey": "J4 streak",
+  "pass": true,
+  "detail": "streakApi=200 uiMentionsStreak=true dbCurrentStreak=6"
+ },
+ {
+  "journey": "J5 level filter",
+  "pass": true,
+  "detail": "chip=1 filteredApi=/api/lessons?page=0&size=12&level=ELEMENTARY cards=12"
+ },
+ {
+  "journey": "J6 admin lesson create via UI",
+  "pass": true,
+  "detail": "addBtn=1 POST=/api/admin/lessons 200 newLessonId=102101 cleaned=true"
+ },
+ {
+  "journey": "J7 speaking fake-mic",
+  "pass": true,
+  "detail": "upload=POST /api/v1/speaking-submissions/upload 200 rowsToday=3"
+ }
+]

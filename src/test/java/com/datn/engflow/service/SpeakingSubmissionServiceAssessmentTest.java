@@ -36,6 +36,7 @@ class SpeakingSubmissionServiceAssessmentTest {
     @Mock private UserRepository userRepository;
     @Mock private MinioService minioService;
     @Mock private SpeakingAssessmentService assessmentService;
+    @Mock private StudyActivityService studyActivityService;
 
     private SpeakingSubmissionService service;
     private MockMultipartFile media;
@@ -45,7 +46,7 @@ class SpeakingSubmissionServiceAssessmentTest {
     void setUp() throws Exception {
         service = new SpeakingSubmissionService(
                 submissionRepository, new com.datn.engflow.security.MediaSigner("test-secret-0123456789abcdef"), promptRepository, userRepository, minioService,
-                assessmentService, new ObjectMapper());
+                assessmentService, new ObjectMapper(), studyActivityService);
         media = new MockMultipartFile("media", "recording.webm", "audio/webm", new byte[]{1, 2, 3});
         student = User.builder().id(7L).build();
         lenient().when(promptRepository.findById(11L)).thenReturn(Optional.of(
@@ -63,12 +64,14 @@ class SpeakingSubmissionServiceAssessmentTest {
         assertThat(result.getMediaObjectKey()).isEqualTo("speaking/object.webm");
         assertThat(result.getMediaType()).isEqualTo("audio/webm");
         assertThat(result.getScore()).isNull();
+        org.mockito.Mockito.verifyNoInteractions(studyActivityService);
     }
 
     @Test
     void assessSubmissionStoresRubricAndAlignmentOnSuccess() {
         SpeakingSubmission submission = SpeakingSubmission.builder()
                 .id(5L)
+                .user(student)
                 .status(SpeakingSubmissionStatus.SUBMITTED)
                 .prompt(SpeakingPrompt.builder().id(11L).referenceText("Hello world").build())
                 .build();
@@ -92,6 +95,7 @@ class SpeakingSubmissionServiceAssessmentTest {
         assertThat(result.getPronunciationCompleteness()).isEqualTo(100.0);
         assertThat(result.getPronunciationDetailsJson()).contains("wordErrorRate");
         assertThat(result.getAssessmentError()).isNull();
+        org.mockito.Mockito.verify(studyActivityService).recordStudy(student.getId());
     }
 
     @Test
@@ -110,5 +114,28 @@ class SpeakingSubmissionServiceAssessmentTest {
         assertThat(result.getStatus()).isEqualTo(SpeakingSubmissionStatus.FAILED);
         assertThat(result.getAssessmentError()).contains("transcript");
         assertThat(result.getScoreTotal()).isNull();
+        org.mockito.Mockito.verifyNoInteractions(studyActivityService);
+    }
+
+    @Test
+    void completedSubmissionCannotEarnAnotherDayByReassessment() {
+        SpeakingSubmission submission = SpeakingSubmission.builder().id(9L).user(student)
+                .status(SpeakingSubmissionStatus.COMPLETED).transcript("hello").build();
+        when(submissionRepository.findById(9L)).thenReturn(Optional.of(submission));
+        assertThat(service.assessSubmission(9L)).isSameAs(submission);
+        org.mockito.Mockito.verifyNoInteractions(assessmentService, studyActivityService);
+    }
+
+    @Test
+    void emptyTranscriptDoesNotCountEvenWhenRubricExists() {
+        SpeakingSubmission submission = SpeakingSubmission.builder().id(12L).user(student)
+                .status(SpeakingSubmissionStatus.SUBMITTED).build();
+        when(submissionRepository.findById(12L)).thenReturn(Optional.of(submission));
+        when(assessmentService.assess(submission)).thenReturn(new SpeakingAssessmentOutcome(
+                "  ", "WHISPER", null, new SpeakingRubricResult(0, 0, 0, "Không nghe rõ"),
+                "LOCAL_WHISPER_LLM", null));
+
+        assertThat(service.assessSubmission(12L).getStatus()).isEqualTo(SpeakingSubmissionStatus.FAILED);
+        org.mockito.Mockito.verifyNoInteractions(studyActivityService);
     }
 }

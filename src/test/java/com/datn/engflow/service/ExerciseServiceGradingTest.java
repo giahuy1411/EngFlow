@@ -51,6 +51,15 @@ class ExerciseServiceGradingTest {
     @Mock
     private LessonContentService lessonContentService;
 
+    /**
+     * Study-day producer. {@code ExerciseService.submitExercises} calls
+     * {@code recordStudy} inside the result transaction, so the collaborator must
+     * exist for {@code @InjectMocks} to construct the service at all. The mock is
+     * lenient because the grading-only tests never reach the submit path.
+     */
+    @Mock
+    private StudyActivityService studyActivityService;
+
     @InjectMocks
     private ExerciseService exerciseService;
 

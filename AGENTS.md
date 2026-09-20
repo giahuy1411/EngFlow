@@ -90,3 +90,4 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 - Accounts: `user@gmail.com` / `admin@gmail.com`, password `123456`.
 - Video lessons `/videos/1-4` có YouTube ID thật, phụ đề teacher-authored, quiz client-side từ transcript (`VideoLesson.vue buildQuiz`), deck quiz server-side (`GameService.generateQuiz`, Redis, cap 10).
 - Tránh demo tính năng TTS cloud (không key). Mic permission cần chuẩn bị sẵn cho Shadowing.
+

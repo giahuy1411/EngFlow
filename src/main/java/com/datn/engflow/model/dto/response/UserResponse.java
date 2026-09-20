@@ -24,7 +24,6 @@ public class UserResponse {
     private String currentLevel;
     private Integer totalPoints;
     private Integer currentStreak;
-    private String lastLoginAt;
     private Boolean isPremium;
     private String premiumExpiry;
     /**

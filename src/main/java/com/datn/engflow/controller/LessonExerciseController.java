@@ -50,7 +50,10 @@ public class LessonExerciseController {
     @PostMapping("/grade")
     public ResponseEntity<GradeResponse> gradeExercises(
             @PathVariable Long lessonId,
-            @RequestBody GradeRequest request) {
+            @RequestBody GradeRequest request,
+            Authentication authentication) {
+        // audit-v9 F105: draft lesson must not leak correctAnswer via grade/submit.
+        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
         GradeResponse response = exerciseService.gradeExercises(lessonId, request);
         return ResponseEntity.ok(response);
     }
@@ -60,6 +63,8 @@ public class LessonExerciseController {
             @PathVariable Long lessonId,
             @RequestBody GradeRequest request,
             Authentication authentication) {
+        // audit-v9 F105: same guard as grade.
+        lessonService.assertLessonVisible(lessonId, isAdmin(authentication));
         GradeResponse response = exerciseService.submitExercises(lessonId, request, authentication.getName());
         return ResponseEntity.ok(response);
     }

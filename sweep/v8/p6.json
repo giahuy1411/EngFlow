@@ -5,7 +5,7 @@
   "path": "/api/lessons",
   "as": "none",
   "code": 401,
-  "ms": 7,
+  "ms": 5,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
@@ -27,40 +27,40 @@
   "path": "/api/lessons",
   "as": "admin",
   "code": 201,
-  "ms": 29,
+  "ms": 37,
   "expect": "200/201",
   "pass": true,
-  "snippet": "{\"id\":101979,\"title\":\"ZZ r1 p6 1789533292320\",\"description\":\"probe\",\"content\":\"<p>x</p>\",\"level\":\"ELEMENTARY\",\"category\":null,\"durationMinutes\":null,\"thumbnailUrl\":null,\"audioUrl\":null,\"orderIndex\":99"
+  "snippet": "{\"id\":102100,\"title\":\"ZZ r1 p6 1789658440021\",\"description\":\"probe\",\"content\":\"<p>x</p>\",\"level\":\"ELEMENTARY\",\"category\":null,\"durationMinutes\":null,\"thumbnailUrl\":null,\"audioUrl\":null,\"orderIndex\":99"
  },
  {
   "name": "lesson update admin 200",
   "method": "PUT",
-  "path": "/api/lessons/101979",
+  "path": "/api/lessons/102100",
   "as": "admin",
   "code": 200,
-  "ms": 21,
+  "ms": 33,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"id\":101979,\"title\":\"ZZ r1 p6 1789533292320 edited\",\"description\":\"probe2\",\"content\":\"<p>y</p>\",\"level\":\"ELEMENTARY\",\"category\":null,\"durationMinutes\":null,\"thumbnailUrl\":null,\"audioUrl\":null,\"orderI"
+  "snippet": "{\"id\":102100,\"title\":\"ZZ r1 p6 1789658440021 edited\",\"description\":\"probe2\",\"content\":\"<p>y</p>\",\"level\":\"ELEMENTARY\",\"category\":null,\"durationMinutes\":null,\"thumbnailUrl\":null,\"audioUrl\":null,\"orderI"
  },
  {
   "name": "lesson update bad level 400",
   "method": "PUT",
-  "path": "/api/lessons/101979",
+  "path": "/api/lessons/102100",
   "as": "admin",
   "code": 400,
-  "ms": 13,
+  "ms": 15,
   "expect": "400",
   "pass": true,
-  "snippet": "{\"detail\":\"Dữ liệu JSON không hợp lệ hoặc sai định dạng.\",\"instance\":\"/api/lessons/101979\",\"status\":400,\"title\":\"Malformed Request\"}"
+  "snippet": "{\"detail\":\"Dữ liệu JSON không hợp lệ hoặc sai định dạng.\",\"instance\":\"/api/lessons/102100\",\"status\":400,\"title\":\"Malformed Request\"}"
  },
  {
   "name": "lesson update user 403",
   "method": "PUT",
-  "path": "/api/lessons/101979",
+  "path": "/api/lessons/102100",
   "as": "user",
   "code": 403,
-  "ms": 9,
+  "ms": 10,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
@@ -68,10 +68,10 @@
  {
   "name": "lesson delete user 403",
   "method": "DELETE",
-  "path": "/api/lessons/101979",
+  "path": "/api/lessons/102100",
   "as": "user",
   "code": 403,
-  "ms": 14,
+  "ms": 12,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
@@ -79,10 +79,10 @@
  {
   "name": "lesson delete admin 204",
   "method": "DELETE",
-  "path": "/api/lessons/101979",
+  "path": "/api/lessons/102100",
   "as": "admin",
   "code": 204,
-  "ms": 40,
+  "ms": 84,
   "expect": "200/204",
   "pass": true,
   "snippet": ""
@@ -90,13 +90,13 @@
  {
   "name": "lesson gone 404",
   "method": "GET",
-  "path": "/api/lessons/101979",
+  "path": "/api/lessons/102100",
   "as": "none",
   "code": 404,
-  "ms": 9,
+  "ms": 10,
   "expect": "404",
   "pass": true,
-  "snippet": "{\"detail\":\"Lesson not found with id : '101979'\",\"instance\":\"/api/lessons/101979\",\"status\":404,\"title\":\"Not Found\"}"
+  "snippet": "{\"detail\":\"Lesson not found with id : '102100'\",\"instance\":\"/api/lessons/102100\",\"status\":404,\"title\":\"Not Found\"}"
  },
  {
   "name": "exercise create for delete",
@@ -104,18 +104,18 @@
   "path": "/api/admin/exercises",
   "as": "admin",
   "code": 200,
-  "ms": 66,
+  "ms": 48,
   "expect": "200/201",
   "pass": true,
-  "snippet": "{\"audioUrl\":null,\"correctAnswer\":\"a\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":\"probe\",\"id\":776204,\"imageUrl\":null,\"lessonId\":445,\"lessonTitle\":\"English Grammar Exercises for "
+  "snippet": "{\"audioUrl\":null,\"correctAnswer\":\"a\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":\"probe\",\"id\":776337,\"imageUrl\":null,\"lessonId\":445,\"lessonTitle\":\"English Grammar Exercises for "
  },
  {
   "name": "exercise delete user 403",
   "method": "DELETE",
-  "path": "/api/admin/exercises/776204",
+  "path": "/api/admin/exercises/776337",
   "as": "user",
   "code": 403,
-  "ms": 6,
+  "ms": 10,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
@@ -123,7 +123,7 @@
  {
   "name": "exercise delete noauth 401",
   "method": "DELETE",
-  "path": "/api/admin/exercises/776204",
+  "path": "/api/admin/exercises/776337",
   "as": "none",
   "code": 401,
   "ms": 4,
@@ -134,10 +134,10 @@
  {
   "name": "exercise delete admin 200",
   "method": "DELETE",
-  "path": "/api/admin/exercises/776204",
+  "path": "/api/admin/exercises/776337",
   "as": "admin",
   "code": 200,
-  "ms": 44,
+  "ms": 75,
   "expect": "200/204",
   "pass": true,
   "snippet": "{\"success\":true,\"message\":\"Exercise deleted successfully\"}"
@@ -145,13 +145,13 @@
  {
   "name": "exercise gone 404",
   "method": "GET",
-  "path": "/api/admin/exercises/776204",
+  "path": "/api/admin/exercises/776337",
   "as": "admin",
   "code": 404,
-  "ms": 17,
+  "ms": 13,
   "expect": "404",
   "pass": true,
-  "snippet": "{\"detail\":\"Không tìm thấy tài nguyên yêu cầu.\",\"instance\":\"/api/admin/exercises/776204\",\"status\":404,\"title\":\"Not Found\"}"
+  "snippet": "{\"detail\":\"Không tìm thấy tài nguyên yêu cầu.\",\"instance\":\"/api/admin/exercises/776337\",\"status\":404,\"title\":\"Not Found\"}"
  },
  {
   "name": "exercise delete missing id 404",
@@ -159,7 +159,7 @@
   "path": "/api/admin/exercises/999999999",
   "as": "admin",
   "code": 404,
-  "ms": 17,
+  "ms": 15,
   "expect": "404/500",
   "pass": true,
   "snippet": "{\"detail\":\"Không tìm thấy tài nguyên yêu cầu.\",\"instance\":\"/api/admin/exercises/999999999\",\"status\":404,\"title\":\"Not Found\"}"
@@ -170,7 +170,7 @@
   "path": "/api/vocabulary",
   "as": "none",
   "code": 401,
-  "ms": 3,
+  "ms": 5,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
@@ -181,7 +181,7 @@
   "path": "/api/vocabulary",
   "as": "user",
   "code": 400,
-  "ms": 14,
+  "ms": 17,
   "expect": "400",
   "pass": true,
   "snippet": "{\"detail\":\"Dữ liệu đầu vào không hợp lệ\",\"instance\":\"/api/vocabulary\",\"status\":400,\"title\":\"Validation Failed\",\"errors\":{\"word\":\"Từ vựng không được để trống\"}}"
@@ -192,10 +192,10 @@
   "path": "/api/vocabulary",
   "as": "user",
   "code": 200,
-  "ms": 17,
+  "ms": 32,
   "expect": "200/201",
   "pass": true,
-  "snippet": "{\"id\":50230,\"word\":\"ZZ r1 p6 1789533292320\",\"pronunciation\":\"/prəʊb/\",\"meaning\":\"probe meaning\",\"exampleSentence\":\"a probe\",\"audioUrl\":null,\"imageUrl\":null,\"wordType\":\"noun\",\"definitionEn\":null,\"cefrL"
+  "snippet": "{\"id\":50282,\"word\":\"ZZ r1 p6 1789658440021\",\"pronunciation\":\"/prəʊb/\",\"meaning\":\"probe meaning\",\"exampleSentence\":\"a probe\",\"audioUrl\":null,\"imageUrl\":null,\"wordType\":\"noun\",\"definitionEn\":null,\"cefrL"
  },
  {
   "name": "prompt create (speaking- spelling)",
@@ -203,43 +203,43 @@
   "path": "/api/v1/admin/speaking-prompts",
   "as": "admin",
   "code": 201,
-  "ms": 33,
+  "ms": 34,
   "expect": "200/201",
   "pass": true,
-  "snippet": "{\"id\":60602,\"title\":\"ZZ r1 p6 1789533292320\",\"description\":\"probe\",\"prompt\":\"Describe your day.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMediaUrl\":nul"
+  "snippet": "{\"id\":60784,\"title\":\"ZZ r1 p6 1789658440021\",\"description\":\"probe\",\"prompt\":\"Describe your day.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMediaUrl\":nul"
  },
  {
   "name": "prompt GET via video-prompts ALIAS",
   "method": "GET",
-  "path": "/api/v1/video-prompts/60602",
+  "path": "/api/v1/video-prompts/60784",
   "as": "admin",
   "code": 200,
   "ms": 13,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"id\":60602,\"title\":\"ZZ r1 p6 1789533292320\",\"description\":\"probe\",\"prompt\":\"Describe your day.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMediaUrl\":nul"
+  "snippet": "{\"id\":60784,\"title\":\"ZZ r1 p6 1789658440021\",\"description\":\"probe\",\"prompt\":\"Describe your day.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMediaUrl\":nul"
  },
  {
   "name": "prompt update via video-prompts ALIAS",
   "method": "PUT",
-  "path": "/api/v1/admin/video-prompts/60602",
+  "path": "/api/v1/admin/video-prompts/60784",
   "as": "admin",
   "code": 200,
-  "ms": 34,
+  "ms": 25,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"id\":60602,\"title\":\"ZZ r1 p6 1789533292320 via-alias\",\"description\":\"probe\",\"prompt\":\"Describe your week.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMe"
+  "snippet": "{\"id\":60784,\"title\":\"ZZ r1 p6 1789658440021 via-alias\",\"description\":\"probe\",\"prompt\":\"Describe your week.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMe"
  },
  {
   "name": "prompt re-read via speaking- spelling",
   "method": "GET",
-  "path": "/api/v1/speaking-prompts/60602",
+  "path": "/api/v1/speaking-prompts/60784",
   "as": "admin",
   "code": 200,
-  "ms": 12,
+  "ms": 11,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"id\":60602,\"title\":\"ZZ r1 p6 1789533292320 via-alias\",\"description\":\"probe\",\"prompt\":\"Describe your week.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMe"
+  "snippet": "{\"id\":60784,\"title\":\"ZZ r1 p6 1789658440021 via-alias\",\"description\":\"probe\",\"prompt\":\"Describe your week.\",\"lessonId\":null,\"lessonTitle\":null,\"mode\":\"FREE_SPEAKING\",\"referenceText\":\"ref\",\"referenceMe"
  },
  {
   "name": "prompt create via video-prompts user 403",
@@ -255,10 +255,10 @@
  {
   "name": "prompt delete via video-prompts user 403",
   "method": "DELETE",
-  "path": "/api/v1/admin/video-prompts/60602",
+  "path": "/api/v1/admin/video-prompts/60784",
   "as": "user",
   "code": 403,
-  "ms": 5,
+  "ms": 7,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
@@ -280,7 +280,7 @@
   "path": "/api/v1/admin/video-prompts/ai-generate-full",
   "as": "admin",
   "code": 400,
-  "ms": 10,
+  "ms": 12,
   "expect": "400",
   "pass": true,
   "snippet": "{\"error\":\"Cần nhập chủ đề\"}"
@@ -291,7 +291,7 @@
   "path": "/api/v1/admin/video-prompts/ai-generate",
   "as": "user",
   "code": 403,
-  "ms": 9,
+  "ms": 10,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
@@ -302,10 +302,10 @@
   "path": "/api/v1/admin/video-submissions?page=0&size=5",
   "as": "admin",
   "code": 200,
-  "ms": 34,
+  "ms": 49,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"content\":[{\"id\":40023,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":3,\"pro"
+  "snippet": "{\"content\":[{\"id\":40042,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":60014,"
  },
  {
   "name": "admin submissions list via speaking- spelling",
@@ -313,10 +313,10 @@
   "path": "/api/v1/admin/speaking-submissions?page=0&size=5",
   "as": "admin",
   "code": 200,
-  "ms": 39,
+  "ms": 30,
   "expect": "200",
   "pass": true,
-  "snippet": "{\"content\":[{\"id\":40023,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":3,\"pro"
+  "snippet": "{\"content\":[{\"id\":40042,\"user\":{\"id\":2,\"fullName\":\"Học Viên Mẫu\",\"avatarUrl\":\"https://res.cloudinary.com/dsuvw92hh/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png\"},\"promptId\":60014,"
  },
  {
   "name": "admin submissions list via ALIAS as user 403",
@@ -324,7 +324,7 @@
   "path": "/api/v1/admin/video-submissions",
   "as": "user",
   "code": 403,
-  "ms": 11,
+  "ms": 12,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":403,\"title\":\"Forbidden\",\"detail\":\"Access Denied\"}"
@@ -335,7 +335,7 @@
   "path": "/api/v1/admin/video-submissions",
   "as": "none",
   "code": 401,
-  "ms": 11,
+  "ms": 6,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
@@ -343,10 +343,10 @@
  {
   "name": "prompt submissions via ALIAS (owner)",
   "method": "GET",
-  "path": "/api/v1/video-prompts/60602/submissions?page=0&size=5",
+  "path": "/api/v1/video-prompts/60784/submissions?page=0&size=5",
   "as": "user",
   "code": 200,
-  "ms": 20,
+  "ms": 38,
   "expect": "200",
   "pass": true,
   "snippet": "{\"content\":[],\"empty\":true,\"first\":true,\"last\":true,\"number\":0,\"numberOfElements\":0,\"pageable\":{\"offset\":0,\"pageNumber\":0,\"pageSize\":5,\"paged\":true,\"sort\":{\"empty\":false,\"sorted\":true,\"unsorted\":false"
@@ -367,7 +367,7 @@
   "path": "/api/v1/video-submissions/999999999",
   "as": "user",
   "code": 404,
-  "ms": 15,
+  "ms": 16,
   "expect": "403/404",
   "pass": true,
   "snippet": "{\"detail\":\"SpeakingSubmission not found with id : '999999999'\",\"instance\":\"/api/v1/video-submissions/999999999\",\"status\":404,\"title\":\"Not Found\"}"
@@ -378,7 +378,7 @@
   "path": "/api/v1/speaking-submissions/999999999",
   "as": "user",
   "code": 404,
-  "ms": 14,
+  "ms": 15,
   "expect": "403/404",
   "pass": true,
   "snippet": "{\"detail\":\"SpeakingSubmission not found with id : '999999999'\",\"instance\":\"/api/v1/speaking-submissions/999999999\",\"status\":404,\"title\":\"Not Found\"}"
@@ -410,7 +410,7 @@
   "path": "/api/v1/speaking-submissions/999999999/assess",
   "as": "user",
   "code": 404,
-  "ms": 13,
+  "ms": 14,
   "expect": "403/404",
   "pass": true,
   "snippet": "{\"detail\":\"SpeakingSubmission not found with id : '999999999'\",\"instance\":\"/api/v1/speaking-submissions/999999999/assess\",\"status\":404,\"title\":\"Not Found\"}"
@@ -431,7 +431,7 @@
   "path": "/api/v1/admin/video-submissions/999999999/grade",
   "as": "admin",
   "code": 404,
-  "ms": 16,
+  "ms": 21,
   "expect": "400/404",
   "pass": true,
   "snippet": "{\"detail\":\"SpeakingSubmission not found with id : '999999999'\",\"instance\":\"/api/v1/admin/video-submissions/999999999/grade\",\"status\":404,\"title\":\"Not Found\"}"
@@ -474,7 +474,7 @@
   "path": "/api/lesson-submissions/my/lesson/445/skill/GRAMMAR",
   "as": "none",
   "code": 401,
-  "ms": 8,
+  "ms": 6,
   "expect": "401/403",
   "pass": true,
   "snippet": "{\"status\":401,\"title\":\"Unauthorized\",\"detail\":\"Authentication required to access this resource\"}"
@@ -485,7 +485,7 @@
   "path": "/api/lesson-submissions/my/lesson/445/skill/GRAMMAR",
   "as": "user",
   "code": 200,
-  "ms": 17,
+  "ms": 20,
   "expect": "200",
   "pass": true,
   "snippet": ""
@@ -496,7 +496,7 @@
   "path": "/api/lesson-submissions/my/lesson/445/skill/NOT_A_SKILL",
   "as": "user",
   "code": 400,
-  "ms": 13,
+  "ms": 19,
   "expect": "400/500",
   "pass": true,
   "snippet": "{\"detail\":\"Tham số 'skillType' với giá trị 'NOT_A_SKILL' không hợp lệ.\",\"instance\":\"/api/lesson-submissions/my/lesson/445/skill/NOT_A_SKILL\",\"status\":400,\"title\":\"Bad Request\"}"
@@ -529,7 +529,7 @@
   "path": "/api/resources/..%2F..%2Fapplication.properties",
   "as": "none",
   "code": 400,
-  "ms": 5,
+  "ms": 7,
   "expect": "400/404",
   "pass": true,
   "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 400 – Bad Request</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
@@ -548,21 +548,21 @@
  {
   "name": "cleanup prompt via ALIAS",
   "method": "DELETE",
-  "path": "/api/v1/admin/video-prompts/60602",
+  "path": "/api/v1/admin/video-prompts/60784",
   "as": "admin",
   "code": 200,
-  "ms": 35,
+  "ms": 34,
   "expect": "200/204",
   "pass": true,
   "snippet": "{\"message\":\"Prompt deleted successfully\"}"
  },
  {
-  "name": "cleanup vocab 50230",
+  "name": "cleanup vocab 50282",
   "method": "DELETE",
-  "path": "/api/admin/vocabulary/50230",
+  "path": "/api/admin/vocabulary/50282",
   "as": "admin",
   "code": 204,
-  "ms": 25,
+  "ms": 31,
   "expect": "200/204",
   "pass": true,
   "snippet": ""

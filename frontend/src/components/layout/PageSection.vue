@@ -42,9 +42,21 @@ const hasHeading = computed(() => props.kicker || props.title || props.subtitle)
 </script>
 
 <style scoped>
+/*
+  Prompt: "Spacing: py-24 (96px). Spacious but not empty; filled with patterns."
+  6rem = 96px, so the desktop rhythm is exactly the requested step. Mobile keeps a
+  smaller step on purpose: 96px of padding above and below every section on a
+  360px screen pushes content off the first screen entirely.
+*/
 .geo-section {
-  padding-top: 4rem;
-  padding-bottom: 5rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+@media (min-width: 768px) {
+  .geo-section {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
 }
 .geo-section--flush {
   padding-top: 0;

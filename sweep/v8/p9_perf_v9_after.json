@@ -1,0 +1,79 @@
+{
+ "label": "after",
+ "timings": [
+  {
+   "label": "lesson exercises (guest)",
+   "path": "/api/lessons/445/exercises",
+   "n": 10,
+   "min": 16,
+   "median": 18,
+   "max": 22
+  },
+  {
+   "label": "lesson content (guest)",
+   "path": "/api/lessons/445/exercises/content",
+   "n": 10,
+   "min": 16,
+   "median": 22,
+   "max": 138
+  },
+  {
+   "label": "lesson detail (guest)",
+   "path": "/api/lessons/445",
+   "n": 10,
+   "min": 12,
+   "median": 15,
+   "max": 65
+  },
+  {
+   "label": "lesson list page0",
+   "path": "/api/lessons?page=0&size=12",
+   "n": 10,
+   "min": 19,
+   "median": 22,
+   "max": 207
+  },
+  {
+   "label": "admin lessons page",
+   "path": "/api/admin/lessons?page=0&size=20",
+   "n": 10,
+   "min": 23,
+   "median": 29,
+   "max": 255
+  },
+  {
+   "label": "admin exercises q",
+   "path": "/api/admin/exercises?page=0&size=20",
+   "n": 10,
+   "min": 52,
+   "median": 60,
+   "max": 306
+  },
+  {
+   "label": "admin exercises keyword",
+   "path": "/api/admin/exercises?page=0&size=20&q=grammar",
+   "n": 10,
+   "min": 231,
+   "median": 259,
+   "max": 361
+  },
+  {
+   "label": "vocab search",
+   "path": "/api/vocabulary/search?q=travel",
+   "n": 10,
+   "min": 8,
+   "median": 11,
+   "max": 28
+  },
+  {
+   "label": "streak",
+   "path": "/api/streak/current",
+   "n": 10,
+   "min": 7,
+   "median": 9,
+   "max": 24
+  }
+ ],
+ "topReads": "1 197337 3250 select e1_0.exercise_id,e1_0.audio_url,e1_0.correct_answer,e1_0.created_at,e1_0.difficulty,e1_0.exercise_type,e1_0.explanation,e1_0.image_url,e1_0.lesson_id,l1_0.lesson_id,l1_0.audio_url,l1_0.category,l1_0.content,l1_0.content_original,l1_0.created_at,l1_0\n2 62695 285 SELECT\n      db_id() as database_id,\n      sm.[is_inlineable] AS InlineableScalarCount,\n      sm.[inline_type] AS InlineType,\n      COUNT_BIG(*) AS ScalarCount, \n      COUNT_BIG(CASE WHEN sm.[definition] LIKE '%getdate%' OR \n      sm.[definition] LIKE '%ge\n1 12863 1059 SELECT 'exercises with empty correct_answer' AS check_name, COUNT(*) AS n FROM exercises WHERE correct_answer IS NULL OR LTRIM(RTRIM(correct_answer)) = ''\nUNION ALL SELECT 'exercises with null question', COUNT(*) FROM exercises WHERE question IS NULL OR LT\n1 9789 27 SELECT lesson_id, LEFT(title,40) title, CASE WHEN content IS NULL THEN 'NULL' ELSE 'EMPTY' END st, created_at FROM lessons WHERE content IS NULL OR LTRIM(RTRIM(content))=''\n68 7194 96 INSERT INTO @mssqljdbc_temp_sp_columns_result EXEC sp_columns_100  @P0 , @P1 , @P2 , @P3 , @P4 , @P5\n20 3176 56 select top ( @P0 ) e1_0.exercise_id,e1_0.audio_url,e1_0.correct_answer,e1_0.created_at,e1_0.difficulty,e1_0.exercise_type,e1_0.explanation,e1_0.image_url,e1_0.lesson_id,e1_0.options,e1_0.order_index,e1_0.question,e1_0.updated_at from exercises e1_0 join le\n1 2834 30 SELECT 'lessons.content' AS col, MAX(DATALENGTH(content)) AS max_bytes FROM lessons\nUNION ALL SELECT 'lessons.content_original', MAX(DATALENGTH(content_original)) FROM lessons\nUNION ALL SELECT 'exercises.options', MAX(DATALENGTH(options)) FROM exercises\nUN\n1 1417 6 SELECT 'server UTC now' AS label, CONVERT(varchar(19), SYSDATETIME(), 120) AS value\nUNION ALL SELECT 'max lessons.created_at', CONVERT(varchar(19), MAX(created_at), 120) FROM lessons\nUNION ALL SELECT 'max exercises.created_at', CONVERT(varchar(19), MAX(cre\n20 1301 93 select count_big(e1_0.exercise_id) from exercises e1_0 join lessons l1_0 on l1_0.lesson_id=e1_0.lesson_id where ( @P0 is null or l1_0.lesson_id= @P1 ) and ( @P2 is null or  @P3 ='' or e1_0.exercise_type= @P4 ) and ( @P5 is null or  @P6 ='' or e1_0.difficul\n1 1294 26 SELECT 'listening_missing_audio=' + CAST(COUNT(*) AS varchar) FROM exercises WHERE exercise_type='LISTENING' AND (audio_url IS NULL OR audio_url='')",
+ "exerciseListStatement": "1 197337 3250"
+}

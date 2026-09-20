@@ -1,0 +1,584 @@
+{
+  "runId": "v9-reverify-2026-09-17T19-02-48-446Z",
+  "artifactId": "sha256:218f82c55d522c964899f2b0f90ac9b01904edab44c1ac67456461b031df320b",
+  "inventoryCount": 144,
+  "coveredCount": 1,
+  "positiveProbeCount": 1,
+  "negativeControlCount": 0,
+  "uncovered": [
+    {
+      "method": "DELETE",
+      "path": "/api/admin/blocks/{blockId}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/exercises/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/lessons/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/sections/{sectionId}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/vocabulary/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/decks/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/lessons/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/speaking-prompts/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/video-lessons/{id}"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/video-prompts/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/exercises"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/exercises/ai/backfill-answers/status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/exercises/ai/status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/exercises/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/lessons"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/lessons/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/lessons/{lessonId}/snapshots"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/lessons/{lessonId}/structure"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/vocabulary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/decks"
+    },
+    {
+      "method": "GET",
+      "path": "/api/decks/my"
+    },
+    {
+      "method": "GET",
+      "path": "/api/decks/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/flashcards/status/{vocabularyId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/listening/{deckId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/memory/{deckId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/mixed/{deckId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/quiz/{deckId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/typing/{deckId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/leaderboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lesson-submissions/my/lesson/{lessonId}/skill/{skillType}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lessons"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lessons/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lessons/{lessonId}/exercises/attempts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lessons/{lessonId}/exercises/attempts/{attemptId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lessons/{lessonId}/exercises/content"
+    },
+    {
+      "method": "GET",
+      "path": "/api/lessons/{lessonId}/structure"
+    },
+    {
+      "method": "GET",
+      "path": "/api/resources/{filename:.+}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/srs/due/{deckId}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/srs/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/streak/current"
+    },
+    {
+      "method": "GET",
+      "path": "/api/streak/history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/progress"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/speaking-prompts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/speaking-submissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/video-attempts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/video-lessons"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/video-prompts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/video-submissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/media/**"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/payment/status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/speaking-prompts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/speaking-prompts/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/speaking-prompts/{promptId}/submissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/speaking-submissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/speaking-submissions/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-attempts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-lessons"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-lessons/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-prompts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-prompts/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-prompts/{promptId}/submissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-submissions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/video-submissions/{id}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/vocabulary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/vocabulary/dictionary/{word}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/vocabulary/search"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/speaking-submissions/{id}/grade"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/video-attempts/{id}/grade"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/video-submissions/{id}/grade"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/audio-upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/ai/backfill-answers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/ai/generate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/ai/generate-all"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/ai/generate-async"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/ai/generate-batch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/ai/validate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/exercises/seed"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/lessons"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/lessons/{lessonId}/sections"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/lessons/{lessonId}/snapshots"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/lessons/{lessonId}/snapshots/{snapshotId}/restore"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/sections/{sectionId}/blocks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/vocabulary"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/enrich-word"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/generate-vocab"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/save-vocab"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/avatar/upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/change-password"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/forgot-password"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/register"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/reset-password"
+    },
+    {
+      "method": "POST",
+      "path": "/api/decks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/decks/{id}/words"
+    },
+    {
+      "method": "POST",
+      "path": "/api/flashcards/review"
+    },
+    {
+      "method": "POST",
+      "path": "/api/games/submit"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lesson-submissions/submit"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lesson-submissions/upload-audio"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lessons"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lessons/{lessonId}/exercises/grade"
+    },
+    {
+      "method": "POST",
+      "path": "/api/lessons/{lessonId}/exercises/submit"
+    },
+    {
+      "method": "POST",
+      "path": "/api/srs/review"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/speaking-prompts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/speaking-prompts/ai-generate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/speaking-prompts/ai-generate-full"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-attempts/{id}/ai-grade"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-lessons"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-lessons/fetch-youtube"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-lessons/translate-transcript"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-lessons/upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-prompts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-prompts/ai-generate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/video-prompts/ai-generate-full"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/payment/create-order"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/speaking-submissions/upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/speaking-submissions/{id}/assess"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/video-lessons/{id}/attempts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/video-submissions/upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/video-submissions/{id}/assess"
+    },
+    {
+      "method": "POST",
+      "path": "/api/vocabulary"
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhook/sepay"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/blocks/{blockId}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/exercises/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/lessons/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/lessons/{id}/toggle-publish"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/sections/{sectionId}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/users/{id}/revoke-premium"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/users/{id}/toggle-active"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/users/{id}/toggle-admin"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/users/{id}/toggle-premium"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/vocabulary/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/avatar"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/decks/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/lessons/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/speaking-prompts/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/video-lessons/{id}"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/video-prompts/{id}"
+    }
+  ],
+  "failedProbes": [],
+  "pass": false
+}

@@ -27,13 +27,32 @@ import java.util.Optional;
  */
 public class SrsService {
 
+    /**
+     * audit-v9 F106: upper bound for the SM-2 interval. Without it every review with
+     * {@code quality >= 3} multiplies the stored interval by the ease factor, so the
+     * value grows without limit and {@code next_review_date = now().plusDays(interval)}
+     * eventually leaves the {@code datetime2} range (max 9999-12-31). Measured live on
+     * 2026-09-17: user_vocabulary_progress id=20002 stored
+     * {@code srs_interval=1_537_216} (=4210 years) and every further review answered
+     * HTTP 500 with "One or more values is out of range of values for the datetime2
+     * SQL Server data type" - permanently, because the row is never repaired.
+     *
+     * <p>365 days is the standard SM-2 ceiling and lets an already-broken row heal
+     * itself on the next review.
+     */
+    private static final int MAX_INTERVAL_DAYS = 365;
+
     private final UserVocabularyProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final VocabularyRepository vocabularyRepository;
     private final DeckWordRepository deckWordRepository;
+    private final StudyActivityService studyActivityService;
 
     @Transactional
     public void reviewWord(Long userId, Long vocabId, int quality) {
+        if (quality < 0 || quality > 5) {
+            throw new com.datn.engflow.exception.BadRequestException("quality phải từ 0 đến 5");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         Vocabulary vocab = vocabularyRepository.findById(vocabId)
@@ -55,11 +74,18 @@ public class SrsService {
             } else if (repetitions == 1) {
                 interval = 6;
             } else {
-                interval = (int) Math.round(interval * easeFactor);
+                interval = (int) Math.round((double) interval * easeFactor);
             }
             repetitions++;
         } else {
             repetitions = 0;
+            interval = 1;
+        }
+
+        // Keep the interval (and therefore next_review_date) inside the column range.
+        if (interval > MAX_INTERVAL_DAYS) {
+            interval = MAX_INTERVAL_DAYS;
+        } else if (interval < 0) {
             interval = 1;
         }
 
@@ -81,6 +107,7 @@ public class SrsService {
         else progress.setMasteryLevel(0);
 
         progressRepository.save(progress);
+        studyActivityService.recordStudy(userId);
     }
 
     public List<Map<String, Object>> getDueWords(Long userId, Long deckId) {

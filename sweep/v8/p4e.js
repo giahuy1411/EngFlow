@@ -4,6 +4,14 @@ const B = "http://localhost:8080";
 const SRT = "1\n00:00:01,000 --> 00:00:03,000\nHello there.\n\n2\n00:00:03,500 --> 00:00:06,000\nThis is a test transcript.\n";
 function mp(path, token, fields, boundary) {
   const b = boundary || ("----e" + Math.random().toString(16).slice(2));
+  // audit-v9 harness fix: this multipart helper bypasses lib.probe(), so the
+  // sweep's own :upload rate-limit bucket (15/min) was never cleared and the
+  // 6th upload probe answered 429 "admin create (hợp lệ) ... UNEXPECTED" in
+  // both the v9 first pass (p4e-v9.log) and the v9 rerun (v9b-p4e.log).
+  // Measured 2026-09-17; clearing the bucket restores the 201 the v8 run got
+  // (r-p4e.log). The limiter itself is correct — the harness was measuring
+  // its own throttling.
+  lib.flushBucket(":upload");
   const chunks = [];
   for (const f of fields) {
     let head = "--" + b + "\r\nContent-Disposition: form-data; name=\"" + f.name + "\"";

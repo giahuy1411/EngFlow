@@ -1,0 +1,16 @@
+{
+ "label": "before",
+ "lesson": "651",
+ "times": [
+  293,
+  169,
+  153,
+  155,
+  139,
+  68,
+  72,
+  52
+ ],
+ "statementBefore": "40 120 1",
+ "statementAfter": "48 1054 15"
+}

@@ -48,6 +48,7 @@ public class SpeakingSubmissionService {
     private final MinioService minioService;
     private final SpeakingAssessmentService assessmentService;
     private final ObjectMapper objectMapper;
+    private final StudyActivityService studyActivityService;
 
     @Transactional
     public SpeakingSubmission uploadSubmission(MultipartFile file, Long promptId, User user) {
@@ -94,7 +95,8 @@ public class SpeakingSubmissionService {
     @Transactional
     public SpeakingSubmission assessSubmission(Long submissionId) {
         SpeakingSubmission submission = getSubmission(submissionId);
-        if (submission.getStatus() == SpeakingSubmissionStatus.GRADED) {
+        if (submission.getStatus() == SpeakingSubmissionStatus.GRADED
+                || submission.getStatus() == SpeakingSubmissionStatus.COMPLETED) {
             return submission;
         }
         submission.setStatus(SpeakingSubmissionStatus.PROCESSING);
@@ -116,7 +118,7 @@ public class SpeakingSubmissionService {
             submission.setPronunciationCompleteness(outcome.alignment().coveragePercent());
             submission.setPronunciationDetailsJson(buildDetailsJson(outcome));
         }
-        if (outcome.rubric() != null) {
+        if (outcome.rubric() != null && outcome.transcript() != null && !outcome.transcript().isBlank()) {
             submission.setScoreGrammar(outcome.rubric().grammar());
             submission.setScoreVocabulary(outcome.rubric().vocabulary());
             submission.setScoreFluency(outcome.rubric().fluency());
@@ -127,7 +129,11 @@ public class SpeakingSubmissionService {
             submission.setStatus(SpeakingSubmissionStatus.FAILED);
         }
         submission.setAssessmentError(truncate(outcome.error(), 500));
-        return repository.save(submission);
+        SpeakingSubmission saved = repository.save(submission);
+        if (saved.getStatus() == SpeakingSubmissionStatus.COMPLETED) {
+            studyActivityService.recordStudy(saved.getUser().getId());
+        }
+        return saved;
     }
 
     private String buildDetailsJson(SpeakingAssessmentOutcome outcome) {

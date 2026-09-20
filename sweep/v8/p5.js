@@ -5,6 +5,11 @@
  *   C. Tìm kiếm / sắp xếp               (goal: "Tìm kiếm/sắp xếp")
  *   D. Tái xác minh F81/F83/F86 + đo lại admin list
  * Mọi row/file tạo ra đều bị xóa ở SEC. CLEANUP. Chạy: node p5.js
+ *
+ * Section B đã được viết lại theo hợp đồng streak mới (audit-v10): chỉ hoạt động
+ * học THẬT (SRS review) mới ghi ngày học, đăng nhập KHÔNG ghi. Hai cột
+ * users.current_streak / last_study_date đã write-dead, không còn được assert.
+ * Cleanup xoá study_days TRƯỚC users vì FK fk_study_days_user là NO_ACTION.
  */
 const lib = require("./lib.js");
 const { probe } = lib;
@@ -25,7 +30,6 @@ function sql(q) {
 function redis(...a) { return execFileSync("docker", ["exec", "engflow-redis", "redis-cli", ...a], { encoding: "utf8" }).trim(); }
 function sh(cmd) { return execFileSync("docker", ["exec", "engflow-backend", "sh", "-c", cmd], { encoding: "utf8" }).trim(); }
 const vnToday = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
-const vnDay = (o) => new Date(Date.now() + 7 * 3600e3 + o * 86400e3).toISOString().slice(0, 10);
 
 let pass = 0, fail = 0;
 function note(name, got, want, extra) {
@@ -118,41 +122,40 @@ async function login(email, password) {
 
   console.log("=== B. CƠ CHẾ STREAK (user tạm + DB thật) ===");
   lib.flushLimits(true);
-  r = await probeT("streak current (mới)", "GET", "/api/streak/current", 200);
+
+  // Hợp đồng mới (audit-v10): chỉ hoạt động học THẬT mới ghi ngày học, không phải
+  // đăng nhập. Khẳng định này bằng dữ liệu, không bằng đọc code.
+  r = await probeT("streak snapshot sau đăng nhập", "GET", "/api/streak/snapshot", 200);
   let j = {}; try { j = JSON.parse(r.txt); } catch (e) {}
-  note("đăng nhập xong -> streak 1", j.currentStreak, 1, JSON.stringify(j));
+  note("đăng nhập KHÔNG tạo ngày học -> currentStreak 0", j.currentStreak, 0, JSON.stringify(j));
   note("today = ngày server VN", j.today, vnToday(), JSON.stringify(j));
-  note("DB current_streak = 1", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "1");
-  note("DB last_study_date = hôm nay", sql("SELECT CONVERT(varchar(10), last_study_date, 23) FROM users WHERE user_id = " + userRowId), vnToday());
+  note("studiedToday = false (chỉ đăng nhập)", j.studiedToday, false, JSON.stringify(j));
+  note("study_days rỗng sau đăng nhập", sql("SELECT COUNT(*) FROM study_days WHERE user_id = " + userRowId), "0");
 
-  r = await probeT("streak history 30d", "GET", "/api/streak/history?days=30", 200);
-  note("history chứa hôm nay", r.txt.includes(vnToday()), "true", r.txt.slice(0, 90));
+  // Một hoạt động học thật (SRS review) phải ghi đúng MỘT ngày học — không nhân đôi
+  // dù review lại cùng từ (unique index uq_study_days_user_date giữ).
+  const vocabId = sql("SELECT TOP 1 vocab_id FROM vocabulary ORDER BY vocab_id");
+  note("lấy được vocabId thật để review", /^[0-9]+$/.test(vocabId), "true", "vocabId=" + vocabId);
+  r = await probeT("SRS review -> 200", "POST", "/api/srs/review", 200, { vocabId: Number(vocabId), quality: 5 });
+  note("SRS review ghi 1 ngày học", sql("SELECT COUNT(*) FROM study_days WHERE user_id = " + userRowId + " AND study_date = '" + vnToday() + "'"), "1");
+  r = await probeT("SRS review lại (cùng ngày)", "POST", "/api/srs/review", 200, { vocabId: Number(vocabId), quality: 4 });
+  note("review lại KHÔNG nhân đôi (unique index)", sql("SELECT COUNT(*) FROM study_days WHERE user_id = " + userRowId), "1");
 
-  sql("UPDATE users SET current_streak = 5, last_study_date = '" + vnDay(-1) + "' WHERE user_id = " + userRowId);
-  r = await probeT("streak current (học hôm qua)", "GET", "/api/streak/current", 200);
+  // Snapshot phải phản ánh đúng sự thật vừa ghi.
+  r = await probeT("snapshot sau khi học", "GET", "/api/streak/snapshot", 200);
   try { j = JSON.parse(r.txt); } catch (e) {}
-  note("học hôm qua + streak 5 -> vẫn 5 (chưa học hôm nay)", j.currentStreak, 5, JSON.stringify(j));
+  note("studiedToday = true sau khi học", j.studiedToday, true, JSON.stringify(j));
+  note("currentStreak = 1 sau khi học", j.currentStreak, 1, JSON.stringify(j));
+  note("studiedDays chứa hôm nay", Array.isArray(j.studiedDays) && j.studiedDays.includes(vnToday()), "true", JSON.stringify(j.studiedDays));
 
-  await login(EMAIL, PASS);
-  note("ngày liên tiếp -> DB streak 6", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "6");
-  note("DB last_study_date = hôm nay", sql("SELECT CONVERT(varchar(10), last_study_date, 23) FROM users WHERE user_id = " + userRowId), vnToday());
-  r = await probeT("streak current (+1)", "GET", "/api/streak/current", 200);
+  // Bỏ trọn 1 ngày (gỡ ngày hôm nay) phải reset streak về 0 — luật Duolingo.
+  sql("DELETE FROM study_days WHERE user_id = " + userRowId);
+  r = await probeT("snapshot sau khi xoá hết ngày học", "GET", "/api/streak/snapshot", 200);
   try { j = JSON.parse(r.txt); } catch (e) {}
-  note("API trả 6", j.currentStreak, 6, JSON.stringify(j));
+  note("xoá hết ngày học -> streak 0", j.currentStreak, 0, JSON.stringify(j));
 
-  await login(EMAIL, PASS);
-  note("đăng nhập lần 2 trong ngày = no-op (vẫn 6)", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "6");
-
-  sql("UPDATE users SET current_streak = 9, last_study_date = '" + vnDay(-3) + "' WHERE user_id = " + userRowId);
-  r = await probeT("streak current (đứt 3 ngày)", "GET", "/api/streak/current", 200);
-  try { j = JSON.parse(r.txt); } catch (e) {}
-  note("đứt 3 ngày -> streak hiệu lực 0", j.currentStreak, 0, JSON.stringify(j));
-  note("DB thô vẫn 9 (stale by design)", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "9");
-
-  await login(EMAIL, PASS);
-  note("quay lại -> reset về 1", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "1");
-  r = await probeT("streak history 1d", "GET", "/api/streak/history?days=1", 200);
-  note("history(days=1) = [hôm nay]", r.txt.replace(/\s/g, ""), '["' + vnToday() + '"]', r.txt.slice(0, 90));
+  // Hai cột cũ đã write-dead: login không động chạm chúng.
+  note("DB current_streak vẫn là giá trị cũ (write-dead)", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "0");
   r = await probe("streak history noauth", "GET", "/api/streak/history", "none", 401);
   note("streak cần đăng nhập -> 401", r.code, 401);
 
@@ -260,10 +263,16 @@ async function login(email, password) {
   const after = sh("ls -1 /app/uploads 2>/dev/null").split(/\r?\n/).filter(Boolean);
   note("uploads/ về đúng baseline đầu phiên", after.length, uploadsAtStart, "after=" + after.join(","));
   if (orderCode) { sql("DELETE FROM payment_transactions WHERE order_code = '" + orderCode + "'"); console.log("  xóa payment probe", orderCode); }
+  // FK fk_study_days_user + user_vocabulary_progress đều NO_ACTION: xoá users mà
+  // còn row con sẽ lỗi Msg 547. Section B giờ gọi /api/srs/review → tạo
+  // user_vocabulary_progress, nên phải xoá cả hai bảng con TRƯỚC users. Dùng
+  // LIKE 'zzv3%' để dọn cả user từ lần chạy trước bị kẹt, không chỉ userRowId.
+  sql("DELETE FROM user_vocabulary_progress WHERE user_id IN (SELECT user_id FROM users WHERE email LIKE 'zzv3%')");
+  sql("DELETE FROM study_days WHERE user_id IN (SELECT user_id FROM users WHERE email LIKE 'zzv3%')");
   sql("DELETE FROM users WHERE email LIKE 'zzv3%'");
-  redis("del", "user:login_days:" + userRowId, "login_lock:" + EMAIL, "login_fail:" + EMAIL);
+  redis("del", "login_lock:" + EMAIL, "login_fail:" + EMAIL);
   note("user tạm đã xóa khỏi DB", sql("SELECT COUNT(*) FROM users WHERE email LIKE 'zzv3%'"), "0");
-  note("redis login_days đã xóa", redis("exists", "user:login_days:" + userRowId), "0");
+  note("study_days đã xóa sạch", sql("SELECT COUNT(*) FROM study_days WHERE user_id = " + userRowId), "0");
   note("payment probe đã xóa", orderCode ? sql("SELECT COUNT(*) FROM payment_transactions WHERE order_code = '" + orderCode + "'") : "0", "0");
 
   lib.report("audit-v8 vòng 3 (auth + streak + search/sort + re-verify)");

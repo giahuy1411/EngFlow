@@ -1,0 +1,161 @@
+[
+ {
+  "id": "F105",
+  "title": "Bai nhap (isPublished=false) van grade/submit duoc qua /api/lessons/{id}/exercises/grade|submit",
+  "severity": "HIGH",
+  "kind": "authz/information-leak",
+  "status": "FIXED",
+  "root_cause": "Grade/submit chi kiem tra lesson ton tai qua service, khong goi assertLessonVisible nhu GET /exercises va /content (F88/F89) -> student doc duoc correctAnswer cua bai nhap bang cach gui 1 dap an bat ky va doc truong correctAnswer trong response.",
+  "fix": "LessonExerciseController: them Authentication + lessonService.assertLessonVisible(lessonId, isAdmin(authentication)) cho ca /grade va /submit.",
+  "evidence": [
+   "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+   "src/test/java/com/datn/engflow/controller/AuditV9DraftLessonGradeGuardTest.java (5 test)",
+   "sweep/v8/v9-f105-verify.log (6 probe, FAIL=0: student 404, admin preview 200)"
+  ],
+  "verification": "Live: POST grade/submit tren draft -> 404 cho user, 200 cho admin; GET published van 200. Backend suite 391/391."
+ },
+ {
+  "id": "F106",
+  "title": "POST /api/srs/review tra 500 vinh vien khi srs_interval lon (SM-2 khong co tran)",
+  "severity": "HIGH",
+  "kind": "data-integrity/permanent-brick",
+  "status": "FIXED",
+  "root_cause": "SrsService.reviewWord nhan interval voi easeFactor khong gioi han -> interval tang ~2.6x moi lan review quality>=3; next_review_date = now().plusDays(interval) vuot datetime2 (max 9999-12-31) -> SQLServerException 'One or more values is out of range of values for the datetime2 SQL Server data type' -> HTTP 500, va row khong bao gio tu sua nen moi lan review sau deu 500.",
+  "fix": "SrsService: MAX_INTERVAL_DAYS = 365 (tran SM-2 chuan) + guard interval<0; row hong tu chua o lan review ke tiep.",
+  "evidence": [
+   "src/main/java/com/datn/engflow/service/SrsService.java",
+   "src/test/java/com/datn/engflow/service/AuditV9SrsIntervalOverflowTest.java (3 test, RED truoc fix -> GREEN sau)",
+   "sweep/v8/f106-red.log (2 FAIL), sweep/v8/f106-green.log (3/3 PASS)",
+   "sweep/v8/v9-f106-repro.log (500 truoc), v9-f106-repro2.log (200 sau)",
+   "docker logs engflow-backend: DataIntegrityViolationException + SQLServerException datetime2"
+  ],
+  "verification": "Live: POST /api/srs/review {vocabId:10017,quality:5} 500 -> 200; DB row id=20002 srs_interval 1537216 -> 365, next_review_date 2027-09-17."
+ },
+ {
+  "id": "F107",
+  "title": "'correctAnswer leaked in /exercises response' (harness WARNING)",
+  "severity": "INFO",
+  "kind": "false-positive-refuted",
+  "status": "FIXED",
+  "root_cause": "Chan doan cua chinh harness: p2.js do chuoi 'correctAnswer' trong body -> luon khop vi DTO ExerciseResponse luon serialize truong nay, gia tri la null cho caller khong phai admin. Artifact chung minh: p1.json snippet '{\"audioUrl\":null,\"correctAnswer\":null,...}' cho exercise 755989.",
+  "fix": "p2.js: thay substring test bang leakCheck() parse JSON, chi canh bao khi correctAnswer != null. (Hanh vi app dung, khong doi code app.)",
+  "evidence": [
+   "sweep/v8/p2.js",
+   "sweep/v8/p1.json"
+  ],
+  "verification": "p2 rerun 60/60 FAIL=0, khong con WARNING; correctAnswer=null cho guest."
+ },
+ {
+  "id": "F108",
+  "title": "GET /api/lessons/{id}/exercises keo lesson.content + content_original (NVARCHAR(MAX)) cho tung dong",
+  "severity": "MEDIUM",
+  "kind": "performance",
+  "status": "FIXED",
+  "root_cause": "ExerciseRepository.findByLessonIdOrderByOrderIndexAsc dung 'JOIN FETCH e.lesson' -> moi ExerciseResponse row hydrate ca Lesson entity gom content (max 67 kB) + content_original (max 115 kB). Lesson 651 (99 exercise, content 26 kB + content_original 77 kB): ~5.724 logical reads/goi.",
+  "fix": "Them projection phang ExerciseLessonProjection + findLessonExercisesProjection(); getExercisesByLesson dung projection (toResponse(projection)); duong grading giu nguyen entity.",
+  "evidence": [
+   "src/main/java/com/datn/engflow/model/dto/projection/ExerciseLessonProjection.java",
+   "src/main/java/com/datn/engflow/repository/ExerciseRepository.java",
+   "src/main/java/com/datn/engflow/service/ExerciseService.java",
+   "src/test/java/com/datn/engflow/controller/AuditV9ExerciseListProjectionTest.java (2 test)",
+   "sweep/v8/v9_perf_exercise_list_before.json / _after.json",
+   "sweep/v8/v9b-perf-before.log / v9b-perf-after.log"
+  ],
+  "verification": "Lesson 651 exercise list: HTTP median 153 ms -> 29 ms (max 293 -> 110). Statement cu: 1.054 avg logical reads / 15 ms (48 exec, gom lesson 651; plan xau nhat 197.337 reads / 3.250 ms). Statement moi: 182 avg reads / 0 ms (17 exec). Exec count cua statement cu KHONG tang trong luc do (48 -> 48) => duong list khong con chay no."
+ },
+ {
+  "id": "F109",
+  "title": "p4e bao FAIL gia 'admin create (hop le)' do chinh harness khong flush bucket :upload",
+  "severity": "INFO",
+  "kind": "harness-defect",
+  "status": "FIXED",
+  "root_cause": "p4e.js tu goi fetch() multipart, bo qua lib.probe() nen khong clear bucket rate_limit ':upload' (15/phut) cua chinh sweep; sau p4c/p4d/p4e trong cung 1 phut thi probe thu 6 bi 429. Do la hanh vi dung cua RateLimitFilter.",
+  "fix": "p4e.js: lib.flushBucket(':upload') truoc moi multipart POST.",
+  "evidence": [
+   "sweep/v8/p4e.js",
+   "sweep/v8/p4e-v9.log (429), v9b-p4e.log (429), v9b-p4e2.log (201, 6/6)"
+  ],
+  "verification": "p4e 6/6 FAIL=0 sau fix; 201 'admin create (hop le)'."
+ },
+ {
+  "id": "F110",
+  "title": "p24_journeys assertion dung selector khong ton tai (harness)",
+  "severity": "INFO",
+  "kind": "harness-defect",
+  "status": "FIXED",
+  "root_cause": "J3/J5/J6/J7 assert theo markup doan: /lessons/* khong co anchor (card la button 'Bat dau hoc'), deck link .first() trung 'Tao bo tu', nut danh gia flashcard la 'Lai'/'De' chu khong phai 'Da biet', recorder nam o /speaking/<id>/record, dialog admin dung id #form-lesson-* va nut 'Luu lai'. Da do markup that bang v9_probe_selectors.js / v9_probe_deck.js / v9_probe_admin.js truoc khi sua.",
+  "fix": "p24_journeys.js: dung selector da do; them dump button khi fail de lan sau chan doan duoc.",
+  "evidence": [
+   "sweep/v8/p24_journeys.js",
+   "sweep/v8/v9_probe_selectors.js",
+   "sweep/v8/v9_probe_deck.js",
+   "sweep/v8/v9_probe_admin.js",
+   "sweep/v8/p24_journeys.json"
+  ],
+  "verification": "8/8 journey PASS tren Chromium that (register/login, grade qua UI, flashcard review 200, streak, filter level, admin create lesson 200 + DB row, fake-mic upload 200 + DB row)."
+ },
+ {
+  "id": "F111",
+  "title": "Sweep de lai residue DB (speaking_submissions khong co API xoa) + suyt xoa nham 4 audit user cu",
+  "severity": "MEDIUM",
+  "kind": "process/data-hygiene",
+  "status": "FIXED",
+  "root_cause": "(a) speaking_submissions khong co duong xoa (DELETE .../speaking-submissions/{id} -> 404), video_attempts/lesson_submissions/payment_transactions cung khong duoc don => parity lech sau moi batch sweep. (b) Ban dau tien cua v9_cleanup_sweep.py dung 'email LIKE zz%' tran -> xoa luon 4 audit user cu (ids 170049/170050/170051/170097) la mot muc backlog, dua users 76 -> 72.",
+  "fix": "v9_cleanup_sweep.py: don theo namespace + ngay (created_at >= ngay audit), xoa object MinIO cua speaking truoc, in marker AUDIT_MINIO_KEYS/AUDIT_CLEAN_PARITY, va chi xoa user tao trong ngay. 4 user cu duoc phuc hoi nguyen ven tu backup 21:06 bang RESTORE ... WITH MOVE sang english_learning_v9r + IDENTITY_INSERT copy roi DROP.",
+  "evidence": [
+   "sweep/v8/v9_cleanup_sweep.py",
+   "sweep/v8/v9-backup.sql",
+   "sweep/v8/_v9_restore_extract.sql",
+   "sweep/v8/_v9_restore_users.sql",
+   "sweep/v8/_v9_drop_restore.sql"
+  ],
+  "verification": "Parity 1471|43737|76|127|28|15|4|126|14|5 = baseline, PARITY_OK=True, residue 0; restore DB da DROP, file .mdf/.ldf da xoa (NO_V9R_FILES)."
+ },
+ {
+  "id": "F112",
+  "title": "Actuator /actuator/mappings khong duoc expose -> khong the lay endpoint registry song",
+  "severity": "INFO",
+  "kind": "tooling-boundary",
+  "status": "BLOCKED",
+  "root_cause": "/actuator (authenticated) chi liet ke health/health-path: /actuator/mappings tra 404. Ke hoach audit-v9 gia dinh dump duoc registry tu actuator.",
+  "fix": "Khong sua (khong mo them actuator endpoint chi de audit). Thay bang inventory doc tu source (endpoint_inventory.py: 144 unique mapping / 26 controller) + do phu song bang probe that.",
+  "evidence": [
+   "sweep/v8/v9_endpoint_inventory.py",
+   ".specify/specs/audit-v9-full/evidence/endpoint-inventory.json"
+  ],
+  "verification": "144 mapping tu source; 404 cua /actuator/mappings la ghi nhan that, khong phai suy doan."
+ },
+ {
+  "id": "F113",
+  "title": "Dead CSS: ~50 selector .geo-* 0 usage trong design-system.css",
+  "severity": "LOW",
+  "kind": "design-system-drift",
+  "status": "FIXED",
+  "root_cause": "Da chuyen sang class app-*/Tailwind + scoped SFC nhung file design-system.css van giu nhieu utility .geo-* (btn/badge/marquee/heading/body/shadow-*...). Mot design system ma co 2 duong style la nguon drift.",
+  "fix": "Xoa cac selector .geo-* 0 usage, giu 4 nhom con dung (geo-card, geo-markdown, geo-audio, geo-radio).",
+  "evidence": [
+   "frontend/src/assets/design-system.css",
+   "sweep/v8/v9_deadcss_check.py",
+   "sweep/v8/audit-v9-baseline-build.log",
+   "sweep/v8/v9-r1-build.log"
+  ],
+  "verification": "v9_deadcss_check.py: selectors=4 used=4 UNUSED=0. CSS entry 92.42 kB -> 85.22 kB (-7.20 kB raw, -1.05 kB gzip); JS entry 176.80 kB khong doi; vitest 90/90; design-v2 0 violation."
+ },
+ {
+  "id": "F114",
+  "title": "Vite dev server (container engflow-frontend) ngung phuc vu GET / va GET /src/main.js sau khi chay nhieu gio",
+  "severity": "MEDIUM",
+  "kind": "environment/ops",
+  "status": "BLOCKED",
+  "root_cause": "Sau ~4 gio chay lien tuc cac harness browser, container Vite dev (--host 0.0.0.0) khong con tra loi GET / va GET /src/main.js (curl tra 000 sau 30 s), trong khi GET /index.html va GET /lessons van 200 trong ~40 ms. Xoa node_modules/.vite va restart container KHONG phuc hoi; restart sach + doi server ready thi /index.html lai 200 (54 ms). Chua xac dinh duoc nguyen nhan goc (esbuild service / dep-optimizer / HMR state).",
+  "fix": "Khong sua code app. Workaround cho harness: load /index.html roi dieu huong CLIENT-side (router link) de khong hoi server duong '/'. Da ap dung trong p21_design_tone_v9.js. Cac harness khac (routes-all, design-v2) da chay xong truoc khi su co xay ra va deu xanh.",
+  "evidence": [
+   "docker logs engflow-frontend",
+   "curl.exe -w %{http_code} http://localhost:5173/ -> 000/time=30.01",
+   "curl http://localhost:5173/index.html -> 200/time=0.054",
+   "sweep/v8/r2-p21.log",
+   "sweep/v8/v9_transforms.js"
+  ],
+  "verification": "Trang thai hien tai: /index.html va client-side routing hoat dong; do la duong da do duoc p21 (ca '/' va '/premium' deu render va do duoc so lieu). BUILD tinh (vite build) khong bi anh huong. Khong ket luan day la loi san pham; day la su co moi truong dev-server, ghi lai de lan sau khong mat thoi gian chan doan lai."
+ }
+]

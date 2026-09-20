@@ -1,0 +1,334 @@
+# DB audit — audit-v9-full (2026-09-17)
+
+Runner: `python sweep/v8/p6_db_audit_v9.sql` via `sweep/v8/sqlrun.py` (READ-ONLY: no DML in the file).
+Raw output: `sweep/v8/v9b-db-audit.txt`. Every number below is copied from that file, not restated from memory.
+
+Schema is owned by Hibernate `ddl-auto=update` (Flyway disabled) — this file reads, it does not migrate.
+
+Timezone convention (AGENTS.md): datetime2 columns hold naive VN (+07); `SYSDATETIME()` in the container is UTC, so it is used only to label the run, never to judge data.
+
+## Headline numbers
+
+| Metric | Value | Source block |
+|---|---|---|
+| Tables with rows | 24 | [1] |
+| exercises / lessons / users / vocabulary rows | 43737 / 1471 / 76 / 127 | [1] |
+| Orphan violations (6 checks) | 0 | [2] |
+| Disabled / untrusted FKs | 0 | [3] |
+| Filtered indexes (force SET QUOTED_IDENTIFIER ON for DELETE) | 2 | [4] |
+| Duplicate business keys | lesson title 1 group, vocab word 3 groups | [6] |
+| exercises with empty correct_answer | 4848 | [7] |
+| lessons with empty content | 6 | [7] |
+| LISTENING exercises missing audio_url | 9 | [7] |
+| Audit-namespace rows left behind | lessons 0, decks 0, users 8 (legacy backlog) | [9] |
+| Partitioned tables | 0 | [15] |
+| DB size | ROWS 264.0 MB, LOG 328.0 MB (log 10.2% used) | [11] [16] |
+| Index fragmentation > 10% | 1 (`PK__lessons__…` 11.6%, 121 pages) | [13] |
+
+## Reconciliation with the app-level parity baseline
+
+The 10-table baseline asserted by every sweep is `1471|43737|76|127|28|15|4|126|14|5`
+(lessons|exercises|users|vocabulary|speaking_submissions|video_attempts|lesson_submissions|
+payment_transactions|decks|lesson_snapshots). After the round-2 sweep batch and
+`sweep/v8/v9_cleanup_sweep.py`, the parity line reads exactly that (PARITY_OK=True).
+
+## Backlog carried forward (measured, deliberately NOT mutated)
+
+| Item | Measured | Owner action |
+|---|---|---|
+| 4848 exercises with empty correct_answer | [7] | content owner; the deterministic backfill already filled 586/5434 and the rest are ungradeable-by-design fragments |
+| 3 duplicate vocab words / 1 duplicate lesson title | [6] | content owner review; no unique index exists so this is data hygiene, not a constraint violation |
+| 6 lessons with empty content | [7] | content owner (also visible in the reported lesson list) |
+| 4 `exercises_bak_v5*` tables (481/322/55/39 rows) | [1] [14] | keep as rollback material (~1.9 MB); not referenced by any entity |
+| 8 legacy audit users (`zz*@example.com`) | [9] | not created by audit-v9; deleting them is a data decision for the owner (a first draft of the v9 cleanup script did delete 4 of them and they were restored verbatim from the 21:06 backup) |
+| 9 LISTENING exercises without audio_url | [7] | regeneration is only possible when the TTS sidecar + Cloudinary path is exercised end-to-end; see `issues.md` |
+
+## Raw blocks
+
+### [1] TABLE + ROW INVENTORY (per-table COUNT, no join fan-out)
+
+```
+table_name|row_count
+----------|---------
+exercises|43737
+lessons|1471
+exercises_bak_v5|481
+exercises_bak_v5b|322
+vocabulary|127
+payment_transactions|126
+deck_words|100
+users|76
+exercises_bak_v5c|55
+exercise_attempts|42
+exercises_bak_v5d|39
+speaking_submissions|28
+user_progress|19
+lesson_blocks|15
+video_attempts|15
+user_vocabulary_progress|14
+decks|14
+lesson_sections|10
+speaking_prompts|6
+lesson_snapshots|5
+video_lessons|5
+lesson_submissions|4
+sysdiagrams|2
+user_streaks|1
+```
+
+### [2] ORPHAN / REFERENTIAL INTEGRITY (must all be 0)
+
+```
+check_name|violations
+----------|----------
+orphan exercises->lessons|0
+orphan lesson_sections->lessons|0
+orphan lesson_submissions->lessons|0
+orphan lesson_snapshots->lessons|0
+orphan uvp->vocabulary|0
+orphan uvp->users|0
+```
+
+### [3] DISABLED FK CONSTRAINTS (a real FK should be enforced, not implied)
+
+```
+fk_name|child_table|is_disabled|is_not_trusted
+-------|-----------|-----------|--------------
+```
+
+### [4] FILTERED INDEXES (these force SET QUOTED_IDENTIFIER ON for DELETE)
+
+```
+table_name|index_name|has_filter|filter_definition
+----------|----------|----------|-----------------
+payment_transactions|UKlsp8jh693lih2txq7dl4bdnpx|1|([transaction_id] IS NOT NULL)
+user_progress|UK8sschjnhw7q49ml9th0urvo4b|1|([user_id] IS NOT NULL AND [lesson_id] IS NOT NULL)
+```
+
+### [5] INDEX USAGE (unused = candidate, NOT an instruction to drop)
+
+```
+table_name|index_name|type_desc|seeks|scans|lookups|updates
+----------|----------|---------|-----|-----|-------|-------
+decks|idx_decks_public|NONCLUSTERED|0|0|0|15
+decks|IX_decks_owner_id|NONCLUSTERED|0|0|0|15
+video_attempts|idx_video_attempts_status|NONCLUSTERED|0|0|0|14
+lessons|idx_lessons_level|NONCLUSTERED|0|0|0|180
+payment_transactions|UKlsp8jh693lih2txq7dl4bdnpx|NONCLUSTERED|0|0|0|84
+speaking_prompts|idx_prompts_level|NONCLUSTERED|0|0|0|271
+speaking_prompts|idx_prompts_published|NONCLUSTERED|0|0|0|271
+speaking_submissions|idx_speaking_status|NONCLUSTERED|0|0|0|39
+user_progress|UK8sschjnhw7q49ml9th0urvo4b|NONCLUSTERED|0|0|0|46
+sysdiagrams|UK_principal_name|NONCLUSTERED|0|0|0|0
+exercises|idx_exercises_type|NONCLUSTERED|4|0|0|179
+deck_words|UKbwm3hnc7qphev33xfbxsx6c9j|NONCLUSTERED|8|0|0|8
+user_vocabulary_progress|IX_uvp_due|NONCLUSTERED|0|11|0|127
+video_attempts|idx_video_attempts_user|NONCLUSTERED|16|0|0|14
+user_streaks|UK7sd7pfn89putvt5ji6winpq2|NONCLUSTERED|19|0|0|1
+deck_words|idx_deck_words_vocab|NONCLUSTERED|22|0|0|8
+lesson_blocks|idx_blocks_section|NONCLUSTERED|14|10|0|20
+lesson_submissions|idx_lesson_submissions_user_lesson|NONCLUSTERED|18|7|0|8
+user_progress|IX_user_progress_lesson_id|NONCLUSTERED|27|0|0|46
+vocabulary|idx_vocabulary_lesson|NONCLUSTERED|29|0|0|78
+speaking_prompts|IX_speaking_prompts_lesson_id|NONCLUSTERED|27|3|0|271
+exercises|IX_exercises_lesson_type_diff_order|NONCLUSTERED|31|0|0|179
+lessons|idx_lessons_pub_level_order|NONCLUSTERED|32|0|0|165
+exercises|idx_exercises_lesson_type_order|NONCLUSTERED|28|6|0|179
+user_vocabulary_progress|IX_uvp_vocabulary_id|NONCLUSTERED|23|12|0|127
+users|UKr43af9ap4edm43mmtq01oddj6|NONCLUSTERED|14|21|0|391
+exercise_attempts|idx_exercise_attempts_user_lesson|NONCLUSTERED|18|18|0|18
+video_lessons|idx_video_lessons_level|NONCLUSTERED|0|39|0|249
+speaking_submissions|idx_speaking_submissions_prompt|NONCLUSTERED|37|9|0|39
+lesson_sections|idx_lesson_sections_lesson|NONCLUSTERED|29|18|0|27
+video_attempts|idx_video_attempts_lesson|NONCLUSTERED|60|0|0|14
+video_attempts|IX_video_attempts_graded_by|NONCLUSTERED|16|61|0|14
+lesson_snapshots|IX_lesson_snapshots_lesson_id|NONCLUSTERED|28|67|0|8
+payment_transactions|idx_payment_transactions_user|NONCLUSTERED|19|86|0|102
+speaking_submissions|IX_speaking_submissions_graded_by|NONCLUSTERED|16|110|0|39
+decks|IX_decks_owner_name|NONCLUSTERED|20|107|0|15
+speaking_submissions|idx_speaking_submissions_user|NONCLUSTERED|155|1|0|39
+exercises|idx_exercises_difficulty|NONCLUSTERED|0|163|0|179
+deck_words|idx_deck_words_deck|NONCLUSTERED|7|160|0|8
+user_vocabulary_progress|UKcnc61y66y0f9p96e6j6qlbswl|NONCLUSTERED|185|1|0|127
+lesson_submissions|IX_lesson_submissions_lesson_id|NONCLUSTERED|28|172|0|8
+exercises|idx_exercises_lesson_order|NONCLUSTERED|193|26|0|179
+vocabulary|idx_vocabulary_word_cefr|NONCLUSTERED|49|337|0|78
+users|UK6dotkott2kjsp8vw4d0m25fb7|NONCLUSTERED|62|426|0|391
+lessons|idx_lessons_order_index|NONCLUSTERED|0|1188|0|188
+```
+
+### [6] DUPLICATE BUSINESS KEYS
+
+```
+check_name|dup_groups
+----------|----------
+duplicate user email|0
+duplicate lesson title|1
+duplicate vocab word|3
+```
+
+### [7] NULL/EMPTY VIOLATING APP ASSUMPTIONS
+
+```
+check_name|n
+----------|-
+exercises with empty correct_answer|4848
+exercises with null question|0
+lessons with null content|6
+lessons with null content_original (KEPT by design)|11
+LISTENING exercises missing audio_url|9
+users with null password_hash|0
+```
+
+### [8] TIMESTAMP SANITY (naive VN; SYSDATETIME() is UTC so only for labelling)
+
+```
+label|value
+-----|-----
+server UTC now|2026-09-17 14:52:43
+max lessons.created_at|2026-09-04 15:32:22
+max exercises.created_at|2026-09-04 15:33:04
+check_name|n
+----------|-
+lessons created more than 1 day in the future (would mean a UTC write)|0
+```
+
+### [9] AUDIT-LEFTOVER SCAN (no audit namespace rows may survive)
+
+```
+check_name|n
+----------|-
+lessons with ZZ/AUDIT prefix|0
+users with audit prefix|8
+decks with audit prefix|0
+```
+
+### [10] TOP QUERIES BY LOGICAL READS (plan cache; empty after restart)
+
+```
+execs|avg_logical_reads|avg_ms|query_text
+-----|-----------------|------|----------
+1|197337|3250|select e1_0.exercise_id,e1_0.audio_url,e1_0.correct_answer,e1_0.created_at,e1_0.difficulty,e1_0.exercise_type,e1_0.explanation,e1_0.image_url,e1_0.lesson_id,l1_0.lesson_id,l1_0.audio_url,l1_0.category,l1_0.content,l1_0.content_original,l1_0.created_at,l1_0
+2|62695|285|SELECT
+      db_id() as database_id,
+      sm.[is_inlineable] AS InlineableScalarCount,
+      sm.[inline_type] AS InlineType,
+      COUNT_BIG(*) AS ScalarCount, 
+      COUNT_BIG(CASE WHEN sm.[definition] LIKE '%getdate%' OR 
+      sm.[definition] LIKE '%ge
+1|12863|1059|SELECT 'exercises with empty correct_answer' AS check_name, COUNT(*) AS n FROM exercises WHERE correct_answer IS NULL OR LTRIM(RTRIM(correct_answer)) = ''
+UNION ALL SELECT 'exercises with null question', COUNT(*) FROM exercises WHERE question IS NULL OR LT
+15|10632|70|select top ( @P0 ) e1_0.exercise_id,e1_0.audio_url,e1_0.correct_answer,e1_0.created_at,e1_0.difficulty,e1_0.exercise_type,e1_0.explanation,e1_0.image_url,e1_0.lesson_id,e1_0.options,e1_0.order_index,e1_0.question,e1_0.updated_at from exercises e1_0 join le
+1|9789|27|SELECT lesson_id, LEFT(title,40) title, CASE WHEN content IS NULL THEN 'NULL' ELSE 'EMPTY' END st, created_at FROM lessons WHERE content IS NULL OR LTRIM(RTRIM(content))=''
+62|7566|99|INSERT INTO @mssqljdbc_temp_sp_columns_result EXEC sp_columns_100  @P0 , @P1 , @P2 , @P3 , @P4 , @P5
+1|1417|6|SELECT 'server UTC now' AS label, CONVERT(varchar(19), SYSDATETIME(), 120) AS value
+UNION ALL SELECT 'max lessons.created_at', CONVERT(varchar(19), MAX(created_at), 120) FROM lessons
+UNION ALL SELECT 'max exercises.created_at', CONVERT(varchar(19), MAX(cre
+14|1301|38|select count_big(e1_0.exercise_id) from exercises e1_0 join lessons l1_0 on l1_0.lesson_id=e1_0.lesson_id where ( @P0 is null or l1_0.lesson_id= @P1 ) and ( @P2 is null or  @P3 ='' or e1_0.exercise_type= @P4 ) and ( @P5 is null or  @P6 ='' or e1_0.difficul
+```
+
+### [11] DB SIZE / FILE LAYOUT
+
+```
+db_name|logical_name|type_desc|size_mb
+-------|------------|---------|-------
+english_learning|english_learning|ROWS|264.0
+english_learning|english_learning_log|LOG|328.0
+```
+
+### [12] DDL-AUTO SETTING IN EFFECT (Hibernate owns schema)
+
+```
+note
+----
+ddl-auto is managed by application.properties, Flyway disabled
+```
+
+### [13] INDEX FRAGMENTATION (avg_fragmentation_in_percent > 30 = worth a rebuild)
+
+```
+table_name|index_name|frag_pct|page_count
+----------|----------|--------|----------
+lessons|PK__lessons__6421F7BE05A3095C|11.6|121
+```
+
+### [14] TABLE SIZE / SPACE USED
+
+```
+table_name|row_count|total_mb|used_mb
+----------|---------|--------|-------
+exercises|306159|23.3|19.8
+lessons|7355|2.1|1.3
+exercises_bak_v5|962|1.1|.4
+exercises_bak_v5b|644|.4|.3
+speaking_submissions|168|.4|.1
+video_attempts|90|.4|.1
+user_vocabulary_progress|56|.3|.1
+speaking_prompts|30|.3|.1
+deck_words|400|.3|.1
+decks|70|.3|.1
+vocabulary|508|.3|.1
+users|228|.2|.1
+user_progress|57|.2|.0
+payment_transactions|395|.2|.1
+lesson_submissions|16|.2|.0
+exercise_attempts|84|.2|.1
+exercises_bak_v5d|78|.2|.0
+lesson_blocks|45|.1|.0
+lesson_sections|20|.1|.0
+lesson_snapshots|10|.1|.0
+exercises_bak_v5c|110|.1|.0
+sysdiagrams|6|.1|.0
+user_streaks|2|.1|.0
+video_lessons|15|.1|.1
+```
+
+### [15] PARTITIONING (expect: no partitioned tables)
+
+```
+partitioned_tables
+------------------
+0
+```
+
+### [16] TRANSACTION LOG SPACE REUSE
+
+```
+logical_name|type_desc|size_mb|used_mb
+------------|---------|-------|-------
+english_learning_log|LOG|328.0|33.5
+Database Name|Log Size (MB)|Log Space Used (%)|Status
+-------------|-------------|------------------|------
+master|1.9921875|31.764706|0
+tempdb|7.9921875|15.395894|0
+model|7.9921875|12.463343|0
+msdb|0.7421875|76.315788|0
+english_learning|327.99219|10.208894|0
+DBCC execution completed. If DBCC printed error messages, contact your system administrator.
+```
+
+### [17] LONGEST TEXT COLUMNS (NVARCHAR(MAX) payloads)
+
+```
+col|max_bytes
+---|---------
+lessons.content|67314
+lessons.content_original|115012
+exercises.options|3092
+exercises.explanation|986
+```
+
+### [18] STATISTICS FRESHNESS (oldest first)
+
+```
+table_name|stat_name|last_updated|rows|modification_counter
+----------|---------|------------|----|--------------------
+user_streaks|PK__user_str__64A11D3FC9187065|NULL|NULL|NULL
+sysdiagrams|PK__sysdiagr__C2B05B61BDD1B25B|NULL|NULL|NULL
+user_streaks|UK7sd7pfn89putvt5ji6winpq2|2026-06-28 13:50:56|1|0
+user_streaks|_WA_Sys_00000003_4B973090|2026-06-28 13:50:56|1|0
+video_lessons|PK__video_le__3213E83F5D11228E|2026-09-01 06:38:22|4|415
+lesson_snapshots|PK__lesson_s__C27CFBF7E5772110|2026-09-03 05:14:30|5|32
+lesson_snapshots|_WA_Sys_00000005_09946309|2026-09-03 05:14:30|5|32
+lesson_snapshots|_WA_Sys_00000004_09946309|2026-09-03 05:14:30|5|32
+```

@@ -52,6 +52,7 @@ class StreakReminderSchedulerTest {
                 streakService, emailService, redisTemplate, Clock.systemDefaultZone());
         markerKey = "streak:reminder:" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        lenient().when(valueOperations.increment(anyString())).thenReturn(1L);
     }
 
     private User user(Long id, String email, LocalDate lastStudyDate, Integer streak) {
@@ -61,6 +62,12 @@ class StreakReminderSchedulerTest {
         user.setFullName("User " + id);
         user.setLastStudyDate(lastStudyDate);
         user.setCurrentStreak(streak);
+        lenient().when(streakService.reminderEligible(id, true)).thenReturn(
+                lastStudyDate.equals(LocalDate.now().minusDays(1)));
+        lenient().when(streakService.reminderEligible(id, false)).thenReturn(
+                lastStudyDate.isBefore(LocalDate.now().minusDays(1)));
+        lenient().when(streakService.getCurrentStreak(id)).thenReturn(streak);
+        lenient().when(streakService.lastCompletedStreak(id)).thenReturn(streak);
         return user;
     }
 
@@ -171,6 +178,35 @@ class StreakReminderSchedulerTest {
         verifyNoInteractions(valueOperations);
     }
 
+    /**
+     * Cron chạy theo zone VN, nhưng marker/sent key từng lấy {@code LocalDate.now(clock)}
+     * với clock ở zone hệ thống. Nếu {@code TZ} thiếu thì catch-up so giờ UTC (sớm 7h)
+     * còn marker key lại lệch sang ngày UTC — hai nguồn "hôm nay" không khớp nhau quanh
+     * nửa đêm VN. Scheduler phải pin zone VN cho mọi thứ, đúng cách StudyActivityService
+     * đang làm.
+     */
+    @Test
+    void catchUpUsesVietnamDateEvenWhenSystemClockIsUtc() throws Exception {
+        // 13:30 UTC = 20:30 VN cùng ngày. Catch-up phải nổ (sau 20:00 VN) VÀ marker
+        // key phải mang ngày VN, không phải ngày UTC (vẫn cùng ngày ở ví dụ này, nhưng
+        // xung quanh 00:00–07:00 VN hai zone sẽ lệch một ngày).
+        Clock utcAfterEightPmVn = Clock.fixed(Instant.parse("2026-09-07T13:30:00Z"), ZoneId.of("UTC"));
+        StreakReminderScheduler enabled = new StreakReminderScheduler(streakService, emailService, redisTemplate, utcAfterEightPmVn);
+        setCatchUpEnabled(enabled, true);
+        String key20260907 = "streak:reminder:2026-09-07";
+
+        when(valueOperations.setIfAbsent(eq(key20260907), anyString(), any())).thenReturn(true);
+        when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of());
+        when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of());
+
+        enabled.catchUpIfMissed();
+
+        // Marker key theo ngày VN (2026-09-07), không theo ngày UTC (vẫn là 2026-09-07
+        // trong ví dụ này, nhưng assertion quan trọng là nó KHÔNG phải 2026-09-08 —
+        // đấy là cái sẽ sai nếu clock pin nhầm zone và instant rơi vào 00:00–07:00 VN).
+        verify(valueOperations).setIfAbsent(eq(key20260907), eq("catch-up"), any());
+    }
+
     private void setCatchUpEnabled(StreakReminderScheduler s, boolean value) throws Exception {
         Field field = StreakReminderScheduler.class.getDeclaredField("catchUpEnabled");
         field.setAccessible(true);
@@ -189,8 +225,8 @@ class StreakReminderSchedulerTest {
         User broken = user(2L, "gone@test.com", LocalDate.now().minusDays(5), 4);
         when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of(atRisk));
         when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of(broken));
-        when(redisTemplate.hasKey(sentKey(1L))).thenReturn(true);
-        when(redisTemplate.hasKey(sentKey(2L))).thenReturn(true);
+        doReturn(true).when(redisTemplate).hasKey(sentKey(1L));
+        doReturn(true).when(redisTemplate).hasKey(sentKey(2L));
 
         scheduler.sendDailyStreakReminders();
 
@@ -224,4 +260,44 @@ class StreakReminderSchedulerTest {
         scheduler.sendDailyStreakReminders();
 
         verify(valueOperations, never()).set(eq(sentKey(1L)), anyString(), any());
-    }}
+    }
+
+    @Test
+    void redisFailureMustNotSendWithoutDeduplication() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any()))
+                .thenThrow(new IllegalStateException("Redis unavailable"));
+        scheduler.sendDailyStreakReminders();
+        verifyNoInteractions(emailService, streakService);
+    }
+
+    @Test
+    void userWhoStudiedAfterCandidateSelectionDoesNotReceiveReminder() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any())).thenReturn(true);
+        User candidate = user(1L, "risk@test.com", LocalDate.now().minusDays(1), 6);
+        when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of(candidate));
+        when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of());
+        when(streakService.reminderEligible(1L, true)).thenReturn(false);
+        scheduler.sendDailyStreakReminders();
+        verifyNoInteractions(emailService);
+    }
+
+    @Test
+    void retryBudgetStopsAfterThreeAttempts() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any())).thenReturn(true);
+        when(valueOperations.increment("streak:attempts:" + LocalDate.now())).thenReturn(4L);
+        scheduler.sendDailyStreakReminders();
+        verifyNoInteractions(emailService, streakService);
+    }
+
+    @Test
+    void comebackSuppressionIsThirtyDaysAndOnlyWrittenAfterSuccessfulSend() {
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any())).thenReturn(true);
+        User candidate = user(2L, "gone@test.com", LocalDate.now().minusDays(3), 6);
+        when(streakService.getUsersWithStreakAtRisk()).thenReturn(List.of());
+        when(streakService.getUsersWithBrokenStreak()).thenReturn(List.of(candidate));
+        scheduler.sendDailyStreakReminders();
+        var order = inOrder(emailService, valueOperations);
+        order.verify(emailService).sendStreakComebackReminder("gone@test.com", "User 2", 6);
+        order.verify(valueOperations).setIfAbsent("streak:comeback:2", "1", java.time.Duration.ofDays(30));
+    }
+}

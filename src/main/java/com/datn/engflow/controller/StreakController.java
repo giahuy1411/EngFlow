@@ -19,6 +19,15 @@ import java.util.Map;
 public class StreakController {
 
     private final StreakService streakService;
+    private final com.datn.engflow.service.StudyActivityService studyActivityService;
+
+    @GetMapping("/snapshot")
+    public ResponseEntity<?> getSnapshot(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(studyActivityService.snapshot(userPrincipal.getId(), 30));
+    }
 
     @GetMapping("/history")
     public ResponseEntity<?> getStreakHistory(
@@ -41,8 +50,7 @@ public class StreakController {
         if (userPrincipal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(Map.of(
-                "currentStreak", streakService.getCurrentStreak(userPrincipal.getId()),
-                "today", streakService.todayIso()));
+        var snapshot = studyActivityService.snapshot(userPrincipal.getId(), 30);
+        return ResponseEntity.ok(Map.of("currentStreak", snapshot.currentStreak(), "today", snapshot.today()));
     }
 }

@@ -41,6 +41,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = tokenProvider.getEmailFromJWT(jwt);
 
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+                // User bị admin tắt (is_active=0) vẫn giữ JWT hợp lệ cho tới khi hết
+                // hạn (900s). Filter tự dựng AuthenticationToken thay vì đi qua
+                // DaoAuthenticationProvider, nên isEnabled() không bao giờ được hỏi —
+                // nếu không chặn ở đây, user bị tắt đi nộp bài sẽ gây 500 và cuốn theo
+                // kết quả học tập (recordStudy chạy MANDATORY trong transaction caller).
+                if (!userDetails.isEnabled()) {
+                    logger.warn("Disabled account attempted access: " + request.getRequestURI());
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                    response.getWriter().write("{\"status\":401,\"message\":\"Tài khoản đã bị vô hiệu hoá. Vui lòng liên hệ quản trị viên.\",\"errors\":null}");
+                    return;
+                }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

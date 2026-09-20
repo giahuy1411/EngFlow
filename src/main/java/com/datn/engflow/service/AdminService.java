@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class AdminService {
     private final LessonSubmissionRepository lessonSubmissionRepository;
     private final LessonService lessonService;
     private final Clock clock;
+    private final StreakService streakService;
 
     public AdminStatsDTO getDashboardStats() {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
@@ -60,12 +63,17 @@ public class AdminService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public Page<AdminUserDTO> getAllUsers(String keyword, int page, int size) {
         Pageable pageable = adminPageRequest(page, size, Sort.by("createdAt").descending().and(Sort.by("id")));
         Page<User> users = (keyword == null || keyword.isBlank())
                 ? userRepository.findAll(pageable)
                 : userRepository.searchByKeywordPage(keyword.trim(), pageable);
-        return users.map(this::mapToAdminUserDTO);
+        // Streak cho cả trang trong MỘT query: gọi getCurrentStreak theo từng row là
+        // N+1 (mỗi call đọc study_days một lần). Trang rỗng thì không chạm tầng streak.
+        List<Long> userIds = users.getContent().stream().map(User::getId).toList();
+        Map<Long, Integer> streaks = userIds.isEmpty() ? Map.of() : streakService.currentStreaks(userIds);
+        return users.map(u -> mapToAdminUserDTO(u, streaks));
     }
 
     @Transactional
@@ -112,7 +120,19 @@ public class AdminService {
         return mapToAdminUserDTO(saved);
     }
 
+    /** Đường một-user (4 method toggle*) — đọc streak trực tiếp, không cần batch. */
     private AdminUserDTO mapToAdminUserDTO(User u) {
+        return mapToAdminUserDTO(u, Map.of());
+    }
+
+    /**
+     * @param streaks kết quả batch cho cả trang; user vắng mặt (chưa từng học) nhận 0.
+     *                Với đường một-user, map rỗng nên phải đọc trực tiếp.
+     */
+    private AdminUserDTO mapToAdminUserDTO(User u, Map<Long, Integer> streaks) {
+        Integer currentStreak = streaks.isEmpty()
+                ? streakService.getCurrentStreak(u.getId())
+                : streaks.getOrDefault(u.getId(), 0);
         return AdminUserDTO.builder()
                 .id(u.getId())
                 .username(u.getUsername())
@@ -121,7 +141,7 @@ public class AdminService {
                 .isAdmin(u.getIsAdmin())
                 .isActive(u.getIsActive())
                 .totalPoints(u.getTotalPoints())
-                .currentStreak(u.getCurrentStreak())
+                .currentStreak(currentStreak)
                 .createdAt(u.getCreatedAt())
                 .isPremium(Boolean.TRUE.equals(u.getIsPremium()))
                 .premiumExpiry(u.getPremiumExpiry())

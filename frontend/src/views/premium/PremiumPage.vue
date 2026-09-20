@@ -33,8 +33,10 @@
           </AppButton>
         </div>
 
-        <div class="bg-white border-2 border-foreground p-8 flex flex-col relative">
-          <div class="absolute -top-3 right-4 bg-tertiary text-foreground text-xs font-bold px-3 py-1 uppercase tracking-wider">Rẻ hơn cả trà sữa</div>
+        <div class="app-plan app-plan--featured bg-white border-2 border-foreground p-8 flex flex-col relative">
+          <!-- Prompt: "a massive yellow star badge 'MOST POPULAR' rotated 15deg" -->
+          <div class="app-plan__badge" aria-hidden="true">★</div>
+          <div class="app-plan__ribbon absolute -top-3 right-4 bg-tertiary text-foreground text-xs font-bold px-3 py-1 uppercase tracking-wider">Rẻ hơn cả trà sữa</div>
           <div class="mb-6">
             <h2 class="text-2xl font-black mb-2">Gói năm</h2>
             <div class="text-4xl font-black">20.000<span class="text-lg">đ</span></div>
@@ -76,3 +78,52 @@ function checkout(planType) {
   router.push({ path: '/premium/checkout', query: { plan: planType } })
 }
 </script>
+
+<style scoped>
+/*
+  Prompt: "The middle card is scaled up (1.1) and has a massive yellow star
+  badge 'MOST POPULAR' rotated 15deg."
+
+  Two deliberate deviations from the literal text, both for correctness:
+   - The badge carries a star, not the words "MOST POPULAR": this page's existing
+     copy is Vietnamese ("Rẻ hơn cả trà sữa") and the UI-text convention (P7) is
+     Vietnamese with English technical terms. The star is the decorative part the
+     prompt actually specifies; a second English label would fight the ribbon.
+   - The scale is applied from `md` up only. At 360-767px the two plans stack, and
+     scaling one of a stacked pair overlaps its neighbour and pushes the page
+     wider than the viewport.
+*/
+.app-plan--featured {
+  border-color: var(--geo-secondary);
+  box-shadow: var(--geo-shadow-featured);
+}
+@media (min-width: 768px) {
+  .app-plan--featured {
+    transform: scale(1.1);
+    z-index: 1;
+  }
+}
+
+.app-plan__badge {
+  position: absolute;
+  top: -1.25rem;
+  right: -1.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  line-height: 1;
+  background: var(--geo-tertiary);
+  border: 2px solid var(--geo-fg);
+  border-radius: var(--geo-radius-full);
+  box-shadow: var(--geo-shadow-sm);
+  transform: rotate(15deg);
+}
+
+/* The ribbon already sits at the top edge; a slight tilt matches the sticker feel. */
+.app-plan__ribbon {
+  transform: rotate(-2deg);
+}
+</style>

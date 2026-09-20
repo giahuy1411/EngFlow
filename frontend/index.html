@@ -33,11 +33,25 @@
          font duy nhất theo constitution P6. display=swap + preconnect: font
          tải song song với app bundle; CLS cold-load chủ yếu đến từ SPA mount
          (xem REPORT §4e), không phải FOUT.
-         audit-v7: weights nạp theo usage count thật (400:1605, 500:344, 600:15,
-         700:287, 900:292, italic:9). 800/extrabold = 0 lượt dùng → bỏ khỏi URL. -->
+
+         audit-v10 F125: 800 PHẢI nằm trong URL này.
+         audit-v7 đã bỏ 800 với lý do "0 lượt dùng", đo trên source lúc đó. Kết
+         luận đó nay hết hiệu lực: đo lại 2026-09-20 được 17 lượt
+         (app-logo.css 2, app-layout.css 2, design-system.css 10,
+         LearningPath.vue 3), dùng cho logo "EngFlow" và 5 node lộ trình.
+
+         Hậu quả khi thiếu 800 KHÔNG phải là "chữ về weight gần nhất" theo kiểu
+         nhảy cóc. Browser tổng hợp (synthesize) một face giả bằng cách làm đậm
+         face 900 sẵn có. Đo được trong Edge: chiều rộng chuỗi mẫu ở 800 =
+         633.000px, ở 900 = 633.000px — TRÙNG KHÍT — trong khi 700 = 618.406px.
+         Tức chữ hiển thị dày như 900 chứ không phải 800, và nét bị bóp méo do
+         tổng hợp. Không có lỗi console nào, không có request nào thất bại, nên
+         chỉ phép đo chiều rộng mới lộ ra.
+
+         Giữ 600 vì vẫn còn 6 lượt dùng (font-semibold ở speaking/videos). -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="app"></div>

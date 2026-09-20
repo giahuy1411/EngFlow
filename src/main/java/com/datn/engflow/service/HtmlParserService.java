@@ -272,6 +272,27 @@ public class HtmlParserService {
         // Extract options for multiple choice
         String options = extractOptions(p, sectionContext, questionNum);
 
+        // audit-v10: hạ nhãn LISTENING khi row THỰC CHẤT là trắc nghiệm.
+        //
+        // `detectDiviExerciseType` gán nhãn theo SECTION, và quy tắc đầu tiên
+        // của nó là "section có thẻ <audio> → LISTENING". Nhưng thẻ <audio> có
+        // thể có trong HTML nguồn mà FILE không tải về được — khi đó row mang
+        // nhãn LISTENING vĩnh viễn dù `audio_url` rỗng.
+        //
+        // Đo được 2026-09-20: 9 row như vậy, trong đó 7 row có `options` là
+        // mảng JSON và `correct_answer` trùng khít một lựa chọn — tức là trắc
+        // nghiệm, không phải bài nghe. UI hiện nhãn "NGHE" kèm nút "🔊 Nghe"
+        // đọc to chính câu lệnh ("I can understand a text about brothers and
+        // sisters"), và học sinh bấm nút đó thì nghe thấy câu lệnh.
+        //
+        // Điều kiện hạ nhãn: có ÍT NHẤT 2 lựa chọn thật. Một bài nghe đúng
+        // nghĩa có thể có lựa chọn (279/358 row LISTENING có audio đúng là
+        // vậy), nhưng khi đó nó CÓ `audio_url`. Ở đây chỉ hạ nhãn khi row
+        // không có audio để phát — tức nhãn LISTENING không thể đúng.
+        if (type == ExerciseType.LISTENING && hasRealChoices(options)) {
+            type = ExerciseType.MULTIPLE_CHOICE;
+        }
+
         ExerciseDifficulty difficulty = sectionContext != null 
             ? detectDifficulty(sectionContext, lesson.getTitle())
             : detectDifficulty(lesson.getTitle());
@@ -479,6 +500,26 @@ public class HtmlParserService {
         return "[\"" + options.stream()
             .map(o -> o.replace("\"", "\\\""))
             .collect(Collectors.joining("\", \"")) + "\"]";
+    }
+
+    /**
+     * True khi chuỗi {@code options} chứa ÍT NHẤT 2 lựa chọn thật.
+     *
+     * <p>Dùng cho việc hạ nhãn LISTENING ở {@code buildExerciseFromP}. Cố ý
+     * KHÔNG parse JSON đầy đủ: {@code extractOptions} trả về đúng một định dạng
+     * (mảng JSON một dòng, do {@link #formatOptions} sinh ra), và một phép đếm
+     * đơn giản tránh phải xử lý mọi trường hợp JSON hỏng ở đây.
+     *
+     * <p>Đếm dấu {@code "} rồi chia đôi, vì mỗi phần tử là một chuỗi được bọc
+     * nháy: {@code ["a", "b"]} có 4 dấu nháy = 2 phần tử. Cách này chấp nhận
+     * cả mảng rỗng {@code []} (0 dấu nháy → 0 phần tử → false) và {@code null}.
+     */
+    private boolean hasRealChoices(String options) {
+        if (options == null || options.isBlank()) return false;
+        String trimmed = options.trim();
+        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) return false;
+        long quotes = trimmed.chars().filter(c -> c == '"').count();
+        return quotes / 2 >= 2;
     }
 
     /**

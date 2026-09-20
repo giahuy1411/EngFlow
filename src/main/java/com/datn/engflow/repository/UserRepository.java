@@ -18,6 +18,22 @@ import java.util.Optional;
  * interface UserRepository.
  */
 public interface UserRepository extends JpaRepository<User, Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT u FROM User u WHERE u.id = :id")
+    Optional<User> findForStudyUpdate(@Param("id") Long id);
+
+    @Query("SELECT u FROM User u WHERE u.isActive = true AND "
+            + "(SELECT MAX(d.studyDate) FROM StudyDay d WHERE d.userId = u.id "
+            + "AND d.studyDate BETWEEN :start AND :today) = :yesterday")
+    List<User> findStudyReminderAtRisk(@Param("start") LocalDate start,
+            @Param("today") LocalDate today, @Param("yesterday") LocalDate yesterday);
+
+    @Query("SELECT u FROM User u WHERE u.isActive = true AND "
+            + "(SELECT MAX(d.studyDate) FROM StudyDay d WHERE d.userId = u.id "
+            + "AND d.studyDate BETWEEN :start AND :today) < :yesterday")
+    List<User> findStudyReminderBroken(@Param("start") LocalDate start,
+            @Param("today") LocalDate today, @Param("yesterday") LocalDate yesterday);
+
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
     boolean existsByEmail(String email);

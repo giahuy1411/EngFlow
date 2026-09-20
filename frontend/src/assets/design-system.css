@@ -106,166 +106,14 @@ body {
 }
 
 /* --- Typography Utilities --- */
-.geo-heading {
-  font-family: var(--geo-font);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.geo-heading-1 { font-size: var(--geo-text-5xl); }
-.geo-heading-2 { font-size: var(--geo-text-4xl); }
-.geo-heading-3 { font-size: var(--geo-text-3xl); }
-.geo-heading-4 { font-size: var(--geo-text-2xl); }
-
-.geo-body {
-  font-family: var(--geo-font);
-  font-weight: 400;
-  line-height: 1.6;
-}
 
 /* --- "Pop" Shadow (Hard Shadow) --- */
-.geo-shadow-pop {
-  box-shadow: var(--geo-shadow-md);
-  transition: var(--geo-transition);
-}
-.geo-shadow-pop:hover {
-  box-shadow: var(--geo-shadow-hover);
-  transform: translate(-2px, -2px);
-}
-.geo-shadow-pop:active {
-  box-shadow: var(--geo-shadow-active);
-  transform: translate(2px, 2px);
-}
-
-.geo-shadow-card {
-  box-shadow: var(--geo-shadow-xl);
-}
-
-.geo-shadow-card-featured {
-  box-shadow: var(--geo-shadow-featured);
-}
-
-.geo-shadow-accent-focus:focus {
-  border-color: var(--geo-accent);
-  box-shadow: var(--geo-shadow-accent);
-}
 
 /* --- Buttons (Candy Button base) --- */
-.geo-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-family: var(--geo-font);
-  font-weight: 700;
-  border: var(--geo-border-width) solid var(--geo-fg);
-  cursor: pointer;
-  transition: var(--geo-transition);
-  text-decoration: none;
-  line-height: 1;
-  user-select: none;
-  min-height: 48px;
-}
-
-.geo-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--geo-ring), 0 0 0 5px white;
-}
-
-.geo-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-}
 
 /* Variants */
-.geo-btn-primary {
-  background: var(--geo-accent);
-  color: var(--geo-accent-fg);
-  border-radius: var(--geo-radius-full);
-  box-shadow: var(--geo-shadow-md);
-}
-.geo-btn-primary:hover {
-  box-shadow: var(--geo-shadow-hover);
-  transform: translate(-2px, -2px);
-}
-.geo-btn-primary:active {
-  box-shadow: var(--geo-shadow-active);
-  transform: translate(2px, 2px);
-}
-
-.geo-btn-secondary {
-  background: transparent;
-  color: var(--geo-fg);
-  border-radius: var(--geo-radius-full);
-}
-.geo-btn-secondary:hover {
-  background: var(--geo-tertiary);
-  border-color: var(--geo-fg);
-}
-
-.geo-btn-ghost {
-  background: transparent;
-  border-color: transparent;
-  color: var(--geo-fg);
-  border-radius: var(--geo-radius-full);
-}
-.geo-btn-ghost:hover {
-  background: var(--geo-muted);
-}
-
-.geo-btn-pink {
-  background: var(--geo-secondary);
-  color: white;
-  border-radius: var(--geo-radius-full);
-  box-shadow: var(--geo-shadow-md);
-}
-.geo-btn-pink:hover {
-  box-shadow: var(--geo-shadow-hover);
-  transform: translate(-2px, -2px);
-}
-.geo-btn-pink:active {
-  box-shadow: var(--geo-shadow-active);
-  transform: translate(2px, 2px);
-}
-
-.geo-btn-emerald {
-  background: var(--geo-quaternary);
-  /* audit-v6 F25: white on #34D399 ≈ 2:1 fails contrast — dark ink instead */
-  color: var(--geo-fg);
-  border-radius: var(--geo-radius-full);
-  box-shadow: var(--geo-shadow-md);
-}
-.geo-btn-emerald:hover {
-  box-shadow: var(--geo-shadow-hover);
-  transform: translate(-2px, -2px);
-}
-.geo-btn-emerald:active {
-  box-shadow: var(--geo-shadow-active);
-  transform: translate(2px, 2px);
-}
-
-.geo-btn-amber {
-  background: var(--geo-tertiary);
-  color: var(--geo-fg);
-  border-radius: var(--geo-radius-full);
-  box-shadow: var(--geo-shadow-md);
-}
-.geo-btn-amber:hover {
-  box-shadow: var(--geo-shadow-hover);
-  transform: translate(-2px, -2px);
-}
-.geo-btn-amber:active {
-  box-shadow: var(--geo-shadow-active);
-  transform: translate(2px, 2px);
-}
 
 /* Button Sizes */
-.geo-btn-sm { padding: 0.375rem 1rem; font-size: var(--geo-text-xs); min-height: 36px; }
-.geo-btn-md { padding: 0.625rem 1.5rem; font-size: var(--geo-text-sm); }
-.geo-btn-lg { padding: 0.875rem 2rem; font-size: var(--geo-text-base); }
-.geo-btn-xl { padding: 1.125rem 2.5rem; font-size: var(--geo-text-lg); }
 
 /* --- Cards (Sticker Card) --- */
 .geo-card {
@@ -282,96 +130,16 @@ body {
   transform: rotate(-1deg) scale(1.02);
 }
 
-.geo-card-featured {
-  box-shadow: var(--geo-shadow-featured);
-}
-
 /* Card floating icon (half in/out) */
-.geo-card-icon {
-  position: absolute;
-  top: -16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--geo-accent);
-  border: 2px solid var(--geo-fg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  z-index: 2;
-}
 
 /* --- Inputs --- */
-.geo-input {
-  width: 100%;
-  background: var(--geo-input);
-  border: var(--geo-border-width) solid #CBD5E1;
-  border-radius: var(--geo-radius-sm);
-  padding: 0.75rem 1rem;
-  font-family: var(--geo-font);
-  font-size: var(--geo-text-base);
-  color: var(--geo-fg);
-  transition: var(--geo-transition);
-  box-shadow: 4px 4px 0px 0px transparent;
-}
-
-.geo-input:focus {
-  outline: none;
-  border-color: var(--geo-accent);
-  box-shadow: var(--geo-shadow-accent);
-}
-
-.geo-input::placeholder {
-  color: var(--geo-muted-fg);
-}
-
-.geo-label {
-  display: block;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: var(--geo-text-xs);
-  margin-bottom: 0.375rem;
-  color: var(--geo-fg);
-}
 
 /* --- Badges / Tags --- */
-.geo-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  font-weight: 700;
-  font-size: var(--geo-text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: var(--geo-border-width) solid var(--geo-fg);
-  background: var(--geo-card);
-  gap: 0.375rem;
-}
-
-.geo-badge-primary { background: var(--geo-accent); color: white; }
-.geo-badge-secondary { background: var(--geo-secondary); color: white; }
-.geo-badge-tertiary { background: var(--geo-tertiary); color: var(--geo-fg); }
-.geo-badge-quaternary { background: var(--geo-quaternary); color: white; }
 
 /* --- Marguee (infinite scroll) --- */
 @keyframes geo-marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
-}
-
-.geo-marquee {
-  display: flex;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.geo-marquee-content {
-  display: flex;
-  animation: geo-marquee 30s linear infinite;
 }
 
 /* --- Wiggle Animation --- */
@@ -381,10 +149,6 @@ body {
   75% { transform: rotate(-3deg); }
 }
 
-.geo-wiggle:hover {
-  animation: geo-wiggle 0.3s ease-in-out;
-}
-
 /* --- Pop Entrance --- */
 @keyframes geo-pop-in {
   0% { transform: scale(0); opacity: 0; }
@@ -392,73 +156,13 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-.geo-pop-in {
-  animation: geo-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
 /* --- Special "Blob" Radii --- */
-.geo-blob-speech {
-  border-radius: var(--geo-radius-lg) var(--geo-radius-lg) var(--geo-radius-lg) 0;
-}
-
-.geo-blob-arch {
-  border-radius: var(--geo-radius-full) var(--geo-radius-full) 0 0;
-}
-
-.geo-blob-arch-bottom {
-  border-radius: 0 0 var(--geo-radius-full) var(--geo-radius-full);
-}
-
-.geo-blob-squircle {
-  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-}
 
 /* --- Dot Grid Pattern --- */
-.geo-dot-grid {
-  background-image: radial-gradient(circle, #1E293B 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.geo-dot-grid-light {
-  background-image: radial-gradient(circle, #E2E8F0 1px, transparent 1px);
-  background-size: 20px 20px;
-}
 
 /* --- Confetti shapes (for decorative placement) --- */
-.geo-confetti-circle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid var(--geo-fg);
-  position: absolute;
-  pointer-events: none;
-}
-
-.geo-confetti-triangle {
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 20px solid var(--geo-tertiary);
-  position: absolute;
-  pointer-events: none;
-}
-
-.geo-confetti-square {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--geo-fg);
-  position: absolute;
-  pointer-events: none;
-}
 
 /* --- Squiggle Divider --- */
-.geo-squiggle {
-  width: 100%;
-  height: 24px;
-  background: url("data:image/svg+xml,%3Csvg width='100' height='24' viewBox='0 0 100 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 12 Q25 0 50 12 T100 12' fill='none' stroke='%231E293B' stroke-width='2'/%3E%3C/svg%3E") repeat-x;
-  opacity: 0.3;
-}
 
 /* --- Preferred Reduced Motion --- */
 @media (prefers-reduced-motion: reduce) {
@@ -486,16 +190,9 @@ body {
     transform: none;
   }
 
-  .geo-btn-primary:hover,
-  .geo-btn-pink:hover,
-  .geo-btn-emerald:hover,
-  .geo-btn-amber:hover {
-    transform: none;
-  }
+  
 
-  .geo-shadow-pop:hover {
-    transform: none;
-  }
+  
 }
 
 /* --- Markdown Content Styling --- */
@@ -581,38 +278,12 @@ input[type="radio"].geo-radio:checked {
 }
 
 /* --- Checkbox (Geo styled) --- */
-input[type="checkbox"].geo-checkbox {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--geo-fg);
-  border-radius: 4px;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--geo-transition);
-  flex-shrink: 0;
-}
-input[type="checkbox"].geo-checkbox:checked {
-  background: var(--geo-accent);
-  border-color: var(--geo-accent);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
-  background-size: contain;
-}
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  .geo-shadow-pop {
-    box-shadow: 2px 2px 0px 0px #1E293B;
-  }
-  .geo-shadow-pop:hover {
-    box-shadow: 3px 3px 0px 0px #1E293B;
-  }
-  .geo-shadow-card {
-    box-shadow: 4px 4px 0px 0px #E2E8F0;
-  }
+  
+  
+  
   /* audit-v6 F27: spec requires reducing "pop" shadows to 2px on mobile —
      the Tailwind utilities (used everywhere) were not covered by the
      .geo-shadow-* rules above, so they kept 4-8px offsets on small screens. */
@@ -642,9 +313,9 @@ input[type="checkbox"].geo-checkbox:checked {
   }
   .shadow-pop-xl:hover, .shadow-pop-xl:active { box-shadow: 3px 3px 0px 0px #E2E8F0; }
   .shadow-pop-featured:hover, .shadow-pop-featured:active { box-shadow: 3px 3px 0px 0px #F472B6; }
-  .geo-heading-1 { font-size: var(--geo-text-3xl); }
-  .geo-heading-2 { font-size: var(--geo-text-2xl); }
-  .geo-heading-3 { font-size: var(--geo-text-xl); }
+  
+  
+  
 }
 
 /* =========================================================
@@ -1101,6 +772,38 @@ input[type="checkbox"].geo-checkbox:checked {
 
 @keyframes app-spin {
   to { transform: rotate(360deg); }
+}
+
+/* --- AppButton arrow affordance ---
+   Prompt: "Icon: ArrowRight, circular background (white) inside button."
+   The circle inherits the button's text colour so it reads correctly on every
+   variant (white circle on violet/pink, dark circle on amber/mint). */
+.app-btn__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: var(--geo-radius-full);
+  background: var(--geo-card);
+  border: 2px solid var(--geo-fg);
+  margin-left: 0.25rem;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.app-btn__arrow-icon {
+  width: 1rem;
+  height: 1rem;
+  /* Dark ink on the white circle in every variant: the circle is always the
+     light card colour, so a light glyph would vanish. */
+  color: var(--geo-fg);
+  stroke-width: 2.5;
+}
+.app-btn:hover:not(:disabled) .app-btn__arrow {
+  transform: translateX(3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-btn:hover:not(:disabled) .app-btn__arrow { transform: none; }
 }
 
 /* --- AppInput --- */

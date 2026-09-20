@@ -111,25 +111,18 @@ function emitFallback() {
 
 // Parse MATCHING data
 // options: ["word1|def1", "word2|def2", "word3|def3", "word4|def4"]
-// correctAnswer: "0=0,1=1,2=2,3=3" (leftIndex=rightIndex)
 // After MCP processing: options = left items, _matchRight = right items (shuffled)
+//
+// audit-v10 F127: client KHONG giu `correctPairs` va KHONG doc `correctAnswer`.
+// Server cham bang `options`; client chi can biet hai cot de hien thi, va chi
+// gui len cap CHU nguoi hoc da noi.
 
 const leftItems = ref([])
 const rightItems = ref([])
-const correctPairs = ref([])
 const matchedPairs = ref([])
 const pendingLeft = ref(null)
 const pendingRight = ref(null)
-const rightIndexMap = ref([]) // maps displayed-right-index to original-right-text-index
 const revealed = ref(false)
-
-const userPairs = computed(() => {
-  const map = {}
-  for (const p of matchedPairs.value) {
-    map[p.left] = p.right
-  }
-  return map
-})
 
 onMounted(() => {
   const ex = props.exercise
@@ -154,7 +147,7 @@ onMounted(() => {
       }
       if (pairs.length > 0) {
         leftItems.value = pairs.map(p => p.left)
-        // Build rightItems shuffled + pairMap for VALUE-based matching
+        // Xao tron cot phai de nguoi hoc phai tu noi, khong doan theo thu tu.
         const rightTexts = pairs.map(p => p.right)
         const indices = [...Array(rightTexts.length).keys()]
         for (let i = indices.length - 1; i > 0; i--) {
@@ -162,34 +155,21 @@ onMounted(() => {
           ;[indices[i], indices[j]] = [indices[j], indices[i]]
         }
         rightItems.value = indices.map(i => rightTexts[i])
-        // Store which original right-index each displayed-right maps to
-        rightIndexMap.value = indices
-        // Build VALUE-based correct pairs: { leftValue: leftIndex, rightValue: rightIndex }
-        for (let i = 0; i < pairs.length; i++) {
-          correctPairs.value.push({ left: pairs[i].left, right: pairs[i].right })
-        }
       }
     }
   }
 
-  // Parse correctAnswer
-  if (ex.correctAnswer) {
-    const str = String(ex.correctAnswer)
-    const parts = str.split(',')
-    for (const part of parts) {
-      const [l, r] = part.split('=').map(s => parseInt(s.trim()))
-      if (!isNaN(l) && !isNaN(r)) {
-        correctPairs.value.push({ left: l, right: r })
-      }
-    }
-  }
-
-  // Fallback: sequential
-  if (correctPairs.value.length === 0 && leftItems.value.length > 0) {
-    for (let i = 0; i < leftItems.value.length; i++) {
-      correctPairs.value.push({ left: i, right: i })
-    }
-  }
+  // audit-v10 F127: KHONG con parse `correctAnswer` o client.
+  //
+  // Hai ly do:
+  //  1. No khong bao gio dung duoc. Doan cu lam `parseInt` tren tung ve cua moi
+  //     cap va bo qua cap nao khong parse duoc. Do 331 row MATCHING published:
+  //     330 row luu dap an dang CHU ("A=B,B=D" hoac "word1=be,..."), nen moi
+  //     ve deu NaN, `correctPairs` rong, va code roi vao fallback "tuan tu" —
+  //     tuc client TU DOAN dap an la 0=0,1=1,2=2. Doan sai.
+  //  2. Dap an khong nen nam o client. Server cham bang `options` (xem
+  //     ExerciseService.matchingPairsMatch), nen client khong can biet dap an —
+  //     va khong duoc biet, vi do la ro ri dap an cho nguoi dang lam bai.
 })
 
 function parseMarkdown(md) {
@@ -222,13 +202,36 @@ function tryMatch() {
   pendingLeft.value = null
   pendingRight.value = null
 
-  // Build answer string
-  const pairs = matchedPairs.value.map(p => `${p.left}=${p.right}`).join(',')
-  emit('answer', pairs)
-
-  if (matchedPairs.value.length === correctPairs.value.length) {
-    emit('reveal', pairs)
+  emit('answer', buildAnswer())
+  // Nop khi da noi HET cap ben trai. Truoc day so voi `correctPairs.length`,
+  // nhung do la do dai do client TU DOAN tu correctAnswer; gio lay truc tiep
+  // so muc o cot trai — dung bang so cap can noi.
+  if (matchedPairs.value.length === leftItems.value.length) {
+    emit('reveal', buildAnswer())
   }
+}
+
+/**
+ * audit-v10 F127 — gửi CHỮ, không gửi chỉ số.
+ *
+ * Trước đây hàm này gửi `${p.left}=${p.right}` với left/right là CHỈ SỐ VỊ TRÍ.
+ * Không thể chấm được ở server, vì cột phải đã bị XÁO TRỘN ở onMounted: chỉ số
+ * hiển thị không bằng chỉ số gốc, và server không có cách nào dựng lại phép
+ * hoán vị đó. Đo trên 4 bài published: gửi chỉ số → correct=false cho cả 4, dù
+ * người học nối đúng hết.
+ *
+ * Giờ gửi cặp CHỮ ("left=right"), khớp đúng định dạng server đọc từ `options`
+ * (mỗi phần tử "left|right"). Server so khớp theo TẬP HỢP nên thứ tự nối
+ * không ảnh hưởng kết quả.
+ *
+ * Lấy chữ trực tiếp từ mảng đang hiển thị: `leftItems[p.left]` và
+ * `rightItems[p.right]` chính là hai nhãn người dùng nhìn thấy và bấm vào, nên
+ * không cần dịch qua chỉ số gốc — chỉ số gốc không còn được dùng ở đâu.
+ */
+function buildAnswer() {
+  return matchedPairs.value
+    .map(p => `${leftItems.value[p.left]}=${rightItems.value[p.right]}`)
+    .join(',')
 }
 
 function removePair(i) {

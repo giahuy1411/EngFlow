@@ -1,0 +1,50 @@
+﻿package com.datn.engflow.service;
+
+import com.datn.engflow.model.dto.request.GradeRequest;
+import com.datn.engflow.model.dto.response.ExerciseGradeItem;
+import com.datn.engflow.model.dto.response.GradeResponse;
+import com.datn.engflow.model.entity.Exercise;
+import com.datn.engflow.model.entity.Lesson;
+import com.datn.engflow.model.enums.ExerciseType;
+import com.datn.engflow.repository.ExerciseAttemptRepository;
+import com.datn.engflow.repository.ExerciseRepository;
+import com.datn.engflow.repository.LessonRepository;
+import com.datn.engflow.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+/**
+ * Regression tests for the grading contract: an empty answer key can never
+ * verify a response (no more null-vs-empty false positives).
+ */
+@ExtendWith(MockitoExtension.class)
+class ExerciseServiceGradingTest {
+
+    @Mock
+    private ExerciseRepository exerciseRepository;
+
+    @Mock
+    private LessonRepository lessonRepository;
+
+    @Mock
+    private ExerciseAttemptRepository attemptRepository;
+
+    @Mock
+    private UserRepository userRepository;
+

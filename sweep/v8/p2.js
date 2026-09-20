@@ -2,6 +2,24 @@ const lib = require("./lib.js");
 const { probe, sleep } = lib;
 const J = JSON.stringify;
 
+/**
+ * audit-v9 harness fix: `correctAnswer` is a DTO field that is always SERIALIZED
+ * on the /exercises and /content endpoints — it is `null` for a non-admin caller.
+ * A substring test on the key name therefore fired a false "leak" warning in the
+ * first v9 pass (p1.json shows `"correctAnswer":null` for exercise 755989). Parse
+ * the body and warn only on a NON-NULL answer.
+ */
+function leakCheck(label, probeResult) {
+  if (!probeResult || !probeResult.txt) return;
+  let body;
+  try { body = JSON.parse(probeResult.txt); } catch (e) { return; }
+  const items = Array.isArray(body) ? body : (Array.isArray(body.exercises) ? body.exercises : []);
+  const leaked = items.filter((x) => x && x.correctAnswer !== undefined && x.correctAnswer !== null);
+  if (leaked.length) {
+    console.log("  WARNING: correctAnswer leaked in /" + label + " response (" + leaked.length + " items)");
+  }
+}
+
 (async () => {
   await lib.initTokens();
   const stamp = Date.now();
@@ -16,7 +34,8 @@ const J = JSON.stringify;
   await probe("L update", "PUT", "/api/admin/lessons/" + lessonId, "admin", 200,
     { title: "ZZ v8 lesson " + stamp + "b", content: "Updated content for the probe lesson, still long enough.", level: "INTERMEDIATE", category: "GRAMMAR", durationMinutes: 12, isPublished: false, orderIndex: 9999 });
   await probe("L publish toggle", "PUT", "/api/admin/lessons/" + lessonId + "/toggle-publish", "admin", 200);
-  await probe("L publish toggle back", "PUT", "/api/admin/lessons/" + lessonId + "/toggle-publish", "admin", 200);
+  // F89 positive control: verify 404 as guest when lesson is published=false is not possible here;
+  // lesson is now published.  We verify the answer-stripping contract below instead.
   await probe("L user-forbidden", "PUT", "/api/admin/lessons/" + lessonId, "user", 403, { title: "nope", content: "nope nope nope", level: "ELEMENTARY" });
 
   // ---------- EXERCISE CRUD on the temp lesson ----------
@@ -28,8 +47,11 @@ const J = JSON.stringify;
   await probe("E read", "GET", "/api/admin/exercises/" + exId, "admin", 200);
   await probe("E update", "PUT", "/api/admin/exercises/" + exId, "admin", 200,
     { lessonId: lessonId, question: "Choose the correct option for the probe: 2 + 3 = ?", options: J(["5", "4", "9"]), correctAnswer: "5", exerciseType: "MULTIPLE_CHOICE", difficulty: "EASY", explanation: "updated", orderIndex: 1 });
-  await probe("E public content hides answer", "GET", "/api/lessons/" + lessonId + "/exercises/content", "none", 200);
-  await probe("E public list hides answer", "GET", "/api/lessons/" + lessonId + "/exercises", "none", 200);
+  // Positive control: published lesson, guest sees content; response must NOT contain correctAnswer.
+  const contentProbe = await probe("E public content hides answer", "GET", "/api/lessons/" + lessonId + "/exercises/content", "none", 200);
+  leakCheck("content", contentProbe);
+  const listProbe = await probe("E public list hides answer", "GET", "/api/lessons/" + lessonId + "/exercises", "none", 200);
+  leakCheck("exercises", listProbe);
   await probe("E grade correct", "POST", "/api/lessons/" + lessonId + "/exercises/grade", "user", 200, { answers: [{ exerciseId: exId, userAnswer: "5" }] });
   await probe("E grade wrong", "POST", "/api/lessons/" + lessonId + "/exercises/grade", "user", 200, { answers: [{ exerciseId: exId, userAnswer: "9" }] });
   await probe("E submit persists", "POST", "/api/lessons/" + lessonId + "/exercises/submit", "user", 200, { answers: [{ exerciseId: exId, userAnswer: "5" }] });

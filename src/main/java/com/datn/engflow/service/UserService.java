@@ -196,8 +196,6 @@ public class UserService {
                 log.warn("Redis unavailable for delete {}: {} - ignore", failKey, e.getMessage());
             }
             String jwt = tokenProvider.generateToken(user.getEmail(), Boolean.TRUE.equals(user.getIsAdmin()) ? "ADMIN" : "USER", user.getIsPremium());
-            streakService.recordAccess(user.getId());
-            user = userRepository.findById(user.getId()).orElse(user);
             log.info("Đăng nhập thành công cho user: id={}, isAdmin={}", user.getId(), user.getIsAdmin());
             return mapToUserResponse(user, jwt);
         } catch (BadCredentialsException ex) {
@@ -228,8 +226,6 @@ public class UserService {
         if (!user.getIsActive()) {
             throw new BadRequestException("Tài khoản đã bị vô hiệu hóa");
         }
-        streakService.recordAccess(user.getId());
-        user = userRepository.findById(user.getId()).orElse(user);
         return mapToUserResponse(user, null);
     }
 
@@ -323,8 +319,7 @@ public class UserService {
                 .isAdmin(Boolean.TRUE.equals(user.getIsAdmin()))
                 .currentLevel(user.getCurrentLevel() != null ? user.getCurrentLevel().name() : null)
                 .totalPoints(user.getTotalPoints())
-                .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)
-                .lastLoginAt(user.getLastStudyDate() != null ? user.getLastStudyDate().toString() : null)
+                .currentStreak(streakService.getCurrentStreak(user.getId()))
                 .isPremium(Boolean.TRUE.equals(user.getIsPremium()))
                 .premiumExpiry(user.getPremiumExpiry() != null ? user.getPremiumExpiry().toString() : null)
                 .aiGenerationCount(aiGenerationsUsedToday(user))

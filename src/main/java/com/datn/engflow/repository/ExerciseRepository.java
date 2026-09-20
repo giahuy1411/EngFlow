@@ -1,6 +1,7 @@
 package com.datn.engflow.repository;
 
 import com.datn.engflow.model.entity.Exercise;
+import com.datn.engflow.model.dto.projection.ExerciseLessonProjection;
 import com.datn.engflow.model.enums.ExerciseDifficulty;
 import com.datn.engflow.model.enums.ExerciseType;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,25 @@ import java.util.List;
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     @Query("SELECT e FROM Exercise e JOIN FETCH e.lesson WHERE e.lesson.id = :lessonId ORDER BY e.orderIndex ASC")
     List<Exercise> findByLessonIdOrderByOrderIndexAsc(@Param("lessonId") Long lessonId);
+
+    /**
+     * audit-v9 F108: flat projection for the public/admin exercise LIST. The
+     * JOIN FETCH variant above drags lesson.content + lesson.content_original
+     * (NVARCHAR(MAX)) into every row of the response; see
+     * {@link ExerciseLessonProjection} for the measurements.
+     */
+    @Query("""
+            SELECT e.id AS id, l.id AS lessonId, l.title AS lessonTitle, e.question AS question,
+                   e.options AS options, e.correctAnswer AS correctAnswer,
+                   e.exerciseType AS exerciseType, e.difficulty AS difficulty,
+                   e.explanation AS explanation, e.imageUrl AS imageUrl,
+                   e.audioUrl AS audioUrl, e.orderIndex AS orderIndex
+            FROM Exercise e
+            JOIN e.lesson l
+            WHERE l.id = :lessonId
+            ORDER BY e.orderIndex ASC
+            """)
+    List<ExerciseLessonProjection> findLessonExercisesProjection(@Param("lessonId") Long lessonId);
     List<Exercise> findByLessonIdAndExerciseTypeOrderByOrderIndexAsc(Long lessonId, String exerciseType);
     List<Exercise> findByLessonIdAndDifficultyOrderByOrderIndexAsc(Long lessonId, String difficulty);
     @Query("""

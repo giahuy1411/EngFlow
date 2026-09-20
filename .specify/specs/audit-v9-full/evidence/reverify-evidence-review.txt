@@ -1,0 +1,19 @@
+**Verdict: OPEN; completion not established.** The report explicitly retracts historical closure claims. Remaining inconsistencies concern unreconciled task statuses, substituted scope, insufficient current evidence.
+
+- **Coverage gate cannot establish current PASS.** `sweep/v8/v9_coverage_check.py:63` collects all `p*.json`, without run/artifact filtering. At `sweep/v8/v9_coverage_check.py:82`, coverage requires only method/path matches; HTTP codes and assertions are ignored. Uncovered endpoints do not trigger failure. Consequently, **144/144 is not successful current-run coverage**, as `.specify/specs/audit-v9-full/REPORT-v5.md:5` acknowledges.
+
+- **Synchronization marked DONE despite unresolved reconciliation.** `.specify/specs/audit-v9-full/tasks.md:54` closes T3.4, while `.specify/specs/audit-v9-full/checklist.md:17` leaves report/task/source/artifact reconciliation unchecked. Historical T2.5/T2.6 DONE entries remain at `.specify/specs/audit-v9-full/tasks.md:42`; the historical disclaimer prevents treating them as current acceptance.
+
+- **Current fix evidence is narrower than required acceptance.** Seven mock tests, class markers, public-list HTTP 200 do not establish draft authorization or SQL Server persistence. Those gaps remain explicit at `.specify/specs/audit-v9-full/reverify-status.md:23`. Historical **393/393**, **90/90** cannot satisfy the tested-artifact gate in `.specify/specs/audit-v9-full/spec.md:20`; the latest full backend run was interrupted.
+
+- **Cleanup counts do not establish integrity.** `.specify/specs/audit-v9-full/reverify-status.md:16` records accidental dev-DB suite execution, seeder activity, a CHECK-constraint operation, unproved schema/row equality. Backup validity and matching counts in `.specify/specs/audit-v9-full/REPORT-v5.md:139` do not resolve that gap. Independent cleanup proof remains a requirement at `.specify/specs/audit-v9-full/spec.md:15`.
+
+- **Scope substitutions remain unaccepted.** Source inventory replaces runtime mappings; replayed suites replace DTO-derived cases; browser/SQL channels replace independent reviewers (`.specify/specs/audit-v9-full/REPORT-v5.md:90`). These are disclosed limitations, not equivalent completion evidence; acceptance gates remain open at `.specify/specs/audit-v9-full/reverify-status.md:25`. This review does not retroactively satisfy two independent reviewers.
+
+- **Visual proof replaced by inference.** `.specify/specs/audit-v9-full/tasks.md:28` marks post-fix screenshots NOT DONE but asserts “no pixels can differ.” Unused-selector analysis, route checks, token checks do not demonstrate pixel equivalence. Retrospective workflow documentation likewise cannot establish prior pipeline execution (`.specify/specs/audit-v9-full/checklist.md:3`).
+
+- **F114 classification exceeds evidence.** “Not an application defect” at `.specify/specs/audit-v9-full/REPORT-v5.md:98` is unsupported by an unaffected build or temporary restart recovery. Completed soak remains missing; even a passing soak means NOT REPRODUCED, not FIXED (`.specify/specs/audit-v9-full/reverify-status.md:29`).
+
+- **Browser denominator inconsistent.** `.specify/specs/audit-v9-full/REPORT-v5.md:56` states **228 = 39 routes × 2 viewports × 3 roles**; multiplication yields **234**. Six visits require documented exclusions or correction before accepting full-route coverage.
+
+**Limits:** Static inspection of the six requested files only. Referenced logs, manifests, backups, source fixes, deployed artifacts not validated. No networking, execution of checker/tests/builds, Docker, mutations, delegation, or credential reads.

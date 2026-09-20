@@ -26,6 +26,14 @@ class LeaderboardServicePaginationTest {
     @Mock
     private UserRepository userRepository;
 
+    /**
+     * {@code LeaderboardService.toEntry} reads the streak through {@code StreakService},
+     * so the collaborator must exist for {@code @InjectMocks} to construct the service.
+     * Lenient because rank/pagination assertions never inspect the streak value.
+     */
+    @Mock
+    private StreakService streakService;
+
     @InjectMocks
     private LeaderboardService leaderboardService;
 
