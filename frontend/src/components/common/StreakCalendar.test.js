@@ -42,70 +42,105 @@ describe('StreakCalendar study status', () => {
   })
 
   /**
-   * Trước cutover, lịch sử truy cập cũ chỉ tồn tại trong aria-label: về mặt thị
-   * giác nó bị tô y hệt một ngày bỏ học. Người không dùng screen reader thấy lịch
-   * sử của mình bị xoá sạch.
+   * Lịch chỉ có hai trạng thái nền: đã học và chưa học. Ngày đã qua không học và
+   * ngày chưa tới phải trông y hệt nhau, nếu không người dùng lại phải học thêm
+   * một quy ước màu nữa để đọc được lịch.
    */
-  it('paints a legacy access day distinctly instead of as a missed day', () => {
+  it('paints a past missed day and a future day identically', () => {
+    // today là Thứ Hai 21/9 → tuần hiện tại 21–27 vẫn còn ngày chưa tới trong lưới.
     const wrapper = mount(StreakCalendar, {
-      props: {
-        currentStreak: 0,
-        history: [],
-        legacyHistory: ['2026-09-18'],
-        effectiveFrom: '2026-09-20',
-        today: '2026-09-20'
-      },
-      global: { stubs: { RouterLink: { template: '<a :href="to"><slot /></a>', props: ['to'] } } }
-    })
-
-    const legacy = wrapper.get('[data-date="2026-09-18"]')
-    expect(legacy.classes()).toContain('border-dashed')
-    // Không được mang đồng thời class của "ngày bỏ học": object `:class` của Vue
-    // emit mọi key truthy, nên nếu nhánh missed không loại trừ legacy thì ô này
-    // có cả hai nền và màu thắng do thứ tự stylesheet quyết định.
-    expect(legacy.classes()).not.toContain('bg-muted')
-    expect(legacy.attributes('aria-label')).toContain('Lịch sử truy cập')
-  })
-
-  /**
-   * Regression cho bẫy Vue: object `:class` emit MỌI key truthy, không tự phân
-   * giải xung đột. Nếu nhánh "missed" không loại trừ ngày legacy thì element sẽ
-   * mang cả `bg-muted` lẫn nền mới, và màu thắng do thứ tự stylesheet quyết định.
-   */
-  it('keeps a pre-cutover day with no legacy activity looking missed', () => {
-    const wrapper = mount(StreakCalendar, {
-      props: {
-        currentStreak: 0,
-        history: [],
-        legacyHistory: ['2026-09-18'],
-        effectiveFrom: '2026-09-20',
-        today: '2026-09-20'
-      },
+      props: { currentStreak: 0, history: [], today: '2026-09-21' },
       global: { stubs: { RouterLink: { template: '<a :href="to"><slot /></a>', props: ['to'] } } }
     })
 
     const missed = wrapper.get('[data-date="2026-09-17"]')
-    expect(missed.classes()).toContain('bg-muted')
-    expect(missed.classes()).not.toContain('border-dashed')
+    const future = wrapper.get('[data-date="2026-09-25"]')
+
+    for (const cell of [missed, future]) {
+      expect(cell.classes()).toContain('bg-muted')
+      expect(cell.classes()).not.toContain('bg-white')
+      expect(cell.classes()).not.toContain('opacity-50')
+      expect(cell.classes()).not.toContain('bg-quaternary')
+    }
   })
 
   /**
-   * Câu giải thích cutover phải hướng người học, không phải ngôn ngữ migration
-   * ("lịch sử truy cập", "ngày hoàn thành học") vốn chỉ có nghĩa với lập trình viên.
+   * Ngày đã học dùng cùng hình vuông bo góc với mọi ô khác; chỉ khác nền và độ
+   * đậm chữ. Không còn bo blob riêng, không còn dấu tick trong ô.
    */
-  it('explains the cutover without migration jargon', () => {
+  it('marks a studied day with a green fill and no extra glyph', () => {
     const wrapper = mount(StreakCalendar, {
-      props: {
-        currentStreak: 0,
-        history: [],
-        legacyHistory: [],
-        effectiveFrom: '2026-09-20',
-        today: '2026-09-20'
-      },
+      props: { currentStreak: 1, history: ['2026-09-17'], today: '2026-09-20' },
       global: { stubs: { RouterLink: { template: '<a :href="to"><slot /></a>', props: ['to'] } } }
     })
 
-    expect(wrapper.text()).not.toContain('không phải ngày hoàn thành học')
-    expect(wrapper.text()).toContain('hoàn thành bài tập')
+    const studied = wrapper.get('[data-date="2026-09-17"]')
+    expect(studied.classes()).toContain('bg-quaternary')
+    expect(studied.classes()).toContain('rounded-md')
+    expect(studied.classes()).toContain('font-black')
+    expect(studied.classes()).not.toContain('bg-muted')
+    expect(studied.classes()).not.toContain('rounded-blob')
+    // Ô chỉ còn đúng con số, không thêm ký tự nào.
+    expect(studied.text()).toBe('17')
+    // Trạng thái vẫn phải đọc được với screen reader (WCAG 1.4.1).
+    expect(studied.attributes('aria-label')).toContain('đã học')
+  })
+
+  /**
+   * "Hôm nay" trước đây chỉ là viền 2px nên rất dễ lẫn. Viền phải dày (ring-4)
+   * và có khe trắng (ring-offset) để tách khỏi ô bên cạnh.
+   */
+  it('makes today stand out with a thick offset ring', () => {
+    const wrapper = mount(StreakCalendar, {
+      props: { currentStreak: 1, history: ['2026-09-23'], today: '2026-09-23' },
+      global: { stubs: { RouterLink: { template: '<a :href="to"><slot /></a>', props: ['to'] } } }
+    })
+
+    const today = wrapper.get('[data-date="2026-09-23"]')
+    expect(today.classes()).toContain('ring-4')
+    expect(today.classes()).toContain('ring-accent')
+    expect(today.classes()).toContain('ring-offset-2')
+    // Hôm nay vẫn phải mang trạng thái học của chính nó, không phải màu thứ ba.
+    expect(today.classes()).toContain('bg-quaternary')
+
+    const other = wrapper.get('[data-date="2026-09-22"]')
+    expect(other.classes()).not.toContain('ring-4')
+  })
+
+  /**
+   * Giao diện chỉ còn ba trạng thái. Mọi khái niệm về "cách tính cũ" — mốc ngày
+   * cutover, lịch sử truy cập — phải biến mất khỏi những gì người học đọc được.
+   */
+  it('says nothing about the old access-day policy', () => {
+    const wrapper = mount(StreakCalendar, {
+      props: { currentStreak: 0, history: [], today: '2026-09-20' },
+      global: { stubs: { RouterLink: { template: '<a :href="to"><slot /></a>', props: ['to'] } } }
+    })
+
+    const text = wrapper.text()
+    expect(text).not.toContain('cách tính mới')
+    expect(text).not.toContain('lịch sử truy cập')
+    expect(text).not.toContain('Lịch sử truy cập')
+    expect(text).not.toContain('trước khi áp dụng')
+    expect(text).not.toContain('20/9/2026')
+    // Nhưng vẫn phải nói rõ thế nào là một ngày học.
+    expect(text).toContain('hoàn thành bài tập')
+  })
+
+  /**
+   * Lưới tự nó đã đủ rõ: một ô xanh duy nhất nổi bật trên nền xám. Bỏ hàng chú
+   * thích ô màu để mắt chỉ còn phải xử lý đúng một thứ.
+   */
+  it('no longer renders the colour-swatch legend', () => {
+    const wrapper = mount(StreakCalendar, {
+      props: { currentStreak: 1, history: ['2026-09-20'], today: '2026-09-20' },
+      global: { stubs: { RouterLink: { template: '<a :href="to"><slot /></a>', props: ['to'] } } }
+    })
+
+    const text = wrapper.text()
+    expect(text).not.toContain('Đã học')
+    expect(text).not.toContain('Chưa học')
+    // Chỉ còn đúng một câu hướng dẫn bên dưới lưới.
+    expect(wrapper.findAll('p').filter(p => p.text().includes('hoàn thành bài tập'))).toHaveLength(1)
   })
 })

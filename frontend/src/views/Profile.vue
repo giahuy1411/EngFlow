@@ -48,11 +48,7 @@
           <button data-testid="study-retry" class="mt-3 border-2 border-foreground px-4 py-3 font-bold" @click="loadStudy">Thử lại</button>
         </div>
         <StreakCalendar v-else-if="studySnapshot" :history="studySnapshot.studiedDays"
-          :current-streak="studySnapshot.currentStreak" :today="studySnapshot.today"
-          :effective-from="studySnapshot.effectiveFrom" :legacy-history="studySnapshot.legacyAccessDays" />
-        <p v-if="studySnapshot && !studySnapshot.legacyHistoryAvailable" class="mt-3 text-sm">
-          Lịch sử truy cập cũ hiện không khả dụng. Lịch học mới vẫn được giữ trong hệ thống.
-        </p>
+          :current-streak="studySnapshot.currentStreak" :today="studySnapshot.today" />
       </div>
     </div>
   </div>

@@ -12,8 +12,6 @@
         <span class="sr-only">chuỗi ngày học liên tiếp hiện tại</span>
       </p>
     </div>
-    <p class="mt-4 text-sm">✓ Đã học · Không học: ngày đã qua · Viền: hôm nay · Ô nhạt: ngày chưa đến · Viền nét đứt: ngày học cũ trước khi cách tính mới bắt đầu.</p>
-    <p v-if="effectiveFrom" class="mt-2 text-sm">Từ {{ formattedEffectiveFrom }} trở đi, bạn ghi được một ngày học khi <strong>hoàn thành bài tập</strong> — chỉ mở trang thì không tính.</p>
     <div
       v-if="!studiedToday"
       class="mb-6 flex flex-col gap-3 bg-tertiary/10 border-2 border-tertiary rounded-md p-4"
@@ -47,13 +45,11 @@
         <div
           v-for="date in week"
           :key="isoDate(date)"
-          class="aspect-square border-2 border-foreground flex items-center justify-center transition-all duration-200"
+          class="aspect-square border-2 border-foreground rounded-md flex items-center justify-center transition-all duration-200"
           :class="{
-            'bg-secondary text-foreground font-bold rounded-blob scale-105': isStudied(date),
-            'bg-quaternary/25 text-foreground rounded-md border-dashed': isLegacy(date),
-            'bg-muted rounded-md': !isStudied(date) && !isLegacy(date) && isPast(date) && !isToday(date),
-            'bg-white opacity-50 rounded-md': !isPast(date),
-            'ring-2 ring-accent ring-offset-2': isToday(date)
+            'bg-quaternary text-foreground font-black': isStudied(date),
+            'bg-muted text-muted-foreground font-bold': !isStudied(date),
+            'ring-4 ring-accent ring-offset-2': isToday(date)
           }"
           :title="formatDate(date)"
           :data-date="isoDate(date)"
@@ -61,10 +57,10 @@
           :aria-label="cellLabel(date)"
         >
           <span>{{ date.getDate() }}</span>
-          <span v-if="isStudied(date)" class="text-xs" aria-hidden="true">✓</span>
         </div>
       </div>
     </div>
+    <p class="mt-4 text-sm">Một ngày được tính khi bạn <strong>hoàn thành bài tập</strong>.</p>
   </div>
 </template>
 
@@ -74,8 +70,6 @@ import { computed } from 'vue'
 const props = defineProps({
   currentStreak: { type: Number, default: 0 },
   history: { type: Array, default: () => [] },
-  legacyHistory: { type: Array, default: () => [] },
-  effectiveFrom: { type: String, default: null },
   // "Hôm nay" do server trả (ISO yyyy-MM-dd, múi giờ backend). Truyền vào để
   // lịch khớp đúng ngày học, kể cả khi máy khách ở múi giờ khác VN.
   today: { type: String, default: null }
@@ -129,36 +123,16 @@ const calendarWeeks = computed(() => {
 
 const isStudied = (date) => studiedSet.value.has(isoDate(date))
 
-/**
- * Ngày có hoạt động TRƯỚC cutover — lịch sử truy cập cũ, không phải ngày hoàn
- * thành học. Điều kiện phải khớp thứ tự ưu tiên của {@link cellLabel}: ở đó
- * nhánh legacy được kiểm TRƯỚC isStudied, nên nếu hai bên lệch nhau thì một ô
- * sẽ mang màu legacy nhưng aria-label lại đọc là "đã học".
- */
-const isLegacy = (date) =>
-  !!props.effectiveFrom
-  && isoDate(date) < props.effectiveFrom
-  && props.legacyHistory.includes(isoDate(date))
-
 const isPast = (date) => date <= anchorToday.value
 
 const isToday = (date) => isoDate(date) === isoDate(anchorToday.value)
 
 const formatDate = (date) => date.toLocaleDateString('vi-VN')
 
-/** Ngày cutover hiển thị theo vi-VN; parse thủ công để không lệch múi giờ. */
-const formattedEffectiveFrom = computed(() => {
-  const iso = props.effectiveFrom
-  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso
-  const [y, m, d] = iso.split('-').map(Number)
-  return formatDate(new Date(y, m - 1, d))
-})
-
 // Trang bị cho screen reader: trạng thái không được chỉ truyền đạt bằng màu (WCAG 1.4.1).
+// Ngày tương lai nhìn giống hệt ngày đã qua không học, nhưng vẫn đọc "chưa đến" vì
+// thông tin đó đúng và hữu ích, mà không tốn thêm chi tiết thị giác nào.
 const cellLabel = (date) => {
-  if (props.effectiveFrom && isoDate(date) < props.effectiveFrom) {
-    return `${formatDate(date)}: ${props.legacyHistory.includes(isoDate(date)) ? 'Lịch sử truy cập trước khi áp dụng' : 'Chưa có dữ liệu học theo quy tắc mới'}`
-  }
   const state = isStudied(date)
     ? 'đã học'
     : isToday(date)
