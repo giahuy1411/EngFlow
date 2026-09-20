@@ -1,0 +1,26 @@
+[
+  {
+    "status": 201,
+    "number": 5,
+    "title": "security(authz): POST /api/vocabulary lets any logged-in user write a GLOBAL vocabulary row",
+    "url": "https://github.com/giahuy1411/EngFlow/issues/5"
+  },
+  {
+    "status": 201,
+    "number": 6,
+    "title": "chore(api): /api/srs/* (3 endpoints) have no frontend caller",
+    "url": "https://github.com/giahuy1411/EngFlow/issues/6"
+  },
+  {
+    "status": 201,
+    "number": 7,
+    "title": "perf(frontend): CLS 0.104 on / — footer pushed off-screen after first paint",
+    "url": "https://github.com/giahuy1411/EngFlow/issues/7"
+  },
+  {
+    "status": 201,
+    "number": 8,
+    "title": "chore(deps): unused Azure Speech SDK dependency (~15 MB, 0 imports)",
+    "url": "https://github.com/giahuy1411/EngFlow/issues/8"
+  }
+]

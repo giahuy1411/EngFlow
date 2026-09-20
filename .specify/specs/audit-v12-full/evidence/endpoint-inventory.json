@@ -1,0 +1,1854 @@
+{
+  "generatedBy": "sweep/v12/api-inventory.js",
+  "sourceRoot": "src/main/java/com/datn/engflow/controller",
+  "annotationCount": 131,
+  "expandedRows": 147,
+  "distinctMethodPaths": 145,
+  "controllers": 26,
+  "byVerb": {
+    "GET": 64,
+    "POST": 54,
+    "PUT": 16,
+    "DELETE": 10,
+    "PATCH": 3
+  },
+  "byController": {
+    "AdminAiExerciseController": {
+      "annotations": 0,
+      "rows": 6,
+      "methods": {
+        "GET": 1,
+        "POST": 5
+      }
+    },
+    "AdminAnswerBackfillController": {
+      "annotations": 0,
+      "rows": 2,
+      "methods": {
+        "GET": 1,
+        "POST": 1
+      }
+    },
+    "AdminController": {
+      "annotations": 0,
+      "rows": 16,
+      "methods": {
+        "GET": 5,
+        "POST": 2,
+        "PUT": 7,
+        "DELETE": 2
+      }
+    },
+    "AdminExerciseController": {
+      "annotations": 0,
+      "rows": 5,
+      "methods": {
+        "GET": 2,
+        "POST": 1,
+        "PUT": 1,
+        "DELETE": 1
+      }
+    },
+    "AdminExerciseSeedController": {
+      "annotations": 0,
+      "rows": 1,
+      "methods": {
+        "POST": 1
+      }
+    },
+    "AiVocabController": {
+      "annotations": 0,
+      "rows": 3,
+      "methods": {
+        "POST": 3
+      }
+    },
+    "AuthController": {
+      "annotations": 0,
+      "rows": 8,
+      "methods": {
+        "GET": 1,
+        "POST": 6,
+        "PUT": 1
+      }
+    },
+    "DashboardController": {
+      "annotations": 0,
+      "rows": 1,
+      "methods": {
+        "GET": 1
+      }
+    },
+    "DeckController": {
+      "annotations": 0,
+      "rows": 7,
+      "methods": {
+        "GET": 3,
+        "POST": 2,
+        "PUT": 1,
+        "DELETE": 1
+      }
+    },
+    "FlashcardController": {
+      "annotations": 0,
+      "rows": 2,
+      "methods": {
+        "GET": 1,
+        "POST": 1
+      }
+    },
+    "GameController": {
+      "annotations": 0,
+      "rows": 6,
+      "methods": {
+        "GET": 5,
+        "POST": 1
+      }
+    },
+    "LeaderboardController": {
+      "annotations": 0,
+      "rows": 1,
+      "methods": {
+        "GET": 1
+      }
+    },
+    "LessonController": {
+      "annotations": 0,
+      "rows": 5,
+      "methods": {
+        "GET": 2,
+        "POST": 1,
+        "PUT": 1,
+        "DELETE": 1
+      }
+    },
+    "LessonExerciseController": {
+      "annotations": 0,
+      "rows": 6,
+      "methods": {
+        "GET": 4,
+        "POST": 2
+      }
+    },
+    "LessonSnapshotController": {
+      "annotations": 0,
+      "rows": 3,
+      "methods": {
+        "GET": 1,
+        "POST": 2
+      }
+    },
+    "LessonStructureController": {
+      "annotations": 0,
+      "rows": 11,
+      "methods": {
+        "GET": 3,
+        "POST": 4,
+        "PUT": 2,
+        "DELETE": 2
+      }
+    },
+    "LessonSubmissionController": {
+      "annotations": 0,
+      "rows": 3,
+      "methods": {
+        "GET": 1,
+        "POST": 2
+      }
+    },
+    "MediaProxyController": {
+      "annotations": 0,
+      "rows": 1,
+      "methods": {
+        "GET": 1
+      }
+    },
+    "ProgressController": {
+      "annotations": 0,
+      "rows": 1,
+      "methods": {
+        "GET": 1
+      }
+    },
+    "SrsController": {
+      "annotations": 0,
+      "rows": 3,
+      "methods": {
+        "GET": 2,
+        "POST": 1
+      }
+    },
+    "StreakController": {
+      "annotations": 0,
+      "rows": 3,
+      "methods": {
+        "GET": 3
+      }
+    },
+    "VocabularyController": {
+      "annotations": 0,
+      "rows": 4,
+      "methods": {
+        "GET": 3,
+        "POST": 1
+      }
+    },
+    "PaymentController": {
+      "annotations": 0,
+      "rows": 3,
+      "methods": {
+        "GET": 1,
+        "POST": 2
+      }
+    },
+    "SpeakingPromptController": {
+      "annotations": 0,
+      "rows": 18,
+      "methods": {
+        "GET": 8,
+        "POST": 6,
+        "PUT": 2,
+        "DELETE": 2
+      }
+    },
+    "SpeakingSubmissionController": {
+      "annotations": 0,
+      "rows": 14,
+      "methods": {
+        "GET": 8,
+        "POST": 4,
+        "PATCH": 2
+      }
+    },
+    "VideoLessonController": {
+      "annotations": 0,
+      "rows": 14,
+      "methods": {
+        "GET": 5,
+        "POST": 6,
+        "PUT": 1,
+        "PATCH": 1,
+        "DELETE": 1
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "controller": "AdminAiExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+      "line": 133,
+      "httpMethod": "GET",
+      "path": "/api/admin/exercises/ai/status",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAiExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+      "line": 38,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/ai/generate-async",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAiExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+      "line": 51,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/ai/generate",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAiExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+      "line": 63,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/ai/generate-all",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAiExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+      "line": 78,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/ai/generate-batch",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAiExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+      "line": 91,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/ai/validate",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAnswerBackfillController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAnswerBackfillController.java",
+      "line": 65,
+      "httpMethod": "GET",
+      "path": "/api/admin/exercises/ai/backfill-answers/status",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminAnswerBackfillController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminAnswerBackfillController.java",
+      "line": 40,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/ai/backfill-answers",
+      "classBase": "/api/admin/exercises/ai",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 31,
+      "httpMethod": "GET",
+      "path": "/api/admin/stats",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 37,
+      "httpMethod": "GET",
+      "path": "/api/admin/users",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 66,
+      "httpMethod": "GET",
+      "path": "/api/admin/lessons",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 75,
+      "httpMethod": "GET",
+      "path": "/api/admin/lessons/{id}",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 102,
+      "httpMethod": "GET",
+      "path": "/api/admin/vocabulary",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 80,
+      "httpMethod": "POST",
+      "path": "/api/admin/lessons",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 109,
+      "httpMethod": "POST",
+      "path": "/api/admin/vocabulary",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 45,
+      "httpMethod": "PUT",
+      "path": "/api/admin/users/{id}/toggle-active",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 50,
+      "httpMethod": "PUT",
+      "path": "/api/admin/users/{id}/toggle-admin",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 55,
+      "httpMethod": "PUT",
+      "path": "/api/admin/users/{id}/toggle-premium",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 60,
+      "httpMethod": "PUT",
+      "path": "/api/admin/users/{id}/revoke-premium",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 85,
+      "httpMethod": "PUT",
+      "path": "/api/admin/lessons/{id}",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 96,
+      "httpMethod": "PUT",
+      "path": "/api/admin/lessons/{id}/toggle-publish",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 114,
+      "httpMethod": "PUT",
+      "path": "/api/admin/vocabulary/{id}",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 90,
+      "httpMethod": "DELETE",
+      "path": "/api/admin/lessons/{id}",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminController.java",
+      "line": 119,
+      "httpMethod": "DELETE",
+      "path": "/api/admin/vocabulary/{id}",
+      "classBase": "/api/admin",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AdminExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+      "line": 28,
+      "httpMethod": "GET",
+      "path": "/api/admin/exercises",
+      "classBase": "/api/admin/exercises",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+      "line": 42,
+      "httpMethod": "GET",
+      "path": "/api/admin/exercises/{id}",
+      "classBase": "/api/admin/exercises",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+      "line": 48,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises",
+      "classBase": "/api/admin/exercises",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+      "line": 54,
+      "httpMethod": "PUT",
+      "path": "/api/admin/exercises/{id}",
+      "classBase": "/api/admin/exercises",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+      "line": 61,
+      "httpMethod": "DELETE",
+      "path": "/api/admin/exercises/{id}",
+      "classBase": "/api/admin/exercises",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AdminExerciseSeedController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AdminExerciseSeedController.java",
+      "line": 23,
+      "httpMethod": "POST",
+      "path": "/api/admin/exercises/seed",
+      "classBase": "/api/admin/exercises",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "AiVocabController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+      "line": 35,
+      "httpMethod": "POST",
+      "path": "/api/ai/generate-vocab",
+      "classBase": "/api/ai",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AiVocabController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+      "line": 75,
+      "httpMethod": "POST",
+      "path": "/api/ai/enrich-word",
+      "classBase": "/api/ai",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AiVocabController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+      "line": 126,
+      "httpMethod": "POST",
+      "path": "/api/ai/save-vocab",
+      "classBase": "/api/ai",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 58,
+      "httpMethod": "GET",
+      "path": "/api/auth/me",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 32,
+      "httpMethod": "POST",
+      "path": "/api/auth/register",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 38,
+      "httpMethod": "POST",
+      "path": "/api/auth/login",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 44,
+      "httpMethod": "POST",
+      "path": "/api/auth/forgot-password",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 51,
+      "httpMethod": "POST",
+      "path": "/api/auth/reset-password",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 67,
+      "httpMethod": "POST",
+      "path": "/api/auth/change-password",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 89,
+      "httpMethod": "POST",
+      "path": "/api/auth/avatar/upload",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "AuthController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/AuthController.java",
+      "line": 78,
+      "httpMethod": "PUT",
+      "path": "/api/auth/avatar",
+      "classBase": "/api/auth",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DashboardController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DashboardController.java",
+      "line": 23,
+      "httpMethod": "GET",
+      "path": "/api/dashboard/stats",
+      "classBase": "/api/dashboard",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 27,
+      "httpMethod": "GET",
+      "path": "/api/decks",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 37,
+      "httpMethod": "GET",
+      "path": "/api/decks/my",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 53,
+      "httpMethod": "GET",
+      "path": "/api/decks/{id}",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 61,
+      "httpMethod": "POST",
+      "path": "/api/decks",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 84,
+      "httpMethod": "POST",
+      "path": "/api/decks/{id}/words",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 68,
+      "httpMethod": "PUT",
+      "path": "/api/decks/{id}",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "DeckController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/DeckController.java",
+      "line": 76,
+      "httpMethod": "DELETE",
+      "path": "/api/decks/{id}",
+      "classBase": "/api/decks",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "FlashcardController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/FlashcardController.java",
+      "line": 33,
+      "httpMethod": "GET",
+      "path": "/api/flashcards/status/{vocabularyId}",
+      "classBase": "/api/flashcards",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "FlashcardController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/FlashcardController.java",
+      "line": 23,
+      "httpMethod": "POST",
+      "path": "/api/flashcards/review",
+      "classBase": "/api/flashcards",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "GameController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/GameController.java",
+      "line": 23,
+      "httpMethod": "GET",
+      "path": "/api/games/quiz/{deckId}",
+      "classBase": "/api/games",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "GameController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/GameController.java",
+      "line": 31,
+      "httpMethod": "GET",
+      "path": "/api/games/memory/{deckId}",
+      "classBase": "/api/games",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "GameController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/GameController.java",
+      "line": 39,
+      "httpMethod": "GET",
+      "path": "/api/games/typing/{deckId}",
+      "classBase": "/api/games",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "GameController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/GameController.java",
+      "line": 47,
+      "httpMethod": "GET",
+      "path": "/api/games/listening/{deckId}",
+      "classBase": "/api/games",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "GameController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/GameController.java",
+      "line": 55,
+      "httpMethod": "GET",
+      "path": "/api/games/mixed/{deckId}",
+      "classBase": "/api/games",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "GameController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/GameController.java",
+      "line": 63,
+      "httpMethod": "POST",
+      "path": "/api/games/submit",
+      "classBase": "/api/games",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LeaderboardController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LeaderboardController.java",
+      "line": 26,
+      "httpMethod": "GET",
+      "path": "/api/leaderboard",
+      "classBase": "/api/leaderboard",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonController.java",
+      "line": 28,
+      "httpMethod": "GET",
+      "path": "/api/lessons",
+      "classBase": "/api/lessons",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonController.java",
+      "line": 42,
+      "httpMethod": "GET",
+      "path": "/api/lessons/{id}",
+      "classBase": "/api/lessons",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonController.java",
+      "line": 53,
+      "httpMethod": "POST",
+      "path": "/api/lessons",
+      "classBase": "/api/lessons",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonController.java",
+      "line": 62,
+      "httpMethod": "PUT",
+      "path": "/api/lessons/{id}",
+      "classBase": "/api/lessons",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonController.java",
+      "line": 71,
+      "httpMethod": "DELETE",
+      "path": "/api/lessons/{id}",
+      "classBase": "/api/lessons",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+      "line": 28,
+      "httpMethod": "GET",
+      "path": "/api/lessons/{lessonId}/exercises",
+      "classBase": "/api/lessons/{lessonId}/exercises",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+      "line": 72,
+      "httpMethod": "GET",
+      "path": "/api/lessons/{lessonId}/exercises/attempts",
+      "classBase": "/api/lessons/{lessonId}/exercises",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+      "line": 85,
+      "httpMethod": "GET",
+      "path": "/api/lessons/{lessonId}/exercises/attempts/{attemptId}",
+      "classBase": "/api/lessons/{lessonId}/exercises",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+      "line": 123,
+      "httpMethod": "GET",
+      "path": "/api/lessons/{lessonId}/exercises/content",
+      "classBase": "/api/lessons/{lessonId}/exercises",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+      "line": 50,
+      "httpMethod": "POST",
+      "path": "/api/lessons/{lessonId}/exercises/grade",
+      "classBase": "/api/lessons/{lessonId}/exercises",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonExerciseController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+      "line": 61,
+      "httpMethod": "POST",
+      "path": "/api/lessons/{lessonId}/exercises/submit",
+      "classBase": "/api/lessons/{lessonId}/exercises",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonSnapshotController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonSnapshotController.java",
+      "line": 23,
+      "httpMethod": "GET",
+      "path": "/api/admin/lessons/{lessonId}/snapshots",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonSnapshotController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonSnapshotController.java",
+      "line": 28,
+      "httpMethod": "POST",
+      "path": "/api/admin/lessons/{lessonId}/snapshots",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonSnapshotController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonSnapshotController.java",
+      "line": 35,
+      "httpMethod": "POST",
+      "path": "/api/admin/lessons/{lessonId}/snapshots/{snapshotId}/restore",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 38,
+      "httpMethod": "GET",
+      "path": "/api/admin/lessons/{lessonId}/structure",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 93,
+      "httpMethod": "GET",
+      "path": "/api/resources/{filename:.+}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 135,
+      "httpMethod": "GET",
+      "path": "/api/lessons/{lessonId}/structure",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 43,
+      "httpMethod": "POST",
+      "path": "/api/admin/lessons/{lessonId}/sections",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 59,
+      "httpMethod": "POST",
+      "path": "/api/admin/sections/{sectionId}/blocks",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 75,
+      "httpMethod": "POST",
+      "path": "/api/admin/upload",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 124,
+      "httpMethod": "POST",
+      "path": "/api/admin/audio-upload",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 48,
+      "httpMethod": "PUT",
+      "path": "/api/admin/sections/{sectionId}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 64,
+      "httpMethod": "PUT",
+      "path": "/api/admin/blocks/{blockId}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 53,
+      "httpMethod": "DELETE",
+      "path": "/api/admin/sections/{sectionId}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonStructureController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonStructureController.java",
+      "line": 69,
+      "httpMethod": "DELETE",
+      "path": "/api/admin/blocks/{blockId}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+      "line": 77,
+      "httpMethod": "GET",
+      "path": "/api/lesson-submissions/my/lesson/{lessonId}/skill/{skillType}",
+      "classBase": "/api/lesson-submissions",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+      "line": 46,
+      "httpMethod": "POST",
+      "path": "/api/lesson-submissions/submit",
+      "classBase": "/api/lesson-submissions",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "LessonSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+      "line": 58,
+      "httpMethod": "POST",
+      "path": "/api/lesson-submissions/upload-audio",
+      "classBase": "/api/lesson-submissions",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "MediaProxyController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/MediaProxyController.java",
+      "line": 33,
+      "httpMethod": "GET",
+      "path": "/api/v1/media/**",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "ProgressController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/ProgressController.java",
+      "line": 22,
+      "httpMethod": "GET",
+      "path": "/api/users/progress",
+      "classBase": "/api/users",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SrsController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/SrsController.java",
+      "line": 44,
+      "httpMethod": "GET",
+      "path": "/api/srs/due/{deckId}",
+      "classBase": "/api/srs",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SrsController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/SrsController.java",
+      "line": 54,
+      "httpMethod": "GET",
+      "path": "/api/srs/stats",
+      "classBase": "/api/srs",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SrsController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/SrsController.java",
+      "line": 23,
+      "httpMethod": "POST",
+      "path": "/api/srs/review",
+      "classBase": "/api/srs",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "StreakController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/StreakController.java",
+      "line": 24,
+      "httpMethod": "GET",
+      "path": "/api/streak/snapshot",
+      "classBase": "/api/streak",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "StreakController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/StreakController.java",
+      "line": 32,
+      "httpMethod": "GET",
+      "path": "/api/streak/history",
+      "classBase": "/api/streak",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "StreakController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/StreakController.java",
+      "line": 47,
+      "httpMethod": "GET",
+      "path": "/api/streak/current",
+      "classBase": "/api/streak",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VocabularyController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+      "line": 33,
+      "httpMethod": "GET",
+      "path": "/api/vocabulary",
+      "classBase": "/api/vocabulary",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VocabularyController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+      "line": 38,
+      "httpMethod": "GET",
+      "path": "/api/vocabulary/search",
+      "classBase": "/api/vocabulary",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VocabularyController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+      "line": 57,
+      "httpMethod": "GET",
+      "path": "/api/vocabulary/dictionary/{word}",
+      "classBase": "/api/vocabulary",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VocabularyController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+      "line": 66,
+      "httpMethod": "POST",
+      "path": "/api/vocabulary",
+      "classBase": "/api/vocabulary",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "PaymentController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+      "line": 45,
+      "httpMethod": "GET",
+      "path": "/api/v1/payment/status",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "PaymentController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+      "line": 22,
+      "httpMethod": "POST",
+      "path": "/api/webhook/sepay",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "PaymentController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+      "line": 33,
+      "httpMethod": "POST",
+      "path": "/api/v1/payment/create-order",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 36,
+      "httpMethod": "GET",
+      "path": "/api/v1/admin/speaking-prompts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 36,
+      "httpMethod": "GET",
+      "path": "/api/v1/admin/video-prompts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 45,
+      "httpMethod": "GET",
+      "path": "/api/v1/speaking-prompts",
+      "classBase": "",
+      "hasParams": true,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 45,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-prompts",
+      "classBase": "",
+      "hasParams": true,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 56,
+      "httpMethod": "GET",
+      "path": "/api/v1/speaking-prompts",
+      "classBase": "",
+      "hasParams": true,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 56,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-prompts",
+      "classBase": "",
+      "hasParams": true,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 64,
+      "httpMethod": "GET",
+      "path": "/api/v1/speaking-prompts/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 64,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-prompts/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 91,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/speaking-prompts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 91,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-prompts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 114,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/speaking-prompts/ai-generate",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 114,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-prompts/ai-generate",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 150,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/speaking-prompts/ai-generate-full",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 150,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-prompts/ai-generate-full",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 99,
+      "httpMethod": "PUT",
+      "path": "/api/v1/admin/speaking-prompts/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 99,
+      "httpMethod": "PUT",
+      "path": "/api/v1/admin/video-prompts/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 107,
+      "httpMethod": "DELETE",
+      "path": "/api/v1/admin/speaking-prompts/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingPromptController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+      "line": 107,
+      "httpMethod": "DELETE",
+      "path": "/api/v1/admin/video-prompts/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": true,
+      "preAuthorizeScope": "class"
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 68,
+      "httpMethod": "GET",
+      "path": "/api/v1/admin/speaking-submissions",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 68,
+      "httpMethod": "GET",
+      "path": "/api/v1/admin/video-submissions",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 97,
+      "httpMethod": "GET",
+      "path": "/api/v1/speaking-submissions",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 97,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-submissions",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 109,
+      "httpMethod": "GET",
+      "path": "/api/v1/speaking-prompts/{promptId}/submissions",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 109,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-prompts/{promptId}/submissions",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 122,
+      "httpMethod": "GET",
+      "path": "/api/v1/speaking-submissions/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 122,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-submissions/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 35,
+      "httpMethod": "POST",
+      "path": "/api/v1/speaking-submissions/upload",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 35,
+      "httpMethod": "POST",
+      "path": "/api/v1/video-submissions/upload",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 57,
+      "httpMethod": "POST",
+      "path": "/api/v1/speaking-submissions/{id}/assess",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 57,
+      "httpMethod": "POST",
+      "path": "/api/v1/video-submissions/{id}/assess",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 84,
+      "httpMethod": "PATCH",
+      "path": "/api/v1/admin/speaking-submissions/{id}/grade",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "SpeakingSubmissionController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+      "line": 84,
+      "httpMethod": "PATCH",
+      "path": "/api/v1/admin/video-submissions/{id}/grade",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 55,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-lessons",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 71,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-lessons/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 96,
+      "httpMethod": "GET",
+      "path": "/api/v1/video-attempts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 108,
+      "httpMethod": "GET",
+      "path": "/api/v1/admin/video-lessons",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 160,
+      "httpMethod": "GET",
+      "path": "/api/v1/admin/video-attempts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 84,
+      "httpMethod": "POST",
+      "path": "/api/v1/video-lessons/{id}/attempts",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 117,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-lessons",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 126,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-lessons/upload",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 180,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-attempts/{id}/ai-grade",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 189,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-lessons/translate-transcript",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 202,
+      "httpMethod": "POST",
+      "path": "/api/v1/admin/video-lessons/fetch-youtube",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 142,
+      "httpMethod": "PUT",
+      "path": "/api/v1/admin/video-lessons/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 170,
+      "httpMethod": "PATCH",
+      "path": "/api/v1/admin/video-attempts/{id}/grade",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    },
+    {
+      "controller": "VideoLessonController",
+      "javaFile": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+      "line": 151,
+      "httpMethod": "DELETE",
+      "path": "/api/v1/admin/video-lessons/{id}",
+      "classBase": "",
+      "hasParams": false,
+      "preAuthorize": false,
+      "preAuthorizeScope": null
+    }
+  ]
+}
