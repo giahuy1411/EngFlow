@@ -309,7 +309,8 @@ onBeforeUnmount(() => observer?.disconnect())
   gap: 0.5rem;
   font-weight: 800;
   font-size: var(--geo-text-sm);
-  color: var(--geo-accent);
+  /* audit-v11 F132: text on a light surface -> ink variant (accent was 4.23:1). */
+  color: var(--geo-accent-ink);
   font-variant-numeric: tabular-nums;
 }
 .lp__stat-dot {
@@ -330,7 +331,8 @@ onBeforeUnmount(() => observer?.disconnect())
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--geo-warning);
+  /* audit-v11 F132: text on a light surface -> ink variant (warning was 2.15:1). */
+  color: var(--geo-warning-ink);
   background: rgba(245, 158, 11, 0.12);
   border: 2px solid var(--geo-fg);
   border-radius: 6px;

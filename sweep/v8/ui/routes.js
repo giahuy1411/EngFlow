@@ -83,7 +83,7 @@ async function formLogin(page, email, pass) {
     // A guest pass never reaches the mount (the guard bounces it to /login), so
     // only the authenticated tags can leak.
     if (tag !== "guest") {
-      H.cleanupAuditPayments(126);
+      H.cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
       console.log("DB parity after cleanup: " + H.dbParity()
         + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
     }

@@ -104,6 +104,14 @@ function cleanupAuditPayments(expected, day) {
     "WHERE created_at >= '" + d + " 00:00:00'",
     "  AND status <> 'SUCCESS'",
     "  AND transaction_id IS NULL;",
+    // audit-v11 F130: the SELF-CLEAN assertion needs a count taken AFTER the delete.
+    // AUDIT_CANDIDATES is measured before it (it is the "how much did we find" figure),
+    // so it is non-zero precisely when there WAS residue to clean — asserting on it
+    // directly would fail on every honest run. AUDIT_REMAINING is the one that must be 0.
+    "SELECT 'AUDIT_REMAINING=' + CAST(COUNT(*) AS varchar(20)) FROM payment_transactions",
+    "WHERE created_at >= '" + d + " 00:00:00'",
+    "  AND status <> 'SUCCESS'",
+    "  AND transaction_id IS NULL;",
     "SELECT 'AUDIT_CLEAN_TOTAL=' + CAST(COUNT(*) AS varchar(20)) FROM payment_transactions;",
   ].join("\n");
   const file = path.join(__dirname, "..", "_cleanup_payments.sql");
@@ -117,16 +125,33 @@ function cleanupAuditPayments(expected, day) {
 
   const mk = out.match(/AUDIT_CLEAN_TOTAL=(\d+)/);
   const ck = out.match(/AUDIT_CANDIDATES=(\d+)/);
+  const rk = out.match(/AUDIT_REMAINING=(\d+)/);
   const after = mk ? parseInt(mk[1], 10) : NaN;
   const candidates = ck ? parseInt(ck[1], 10) : NaN;
+  const remaining = rk ? parseInt(rk[1], 10) : NaN;
   const hadError = /Msg \d+/.test(out);
-  const ok = !hadError && after === expected;
+  // audit-v11 F130: `after === expected` alone was an unsound check. `expected` is a
+  // BASELINE constant hard-coded by each caller (126 at the time), so a run that
+  // leaves residue behind while the baseline was already wrong still satisfies it —
+  // it prints PARITY OK and passes for the wrong reason. Two callers even disagreed
+  // about the constant.
+  //
+  // What this function is actually responsible for is: no row its own date window
+  // could have produced is still there afterwards. AUDIT_REMAINING is measured AFTER
+  // the delete, so asserting it is 0 tests exactly that, and it holds regardless of
+  // what the baseline constant happens to be.
+  const selfClean = !isNaN(remaining) && remaining === 0;
+  const matchesBaseline = after === expected;
+  const ok = !hadError && selfClean;
   console.log("cleanupAuditPayments: window=since " + d + " 00:00:00"
     + " candidates=" + (isNaN(candidates) ? "?" : candidates)
+    + " remaining=" + (isNaN(remaining) ? "?" : remaining)
     + " after=" + (isNaN(after) ? "?" : after)
-    + " expected=" + expected + " sqlError=" + hadError
-    + " -> " + (ok ? "PARITY OK" : "PARITY MISMATCH"));
-  return { ok, after: isNaN(after) ? null : after, candidates, expected, output: out };
+    + " baseline=" + expected + " sqlError=" + hadError
+    + " -> " + (ok ? "SELF-CLEAN OK" : "SELF-CLEAN FAILED")
+    + (matchesBaseline ? "" : "  [NOTE: after != baseline " + expected
+      + " — baseline may be stale; the sweep still cleaned its own rows]"));
+  return { ok, after: isNaN(after) ? null : after, candidates, remaining, expected, matchesBaseline, output: out };
 }
 
 /** Row-count parity for the whole DB, as a comparable string. */

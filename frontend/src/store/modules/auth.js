@@ -100,6 +100,18 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('user')
   }
 
+  /**
+   * Đồng bộ user từ /api/auth/me.
+   *
+   * audit-v11 F133: trước đây `catch { logout() }` xoá phiên với MỌI lỗi — kể cả 429 (rate limit),
+   * 5xx hay mất mạng — dù token hoàn toàn hợp lệ. fetchUser() chạy lúc app boot (App.vue), nên chỉ
+   * cần /me trả 429/500 một lần là người dùng bị đăng xuất âm thầm, không thông báo, mất cả
+   * localStorage. Đã đo bằng thực nghiệm 3 nhánh: /me trả 500 -> mất token+user; 429 -> mất
+   * token+user; 200 -> giữ nguyên (nhánh đối chứng).
+   *
+   * Chỉ 401/403 (server TỪ CHỐI token) mới thực sự vô hiệu phiên. Các lỗi còn lại giữ nguyên phiên
+   * đã cache; lần /me thành công kế tiếp sẽ làm mới nó.
+   */
   async function fetchUser() {
     if (!token.value) return
     try {
@@ -107,7 +119,11 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = mapUser(data)
       localStorage.setItem('user', JSON.stringify(user.value))
     } catch (e) {
-      logout()
+      const status = e?.response?.status
+      if (status === 401 || status === 403) {
+        logout()
+      }
+      // 429 / 5xx / network error: giữ phiên, không đăng xuất người dùng.
     }
   }
 

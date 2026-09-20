@@ -7,9 +7,9 @@
 
       <div v-else-if="error" class="max-w-xl mx-auto text-center py-12">
         <div class="inline-flex items-center justify-center w-16 h-16 border-2 border-foreground bg-accent/10 mb-6 rounded-blob">
-          <span class="text-3xl font-black text-accent">!</span>
+          <span class="text-3xl font-black text-accent-ink">!</span>
         </div>
-        <p class="font-bold text-lg text-accent">{{ error }}</p>
+        <p class="font-bold text-lg text-accent-ink">{{ error }}</p>
       </div>
       <UserPageHeader v-else-if="deck" eyebrow="Trắc nghiệm" :title="deck.name || 'Trắc nghiệm từ vựng'" subtitle="Chọn đáp án đúng cho từ xuất hiện" root-class="mb-8" />
 

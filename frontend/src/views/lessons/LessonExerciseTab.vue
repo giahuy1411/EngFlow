@@ -34,7 +34,7 @@
                use badge chips (colored bg + foreground text) instead. -->
           <span v-if="ex.difficulty === 'EASY'" class="px-2 py-0.5 bg-quaternary/20 text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-quaternary">Dễ</span>
           <span v-else-if="ex.difficulty === 'MEDIUM'" class="px-2 py-0.5 bg-tertiary/20 text-foreground font-bold text-xs uppercase tracking-wider rounded-full border-2 border-tertiary">TB</span>
-          <span v-else-if="ex.difficulty === 'HARD'" class="px-2 py-0.5 bg-accent/10 text-accent font-bold text-xs uppercase tracking-wider rounded-full border-2 border-accent">Khó</span>
+          <span v-else-if="ex.difficulty === 'HARD'" class="px-2 py-0.5 bg-accent/10 text-accent-ink font-bold text-xs uppercase tracking-wider rounded-full border-2 border-accent">Khó</span>
         </div>
 
         <div class="p-6 pt-3">
@@ -55,11 +55,11 @@
 
             <!-- Audio (for listening exercises): file audio hoặc giọng đọc máy của trình duyệt -->
             <div v-if="ex.exerciseType === 'LISTENING' && ex.audioUrl" class="mb-5 bg-secondary/10 border-2 border-foreground p-4 rounded-md">
-              <p class="font-bold text-xs uppercase tracking-wider text-secondary mb-2">Nghe & trả lời</p>
+              <p class="font-bold text-xs uppercase tracking-wider text-secondary-ink mb-2">Nghe & trả lời</p>
               <audio :src="ex.audioUrl" controls class="w-full max-w-md"></audio>
             </div>
             <div v-else-if="ex.exerciseType === 'LISTENING' && isSpeechAvailable()" class="mb-5 bg-secondary/10 border-2 border-foreground p-4 rounded-md flex items-center gap-3">
-              <p class="font-bold text-xs uppercase tracking-wider text-secondary flex-1">Nghe & trả lời (giọng đọc máy)</p>
+              <p class="font-bold text-xs uppercase tracking-wider text-secondary-ink flex-1">Nghe & trả lời (giọng đọc máy)</p>
               <AppButton variant="secondary" :aria-label="'Phát âm câu nghe số ' + (idx + 1)" @click="speakListening(ex)">
                 🔊 Nghe
               </AppButton>

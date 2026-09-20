@@ -59,7 +59,7 @@
             <p class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground" v-html="sanitizeText(prompt.description || prompt.prompt)"></p>
             <div class="mt-auto flex items-center justify-between gap-3 border-t-2 border-foreground pt-5">
               <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ prompt.lessonId ? 'Gắn với bài học' : 'Luyện độc lập' }}</span>
-              <router-link :to="`/speaking/${prompt.id}`" class="border-2 border-foreground bg-accent px-4 py-2 text-xs font-black uppercase text-white transition hover:-translate-y-0.5 active:scale-[0.98]">Luyện ngay</router-link>
+              <router-link :to="`/speaking/${prompt.id}`" class="border-2 border-foreground bg-accent-strong px-4 py-2 text-xs font-black uppercase text-white transition hover:-translate-y-0.5 active:scale-[0.98]">Luyện ngay</router-link>
             </div>
           </article>
         </div>

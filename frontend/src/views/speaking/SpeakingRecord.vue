@@ -1,7 +1,7 @@
 <template>
   <main class="min-h-[100dvh] bg-background px-4 py-10 lg:py-14">
     <section class="mx-auto max-w-5xl space-y-8" aria-labelledby="recorder-title">
-      <router-link :to="`/speaking/${promptId}`" class="inline-flex items-center border-b-2 border-foreground pb-1 text-xs font-black uppercase tracking-wider transition hover:text-accent">&larr; Quay lại đề bài</router-link>
+      <router-link :to="`/speaking/${promptId}`" class="inline-flex items-center border-b-2 border-foreground pb-1 text-xs font-black uppercase tracking-wider transition hover:text-accent-ink">&larr; Quay lại đề bài</router-link>
 
       <div v-if="loading" class="h-80 animate-pulse border-2 border-foreground/10 bg-card/60" role="status" aria-label="Đang tải phòng luyện nói"></div>
       <div v-else-if="loadError" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
@@ -82,7 +82,7 @@
         <section v-if="result" class="border-2 border-foreground bg-card p-6" aria-labelledby="result-title" role="status">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p class="text-xs font-black uppercase tracking-wider text-success">Nộp bài thành công</p>
+              <p class="text-xs font-black uppercase tracking-wider text-success-ink">Nộp bài thành công</p>
               <h2 id="result-title" class="mt-1 text-2xl font-black">{{ assessmentHeadline }}</h2>
               <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{{ assessmentDescription }}</p>
             </div>

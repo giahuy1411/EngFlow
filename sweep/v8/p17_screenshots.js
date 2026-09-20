@@ -196,7 +196,7 @@ const SHOTS = [
   // undo it if it was. `/premium` renders PremiumPage (no order), but the
   // redirect to /premium/checkout on some flows does mint a row, so clean
   // unconditionally rather than reason about which path was taken.
-  const clean = cleanupAuditPayments(126);
+  const clean = cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
   const parity = dbParity();
   console.log("DB parity after sweep: " + parity + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
 

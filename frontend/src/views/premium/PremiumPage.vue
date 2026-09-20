@@ -11,11 +11,14 @@
       </UserPageHeader>
 
       <div v-if="!authStore.isLoggedIn" role="note" class="mb-8 border-2 border-foreground bg-white p-4 text-center text-sm font-bold shadow-pop-sm max-w-3xl mx-auto">
-        Bạn cần <router-link to="/login" class="text-accent underline underline-offset-2">đăng nhập</router-link>
+        Bạn cần <router-link to="/login" class="text-accent-ink underline underline-offset-2">đăng nhập</router-link>
         trước khi mua gói Premium để quyền lợi được áp dụng đúng tài khoản.
       </div>
 
-      <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-12">
+      <!-- audit-v11 F131: at md+ the featured card is scaled 1.1 (widening it ~17px per side)
+           and the badge overhangs, so the grid carries px slack to absorb both. Measured:
+           without it the document was +28px wide at 768-800px; px-8 clears it. -->
+      <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-12 md:px-8">
         <div class="bg-white border-2 border-foreground p-8 flex flex-col">
           <div class="mb-6">
             <h2 class="text-2xl font-black mb-2">Gói tháng</h2>
@@ -104,10 +107,22 @@ function checkout(planType) {
   }
 }
 
+/*
+  audit-v11 F131 — horizontal overflow.
+  Measured (documentElement.scrollWidth - clientWidth) on /premium:
+      360–767px : +8px     (badge alone)
+      768–800px : +28/29px (badge + the 1.1 scale kicking in at md)
+      900px+    : 0
+  The badge is `right: -1.25rem` AND `rotate(15deg)`; the rotation alone grows its
+  bounding box by ~22% (56px square -> ~68px), so it overhangs further than the offset
+  suggests. At md+ the featured card is also scaled 1.1, which widens it past its grid
+  column by ~17px per side. The grid therefore needs real slack at md+.
+*/
 .app-plan__badge {
   position: absolute;
   top: -1.25rem;
-  right: -1.25rem;
+  /* Pulled inside the card's own edge so it cannot widen the document on a phone. */
+  right: -0.25rem;
   width: 3.5rem;
   height: 3.5rem;
   display: flex;
@@ -120,6 +135,14 @@ function checkout(planType) {
   border-radius: var(--geo-radius-full);
   box-shadow: var(--geo-shadow-sm);
   transform: rotate(15deg);
+}
+
+/* From md up the grid carries the padding that the scaled card + overhanging badge need,
+   so the badge can return to its full sticker offset. */
+@media (min-width: 768px) {
+  .app-plan__badge {
+    right: -1.25rem;
+  }
 }
 
 /* The ribbon already sits at the top edge; a slight tilt matches the sticker feel. */

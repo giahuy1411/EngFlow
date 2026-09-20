@@ -9,7 +9,7 @@
           :tabindex="activeTab === tab.id ? 0 : -1"
           @click="activeTab = tab.id" @keydown.left.right.prevent="switchTab"
           class="px-4 py-2 font-black uppercase text-sm tracking-wider border-b-2 transition-colors"
-          :class="activeTab === tab.id ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'">
+          :class="activeTab === tab.id ? 'border-accent text-accent-ink' : 'border-transparent text-muted-foreground hover:text-foreground'">
           {{ tab.label }}
         </button>
       </div>

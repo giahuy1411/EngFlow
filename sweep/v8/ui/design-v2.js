@@ -211,7 +211,7 @@ const TOKEN_NAMES_LEN = 11; // keep in sync with TOKEN_NAMES inside the page eva
   // cost is one SQL batch and the failure mode of a stale assumption here is a
   // silently dirty payment_transactions table — exactly the trap AGENTS.md
   // documents for every sweep that touches /premium*.
-  H.cleanupAuditPayments(126);
+  H.cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
   console.log("DB parity after cleanup: " + H.dbParity()
     + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
 

@@ -44,7 +44,7 @@
       <!-- Stats -->
       <div class="flex items-center justify-center gap-8 mb-8">
         <div class="text-center">
-          <p class="font-black text-3xl text-accent">{{ matchedPairs }}</p>
+          <p class="font-black text-3xl text-accent-ink">{{ matchedPairs }}</p>
           <p class="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">Cặp</p>
         </div>
         <div class="text-center">
@@ -63,7 +63,7 @@
           Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm
         </p>
         <router-link :to="'/decks/' + deckId"
-          class="inline-flex px-8 py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+          class="inline-flex px-8 py-3.5 font-bold text-base bg-accent-strong text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
         >Quay lại</router-link>
       </div>
       </template>

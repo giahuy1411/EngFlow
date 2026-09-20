@@ -12,7 +12,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
           </svg>
         </div>
-        <h2 class="app-auth__title">Đăng nhập</h2>
+        <h1 class="app-auth__title">Đăng nhập</h1>
         <p class="app-auth__subtitle">Chào mừng bạn trở lại!</p>
       </div>
       <form @submit.prevent="handleLogin" class="app-auth__form" novalidate>
@@ -31,7 +31,7 @@
             <input type="checkbox" v-model="remember" class="w-4 h-4 border-2 border-foreground rounded-sm accent-accent" />
             <span class="font-bold text-xs uppercase tracking-wider">Ghi nhớ</span>
           </label>
-          <router-link to="/forgot-password" class="font-bold text-xs uppercase tracking-wider text-accent hover:underline">Quên mật khẩu?</router-link>
+          <router-link to="/forgot-password" class="font-bold text-xs uppercase tracking-wider text-accent-ink underline underline-offset-2 hover:no-underline">Quên mật khẩu?</router-link>
         </div>
         <div v-if="error" class="app-auth__alert app-alert app-alert--error" role="alert">
           <div class="app-alert__body"><span>{{ error }}</span></div>
@@ -42,7 +42,7 @@
         <div class="flex-1 h-0.5 bg-border" /><span>Hoặc</span><div class="flex-1 h-0.5 bg-border" />
       </div>
       <p class="text-center font-bold text-sm text-muted-foreground">
-        Chưa có tài khoản? <router-link to="/register" class="text-accent hover:underline">Đăng ký</router-link>
+        Chưa có tài khoản? <router-link to="/register" class="text-accent-ink underline underline-offset-2 hover:no-underline">Đăng ký</router-link>
       </p>
     </div>
   </div>

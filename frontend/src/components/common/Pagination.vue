@@ -21,11 +21,14 @@
         &larr; Trước
       </button>
 
+      <!-- audit-v11 F136: WCAG 2.5.3 (Label in Name) — the accessible name must CONTAIN the
+           visible text. The button shows "1" but was labelled "Trang đầu tiên", so Lighthouse
+           `label-content-name-mismatch` failed. The label now leads with the visible digit. -->
       <button
         type="button"
         :disabled="currentPage <= 1 || totalPages <= 1"
         class="pagination-control"
-        aria-label="Trang đầu tiên"
+        aria-label="1 — trang đầu tiên"
         @click="changePage(1)"
       >
         1
@@ -50,11 +53,12 @@
         <span class="pagination-total-pages" aria-hidden="true">{{ totalPages }}</span>
       </div>
 
+      <!-- audit-v11 F136: same WCAG 2.5.3 fix — the visible number must lead the accessible name. -->
       <button
         type="button"
         :disabled="currentPage >= totalPages || totalPages <= 1"
         class="pagination-control"
-        :aria-label="`Trang cuối cùng: ${totalPages}`"
+        :aria-label="`${totalPages} — trang cuối cùng`"
         @click="changePage(totalPages)"
       >
         {{ totalPages }}
@@ -230,7 +234,10 @@ function selectAll(e) {
 .pagination-page-divider {
   display: inline-flex;
   align-items: center;
-  color: var(--geo-border);
+  /* audit-v11 F132: was var(--geo-border) = #E2E8F0, which measured 1.23:1 on white —
+     effectively invisible. The separator carries meaning ("page 3 OF 74"), so it is
+     treated as text and raised to --geo-muted-fg (#64748B = 4.76:1). */
+  color: var(--geo-muted-fg);
   font-size: 0.85rem;
   font-weight: 900;
 }
@@ -240,7 +247,9 @@ function selectAll(e) {
   align-items: center;
   min-height: 2.5rem;
   padding: 0 0.65rem 0 0.45rem;
-  color: var(--geo-accent);
+  /* audit-v11 F132: this is TEXT — --geo-accent (#8B5CF6) measured 4.23:1 on white,
+     below the 4.5:1 WCAG 1.4.3 requires. --geo-accent-ink is 7.10:1. */
+  color: var(--geo-accent-ink);
   font-size: 0.85rem;
   font-weight: 900;
   font-variant-numeric: tabular-nums;

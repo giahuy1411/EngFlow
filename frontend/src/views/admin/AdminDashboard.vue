@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-8">
-    <PageHeader title="Dashboard" subtitle="Tổng quan hệ thống" :icon="LayoutDashboard" iconBg="bg-accent" iconColor="text-white" />
+    <PageHeader title="Dashboard" subtitle="Tổng quan hệ thống" :icon="LayoutDashboard" iconBg="bg-accent-strong" iconColor="text-white" />
 
     <div v-if="loading" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" role="status" aria-label="Đang tải dashboard">
       <div v-for="index in 4" :key="index" class="h-32 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
@@ -14,8 +14,8 @@
 
     <template v-else>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Người dùng" :value="stats.totalUsers || 0" :icon="Users" iconBg="bg-accent/10" iconColor="text-accent" />
-        <StatCard label="Bài học" :value="stats.totalLessons || 0" :icon="BookOpen" iconBg="bg-secondary/10" iconColor="text-secondary" />
+        <StatCard label="Người dùng" :value="stats.totalUsers || 0" :icon="Users" iconBg="bg-accent/10" iconColor="text-accent-ink" />
+        <StatCard label="Bài học" :value="stats.totalLessons || 0" :icon="BookOpen" iconBg="bg-secondary/10" iconColor="text-secondary-ink" />
         <StatCard label="Bài tập" :value="stats.totalExercises || 0" :icon="FileText" iconBg="bg-tertiary/10" iconColor="text-tertiary" />
         <StatCard label="Bài nộp" :value="stats.totalSubmissions || 0" :icon="Award" iconBg="bg-quaternary/10" iconColor="text-quaternary" />
       </div>

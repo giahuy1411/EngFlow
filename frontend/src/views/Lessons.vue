@@ -27,7 +27,7 @@
           <div class="absolute -top-4 -left-4 w-8 h-8 bg-tertiary border-2 border-foreground rotate-12 rounded-sm"></div>
           <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-secondary border-2 border-foreground rounded-full"></div>
           <h1 class="font-black text-5xl md:text-6xl uppercase tracking-tight leading-none relative z-10">
-            Bài <span class="text-accent">học</span>
+            Bài <span class="text-accent-ink">học</span>
           </h1>
           <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mt-3">Chọn bài học phù hợp với trình độ của bạn</p>
         </div>
@@ -61,9 +61,9 @@
       <!-- Error -->
       <div v-else-if="store.error" class="max-w-xl mx-auto text-center py-20">
         <div class="inline-flex items-center justify-center w-16 h-16 border-2 border-foreground bg-accent/10 mb-6 rounded-blob">
-          <span class="text-3xl font-black text-accent">!</span>
+          <span class="text-3xl font-black text-accent-ink">!</span>
         </div>
-        <p class="font-bold text-lg text-accent">{{ store.error }}</p>
+        <p class="font-bold text-lg text-accent-ink">{{ store.error }}</p>
       </div>
 
       <div v-else>
@@ -103,14 +103,17 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="w-2.5 h-2.5 border border-foreground rounded-full" :style="{ background: levelColor(lesson.level) }"></span>
-                  <span class="text-xs font-bold uppercase tracking-wider" :style="{ color: levelColor(lesson.level) }">{{ levelLabel(lesson.level) }}</span>
+                  <span class="text-xs font-bold uppercase tracking-wider" :style="{ color: levelInkColor(lesson.level) }">{{ levelLabel(lesson.level) }}</span>
                 </div>
                 <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ lesson.durationMinutes }} phút</span>
               </div>
 
               <div>
                 <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">{{ lesson.category }}</span>
-                <h3 class="font-black text-lg uppercase leading-snug mt-1 text-foreground">{{ lesson.title }}</h3>
+                <!-- audit-v11 F135: was <h3> directly under the page <h1>, which skips a level
+                     and fails Lighthouse `heading-order` (WCAG 1.3.1 / 2.4.6). The card title is
+                     the second level of the page's hierarchy, so it is an <h2>. -->
+                <h2 class="font-black text-lg uppercase leading-snug mt-1 text-foreground">{{ lesson.title }}</h2>
               </div>
 
               <p class="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-2 flex-1" v-html="sanitizeText(lesson.description)"></p>
@@ -156,6 +159,9 @@ import streakService from '@/services/streakService'
 import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import { sanitizeText } from '@/utils/markdown'
+// audit-v11 F132: level colors now come from the shared module (the local duplicate that
+// shadowed it was removed). levelColor = fills, levelInkColor = text.
+import { levelColor, levelInkColor, levelLabel } from '@/utils/lessonLevels'
 
 const store = useLessonStore()
 const selectedLevel = ref('ALL')
@@ -214,21 +220,8 @@ const levels = [
   { label: 'Upper-Int.', value: 'UPPER_INTERMEDIATE' },
 ]
 
-function levelColor(level) {
-  return ({
-    ELEMENTARY: 'var(--geo-accent, #8B5CF6)',
-    PRE_INTERMEDIATE: 'var(--geo-tertiary, #FBBF24)',
-    INTERMEDIATE: 'var(--geo-secondary, #F472B6)',
-    UPPER_INTERMEDIATE: 'var(--geo-quaternary, #34D399)',
-  })[level] || 'var(--geo-muted-fg, #64748B)'
-}
-
-function levelLabel(level) {
-  return ({
-    ELEMENTARY: 'Elementary',
-    PRE_INTERMEDIATE: 'Pre-Intermediate',
-    INTERMEDIATE: 'Intermediate',
-    UPPER_INTERMEDIATE: 'Upper-Intermediate',
-  })[level] || level
-}
+// audit-v11 F132: the local duplicates of `levelColor` AND `levelLabel` that used to live
+// here are REMOVED. Both shadowed the imports from @/utils/lessonLevels, so a fix applied
+// only to the shared module would have silently half-landed on this view. The shared module
+// is now the single source: levelColor() = fills, levelInkColor() = text.
 </script>

@@ -12,7 +12,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
           </svg>
         </div>
-        <h2 class="app-auth__title">Quên mật khẩu</h2>
+        <h1 class="app-auth__title">Quên mật khẩu</h1>
         <p class="app-auth__subtitle">Nhập email để nhận liên kết đặt lại</p>
       </div>
       <form @submit.prevent="handleForgot" class="app-auth__form" novalidate>
@@ -30,7 +30,7 @@
         <AppButton type="submit" variant="primary" size="lg" class="w-full" :loading="loading">Gửi liên kết</AppButton>
       </form>
       <p class="text-center font-bold text-sm text-muted-foreground mt-4">
-        <router-link to="/login" class="text-accent hover:underline">Quay lại đăng nhập</router-link>
+        <router-link to="/login" class="text-accent-ink underline underline-offset-2 hover:no-underline">Quay lại đăng nhập</router-link>
       </p>
     </div>
   </div>

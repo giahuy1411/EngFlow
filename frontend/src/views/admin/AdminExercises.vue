@@ -94,7 +94,7 @@
             </td>
             <td class="border-r-2 border-foreground p-4 text-center align-top">
               <span :class="['inline-flex min-w-[64px] items-center justify-center rounded-md border-2 border-foreground px-2.5 py-1 text-[11px] font-black uppercase tracking-wider',
-                             ex.difficulty === 'EASY' ? 'bg-secondary text-foreground' : ex.difficulty === 'MEDIUM' ? 'bg-tertiary text-foreground' : 'bg-accent text-white']">
+                             ex.difficulty === 'EASY' ? 'bg-secondary text-foreground' : ex.difficulty === 'MEDIUM' ? 'bg-tertiary text-foreground' : 'bg-accent-strong text-white']">
                 {{ difficultyLabel(ex.difficulty) }}
               </span>
             </td>
@@ -111,7 +111,7 @@
                     <EditIcon class="h-4 w-4" />
                  </button>
                  <button @click="confirmDelete(ex)" aria-label="Xóa bài tập"
-                         class="flex h-9 w-9 items-center justify-center rounded-md border-2 border-foreground bg-accent text-white shadow-pop-sm transition-all hover:-translate-y-0.5 hover:shadow-pop active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                         class="flex h-9 w-9 items-center justify-center rounded-md border-2 border-foreground bg-accent-strong text-white shadow-pop-sm transition-all hover:-translate-y-0.5 hover:shadow-pop active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                     <TrashIcon class="h-4 w-4" />
                  </button>
               </div>
@@ -150,12 +150,12 @@
           </div>
           <div class="flex items-center gap-2">
             <AppButton type="button" @click="showAiPanel = !showAiPanel" variant="secondary"
-                       :aria-expanded="showAiPanel" class="!border-white !text-white hover:!bg-white hover:!text-accent">
+                       :aria-expanded="showAiPanel" class="!border-white !text-white hover:!bg-white hover:!text-accent-ink">
               {{ showAiPanel ? 'Ẩn AI' : 'Tạo bằng AI' }}
             </AppButton>
             <!-- icon-only control: kept raw -->
             <button type="button" @click="closeModal" aria-label="Đóng hộp thoại"
-                    class="w-8 h-8 flex items-center justify-center border-2 border-white bg-white/20 text-white font-black text-lg rounded-md shadow-pop-sm hover:bg-white hover:text-accent transition-colors">&times;</button>
+                    class="w-8 h-8 flex items-center justify-center border-2 border-white bg-white/20 text-white font-black text-lg rounded-md shadow-pop-sm hover:bg-white hover:text-accent-ink transition-colors">&times;</button>
           </div>
         </div>
 
@@ -169,14 +169,14 @@
               <!-- LEFT COLUMN -->
               <div class="space-y-4">
                 <div>
-                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Câu hỏi <span class="text-accent">*</span></label>
+                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Câu hỏi <span class="text-accent-ink">*</span></label>
                   <textarea v-model="formData.question" required rows="3"
                             class="w-full border-2 border-foreground rounded-md p-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all resize-y min-h-[60px]"></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Loại <span class="text-accent">*</span></label>
+                    <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Loại <span class="text-accent-ink">*</span></label>
                     <select v-model="formData.exerciseType" required
                             class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all appearance-none">
                       <option value="MULTIPLE_CHOICE">Trắc nghiệm</option>
@@ -187,7 +187,7 @@
                     </select>
                   </div>
                   <div>
-                    <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Độ khó <span class="text-accent">*</span></label>
+                    <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Độ khó <span class="text-accent-ink">*</span></label>
                     <select v-model="formData.difficulty" required
                             class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold uppercase text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all appearance-none">
                       <option value="EASY">Dễ</option>
@@ -199,7 +199,7 @@
 
                 <!-- Lesson searchable dropdown -->
                 <div>
-                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Bài học <span class="text-accent">*</span></label>
+                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Bài học <span class="text-accent-ink">*</span></label>
                   <div class="relative">
                     <input ref="lessonSearchRef"
                            v-model="lessonSearch" type="text" :placeholder="selectedLessonLabel || 'Tìm bài học...'"
@@ -208,13 +208,13 @@
                            class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
                     <!-- icon-only control: kept raw -->
                     <button type="button" @click="clearLesson" v-if="formData.lessonId" aria-label="Xóa lesson liên kết"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-accent transition-colors">
+                            class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-accent-ink transition-colors">
                       &times;
                     </button>
                     <ul v-if="showLessonDropdown && filteredLessons.length" class="absolute z-20 top-full left-0 right-0 mt-1 border-2 border-foreground bg-white max-h-48 overflow-y-auto shadow-pop rounded-md overflow-hidden">
                       <li v-for="lesson in filteredLessons" :key="lesson.id" @click="selectLesson(lesson)"
                           class="px-3 py-2.5 font-bold text-sm border-b-2 border-foreground/20 cursor-pointer
-                                 hover:bg-accent hover:text-white transition-colors last:border-b-0">
+                                 hover:bg-accent-strong hover:text-white transition-colors last:border-b-0">
                         <span class="mr-2">{{ lesson.title }}</span>
                         <span class="text-xs text-muted-foreground font-medium">{{ lesson.level }}</span>
                       </li>
@@ -237,16 +237,16 @@
                   <img v-if="formData.imageUrl" :src="formData.imageUrl" alt="Xem trước hình ảnh của câu hỏi"
                        class="mt-2 border-2 border-foreground max-h-32 object-contain bg-white rounded-md overflow-hidden"
                        @error="onImageError" />
-                  <div v-if="formData.imageUrl && imageError" class="text-accent font-bold text-xs">Không thể tải hình ảnh từ URL này</div>
+                  <div v-if="formData.imageUrl && imageError" class="text-accent-ink font-bold text-xs">Không thể tải hình ảnh từ URL này</div>
                 </div>
 
                 <!-- LISTENING: audio field -->
                 <div v-if="formData.exerciseType === 'LISTENING'" class="border-2 border-secondary/30 bg-secondary/5 p-4 rounded-md">
                   <div class="flex items-center gap-2 mb-1">
-                    <HeadphonesIcon class="w-4 h-4 text-secondary" />
-                    <p class="font-bold uppercase text-xs tracking-wider text-secondary">Bài tập nghe</p>
+                    <HeadphonesIcon class="w-4 h-4 text-secondary-ink" />
+                    <p class="font-bold uppercase text-xs tracking-wider text-secondary-ink">Bài tập nghe</p>
                   </div>
-                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Audio URL <span class="text-accent">*</span></label>
+                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Audio URL <span class="text-accent-ink">*</span></label>
                   <div class="flex gap-2">
                     <input v-model="formData.audioUrl" type="url" placeholder="https://example.com/audio.mp3"
                            class="flex-1 border-2 border-foreground rounded-md p-3 bg-white font-bold focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
@@ -265,7 +265,7 @@
                 <!-- MULTIPLE_CHOICE: dynamic options -->
                 <div v-if="formData.exerciseType === 'MULTIPLE_CHOICE'" class="border-2 border-secondary/30 bg-secondary/5 p-4 rounded-md">
                   <div class="flex items-center justify-between mb-3">
-                    <label class="font-bold uppercase text-xs tracking-wider text-secondary">Lựa chọn</label>
+                    <label class="font-bold uppercase text-xs tracking-wider text-secondary-ink">Lựa chọn</label>
                     <AppButton type="button" @click="addOption" variant="secondary" size="sm">
                       + Thêm
                     </AppButton>
@@ -278,7 +278,7 @@
                     <!-- icon-only control: kept raw -->
                     <button type="button" @click="removeOption(i)" v-if="formData.options.length > 2" :aria-label="'Xóa lựa chọn ' + (i + 1)"
                             class="w-8 h-8 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground
-                                   hover:bg-accent hover:text-white hover:border-accent transition-colors font-black">
+                                   hover:bg-accent-strong hover:text-white hover:border-accent transition-colors font-black">
                       &times;
                     </button>
                     <div class="relative">
@@ -300,7 +300,7 @@
 
                 <!-- correctAnswer for non-MULTIPLE_CHOICE -->
                 <div v-else>
-                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Đáp án đúng <span class="text-accent">*</span></label>
+                  <label class="block font-bold uppercase text-xs tracking-wider mb-1.5">Đáp án đúng <span class="text-accent-ink">*</span></label>
                   <input v-model="formData.correctAnswer" type="text" required
                          class="w-full border-2 border-foreground rounded-md p-3 bg-background font-bold text-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-all" />
                 </div>
@@ -335,7 +335,7 @@
           <h3 class="font-black text-lg uppercase tracking-tighter text-white">Xác nhận xóa</h3>
         </div>
         <div class="p-6">
-          <p class="font-bold mb-6">Bạn có chắc chắn muốn xóa bài tập <span class="text-accent">"{{ deleteTarget.question || deleteTarget.title }}"</span>?</p>
+          <p class="font-bold mb-6">Bạn có chắc chắn muốn xóa bài tập <span class="text-accent-ink">"{{ deleteTarget.question || deleteTarget.title }}"</span>?</p>
           <div class="flex justify-end gap-4">
             <AppButton @click="deleteTarget = null" variant="secondary">
               Hủy

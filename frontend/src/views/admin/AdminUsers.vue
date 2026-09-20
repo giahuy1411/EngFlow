@@ -78,7 +78,7 @@
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
               <span :class="['inline-block px-3 py-1 border-2 border-foreground text-xs font-black tracking-wider rounded-md shadow-pop-sm',
-                user.isActive ? 'bg-quaternary text-foreground' : 'bg-muted text-muted-foreground']">
+                user.isActive ? 'bg-quaternary text-foreground' : 'bg-muted text-foreground']">
                 {{ user.isActive ? 'Hoạt động' : 'Đã khóa' }}
               </span>
             </td>
@@ -86,7 +86,7 @@
               <span v-if="user.premiumExpiry" class="inline-block px-3 py-1 border-2 border-foreground text-xs font-black tracking-wider rounded-md shadow-pop-sm bg-tertiary text-foreground">
                 Hết {{ formatDate(user.premiumExpiry) }}
               </span>
-              <span v-else class="inline-block px-3 py-1 border-2 border-foreground text-xs font-black tracking-wider rounded-md shadow-pop-sm bg-muted text-muted-foreground">
+              <span v-else class="inline-block px-3 py-1 border-2 border-foreground text-xs font-black tracking-wider rounded-md shadow-pop-sm bg-muted text-foreground">
                 Không
               </span>
             </td>

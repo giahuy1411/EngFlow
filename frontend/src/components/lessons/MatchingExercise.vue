@@ -57,7 +57,7 @@
           <span class="font-bold text-sm truncate">{{ leftItems[pair.left] }}</span>
           <span class="text-muted-foreground" aria-hidden="true">→</span>
           <span class="font-medium text-sm truncate">{{ rightItems[pair.right] }}</span>
-          <button @click="removePair(i)" aria-label="Xóa cặp đã chọn" class="ml-auto w-6 h-6 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground hover:bg-accent hover:text-white transition-all font-black text-xs">&times;</button>
+          <button @click="removePair(i)" aria-label="Xóa cặp đã chọn" class="ml-auto w-6 h-6 flex items-center justify-center border-2 border-foreground rounded-md text-muted-foreground hover:bg-accent-strong hover:text-white transition-all font-black text-xs">&times;</button>
         </div>
       </div>
 

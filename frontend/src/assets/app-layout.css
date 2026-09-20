@@ -81,7 +81,9 @@
   border-color: var(--geo-fg);
 }
 .app-navbar__link--active {
-  background: var(--geo-accent);
+  /* audit-v11 F132: white on #8B5CF6 = 4.23:1 (needs 4.5:1). --geo-accent-strong = 5.70:1.
+     This is the single most repeated failure in the app — it appears on every route. */
+  background: var(--geo-accent-strong);
   color: #fff;
   border-color: var(--geo-fg);
   box-shadow: 3px 3px 0 0 var(--geo-fg);
@@ -105,7 +107,8 @@
   background: var(--geo-tertiary);
 }
 .app-navbar__auth--solid {
-  background: var(--geo-accent);
+  /* audit-v11 F132: same white-on-violet fix (4.23 -> 5.70:1). */
+  background: var(--geo-accent-strong);
   color: #fff;
   box-shadow: 3px 3px 0 0 var(--geo-fg);
 }
@@ -160,8 +163,9 @@
   color: var(--geo-fg);
   text-decoration: none;
 }
+/* audit-v11 F143: white text on a vivid fill -> *-strong (F132 codemod missed shared CSS). */
 .app-navbar__mobile-link--active {
-  background: var(--geo-accent);
+  background: var(--geo-accent-strong);
   color: #fff;
   border-color: var(--geo-fg);
 }
@@ -184,8 +188,9 @@
 .app-navbar__mobile-cta--ghost {
   color: var(--geo-fg);
 }
+/* audit-v11 F143: white text on a vivid fill -> *-strong. */
 .app-navbar__mobile-cta--solid {
-  background: var(--geo-accent);
+  background: var(--geo-accent-strong);
   color: #fff;
   box-shadow: 3px 3px 0 0 var(--geo-fg);
 }
@@ -397,8 +402,9 @@
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
+/* audit-v11 F143: white text on a vivid fill -> *-strong (F132 codemod missed shared CSS). */
 .app-admin__nav-link--active {
-  background: var(--geo-accent);
+  background: var(--geo-accent-strong);
   color: #fff;
   box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.25);
 }
@@ -479,7 +485,8 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--geo-accent);
+  /* audit-v11 F143: text on a light chip -> ink token (F132 codemod missed shared CSS). */
+  color: var(--geo-accent-ink);
   background: rgba(139, 92, 246, 0.1);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
@@ -500,7 +507,21 @@
 
 /* Prompt: "A massive yellow circle behind the text."
    Decorative, clipped by .app-hero's overflow:hidden, and it never receives
-   pointer events — so it cannot steal a click from the CTA buttons. */
+   pointer events — so it cannot steal a click from the CTA buttons.
+
+   audit-v11 F143 — "behind" was true in intent but not in paint order, and fixing it
+   naively broke the decoration. The whole story, because the two obvious fixes each fail:
+
+   1. `z-index: 0` (the original) — a positioned element at z-index 0 paints in step 6 of
+      the CSS painting order, while STATIC in-flow inline text paints in step 5. So the
+      circle painted ON TOP of the headline. Measured live: it washed amber over
+      464x205 px of the headline at 1280px and 100% of it at 390px, dropping "Vui Vẻ" to
+      2.64:1 (needs 3:1) and the subtitle to 3.17:1 (needs 4.5:1).        <- the reported bug
+   2. `z-index: -1` — paints in step 2, which is BEHIND step 4 (the opaque cream
+      background of the ancestor `div.bg-background`). The circle vanished entirely.
+
+   The fix is to raise the TEXT instead of lowering the circle, so both sit above the
+   ancestor's background and the text is unambiguously on top. */
 .app-hero__sun {
   position: absolute;
   top: -10rem;
@@ -519,6 +540,17 @@
 
 .app-hero__grid { display: grid; gap: 3rem; align-items: center; }
 @media (min-width: 768px) { .app-hero__grid { grid-template-columns: 1fr 1fr; } }
+
+/* audit-v11 F143 — the other half of the fix. The circle sits at z-index 0 (above the
+   ancestor's cream background, so it stays visible); this column is raised to z-index 1
+   so every word paints above it. `position: relative` is required for z-index to apply
+   to a static element, and it is safe here — the column is a plain grid child.
+   The dot pattern inside keeps its own `-z-10`, which is now relative to this column and
+   therefore still sits behind the text but above the circle. */
+.app-hero__text {
+  position: relative;
+  z-index: 1;
+}
 .app-hero__title {
   font-size: clamp(3rem, 6vw, 4.5rem);
   font-weight: 900;
@@ -527,7 +559,12 @@
   line-height: 0.95;
   margin: 0;
 }
-.app-hero__title-accent { color: var(--geo-accent); }
+/* audit-v11 F143: this IS text, so it takes the AA ink token like every other text
+   usage. The F132 codemod only scanned .vue files and missed the shared CSS, which is
+   why this one survived. On the hero it also sits over the amber wash: #8B5CF6 there
+   measured 3.48:1 (just over the 3:1 large-text line, with no headroom);
+   --geo-accent-ink measures 5.83:1. */
+.app-hero__title-accent { color: var(--geo-accent-ink); }
 .app-hero__subtitle {
   margin: 2rem 0;
   font-size: 1.125rem;
@@ -538,9 +575,13 @@
 .app-hero__cta { display: flex; flex-wrap: wrap; gap: 1rem; }
 .app-hero__stats { display: flex; gap: 2rem; padding-top: 1rem; flex-wrap: wrap; }
 .app-hero__stat-num { font-weight: 900; font-size: 1.875rem; line-height: 1; margin: 0; }
-.app-hero__stat-num--accent { color: var(--geo-accent); }
-.app-hero__stat-num--secondary { color: var(--geo-secondary); }
-.app-hero__stat-num--tertiary { color: var(--geo-tertiary); }
+/* audit-v11 F132: these are 30px/900 TEXT on the cream hero — the vivid hues measured
+   4.16 / 2.60 / 1.64:1 against #FFFDF5, all under the 3:1 needed even for large text.
+   The ink variants measure 6.98 / 5.93 / 4.93:1. (The decorative circles behind them keep
+   the vivid hues — only the numerals change.) */
+.app-hero__stat-num--accent { color: var(--geo-accent-ink); }
+.app-hero__stat-num--secondary { color: var(--geo-secondary-ink); }
+.app-hero__stat-num--tertiary { color: var(--geo-tertiary-ink); }
 .app-hero__stat-label { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-muted-fg); margin: 0.25rem 0 0; }
 .app-hero__visual { position: relative; height: 28rem; }
 .app-hero__shape { position: absolute; border: 2px solid var(--geo-fg); }
@@ -612,7 +653,8 @@
 .app-marquee__item::after {
   content: '•';
   margin-left: 2.5rem;
-  color: var(--geo-accent);
+  /* audit-v11 F143: a text glyph on cream -> ink token. */
+  color: var(--geo-accent-ink);
 }
 @media (prefers-reduced-motion: reduce) {
   /* Prompt: "Disable the bounce and wiggle effects if preferred." A moving
@@ -620,7 +662,8 @@
   .app-marquee__track { animation: none; }
 }
 .app-features__icon { display: inline-flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; border-radius: var(--geo-radius-md); border: 2px solid var(--geo-fg); color: var(--geo-fg); }
-.app-features__icon--accent { background: var(--geo-accent); }
+/* audit-v11 F143: these chips hold WHITE icons, so they take the *-strong fills. */
+.app-features__icon--accent { background: var(--geo-accent-strong); }
 .app-features__icon--secondary { background: var(--geo-secondary); color: #fff; }
 .app-features__icon--tertiary { background: var(--geo-tertiary); }
 .app-features__card-title { font-weight: 900; font-size: 1.25rem; margin: 1rem 0 0.5rem; }
@@ -633,9 +676,14 @@
 /* --- AppCTA --- */
 .app-cta { padding: 4rem 1.25rem; }
 .app-cta__inner { max-width: 64rem; margin: 0 auto; }
-.app-cta__card { position: relative; overflow: hidden; background: var(--geo-accent); border: 2px solid var(--geo-fg); border-radius: 2rem 2rem 2rem 0; padding: 3rem; text-align: center; box-shadow: var(--geo-shadow-xl); }
+/* audit-v11 F132: the card holds WHITE text, so the fill moves to accent-strong (5.70:1). */
+.app-cta__card { position: relative; overflow: hidden; background: var(--geo-accent-strong); border: 2px solid var(--geo-fg); border-radius: 2rem 2rem 2rem 0; padding: 3rem; text-align: center; box-shadow: var(--geo-shadow-xl); }
 .app-cta__title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; text-transform: uppercase; color: #fff; margin: 0; }
-.app-cta__subtitle { font-weight: 700; font-size: 1.125rem; color: rgba(255,255,255,0.85); margin: 1rem 0 2rem; }
+/* audit-v11 F132: rgba(255,255,255,0.85) composited on --geo-accent measured 4.23:1 at
+   18px/700 (large-text threshold is 3:1, so this one passes as large text — but the same
+   string is also used at smaller sizes elsewhere, and the card fill is now accent-strong
+   anyway. Set it opaque for a clean 5.70:1 with no compositing ambiguity. */
+.app-cta__subtitle { font-weight: 700; font-size: 1.125rem; color: #fff; margin: 1rem 0 2rem; }
 
 /* --- Auth shell (Login/Register/ForgotPassword) --- */
 .app-auth {
@@ -684,7 +732,8 @@
 .app-auth__subtitle { font-weight: 500; font-size: 0.875rem; color: var(--geo-muted-fg); margin-top: 0.5rem; }
 .app-auth__form { display: flex; flex-direction: column; gap: 1.25rem; }
 .app-auth__divider { text-align: center; margin: 1rem 0; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-muted-fg); }
-.app-auth__link { display: block; text-align: center; margin-top: 1rem; font-weight: 700; font-size: 0.875rem; color: var(--geo-accent); text-decoration: none; }
+/* audit-v11 F143: text on the cream auth card -> ink token. */
+.app-auth__link { display: block; text-align: center; margin-top: 1rem; font-weight: 700; font-size: 0.875rem; color: var(--geo-accent-ink); text-decoration: none; }
 .app-auth__link:hover { text-decoration: underline; }
 .app-auth__alert { margin-bottom: 1rem; }
 

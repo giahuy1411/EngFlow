@@ -9,7 +9,7 @@
         <template #accent>Streak</template>
         <template #actions>
           <div class="rounded-xl border-2 border-foreground bg-tertiary/30 p-5 text-right shadow-pop-sm">
-            <Trophy class="ml-auto h-8 w-8 text-accent" aria-hidden="true" />
+            <Trophy class="ml-auto h-8 w-8 text-accent-ink" aria-hidden="true" />
             <p class="mt-3 text-xs font-black uppercase tracking-wider text-muted-foreground">Tổng người học</p>
             <p class="mt-1 text-3xl font-black tabular-nums">{{ totalElements }}</p>
           </div>
@@ -45,11 +45,11 @@
             <img :src="user.avatarUrl || 'https://api.dicebear.com/7.x/thumbs/svg?seed=engflow'" class="h-12 w-12 flex-shrink-0 border-2 border-foreground object-cover" alt="Ảnh đại diện" />
             <div class="min-w-0">
               <p class="truncate font-black">{{ user.fullName || user.username }}</p>
-              <p class="truncate text-sm text-muted-foreground">@{{ user.username }} <span v-if="isCurrentUser(user.userId)" class="font-black text-accent">· Bạn</span></p>
+              <p class="truncate text-sm text-muted-foreground">@{{ user.username }} <span v-if="isCurrentUser(user.userId)" class="font-black text-accent-ink">· Bạn</span></p>
             </div>
           </div>
           <div class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ user.currentLevel }}</div>
-          <div class="border-l-2 border-foreground pl-4 text-sm font-black text-accent">{{ user.currentStreak }} ngày streak</div>
+          <div class="border-l-2 border-foreground pl-4 text-sm font-black text-accent-ink">{{ user.currentStreak }} ngày streak</div>
           <div class="text-right text-2xl font-black tabular-nums">{{ user.totalPoints }}</div>
         </article>
 

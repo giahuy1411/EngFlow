@@ -30,15 +30,15 @@
       <!-- Error -->
       <div v-if="error" class="max-w-xl mx-auto text-center py-12">
         <div class="inline-flex items-center justify-center w-16 h-16 border-2 border-foreground bg-accent/10 mb-6 rounded-blob">
-          <span class="text-3xl font-black text-accent">!</span>
+          <span class="text-3xl font-black text-accent-ink">!</span>
         </div>
-        <p class="font-bold text-lg text-accent">{{ error }}</p>
+        <p class="font-bold text-lg text-accent-ink">{{ error }}</p>
       </div>
 
       <!-- Not found (searched but empty) -->
       <div v-if="searched && results.length === 0 && !error" class="max-w-xl mx-auto text-center py-12">
         <div class="inline-flex items-center justify-center w-16 h-16 border-2 border-foreground bg-secondary/10 mb-6 rounded-blob">
-          <span class="text-3xl font-black text-secondary">?</span>
+          <span class="text-3xl font-black text-secondary-ink">?</span>
         </div>
         <p class="font-bold text-lg text-foreground">Không tìm thấy từ "{{ query }}"</p>
         <p class="text-sm text-muted-foreground mt-1">Kiểm tra chính tả hoặc thử một từ khác.</p>
@@ -55,7 +55,7 @@
               <p class="font-bold text-sm text-muted-foreground mt-1">{{ word.phonetic || '/' + word.word + '/' }}</p>
             </div>
             <button v-if="word.audioUrl" @click="playAudio(word.audioUrl)" :aria-label="`Phát âm ${word.word}`"
-              class="w-10 h-10 bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent/90 transition-all shadow-pop-sm"
+              class="w-10 h-10 bg-accent-strong border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent-strong/90 transition-all shadow-pop-sm"
             >
               <Volume2 class="w-5 h-5" aria-hidden="true" />
             </button>
@@ -63,7 +63,7 @@
 
           <div class="border-t-2 border-foreground/10 pt-3 space-y-3">
             <div v-for="(meaning, j) in word.meanings" :key="j">
-              <span class="font-black text-xs uppercase tracking-wider text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">{{ meaning.partOfSpeech }}</span>
+              <span class="font-black text-xs uppercase tracking-wider text-accent-ink bg-accent/10 px-2 py-0.5 rounded border border-accent/20">{{ meaning.partOfSpeech }}</span>
 
               <ol class="list-decimal list-inside mt-2 space-y-2">
                 <li v-for="(def, k) in meaning.definitions" :key="k" class="text-foreground">
@@ -75,14 +75,14 @@
               <div v-if="meaning.synonyms.length" class="mt-1.5 flex flex-wrap gap-1.5">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-foreground">Syn:</span>
                 <span v-for="(s, idx) in meaning.synonyms" :key="'syn'+idx"
-                  class="text-xs font-medium bg-secondary/15 text-secondary border border-foreground/15 px-2 py-0.5 rounded-full">
+                  class="text-xs font-medium bg-secondary/15 text-secondary-ink border border-foreground/15 px-2 py-0.5 rounded-full">
                   {{ s }}
                 </span>
               </div>
               <div v-if="meaning.antonyms.length" class="mt-1 flex flex-wrap gap-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-secondary">Ant:</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-secondary-ink">Ant:</span>
                 <span v-for="(a, idx) in meaning.antonyms" :key="'ant'+idx"
-                  class="text-xs font-medium bg-secondary/10 text-secondary border border-secondary/20 px-2 py-0.5 rounded-full">
+                  class="text-xs font-medium bg-secondary/10 text-secondary-ink border border-secondary/20 px-2 py-0.5 rounded-full">
                   {{ a }}
                 </span>
               </div>

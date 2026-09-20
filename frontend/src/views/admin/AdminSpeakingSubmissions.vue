@@ -133,7 +133,7 @@
             </div>
 
             <div v-if="s.adminFeedback" class="border-l-4 border-accent bg-accent/5 p-4 rounded text-sm">
-              <strong class="font-black uppercase text-xs text-accent block mb-1">Nhận xét đã lưu cho học viên:</strong>
+              <strong class="font-black uppercase text-xs text-accent-ink block mb-1">Nhận xét đã lưu cho học viên:</strong>
               <p class="font-medium text-foreground">{{ s.adminFeedback }}</p>
             </div>
 
@@ -333,7 +333,7 @@ function statusMeta(status) {
     case 'UNDER_REVIEW':
       return { label: 'Đang chấm', className: 'bg-secondary text-foreground' }
     case 'GRADED':
-      return { label: 'Đã chấm', className: 'bg-accent text-white' }
+      return { label: 'Đã chấm', className: 'bg-accent-strong text-white' }
     case 'COMPLETED':
       return { label: 'Đánh giá xong', className: 'bg-quaternary text-foreground' }
     case 'PROCESSING':

@@ -5,7 +5,7 @@
   >
     <div class="flex flex-wrap gap-3 items-center justify-between mb-6">
       <h3 class="text-2xl font-black uppercase">Chuỗi ngày học</h3>
-      <p class="flex items-center space-x-2 text-3xl font-black text-secondary">
+      <p class="flex items-center space-x-2 text-3xl font-black text-secondary-ink">
         <span aria-hidden="true">🔥</span>
         <span>{{ currentStreak }}</span>
         <span class="text-lg font-bold text-muted-foreground">ngày</span>

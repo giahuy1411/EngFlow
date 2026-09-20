@@ -57,7 +57,7 @@
       <button
         @click="generate"
         :disabled="loading || !selectedLessonId"
-        class="flex items-center gap-2 bg-accent border-2 border-foreground px-5 py-2.5 font-black uppercase text-sm text-white rounded-md shadow-pop hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        class="flex items-center gap-2 bg-accent-strong border-2 border-foreground px-5 py-2.5 font-black uppercase text-sm text-white rounded-md shadow-pop hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         :aria-busy="loading"
       >
         <Loader2 v-if="loading" class="w-4 h-4 animate-spin" aria-hidden="true" />
@@ -100,7 +100,7 @@
       v-if="successMessage"
       role="status"
       aria-live="polite"
-      class="bg-success/10 border border-success/30 rounded-md p-3 text-sm text-success"
+      class="bg-success/10 border border-success/30 rounded-md p-3 text-sm text-success-ink"
     >
       {{ successMessage }}
     </div>

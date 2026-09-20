@@ -3,7 +3,7 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Back -->
       <router-link :to="'/decks/' + deckId"
-        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors mb-6"
+        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent-ink transition-colors mb-6"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         Quay lại
@@ -39,7 +39,7 @@
         <div class="max-w-md mx-auto mb-8">
           <div class="flex justify-between text-xs font-bold uppercase tracking-wider mb-2">
             <span class="text-muted-foreground">{{ displayIndex }}/{{ words.length }}</span>
-            <span class="text-accent">{{ progressPercent }}%</span>
+            <span class="text-accent-ink">{{ progressPercent }}%</span>
           </div>
           <div class="w-full h-2 border-2 border-foreground bg-muted rounded-full overflow-hidden">
             <div class="h-full bg-accent rounded-full transition-all duration-500" :style="{ width: `${progressPercent}%` }"></div>
@@ -131,12 +131,12 @@ const progressPercent = computed(() => words.value.length ? Math.round((Math.min
 // màu phẳng + border-2 + shadow-pop (đúng "hard pop" của hệ).
 // cardInk = màu chữ trên nền thẻ: nền tối → trắng; nền sáng (tertiary) → fg.
 const THEMES = {
-  verb: { bg: 'bg-accent', ink: 'text-white' },
+  verb: { bg: 'bg-accent-strong', ink: 'text-white' },
   noun: { bg: 'bg-quaternary', ink: 'text-foreground' },
   adjective: { bg: 'bg-tertiary', ink: 'text-foreground' },
-  adverb: { bg: 'bg-secondary', ink: 'text-white' },
+  adverb: { bg: 'bg-secondary-strong', ink: 'text-white' },
   preposition: { bg: 'bg-foreground', ink: 'text-background' },
-  pronoun: { bg: 'bg-accent', ink: 'text-white' },
+  pronoun: { bg: 'bg-accent-strong', ink: 'text-white' },
   conjunction: { bg: 'bg-secondary', ink: 'text-white' },
   interjection: { bg: 'bg-tertiary', ink: 'text-foreground' },
   default: { bg: 'bg-accent', ink: 'text-white' },

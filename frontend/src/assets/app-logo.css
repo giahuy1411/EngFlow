@@ -1,10 +1,15 @@
-/* AppLogo — chỉ dùng mark của EngFlow để có layout thống nhất */
+/* AppLogo — chỉ dùng mark của EngFlow để có layout thống nhất.
+   audit-v11 F129: `color` phải là `inherit`, KHÔNG hard-code `var(--geo-fg)`.
+   Footer đảo màu có chủ đích (`.app-footer` = nền --geo-fg, chữ --geo-bg); logo
+   hard-code màu tối nên trong footer chữ "EngFlow" trùng màu nền → tỉ lệ tương
+   phản 1.00, chữ vô hình. Header vẫn đúng vì ở đó nền sáng. Đo được bằng probe
+   contrast: header nền thật rgb(255,253,245), footer nền thật rgb(30,41,59). */
 .app-logo {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
-  color: var(--geo-fg);
+  color: inherit;
   font-weight: 800;
   letter-spacing: -0.02em;
   user-select: none;

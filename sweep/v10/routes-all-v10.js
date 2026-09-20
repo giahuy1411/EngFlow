@@ -237,7 +237,7 @@ const badLanding = [];
   // POST create-order ngay khi mount) nen MOI lan chay deu mint row that.
   // Cleanup nam trong CHINH lan chay nay, khong phai buoc thu cong.
   console.log("");
-  try { cleanupAuditPayments(126); } catch (e) { console.log("cleanup warn: " + e.message); }
+  try { cleanupAuditPayments(126); /* audit-v11 F130: baseline is informational; assertion is self-clean */ } catch (e) { console.log("cleanup warn: " + e.message); }
   try { console.log("parity: " + dbParity()); } catch (e) {}
 
   const failed = totalNotMounted || totalErr || totalApi400 || totalOverflow

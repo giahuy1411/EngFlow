@@ -18,7 +18,12 @@
   --geo-bg: #FFFDF5;
   --geo-fg: #1E293B;
   --geo-muted: #F1F5F9;
-  --geo-muted-fg: #64748B;
+  /* audit-v11 F138: was #64748B, which measures 4.76:1 on white but only **4.34:1** on the
+     muted panel #F1F5F9 — i.e. the same token passes on one surface and fails on another, and
+     muted-fg is overwhelmingly used ON muted panels. Measured across 19 routes: 13 text nodes
+     below 4.5:1, all of them muted-fg on a muted or cream surface. #556070 is 6.38 / 6.26 /
+     5.82:1 on white / cream / muted — AA everywhere, and still visibly secondary. */
+  --geo-muted-fg: #556070;
   --geo-accent: #8B5CF6;
   --geo-accent-fg: #FFFFFF;
   --geo-secondary: #F472B6;
@@ -32,6 +37,48 @@
   --geo-danger-fg: #FFFFFF;
   --geo-warning: #F59E0B;
   --geo-success: #059669;
+
+  /* ── audit-v11 F132 — WCAG-AA ink/strong layer ──────────────────────────────
+     The prompt says to use secondary/tertiary/quaternary "for decorative shapes,
+     icons, or EMPHASIZED WORDS". Applied literally to words, those hues measure
+     1.64–2.65:1 on the cream/white surfaces the same prompt mandates — far below
+     the 4.5:1 that WCAG 1.4.3 requires for body text (constitution P7 makes a11y
+     mandatory, so P7 resolves the conflict).
+
+     THE RULE (two failure classes, two remedies):
+       • vivid --geo-accent / -secondary / -tertiary / -quaternary  → KEEP for
+         fills, borders, decorative shapes, and /10–/30 opacity tints. These are
+         correct and already pass (dark ink on amber = 8.76:1, on emerald = 7.61:1).
+       • --geo-*-ink     → text ON a light surface (cream/white/muted).
+       • --geo-*-strong  → a vivid surface UNDER white text.
+
+     Measured with the WCAG relative-luminance formula (see evidence/ui-contrast.md):
+       token                on #FFFFFF   on #FFFDF5   white text ON it
+       #8B5CF6 accent          4.23 ✗       4.16 ✗        4.23 ✗
+       #7C3AED accent-strong   5.70 ✓       5.60 ✓        5.70 ✓
+       #6D28D9 accent-ink      7.10 ✓       6.98 ✓        7.10 ✓
+       #F472B6 secondary       2.65 ✗       2.60 ✗        2.65 ✗
+       #DB2777 secondary-strong 4.60 ✓      4.51 ✓        4.60 ✓
+       #BE185D secondary-ink   6.04 ✓       5.93 ✓        6.04 ✓
+       #FBBF24 tertiary        1.67 ✗       1.64 ✗        1.67 ✗
+       #B45309 tertiary-ink    5.02 ✓       4.93 ✓        5.02 ✓
+       #34D399 quaternary      1.92 ✗       1.89 ✗        1.92 ✗
+       #047857 quaternary-ink  5.48 ✓       5.38 ✓        5.48 ✓
+       #059669 success         3.77 ✗       3.70 ✗        3.77 ✗
+       #047857 success-ink     5.48 ✓       5.38 ✓        5.48 ✓
+       #F59E0B warning         2.15 ✗       2.11 ✗        2.15 ✗
+       #B45309 warning-ink     5.02 ✓       4.93 ✓        5.02 ✓
+     (#FFFFFF on cream is itself only 1.02:1, so white surfaces are treated as
+     white. Where a value lands within 0.1 of the 4.5 threshold, the next step
+     down is used rather than sitting on the line.) */
+  --geo-accent-ink: #6D28D9;
+  --geo-accent-strong: #7C3AED;
+  --geo-secondary-ink: #BE185D;
+  --geo-secondary-strong: #DB2777;
+  --geo-tertiary-ink: #B45309;
+  --geo-quaternary-ink: #047857;
+  --geo-success-ink: #047857;
+  --geo-warning-ink: #B45309;
 
   /* Legacy aliases removed — use semantic --geo-* tokens directly */
 
@@ -373,7 +420,8 @@ input[type="radio"].geo-radio:checked {
 /* --- Italic / Emphasis (example answers, instructions) --- */
 .lesson-html em {
   font-style: italic;
-  color: var(--geo-accent);
+  /* audit-v11 F143: emphasis inside lesson prose is TEXT on a light card. */
+  color: var(--geo-accent-ink);
 }
 
 /* --- Tables (exercise charts, data tables) --- */
@@ -460,7 +508,8 @@ input[type="radio"].geo-radio:checked {
   letter-spacing: 0.05em;
   cursor: pointer;
   background: var(--geo-muted);
-  color: var(--geo-accent);
+  /* audit-v11 F143: summary text on the muted panel -> ink token (4.34:1 before). */
+  color: var(--geo-accent-ink);
   user-select: none;
   list-style: none;
   transition: background 0.2s ease;
@@ -513,12 +562,15 @@ input[type="radio"].geo-radio:checked {
 
 /* --- Links --- */
 .lesson-html a {
-  color: var(--geo-accent);
+  /* audit-v11 F143: links inside lesson prose are TEXT. */
+  color: var(--geo-accent-ink);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+/* audit-v11 F143: hover keeps the hue shift but on the ink scale, so the hovered state
+   does not drop below AA after the resting state was raised. */
 .lesson-html a:hover {
-  color: var(--geo-secondary);
+  color: var(--geo-secondary-ink);
 }
 
 /* --- Fill-in blanks (… dots) --- */
@@ -645,7 +697,9 @@ input[type="radio"].geo-radio:checked {
 .app-btn--lg { padding: 0.875rem 2rem; font-size: var(--geo-text-base); min-height: 52px; }
 
 .app-btn--primary {
-  background: var(--geo-accent);
+  /* audit-v11 F132: white on #8B5CF6 measured 4.23:1 (needs 4.5:1). --geo-accent-strong
+     is 5.70:1. --geo-accent itself is unchanged and still used for fills/decoration. */
+  background: var(--geo-accent-strong);
   color: var(--geo-accent-fg);
   box-shadow: var(--geo-shadow-md);
 }
@@ -667,7 +721,8 @@ input[type="radio"].geo-radio:checked {
 }
 
 .app-btn--tertiary {
-  background: var(--geo-secondary);
+  /* audit-v11 F132: white on #F472B6 = 2.65:1 -> --geo-secondary-strong = 4.60:1. */
+  background: var(--geo-secondary-strong);
   color: white;
   box-shadow: var(--geo-shadow-md);
 }
@@ -696,7 +751,9 @@ input[type="radio"].geo-radio:checked {
 }
 
 .app-btn--pink {
-  background: var(--geo-secondary);
+  /* audit-v11 F132: white on #F472B6 measured 2.65:1 — the worst offender in the
+     design system. --geo-secondary-strong is 4.60:1. */
+  background: var(--geo-secondary-strong);
   color: white;
   box-shadow: var(--geo-shadow-md);
 }
@@ -739,7 +796,8 @@ input[type="radio"].geo-radio:checked {
 }
 
 .app-btn--featured {
-  background: var(--geo-accent);
+  /* audit-v11 F132: same white-on-violet fix as --primary (4.23 -> 5.70:1). */
+  background: var(--geo-accent-strong);
   color: var(--geo-accent-fg);
   box-shadow: var(--geo-shadow-featured);
 }

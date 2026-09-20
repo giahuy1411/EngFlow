@@ -7,7 +7,7 @@
 
     <!-- Error -->
     <div v-else-if="error" class="bg-card border-2 border-foreground shadow-pop-lg p-8 rounded-md text-center">
-      <p class="font-black text-lg uppercase text-accent">Không thể tải nội dung</p>
+      <p class="font-black text-lg uppercase text-accent-ink">Không thể tải nội dung</p>
       <p class="text-muted-foreground mt-2">{{ error }}</p>
     </div>
 
@@ -33,7 +33,7 @@
           <router-link v-for="item in speakingPrompts" :key="item.id" :id="`lesson-speaking-${item.id}`"
             :to="`/speaking/${item.id}`"
             class="border-2 border-foreground bg-background p-4 transition-all hover:-translate-y-0.5 hover:shadow-pop">
-            <span class="text-xs font-black uppercase text-accent">{{ item.mode === 'READ_ALOUD' ? 'Đọc theo mẫu' : 'Nói tự do' }}</span>
+            <span class="text-xs font-black uppercase text-accent-ink">{{ item.mode === 'READ_ALOUD' ? 'Đọc theo mẫu' : 'Nói tự do' }}</span>
             <strong class="mt-1 block text-lg">{{ item.title }}</strong>
             <span class="mt-2 block text-sm text-muted-foreground">Mở bài luyện &rarr;</span>
           </router-link>

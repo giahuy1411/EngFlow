@@ -1,0 +1,49 @@
+{
+  "pass": 74,
+  "fail": 0,
+  "blocked": 0,
+  "findings": [
+    {
+      "area": "search",
+      "name": "?sort= behaviour",
+      "informational": true,
+      "detail": "asc=[41881,81895,91900,91919,91920] desc=[41881,81895,91900,91919,91920] => IDENTICAL order: ?sort= is IGNORED"
+    },
+    {
+      "area": "ai",
+      "name": "AI generate-vocab live status",
+      "informational": true,
+      "detail": "status=200"
+    }
+  ],
+  "areas": {
+    "auth": {
+      "pass": 8,
+      "fail": 0
+    },
+    "lessons": {
+      "pass": 15,
+      "fail": 0
+    },
+    "streak": {
+      "pass": 8,
+      "fail": 0
+    },
+    "search": {
+      "pass": 7,
+      "fail": 0
+    },
+    "crud": {
+      "pass": 13,
+      "fail": 0
+    },
+    "ai": {
+      "pass": 5,
+      "fail": 0
+    },
+    "roles": {
+      "pass": 18,
+      "fail": 0
+    }
+  }
+}

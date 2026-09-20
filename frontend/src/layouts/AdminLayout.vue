@@ -67,7 +67,7 @@
           </div>
         </div>
         <button @click="handleLogout"
-          class="mt-4 w-full py-3 border-2 border-white font-bold text-sm tracking-wider transition-all duration-200 hover:bg-secondary hover:text-white hover:border-secondary rounded-md active:translate-x-0.5 active:translate-y-0.5"
+          class="mt-4 w-full py-3 border-2 border-white font-bold text-sm tracking-wider transition-all duration-200 hover:bg-secondary-strong hover:text-white hover:border-secondary rounded-md active:translate-x-0.5 active:translate-y-0.5"
         >
           <div class="flex items-center justify-center gap-2">
             <span class="w-2 h-2 bg-current rounded-full"></span>
@@ -131,14 +131,14 @@ const sidebarOpen = ref(false)
 watch(() => route.fullPath, () => { sidebarOpen.value = false })
 
 const navItems = [
-  { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan', activeClass: 'bg-accent border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan', activeClass: 'bg-accent-strong border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/lessons', icon: BookOpen, label: 'Bài học', activeClass: 'bg-tertiary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/exercises', icon: PenTool, label: 'Bài tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
-  { to: '/admin/speaking-submissions', icon: CheckSquare, label: 'Chấm bài', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/speaking-submissions', icon: CheckSquare, label: 'Chấm bài', activeClass: 'bg-secondary-strong border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/speaking-prompts', icon: Mic, label: 'Đề luyện nói', activeClass: 'bg-tertiary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
   { to: '/admin/videos', icon: Clapperboard, label: 'Video học tập', activeClass: 'bg-quaternary border-foreground text-foreground shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
-  { to: '/admin/video-attempts', icon: AudioLines, label: 'Chấm shadowing', activeClass: 'bg-secondary border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
-  { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-accent border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/video-attempts', icon: AudioLines, label: 'Chấm shadowing', activeClass: 'bg-secondary-strong border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
+  { to: '/admin/users', icon: Users, label: 'Người dùng', activeClass: 'bg-accent-strong border-foreground text-white shadow-[4px_4px_0px_0px_white] border-2 rounded-md' },
 ]
 
 const pageTitles = {

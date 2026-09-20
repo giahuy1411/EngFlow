@@ -63,7 +63,7 @@
 
         <p class="text-center font-bold text-sm text-muted-foreground">
           Đã có tài khoản?
-          <router-link to="/login" class="text-accent hover:underline">Đăng nhập</router-link>
+          <router-link to="/login" class="text-accent-ink underline underline-offset-2 hover:no-underline">Đăng nhập</router-link>
         </p>
       </div>
     </div>

@@ -67,6 +67,9 @@ import videoLessonService from '@/services/videoLessonService'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useToast} from '@/composables/useToast'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
+// audit-v11 F144: the duration probe used to live inline here and audibly played the
+// recording at 16x. It now lives in a tested module — see utils/webmDuration.js.
+import { fixWebmDuration } from '@/utils/webmDuration'
 
 const toast = useToast()
 const attempts = ref([])
@@ -129,21 +132,8 @@ async function aiGrade(attempt) {
 }
 
 /**
- * MediaRecorder webm has no duration in its header, so the native control shows
- * "∞". Seeking past the end forces the browser to compute it, then rewinding.
+ * Duration handling for MediaRecorder webm moved to `@/utils/webmDuration` (F144):
+ * the inline version set `playbackRate = 16` and called `play()`, so the admin heard
+ * the recording at 16x. The module is unit-tested; do not re-inline it here.
  */
-function fixWebmDuration(event) {
-  const el = event.target
-  if (Number.isFinite(el.duration) && el.duration > 0) return
-  const originalRate = el.playbackRate
-  el.onended = () => {
-    el.onended = null
-    el.pause()
-    el.currentTime = 0
-    el.playbackRate = originalRate
-  }
-  el.currentTime = 1e10
-  el.playbackRate = 16
-  el.play().catch(() => {})
-}
 </script>

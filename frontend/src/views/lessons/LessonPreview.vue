@@ -23,12 +23,12 @@
         <div class="p-5 flex items-center justify-between gap-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full border-2 border-foreground flex items-center justify-center font-black text-lg"
-              :class="a.percentage >= 70 ? 'bg-quaternary text-white' : 'bg-accent text-white'">
+              :class="a.percentage >= 70 ? 'bg-quaternary text-white' : 'bg-accent-strong text-white'">
               {{ Math.round(a.percentage) }}%
             </div>
             <div>
               <p class="font-black text-sm uppercase">
-                <span :class="a.percentage >= 70 ? 'text-success' : 'text-danger'">
+                <span :class="a.percentage >= 70 ? 'text-success-ink' : 'text-danger'">
                   {{ a.percentage >= 70 ? 'Đạt' : 'Chưa đạt' }}
                 </span>
               </p>
@@ -56,8 +56,8 @@
               <span class="text-lg mt-0.5">{{ item.correct ? '✅' : '❌' }}</span>
               <div class="min-w-0 flex-1">
                 <div class="geo-markdown text-sm mb-1" v-html="parseMarkdown(item.question)"></div>
-                <p class="font-bold text-xs">Đáp án: <span class="text-success">{{ item.correctAnswer }}</span></p>
-                <p v-if="!item.correct" class="text-xs text-accent">Bạn: {{ item.userAnswer }}</p>
+                <p class="font-bold text-xs">Đáp án: <span class="text-success-ink">{{ item.correctAnswer }}</span></p>
+                <p v-if="!item.correct" class="text-xs text-accent-ink">Bạn: {{ item.userAnswer }}</p>
                 <p v-if="item.explanation" class="text-xs text-muted-foreground italic mt-1" v-html="sanitizeText(item.explanation)"></p>
               </div>
             </div>

@@ -25,7 +25,7 @@
       <section v-else-if="!submissions.length" class="border-2 border-dashed border-foreground bg-card p-12 text-center">
         <p class="text-2xl font-black">Chưa có bài làm nào</p>
         <p class="mt-2 text-sm text-muted-foreground">Hoàn thành một đề luyện nói để lịch sử xuất hiện tại đây.</p>
-        <router-link to="/speaking" class="mt-6 inline-flex border-2 border-foreground bg-accent px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Chọn đề luyện</router-link>
+        <router-link to="/speaking" class="mt-6 inline-flex border-2 border-foreground bg-accent-strong px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Chọn đề luyện</router-link>
       </section>
 
       <section v-else class="space-y-5">
@@ -122,8 +122,8 @@ function handlePageChange(page) {
 }
 
 function statusMeta(status) {
-  if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success font-black', description: 'Giáo viên đã hoàn tất chấm bài.' }
-  if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-success font-black', description: 'AI đã chấm nội dung bài nói. Giáo viên có thể chấm lại.' }
+  if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success-ink font-black', description: 'Giáo viên đã hoàn tất chấm bài.' }
+  if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-success-ink font-black', description: 'AI đã chấm nội dung bài nói. Giáo viên có thể chấm lại.' }
   if (status === 'PROCESSING') return { label: 'Đang chấm', className: 'text-foreground font-black', description: 'AI đang phân tích bài nói của bạn.' }
   if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-foreground font-black', description: 'Giáo viên đang xem bài của bạn.' }
   if (status === 'FAILED') return { label: 'Chờ chấm', className: 'text-muted-foreground font-black', description: 'AI chưa chấm được, giáo viên sẽ chấm tay bài này.' }

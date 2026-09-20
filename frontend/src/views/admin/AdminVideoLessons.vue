@@ -43,7 +43,7 @@
                 AI tạo phụ đề
               </AppButton>
             </div>
-            <p v-if="previewVideoId" class="mt-1 text-xs font-bold text-success">Video ID: {{ previewVideoId }}</p>
+            <p v-if="previewVideoId" class="mt-1 text-xs font-bold text-success-ink">Video ID: {{ previewVideoId }}</p>
             <p class="mt-1 text-xs font-medium text-muted-foreground">Dán link rồi bấm "AI tạo phụ đề" — hệ thống lấy phụ đề sẵn có của video (kể cả tự động) và dịch sang tiếng Việt, đồng thời điền tiêu đề + mô tả.</p>
           </div>
           <div class="md:col-span-2">
@@ -58,7 +58,7 @@
               @input="onTranscriptEdited"></textarea>
             <div class="flex flex-wrap items-center gap-3 mt-2">
               <input id="vl-file" type="file" accept=".srt,.vtt,.txt" class="text-xs font-bold" @change="onFilePicked" />
-              <span v-if="parsedPreview.length" class="text-xs font-black text-success uppercase tracking-wider">Nhận {{ parsedPreview.length }} dòng</span>
+              <span v-if="parsedPreview.length" class="text-xs font-black text-success-ink uppercase tracking-wider">Nhận {{ parsedPreview.length }} dòng</span>
               <AppButton v-if="parsedPreview.length" type="button" variant="secondary" size="sm" :disabled="translating" :loading="translating" @click="translateSubtitles">
                 <LanguagesIcon class="w-4 h-4" aria-hidden="true" />
                 {{ translating ? 'AI đang dịch...' : 'AI dịch sang tiếng Việt' }}
@@ -104,7 +104,10 @@
             <td class="p-4 border-r-2 border-foreground">{{ levelLabel(l.level) }}</td>
             <td class="p-4 border-r-2 border-foreground text-center tabular-nums">{{ l.lineCount }}</td>
             <td class="p-4 text-center">
-              <router-link :to="`/videos/${l.id}`" class="text-xs font-black uppercase tracking-wider underline mr-3">Xem</router-link>
+              <!-- audit-v11 F140: the link was 30x15px, under the 24px WCAG 2.5.8 (AA) minimum.
+                   inline-flex + min-height gives it a real tap target without changing how it
+                   looks, since the underline and type size are unchanged. -->
+              <router-link :to="`/videos/${l.id}`" class="inline-flex items-center min-h-6 text-xs font-black uppercase tracking-wider underline mr-3">Xem</router-link>
               <AppButton @click="openForm(l)" variant="secondary" size="sm" class="mr-2">Sửa</AppButton>
               <AppButton @click="deleteLesson(l.id)" variant="danger" size="sm">Xóa</AppButton>
             </td>

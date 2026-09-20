@@ -46,7 +46,7 @@
               v-for="tab in tabs" :key="tab.id"
               role="tab" :aria-selected="activeTab === tab.id"
               class="px-5 py-2.5 border-2 border-foreground rounded-md font-black text-xs uppercase tracking-wider transition-all"
-              :class="activeTab === tab.id ? 'bg-accent text-white shadow-pop-sm' : 'bg-card hover:bg-tertiary/30'"
+              :class="activeTab === tab.id ? 'bg-accent-strong text-white shadow-pop-sm' : 'bg-card hover:bg-tertiary/30'"
               @click="activeTab = tab.id"
             >{{ tab.label }}</button>
           </div>
@@ -126,7 +126,7 @@
             </div>
 
             <div v-if="attemptResult" class="mt-6 border-2 border-foreground bg-tertiary/20 p-5 rounded-md" role="status">
-              <p class="font-black text-success uppercase text-xs tracking-widest">Đã nộp câu {{ shadowIndex + 1 }}</p>
+              <p class="font-black text-success-ink uppercase text-xs tracking-widest">Đã nộp câu {{ shadowIndex + 1 }}</p>
               <p class="mt-1 text-sm font-medium">Bài của bạn sẽ được giáo viên chấm (thang 10) và có nhận xét ngay tại đây.</p>
               <AppButton class="mt-4" variant="secondary" size="sm" @click="attemptResult = null; recordAgain()">Tiếp tục câu khác</AppButton>
             </div>
@@ -136,7 +136,7 @@
               :class="shadowAttempt.status === 'GRADED' ? 'bg-success/10 border-success' : 'bg-muted/60'">
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <p class="font-black uppercase text-xs tracking-widest"
-                  :class="shadowAttempt.status === 'GRADED' ? 'text-success' : 'text-muted-foreground'">
+                  :class="shadowAttempt.status === 'GRADED' ? 'text-success-ink' : 'text-muted-foreground'">
                   {{ shadowAttempt.status === 'GRADED' ? 'Đã chấm' : 'Đã nộp — đang chờ giáo viên' }}
                 </p>
                 <span v-if="shadowAttempt.status === 'GRADED'" class="font-black text-2xl tabular-nums">
@@ -173,7 +173,7 @@
                   </label>
                 </div>
                 <p v-if="quizAnswered[qi] != null" class="mt-2 text-xs font-black uppercase tracking-wider"
-                  :class="quizAnswered[qi] === q.correct ? 'text-success' : 'text-danger'">
+                  :class="quizAnswered[qi] === q.correct ? 'text-success-ink' : 'text-danger'">
                   {{ quizAnswered[qi] === q.correct ? 'Chính xác!' : 'Chưa đúng — đáp án: ' + q.options[q.correct] }}
                 </p>
               </div>
@@ -197,7 +197,7 @@
             <template v-else>
               <div class="mt-3 flex items-baseline gap-3 flex-wrap">
                 <h2 class="font-black text-3xl uppercase">{{ lookupWordInfo.word }}</h2>
-                <span v-if="lookupWordInfo.phonetic" class="font-bold text-accent">{{ lookupWordInfo.phonetic }}</span>
+                <span v-if="lookupWordInfo.phonetic" class="font-bold text-accent-ink">{{ lookupWordInfo.phonetic }}</span>
                 <button v-if="lookupWordInfo.audioUrl" @click="playAudio"
                   class="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center hover:bg-tertiary/30" aria-label="Nghe phát âm">🔊</button>
               </div>
@@ -220,10 +220,10 @@
                       {{ savingWord ? '...' : 'Lưu' }}
                     </AppButton>
                   </div>
-                  <p v-if="saveWordMessage" class="mt-2 text-xs font-bold" :class="saveWordError ? 'text-danger' : 'text-success'">{{ saveWordMessage }}</p>
+                  <p v-if="saveWordMessage" class="mt-2 text-xs font-bold" :class="saveWordError ? 'text-danger' : 'text-success-ink'">{{ saveWordMessage }}</p>
                 </div>
                 <p v-else class="text-xs font-bold text-muted-foreground">
-                  <router-link to="/login" class="underline text-accent">Đăng nhập</router-link> để lưu từ vào bộ ôn tập.
+                  <router-link to="/login" class="underline text-accent-ink">Đăng nhập</router-link> để lưu từ vào bộ ôn tập.
                 </p>
               </div>
             </template>
@@ -257,6 +257,8 @@ import { useSpeakingRecorder } from '@/composables/useSpeakingRecorder'
 import { useAuthStore } from '@/store/modules/auth'
 import { AppButton } from '@/components/ui'
 import { levelLabel } from '@/utils/lessonLevels'
+// audit-v11 F144: shared, unit-tested duration probe (the local copy played audio at 16x).
+import { fixWebmDuration } from '@/utils/webmDuration'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -535,21 +537,8 @@ function formatTime(seconds) {
 }
 
 /**
- * MediaRecorder webm has no duration in its header, so the native control shows
- * "∞". Seeking past the end forces the browser to compute it, then rewinding.
+ * Duration handling for MediaRecorder webm moved to `@/utils/webmDuration` (F144).
+ * This copy had the SAME bug as the admin page: `playbackRate = 16` + `play()` made
+ * the student's own recording audibly play at 16x. The module is unit-tested.
  */
-function fixWebmDuration(event) {
-  const el = event.target
-  if (Number.isFinite(el.duration) && el.duration > 0) return
-  const originalRate = el.playbackRate
-  el.onended = () => {
-    el.onended = null
-    el.pause()
-    el.currentTime = 0
-    el.playbackRate = originalRate
-  }
-  el.currentTime = 1e10
-  el.playbackRate = 16
-  el.play().catch(() => {})
-}
 </script>

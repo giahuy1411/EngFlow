@@ -13,7 +13,7 @@
       <!-- Audio play button — icon-only circular control (w-20 h-20); keep raw <button> to preserve the circular layout -->
       <div v-if="currentWord" class="mb-8">
         <button @click="playAudio" aria-label="Nghe từ"
-          class="w-20 h-20 bg-accent border-2 border-foreground rounded-full flex items-center justify-center mx-auto text-white hover:bg-accent/90 transition-all shadow-pop-xl active:shadow-pop-active animate-pop-in"
+          class="w-20 h-20 bg-accent-strong border-2 border-foreground rounded-full flex items-center justify-center mx-auto text-white hover:bg-accent-strong/90 transition-all shadow-pop-xl active:shadow-pop-active animate-pop-in"
         >
           <Volume2 class="w-10 h-10" />
         </button>
@@ -33,7 +33,7 @@
       <!-- Score -->
       <div class="flex items-center justify-center gap-8 mb-8">
         <div class="text-center">
-          <p class="font-black text-3xl text-accent">{{ correct }}</p>
+          <p class="font-black text-3xl text-accent-ink">{{ correct }}</p>
           <p class="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">Đúng</p>
         </div>
         <div class="text-center">
@@ -49,7 +49,7 @@
         </div>
         <h2 class="font-black text-3xl uppercase tracking-tight mb-4">Hoàn thành!</h2>
         <router-link :to="'/decks/' + deckId"
-          class="inline-flex px-8 py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+          class="inline-flex px-8 py-3.5 font-bold text-base bg-accent-strong text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
         >Quay lại</router-link>
       </div>
     </div>

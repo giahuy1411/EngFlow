@@ -80,8 +80,32 @@
             </AppButton>
           </div>
 
+          <!-- audit-v11 F145: chọn bộ từ đích. Không có lựa chọn này thì từ sinh ra bị lưu
+               vào bảng toàn cục, không thuộc bộ nào và người dùng không bao giờ mở lại được. -->
+          <div class="mb-4 border-2 border-foreground rounded-md p-4 shadow-pop-sm">
+            <label for="ai-save-deck" class="block font-black text-xs uppercase tracking-wider mb-2">
+              Lưu vào bộ từ
+            </label>
+            <select
+              id="ai-save-deck"
+              v-model="targetDeckId"
+              class="w-full border-2 border-border rounded-md p-2 font-bold text-sm bg-white focus:border-accent focus:shadow-pop-accent outline-none"
+            >
+              <option :value="null">— Chưa chọn bộ từ —</option>
+              <option v-for="d in myDecks" :key="d.id" :value="d.id">{{ d.name }}</option>
+            </select>
+            <p v-if="!myDecks.length" class="mt-2 text-xs font-bold text-muted-foreground">
+              Bạn chưa có bộ từ nào.
+              <router-link to="/decks/create" class="text-accent-ink underline underline-offset-2">Tạo bộ từ</router-link>
+              trước, nếu không các từ vừa sinh sẽ không thuộc bộ nào và bạn không mở lại được.
+            </p>
+            <p v-else-if="!targetDeckId" class="mt-2 text-xs font-bold text-danger">
+              Chưa chọn bộ từ — các từ sẽ được lưu nhưng <strong>không thuộc bộ nào</strong>.
+            </p>
+          </div>
+
           <p v-if="saveError" role="alert" class="font-bold text-xs uppercase tracking-wider text-danger">{{ saveError }}</p>
-          <p v-if="saveSuccess" role="status" aria-live="polite" class="font-bold text-xs uppercase tracking-wider text-success">{{ saveSuccess }}</p>
+          <p v-if="saveSuccess" role="status" aria-live="polite" class="font-bold text-xs uppercase tracking-wider text-success-ink">{{ saveSuccess }}</p>
 
           <div v-for="(w, i) in generatedWords" :key="i"
             class="border-2 border-foreground rounded-md p-5 shadow-pop-lg"
@@ -92,7 +116,7 @@
                 <p class="font-bold text-xs text-muted-foreground">{{ w.pronunciation || '/' + w.word + '/' }}</p>
               </div>
               <div class="flex items-center gap-2">
-                <span v-if="savedIndexes.has(i)" class="px-2 py-0.5 bg-success/10 border border-success rounded-full text-xs font-bold text-success">
+                <span v-if="savedIndexes.has(i)" class="px-2 py-0.5 bg-success/10 border border-success rounded-full text-xs font-bold text-success-ink">
                   Đã lưu
                 </span>
                 <span class="px-2 py-0.5 bg-accent/10 border-2 border-foreground rounded-full text-xs font-bold">{{ w.wordType }}</span>
@@ -122,9 +146,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import aiService from '@/services/aiService'
+import deckService from '@/services/deckService'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/store/modules/auth'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
@@ -144,6 +169,20 @@ const savingIndex = ref(null)
 const savingAll = ref(false)
 const saveError = ref('')
 const saveSuccess = ref('')
+// audit-v11 F145: bộ từ đích để từ sinh ra thực sự vào được nơi người dùng mở lại được.
+const myDecks = ref([])
+const targetDeckId = ref(null)
+
+async function loadMyDecks() {
+  try {
+    const data = await deckService.getMyDecks({ page: 0, size: 100 })
+    myDecks.value = data?.content || data?.data?.content || []
+    // Mặc định chọn bộ đầu tiên để người dùng không vô tình lưu vào khoảng không.
+    if (!targetDeckId.value && myDecks.value.length) targetDeckId.value = myDecks.value[0].id
+  } catch {
+    myDecks.value = []
+  }
+}
 
 const allSaved = computed(() => generatedWords.value.length > 0 && savedIndexes.value.size === generatedWords.value.length)
 const unsavedCount = computed(() => generatedWords.value.length - savedIndexes.value.size)
@@ -182,7 +221,7 @@ async function saveOne(index) {
   saveSuccess.value = ''
   try {
     const word = generatedWords.value[index]
-    await aiService.saveVocab([word])
+    await aiService.saveVocab([word], targetDeckId.value)
     const newSet = new Set(savedIndexes.value)
     newSet.add(index)
     savedIndexes.value = newSet
@@ -202,11 +241,13 @@ async function saveAll() {
   try {
     const unsaved = generatedWords.value.filter((_, i) => !savedIndexes.value.has(i))
     if (unsaved.length === 0) return
-    await aiService.saveVocab(unsaved)
+    await aiService.saveVocab(unsaved, targetDeckId.value)
     const newSet = new Set(savedIndexes.value)
     for (let i = 0; i < generatedWords.value.length; i++) newSet.add(i)
     savedIndexes.value = newSet
-    saveSuccess.value = 'Đã lưu ' + unsaved.length + ' từ vào DB!'
+    saveSuccess.value = targetDeckId.value
+      ? 'Đã lưu ' + unsaved.length + ' từ vào bộ từ đã chọn.'
+      : 'Đã lưu ' + unsaved.length + ' từ, nhưng CHƯA vào bộ từ nào.'
     toast.success?.('Đã lưu ' + unsaved.length + ' từ vựng')
   } catch (e) {
     saveError.value = e.response?.data?.error || 'Lưu tất cả thất bại'
@@ -215,6 +256,9 @@ async function saveAll() {
     savingAll.value = false
   }
 }
+
+// audit-v11 F145: nạp danh sách bộ từ của người dùng để chọn đích lưu ngay khi vào trang.
+onMounted(loadMyDecks)
 
 onUnmounted(() => {
   savingIndex.value = null

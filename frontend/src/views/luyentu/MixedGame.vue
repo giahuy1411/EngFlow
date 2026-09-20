@@ -2,7 +2,7 @@
   <div class="bg-background min-h-screen py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <router-link :to="`/decks/${deckId}`"
-        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors mb-6"
+        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent-ink transition-colors mb-6"
       >
         <span aria-hidden="true">←</span> Quay lại
       </router-link>
@@ -37,7 +37,7 @@
           <div class="max-w-md mx-auto mb-8">
             <div class="flex justify-between text-xs font-bold uppercase tracking-wider mb-2">
               <span class="text-muted-foreground">{{ currentIndex + 1 }}/{{ questions.length }}</span>
-              <span class="text-accent">{{ score }}/{{ answeredCount }} đúng</span>
+              <span class="text-accent-ink">{{ score }}/{{ answeredCount }} đúng</span>
             </div>
             <div class="w-full h-2 border-2 border-foreground bg-muted rounded-full overflow-hidden">
               <div class="h-full bg-accent rounded-full transition-all duration-500" :style="{ width: `${(currentIndex / questions.length) * 100}%` }" />
@@ -65,7 +65,7 @@
             <Check class="w-10 h-10 text-white" />
           </div>
           <h2 class="font-black text-3xl uppercase tracking-tight mb-2">Hoàn thành!</h2>
-          <p class="font-black text-5xl text-accent mb-5">{{ score }}/{{ questions.length }}</p>
+          <p class="font-black text-5xl text-accent-ink mb-5">{{ score }}/{{ questions.length }}</p>
           <p v-if="submitting" class="mb-6 font-bold text-sm uppercase tracking-wider text-muted-foreground">Đang lưu kết quả...</p>
           <p v-else-if="submitResult" class="mb-6 font-black text-lg text-foreground">
             Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm

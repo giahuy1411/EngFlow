@@ -23,7 +23,7 @@
           <div class="absolute -top-4 -left-4 w-8 h-8 bg-tertiary border-2 border-foreground rotate-12 rounded-sm"></div>
           <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-secondary border-2 border-foreground rounded-full"></div>
           <h1 class="font-black text-5xl md:text-6xl uppercase tracking-tight leading-none relative z-10">
-            Video <span class="text-accent">learning</span>
+            Video <span class="text-accent-ink">learning</span>
           </h1>
           <p class="font-bold text-sm uppercase tracking-wider text-muted-foreground mt-3">
             Xem video thật · bấm vào từ để học · luyện nói theo từng câu
@@ -44,7 +44,7 @@
         <p class="font-bold text-sm uppercase tracking-widest text-muted-foreground">Đang tải...</p>
       </div>
       <div v-else-if="error" class="max-w-xl mx-auto text-center py-20" role="alert">
-        <p class="font-bold text-lg text-accent">{{ error }}</p>
+        <p class="font-bold text-lg text-accent-ink">{{ error }}</p>
         <AppButton class="mt-4" variant="secondary" size="sm" @click="fetchPage">Thử lại</AppButton>
       </div>
       <template v-else>
@@ -81,7 +81,7 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="w-2.5 h-2.5 border border-foreground rounded-full" :style="{ background: levelColor(lesson.level) }"></span>
-                  <span class="text-xs font-bold uppercase tracking-wider" :style="{ color: levelColor(lesson.level) }">{{ levelLabel(lesson.level) }}</span>
+                  <span class="text-xs font-bold uppercase tracking-wider" :style="{ color: levelInkColor(lesson.level) }">{{ levelLabel(lesson.level) }}</span>
                 </div>
                 <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ lesson.lineCount }} câu</span>
               </div>
@@ -104,7 +104,7 @@ import { useRouter } from 'vue-router'
 import videoLessonService from '@/services/videoLessonService'
 import { AppButton } from '@/components/ui'
 import Pagination from '@/components/common/Pagination.vue'
-import { levelColor, levelLabel } from '@/utils/lessonLevels'
+import { levelColor, levelInkColor, levelLabel } from '@/utils/lessonLevels'
 
 const router = useRouter()
 const levels = [

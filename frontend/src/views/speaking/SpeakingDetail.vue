@@ -1,7 +1,7 @@
 <template>
   <main class="min-h-[100dvh] bg-background px-4 py-10 lg:py-14">
     <div class="mx-auto max-w-6xl space-y-8">
-      <router-link to="/speaking" class="inline-flex items-center border-b-2 border-foreground pb-1 text-xs font-black uppercase tracking-wider transition hover:text-accent">&larr; Danh sách luyện nói</router-link>
+      <router-link to="/speaking" class="inline-flex items-center border-b-2 border-foreground pb-1 text-xs font-black uppercase tracking-wider transition hover:text-accent-ink">&larr; Danh sách luyện nói</router-link>
 
       <div v-if="loading" class="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]" role="status" aria-label="Đang tải đề luyện nói">
         <div class="h-[28rem] animate-pulse border-2 border-foreground/10 bg-card/60"></div>
@@ -40,7 +40,7 @@
               <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Đoạn đọc</p>
               <p class="mt-2 text-lg font-semibold leading-relaxed" v-html="sanitizeText(prompt.referenceText)"></p>
             </blockquote>
-            <router-link id="start-speaking-button" :to="`/speaking/${prompt.id}/record`" class="mt-8 inline-flex min-h-12 items-center justify-center rounded-full border-2 border-foreground bg-accent px-6 py-3 text-xs font-black uppercase tracking-wider text-white shadow-pop transition-all duration-300 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-sm">Bắt đầu luyện</router-link>
+            <router-link id="start-speaking-button" :to="`/speaking/${prompt.id}/record`" class="mt-8 inline-flex min-h-12 items-center justify-center rounded-full border-2 border-foreground bg-accent-strong px-6 py-3 text-xs font-black uppercase tracking-wider text-white shadow-pop transition-all duration-300 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-sm">Bắt đầu luyện</router-link>
           </div>
 
           <aside class="border-t-2 border-foreground bg-foreground p-6 text-white lg:border-l-2 lg:border-t-0">
@@ -157,10 +157,10 @@ function handleHistoryPageChange(page) {
 }
 
 function statusMeta(status) {
-  if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success', description: 'Giáo viên đã hoàn tất chấm bài.' }
-  if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-warning', description: 'Giáo viên đang xem bài của bạn.' }
-  if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-accent', description: 'AI đã chấm xong bài của bạn.' }
-  if (status === 'PROCESSING') return { label: 'AI đang chấm', className: 'text-warning', description: 'Hệ thống đang phân tích bản ghi của bạn.' }
+  if (status === 'GRADED') return { label: 'Đã chấm', className: 'text-success-ink', description: 'Giáo viên đã hoàn tất chấm bài.' }
+  if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-warning-ink', description: 'Giáo viên đang xem bài của bạn.' }
+  if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-accent-ink', description: 'AI đã chấm xong bài của bạn.' }
+  if (status === 'PROCESSING') return { label: 'AI đang chấm', className: 'text-warning-ink', description: 'Hệ thống đang phân tích bản ghi của bạn.' }
   if (status === 'FAILED') return { label: 'AI chưa chấm được', className: 'text-danger', description: 'AI chưa chấm được bài này, giáo viên sẽ chấm tay.' }
   return { label: 'Chờ chấm', className: 'text-muted-foreground', description: 'Bài đã được gửi và đang chờ giáo viên chấm.' }
 }

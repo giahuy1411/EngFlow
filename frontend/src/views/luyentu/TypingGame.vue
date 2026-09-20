@@ -48,7 +48,7 @@
           />
           <AppButton @click="checkAnswer" variant="primary" size="lg" class="mt-4"
           :disabled="!userInput.trim()">Kiểm tra</AppButton>
-          <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-success' : 'text-danger'">
+          <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-success-ink' : 'text-danger'">
             {{ lastAnswerCorrect ? 'Đúng!' : ('Sai. Đáp án: ' + feedback) }}
           </p>
         </div>
@@ -58,7 +58,7 @@
       <div class="max-w-md mx-auto">
         <div class="flex justify-between text-xs font-bold uppercase tracking-wider mb-2 mt-8">
           <span class="text-muted-foreground">{{ displayIndex }}/{{ words.length }}</span>
-          <span class="text-accent">{{ correct }}/{{ total }} đúng</span>
+          <span class="text-accent-ink">{{ correct }}/{{ total }} đúng</span>
         </div>
         <div class="w-full h-2 border-2 border-foreground bg-muted rounded-full overflow-hidden">
           <div class="h-full bg-accent rounded-full transition-all" :style="{ width: `${progressPercent}%` }"></div>
@@ -72,11 +72,11 @@
         </div>
         <h2 class="font-black text-3xl uppercase tracking-tight mb-4">Hoàn thành!</h2>
         <p v-if="submitting" class="mb-6 font-bold text-sm uppercase tracking-wider text-muted-foreground">Đang lưu kết quả...</p>
-        <p v-else-if="submitResult" class="mb-6 font-black text-lg text-success">
+        <p v-else-if="submitResult" class="mb-6 font-black text-lg text-success-ink">
           Đã lưu: {{ submitResult.correctAnswers }}/{{ submitResult.totalQuestions }} đúng · +{{ submitResult.correctAnswers }} điểm
         </p>
         <router-link :to="'/decks/' + deckId"
-          class="inline-flex px-8 py-3.5 font-bold text-base bg-accent text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+          class="inline-flex px-8 py-3.5 font-bold text-base bg-accent-strong text-white border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
         >Quay lại</router-link>
       </div>
       </template>

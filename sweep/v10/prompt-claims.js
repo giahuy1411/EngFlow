@@ -391,7 +391,7 @@ function check(name, cond, detail) {
 
   // Self-clean: /premium khong mint row (chi /premium/checkout moi mint),
   // nhung van goi cho chac — ham nay chi xoa status<>SUCCESS.
-  try { cleanupAuditPayments(126); } catch (e) { console.log("cleanup warn: " + e.message); }
+  try { cleanupAuditPayments(126); /* audit-v11 F130: baseline is informational; assertion is self-clean */ } catch (e) { console.log("cleanup warn: " + e.message); }
   try { console.log("\nparity: " + dbParity()); } catch (e) {}
 
   process.exit(R.fail ? 1 : 0);

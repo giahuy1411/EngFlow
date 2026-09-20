@@ -17,6 +17,6 @@ defineProps({
   value: { type: [String, Number], default: 0 },
   icon: { type: [Object, Function, String], required: true },
   iconBg: { type: String, default: 'bg-accent/10' },
-  iconColor: { type: String, default: 'text-accent' },
+  iconColor: { type: String, default: 'text-accent-ink' },
 })
 </script>

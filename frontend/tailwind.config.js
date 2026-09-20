@@ -11,7 +11,8 @@ export default {
           bg: '#FFFDF5',
           fg: '#1E293B',
           muted: '#F1F5F9',
-          'muted-fg': '#64748B',
+          // audit-v11 F138: was #64748B (4.34:1 on the muted panel it is used on).
+          'muted-fg': '#556070',
           accent: '#8B5CF6',
           'accent-fg': '#FFFFFF',
           secondary: '#F472B6',
@@ -21,6 +22,16 @@ export default {
           input: '#FFFFFF',
           card: '#FFFFFF',
           ring: '#8B5CF6',
+          // audit-v11 F132: WCAG-AA variants. See design-system.css :root for the
+          // measured ratios and the rule (vivid = fill/decoration, *-ink = text).
+          'accent-ink': '#6D28D9',
+          'accent-strong': '#7C3AED',
+          'secondary-ink': '#BE185D',
+          'secondary-strong': '#DB2777',
+          'tertiary-ink': '#B45309',
+          'quaternary-ink': '#047857',
+          'success-ink': '#047857',
+          'warning-ink': '#B45309',
         },
         // Legacy aliases for backward compatibility during migration
         // audit-v5: playful.* block removed — zero usages across src (grep verified).
@@ -31,7 +42,8 @@ export default {
         background: '#FFFDF5',
         foreground: '#1E293B',
         muted: '#F1F5F9',
-        'muted-foreground': '#64748B',
+        // audit-v11 F138: AA on every surface (6.38 white / 6.26 cream / 5.82 muted).
+        'muted-foreground': '#556070',
         border: '#E2E8F0',
         input: '#FFFFFF',
         card: '#FFFFFF',
@@ -43,6 +55,18 @@ export default {
         danger: '#E11D48',
         warning: '#F59E0B',
         success: '#059669',
+        // audit-v11 F132 — AA text variants (legacy aliases, mirrored from geo.*).
+        // Rule: the vivid tokens above are for FILLS, BORDERS, SHAPES and /opacity
+        // tints. Anywhere the token carries TEXT, use the *-ink (on light) or
+        // *-strong (as a background under white text) variant instead.
+        'accent-ink': '#6D28D9',
+        'accent-strong': '#7C3AED',
+        'secondary-ink': '#BE185D',
+        'secondary-strong': '#DB2777',
+        'tertiary-ink': '#B45309',
+        'quaternary-ink': '#047857',
+        'success-ink': '#047857',
+        'warning-ink': '#B45309',
       },
       fontFamily: {
         sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],

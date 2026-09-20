@@ -18,8 +18,12 @@ describe('Pagination', () => {
     const wrapper = mountPagination()
 
     expect(wrapper.text()).toContain('Trước')
-    expect(wrapper.find('button[aria-label="Trang đầu tiên"]').text()).toBe('1')
-    expect(wrapper.find('button[aria-label^="Trang cuối cùng"]').text()).toBe('8')
+    // audit-v11 F136: WCAG 2.5.3 (Label in Name) — the accessible name must CONTAIN the visible
+    // text. The first/last page buttons show a digit but were labelled "Trang đầu tiên" /
+    // "Trang cuối cùng", which failed Lighthouse `label-content-name-mismatch`. The labels now
+    // lead with the visible digit.
+    expect(wrapper.find('button[aria-label="1 — trang đầu tiên"]').text()).toBe('1')
+    expect(wrapper.find('button[aria-label^="8 — trang cuối cùng"]').text()).toBe('8')
     expect(wrapper.text()).toContain('Sau')
     expect(wrapper.find('input[type="text"]').exists()).toBe(true)
     expect(wrapper.findAll('button').some(button => button.text() === '4')).toBe(false)

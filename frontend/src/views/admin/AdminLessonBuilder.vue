@@ -41,7 +41,7 @@
       Đã lưu thành công
     </div>
     <div v-else-if="saveStatus === 'error'" class="bg-danger/10 border-2 border-foreground rounded-md p-4 flex items-center gap-3 font-bold text-sm shadow-pop-sm">
-      <span class="w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-xs font-black">&#10007;</span>
+      <span class="w-6 h-6 bg-accent-strong text-white rounded-full flex items-center justify-center text-xs font-black">&#10007;</span>
       Lỗi lưu. Vui lòng thử lại.
     </div>
 
@@ -117,7 +117,7 @@
               </AppButton>
               <!-- icon-only control: kept raw -->
               <button @click="confirmDeleteSection(section, si)" :aria-label="'Xóa section ' + (si + 1)"
-                      class="px-4 border-l-4 border-foreground text-white/40 hover:text-accent hover:bg-white/10 font-bold text-lg transition-all flex items-center">
+                      class="px-4 border-l-4 border-foreground text-white/40 hover:text-accent-ink hover:bg-white/10 font-bold text-lg transition-all flex items-center">
                 &times;
               </button>
             </div>
@@ -152,7 +152,7 @@
                   </div>
                   <!-- icon-only control: kept raw -->
                   <button @click="deleteBlock(block.id, section.id, bi)" :aria-label="'Xóa block ' + (bi + 1)"
-                          class="w-7 h-7 flex items-center justify-center border-2 border-foreground rounded-lg bg-white text-foreground/40 hover:text-accent hover:bg-accent/10 font-bold text-sm transition-all shadow-pop-sm">
+                          class="w-7 h-7 flex items-center justify-center border-2 border-foreground rounded-lg bg-white text-foreground/40 hover:text-accent-ink hover:bg-accent/10 font-bold text-sm transition-all shadow-pop-sm">
                     &times;
                   </button>
                 </div>
@@ -329,7 +329,7 @@
           <h3 class="font-black text-lg uppercase tracking-tighter text-white">Xóa Section</h3>
         </div>
         <div class="p-6">
-          <p class="font-bold mb-2">Xóa section <span class="text-accent">"{{ deleteTarget.section.title }}"</span>?</p>
+          <p class="font-bold mb-2">Xóa section <span class="text-accent-ink">"{{ deleteTarget.section.title }}"</span>?</p>
           <p class="text-muted-foreground text-sm font-medium mb-6">Tất cả block trong section này cũng sẽ bị xóa.</p>
           <div class="flex justify-end gap-4">
             <AppButton @click="deleteTarget = null" variant="secondary">
@@ -392,10 +392,10 @@ const blockTypeOptions = [
 const blockAccent = {
   TEXT: { container: 'border-l-4 border-l-accent/10', header: 'bg-accent/10', badge: 'bg-accent/10 text-foreground font-black', icon: 'T', labelClass: 'text-foreground font-black' },
   IMAGE: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-foreground font-black', icon: 'I', labelClass: 'text-foreground font-black' },
-  AUDIO: { container: 'border-l-4 border-l-accent', header: 'bg-accent/10', badge: 'bg-accent text-white font-black', icon: 'A', labelClass: 'text-foreground font-black' },
+  AUDIO: { container: 'border-l-4 border-l-accent', header: 'bg-accent/10', badge: 'bg-accent-strong text-white font-black', icon: 'A', labelClass: 'text-foreground font-black' },
   TABLE: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-foreground font-black', icon: '#', labelClass: 'text-foreground font-black' },
   QUESTION: { container: 'border-l-4 border-l-tertiary', header: 'bg-tertiary/10', badge: 'bg-tertiary text-foreground font-black', icon: '?', labelClass: 'text-foreground font-black' },
-  SUBMISSION: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary text-white font-black', icon: 'S', labelClass: 'text-foreground font-black' }
+  SUBMISSION: { container: 'border-l-4 border-l-secondary', header: 'bg-secondary/10', badge: 'bg-secondary-strong text-white font-black', icon: 'S', labelClass: 'text-foreground font-black' }
 }
 
 onMounted(async () => {

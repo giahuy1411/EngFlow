@@ -253,7 +253,7 @@ const badLanding = [];
   // Self-clean. This sweep walks /premium/checkout, whose component mints a real
   // payment_transactions row on mount, so the sweep MUST undo its own writes in
   // the same run. Measured 2026-09-16: three runs took parity 126 -> 134.
-  const clean = H.cleanupAuditPayments(126);
+  const clean = H.cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
   console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
 
   fs.writeFileSync("routes-all.json", JSON.stringify({ inventory: INV.totalRoutes, results, badLanding, cleanup: clean, totals: { totalErr, totalApi400, totalOverflow, totalNotMounted, badLanding: badLanding.length } }, null, 1));

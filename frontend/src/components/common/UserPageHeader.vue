@@ -10,7 +10,7 @@
         <slot name="title">
           <!-- Space phải nằm trong chuỗi runtime ('{{ prefix }}' + ' '): template compiler
                trim whitespace source (mất space), còn &nbsp; thì tạo token không wrap → tràn mobile. -->
-          <span v-if="titleParts.prefix">{{ titleParts.prefix + ' ' }}</span><span class="text-accent">{{ titleParts.highlight }}</span>
+          <span v-if="titleParts.prefix">{{ titleParts.prefix + ' ' }}</span><span class="text-accent-ink">{{ titleParts.highlight }}</span>
         </slot>
       </h1>
       <p v-if="subtitle || eyebrow" class="font-bold text-sm uppercase tracking-wider text-muted-foreground mt-3">

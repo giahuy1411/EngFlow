@@ -2,7 +2,7 @@
   <div class="bg-background min-h-screen py-16">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <router-link to="/decks"
-        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors mb-6"
+        class="inline-flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-accent-ink transition-colors mb-6"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         Quay lại
@@ -39,7 +39,7 @@
         <!-- Game Buttons -->
         <div class="flex flex-wrap gap-3 mb-10">
           <router-link :to="`/decks/${deck.id}/play/flashcard`"
-            class="px-6 py-3 bg-accent text-white font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+            class="px-6 py-3 bg-accent-strong text-white font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
           >Flashcard</router-link>
           <router-link :to="`/decks/${deck.id}/play/quiz`"
             class="px-6 py-3 bg-secondary text-foreground font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
@@ -71,7 +71,7 @@
               <p v-if="w.example" class="text-sm text-muted-foreground italic mt-1">"<span v-html="sanitizeText(w.example)"></span>"</p>
             </div>
             <button v-if="w.audioUrl" @click="playAudio(w.audioUrl)" :aria-label="'Phát âm ' + w.word"
-              class="w-9 h-9 bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent/90 transition-all shadow-pop-sm flex-shrink-0"
+              class="w-9 h-9 bg-accent-strong border-2 border-foreground rounded-full flex items-center justify-center text-white hover:bg-accent-strong/90 transition-all shadow-pop-sm flex-shrink-0"
             ><Volume2 class="w-4 h-4" /></button>
           </div>
           <div v-if="!deck.words?.length" class="bg-card border-2 border-dashed border-foreground rounded-md p-10 text-center text-muted-foreground font-bold">

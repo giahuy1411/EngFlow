@@ -26,8 +26,8 @@
           />
         </label>
         <div class="flex border-2 border-foreground bg-card p-1">
-          <button type="button" class="min-h-10 px-4 text-xs font-black uppercase tracking-wider transition" :class="activeTab === 'public' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'" @click="switchTab('public')">Cộng đồng</button>
-          <button type="button" class="min-h-10 px-4 text-xs font-black uppercase tracking-wider transition" :class="activeTab === 'my' ? 'bg-accent text-white' : 'text-muted-foreground hover:text-foreground'" @click="switchTab('my')">Bộ của tôi</button>
+          <button type="button" class="min-h-10 px-4 text-xs font-black uppercase tracking-wider transition" :class="activeTab === 'public' ? 'bg-accent-strong text-white' : 'text-muted-foreground hover:text-foreground'" @click="switchTab('public')">Cộng đồng</button>
+          <button type="button" class="min-h-10 px-4 text-xs font-black uppercase tracking-wider transition" :class="activeTab === 'my' ? 'bg-accent-strong text-white' : 'text-muted-foreground hover:text-foreground'" @click="switchTab('my')">Bộ của tôi</button>
         </div>
       </section>
 
@@ -71,7 +71,7 @@
             <p v-if="deck.description" class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground" v-html="sanitizeText(deck.description)"></p>
             <div class="mt-7 flex items-center justify-between border-t-2 border-foreground pt-4">
               <span class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ deck.wordCount ?? 0 }} từ</span>
-              <span class="text-sm font-black uppercase tracking-wider text-accent">Mở bộ &rarr;</span>
+              <span class="text-sm font-black uppercase tracking-wider text-accent-ink">Mở bộ &rarr;</span>
             </div>
           </StickerCard>
         </div>
@@ -82,7 +82,7 @@
       <section v-else class="border-2 border-dashed border-foreground bg-card p-12 text-center">
         <p class="text-2xl font-black">{{ activeTab === 'public' ? 'Chưa có bộ từ công khai' : 'Bạn chưa có bộ từ nào' }}</p>
         <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{{ activeTab === 'public' ? 'Thử lại sau hoặc tìm một chủ đề khác.' : 'Tạo bộ đầu tiên bằng tay hoặc để AI gợi ý cấu trúc từ vựng.' }}</p>
-        <router-link v-if="activeTab === 'my'" to="/ai-vocab-generator" class="mt-6 inline-flex border-2 border-foreground bg-accent px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Tạo bộ đầu tiên</router-link>
+        <router-link v-if="activeTab === 'my'" to="/ai-vocab-generator" class="mt-6 inline-flex border-2 border-foreground bg-accent-strong px-5 py-3 text-xs font-black uppercase tracking-wider text-white">Tạo bộ đầu tiên</router-link>
       </section>
     </div>
   </main>

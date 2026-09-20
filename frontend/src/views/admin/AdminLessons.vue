@@ -98,7 +98,7 @@
                   </button>
                   <!-- icon-only control: kept raw -->
                   <button @click="deleteLesson(lesson.id)" aria-label="Xóa bài học"
-                           class="w-9 h-9 flex items-center justify-center bg-accent text-white border-2 border-foreground rounded-md shadow-pop-sm
+                           class="w-9 h-9 flex items-center justify-center bg-accent-strong text-white border-2 border-foreground rounded-md shadow-pop-sm
                                   hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
                                   active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
                      <TrashIcon class="w-4 h-4" />
@@ -139,7 +139,7 @@
           <!-- audit-v5 a11y: icon-only control now carries an accessible name -->
           <button @click="closeModal" aria-label="Đóng form"
                   class="w-8 h-8 flex items-center justify-center border-2 border-foreground bg-white text-foreground font-black text-lg rounded-md shadow-pop-sm
-                         hover:bg-accent hover:text-white transition-colors">&times;</button>
+                         hover:bg-accent-strong hover:text-white transition-colors">&times;</button>
         </div>
 
         <div class="p-6 overflow-y-auto">
@@ -239,8 +239,8 @@ const displayLevel = (lv) => ({
 const levelBadge = (lv) => ({
   ELEMENTARY: 'bg-secondary text-foreground rounded-md border-2 border-foreground',
   PRE_INTERMEDIATE: 'bg-tertiary text-foreground rounded-md border-2 border-foreground',
-  INTERMEDIATE: 'bg-accent text-white rounded-md border-2 border-foreground',
-  UPPER_INTERMEDIATE: 'bg-secondary text-white rounded-md border-2 border-foreground'
+  INTERMEDIATE: 'bg-accent-strong text-white rounded-md border-2 border-foreground',
+  UPPER_INTERMEDIATE: 'bg-secondary-strong text-white rounded-md border-2 border-foreground'
 }[lv] || 'bg-foreground/10 border-2 border-foreground')
 
 const initialForm = { title: '', description: '', content: '', level: 'ELEMENTARY', isPublished: false }

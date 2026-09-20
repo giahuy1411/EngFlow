@@ -11,7 +11,7 @@
       ></textarea>
     </div>
     <div v-if="modelAnswer" class="mt-6 p-6 bg-card border-2 border-foreground rounded-md shadow-pop-lg">
-      <p class="font-black text-sm uppercase tracking-wider text-accent mb-2">Gợi ý</p>
+      <p class="font-black text-sm uppercase tracking-wider text-accent-ink mb-2">Gợi ý</p>
       <div class="geo-markdown" v-html="parseMarkdown(modelAnswer)"></div>
     </div>
   </div>
