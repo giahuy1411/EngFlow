@@ -44,6 +44,10 @@ export default {
         muted: '#F1F5F9',
         // audit-v11 F138: AA on every surface (6.38 white / 6.26 cream / 5.82 muted).
         'muted-foreground': '#556070',
+        // audit-v12 F149: a DIMMER text tone than muted-foreground, for empty/placeholder
+        // text ("Trống"). It must still clear AA — `text-muted-foreground/60` composited to
+        // #99A0A9 = 2.65:1 on white (FAIL). #6B7280 = 4.83:1 on white (PASS).
+        placeholder: '#6B7280',
         border: '#E2E8F0',
         input: '#FFFFFF',
         card: '#FFFFFF',

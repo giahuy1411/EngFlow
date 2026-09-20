@@ -67,7 +67,7 @@
             <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground truncate max-w-xs" v-html="sanitizeText(lesson.description || '-')"></td>
             <td class="p-4 border-r-2 border-foreground text-sm text-muted-foreground max-w-xs">
               <div v-if="lesson.description" class="truncate" v-html="sanitizeText(lesson.description.substring(0, 120))"></div>
-              <span v-else class="text-muted-foreground/60 italic">Trống</span>
+              <span v-else class="text-placeholder italic">Trống</span>
             </td>
             <td class="p-4 border-r-2 border-foreground text-center">
               <span class="inline-block px-2 py-1 border-2 border-foreground text-xs font-black uppercase tracking-wider"

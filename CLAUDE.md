@@ -12,7 +12,7 @@ EngFlow is an English learning platform with lessons, vocabulary decks, speaking
 - **Frontend**: Vue 3, Vite, Pinia (state), Vue Router, Tailwind CSS
 - **Database**: Microsoft SQL Server (Hibernate `ddl-auto=update`)
 - **Cache**: Redis (game sessions, rate limiting)
-- **External**: Cloudinary (avatars), MinIO (speaking media), Azure Speech SDK (pronunciation), OpenRouter/Ollama (AI), SePay (payments), Gmail SMTP (streak reminders)
+- **External**: Cloudinary (avatars), MinIO (speaking media), Whisper sidecar + Ollama (pronunciation assessment), OpenRouter/Ollama (AI), SePay (payments), Gmail SMTP (streak reminders)
 
 ## Build & Run Commands
 
@@ -39,7 +39,7 @@ npm run test:watch                    # Watch mode
 All sensitive config is via env vars (or `.env` file via `spring.config.import`):
 - `SPRING_DATASOURCE_URL`, `DB_PASSWORD` — SQL Server
 - `JWT_SECRET` — JWT signing key (256-bit minimum)
-- `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL` — AI integration
+- `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL` — AI integration. These are the config key *names* the app reads; by default `base-url` points at the local Ollama (`http://localhost:11434/v1`) and `api-key` defaults to `ollama`, so no cloud key is required
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — Avatar uploads
 - `MINIO_URL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY` — Speaking media storage
 - `MAIL_USERNAME`, `MAIL_PASSWORD` — Gmail SMTP for streak reminders
@@ -54,7 +54,7 @@ All sensitive config is via env vars (or `.env` file via `spring.config.import`)
 - `model/entity/` — JPA entities (Lesson, ExerciseAttempt, Vocabulary, Deck, SpeakingPrompt, etc.)
 - `model/dto/` — Request/Response DTOs
 - `model/enums/` — BlockType, ExerciseType, SkillType, etc.
-- `security/` — JWT filter, UserPrincipal, rate limiting, PremiumRequired annotation
+- `security/` — JWT filter, UserPrincipal, rate limiting (the `PremiumRequired` annotation is defined here but unused — premium is checked via `hasPremiumAccess()`)
 - `config/` — Redis, Jackson, MinIO, data seeders, migrations
 
 ### Frontend Structure (`frontend/src/`)
@@ -66,11 +66,11 @@ All sensitive config is via env vars (or `.env` file via `spring.config.import`)
 - `services/` — API client modules (streakService.js, etc.)
 
 ### Key Patterns
-- **JWT Auth**: Access tokens (15min TTL), refresh via login. Filter chain: `JwtAuthenticationFilter` → `CustomUserDetailsService`
-- **Premium Gating**: Frontend route meta `requiresPremium: true` + backend `@PremiumRequired` annotation
+- **JWT Auth**: Access tokens (15min TTL); re-login to obtain a new one (there is no refresh-token endpoint). Filter chain: `JwtAuthenticationFilter` → `CustomUserDetailsService`
+- **Premium Gating**: Frontend route meta `requiresPremium: true` + backend manual check via `userService.hasPremiumAccess()` (the `@PremiumRequired` annotation exists but has no usages)
 - **Admin Guard**: Frontend `requiresAdmin: true` meta + backend role checks
-- **AI Integration**: OpenRouter/Ollama for exercise generation, pronunciation assessment via Azure Speech SDK
-- **Speaking Submissions**: MinIO storage for audio/video, Azure Speech SDK for assessment, admin manual grading
+- **AI Integration**: OpenRouter/Ollama for exercise generation; pronunciation assessment via the local Whisper sidecar (:9002) + an Ollama rubric
+- **Speaking Submissions**: MinIO storage for audio/video, Whisper+Ollama assessment, admin manual grading
 - **SRS (Spaced Repetition)**: `SrsService` with interval caps, study activity tracking
 - **Streak System**: Daily activity tracking, reminder scheduler (Spring `@Scheduled`), email notifications
 
