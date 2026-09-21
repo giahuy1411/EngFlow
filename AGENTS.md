@@ -11,9 +11,9 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **496 tests / 0 fail / 0 error / 11 skipped** (audit-v12 Phase 10, 2026-09-21). Trước đó: 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
-- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **128 passed / 1 skipped (26 files)** (audit-v12 Phase 10, 2026-09-21). Trước đó: 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
-- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.64 kB** (gzip 67.61).
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **499 tests / 0 fail / 0 error / 11 skipped** (audit-v12 Phase 11, 2026-09-21). Trước đó: 496 (Phase 10) → 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
+- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **127 passed / 1 skipped (25 files)** (audit-v12 Phase 11, 2026-09-21). Trước đó: 128 (Phase 10) → 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
+- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.44 kB** (gzip 67.56).
 - **Parity DB chuẩn (2026-09-21, sau dọn rác Phase 10):** `1470|43734|72|118|28|15|4|126|10|5`
   (`lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks|snapshots`).
   Đo bằng `python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql`. Giá trị cũ `…|127|…|14|5` là **trước** khi xoá

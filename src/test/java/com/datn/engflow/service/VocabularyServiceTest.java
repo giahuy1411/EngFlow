@@ -46,6 +46,30 @@ class VocabularyServiceTest {
         verifyNoInteractions(vocabularyRepository, deckService);
     }
 
+    /**
+     * audit-v12 F152: {@code lessonId} is an ADMIN-ONLY field — lessons are shared curriculum
+     * with no owner column, and {@code GET /api/lessons/{id}} is permitAll, so a student who
+     * set it could inject a word into a lesson that every anonymous visitor then reads.
+     * Measured live before the fix: POST /api/vocabulary?deckId=&lt;own&gt; {lessonId} -&gt; 200,
+     * then anonymous GET /api/lessons/{id} served the injected word.
+     *
+     * <p>{@code verifyNoInteractions(vocabularyRepository)} is the load-bearing assertion: it
+     * pins the guard at the TOP of createScoped, before the dedupe lookup. A guard placed in
+     * build() would be skipped whenever the word already exists (build() only runs on the
+     * orElseGet branch), so this test fails if the check is ever moved down.
+     */
+    @Test
+    void nonAdminWithLessonIdIsRejectedBeforeAnyWrite() {
+        VocabularyRequest r = request("hello");
+        r.setLessonId(42L);
+
+        assertThatThrownBy(() -> service.createScoped(r, 10006L, 7L, false))
+                .isInstanceOf(BadRequestException.class);
+
+        // Must fail BEFORE the dedupe lookup and before any insert.
+        verifyNoInteractions(vocabularyRepository, lessonRepository, deckService);
+    }
+
     /** With a deck, the word is saved AND linked in one transaction (via the owning service). */
     @Test
     void nonAdminWithDeckSavesAndLinks() {

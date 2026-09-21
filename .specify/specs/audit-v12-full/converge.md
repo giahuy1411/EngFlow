@@ -30,15 +30,15 @@ việc còn thiếu**.
 | 6 — perf trước/sau | ✅ | 22 endpoint, từ chối tối ưu có số |
 | 7 — vòng 2 | ✅ | 0 lỗi mới; 3 lỗi probe bị falsify |
 | 8 — đóng | ✅ | analyze + converge + secret scan + issues + commit |
+| 9 — 4 hạng mục OPEN | ✅ | F147, F148, F150, C6 — all fixed |
+| 10 — F151 + UI + dọn dữ liệu | ✅ | IDOR fix, DueReview UI, 9 vocab + 4 deck + lesson cleaned |
+| 11 — Review fixes + flashcard 2 nút | ✅ | F152 (lessonId injection), F153 (streak), flashcard 2 buttons, dropped due-words |
 
 ## 3. Việc CHƯA làm — ghi rõ, không giấu
 
 | Hạng mục | Trạng thái | Lý do |
 |---|---|---|
-| **F147** `POST /api/vocabulary` mở cho mọi user ghi bảng global | **OPEN** | **Quyết định sản phẩm** — hai hướng fix ngược nhau; đã đo blast-radius và đề xuất cả hai, chờ owner |
-| **F148** `/api/srs/*` 0 caller frontend | **OPEN** | Giữ / bổ sung UI / retire — quyết định owner |
-| **F150** CLS 0.104 trên `/` | **OPEN** | Đã truy gốc tới 1 phần tử, đã đo 1 phương án fix (0.104 → 0.098, không đủ) và **revert**; fix thật cần đổi kiến trúc render |
-| **C6** dependency Azure Speech SDK (~15MB, 0 import) | **OWNER DECISION** | Xoá cần rebuild + full test; không tự quyết |
+| **Phase 12** — Xoá SrsService + SrsController + 2 GET endpoint + `POST /api/flashcards/review` + `FlashcardReviewRequest` + `getStatus`/`POST /api/flashcards/status/{id}` + bảng `user_vocabulary_progress` (51 row) + 6 test class (F106/F151) | **HOÃN** | Còn là regression test cho F106 (interval-overflow) và F151 (IDOR). Dọn ở đợt riêng, theo "đập từng bước" |
 | Giao dịch ngân hàng thật với SePay | **BLOCKED by design** | Là hành động thanh toán thật, không phải test. Đã kiểm phía nhận (chữ ký sai → reject) |
 | Chấm điểm phát âm bằng giọng thật | **N/A** | Mic giả phát im lặng → Whisper trả text rỗng → `FAILED` **đúng thiết kế** |
 | `POST /api/admin/lessons/{id}/snapshots` + `/restore` | **N/A** | Ghi snapshot / khôi phục nội dung thật — tránh mutate content |

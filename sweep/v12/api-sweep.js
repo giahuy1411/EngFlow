@@ -287,6 +287,30 @@ const login = async ({ email, password }) => {
       R.c1.visibleToAnon = visibleToAnon;
       check("F147   a word saved this way is still a shared dictionary entry (by design)", visibleToAnon === true,
         `visibleToAnon=${visibleToAnon} — vocabulary is a shared dictionary; the FIX is that the write now goes through the ownership layer, not that the word is hidden`);
+
+      // ── F152: lessonId is an ADMIN-ONLY field ────────────────────────────────────────
+      // GET /api/lessons/{id} is permitAll and its payload embeds the lesson's vocabulary,
+      // so a student setting lessonId would inject content into shared curriculum. Checked
+      // here on the STUDENT's own deck (so the deckId guard cannot be what rejects it), and
+      // on a word that ALREADY exists — the dedupe branch is the case a guard placed in
+      // build() would miss, because build() only runs when the word is new.
+      const lessonForInject = (await req("GET", "/api/lessons?size=1", { token: userToken })).data;
+      const targetLesson = (lessonForInject?.content || lessonForInject || [])[0]?.id;
+      if (targetLesson) {
+        const injectFresh = await req("POST", `/api/vocabulary?deckId=${ownDeckId}`, { token: userToken, body: { word: vw + "L", meaning: "f152", lessonId: targetLesson } });
+        check("F152 student + lessonId (new word) rejected 400", injectFresh.status === 400, `got ${injectFresh.status}`);
+        const injectExisting = await req("POST", `/api/vocabulary?deckId=${ownDeckId}`, { token: userToken, body: { word: vw, meaning: "f152", lessonId: targetLesson } });
+        check("F152 student + lessonId (existing word, dedupe branch) rejected 400", injectExisting.status === 400, `got ${injectExisting.status}`);
+        const adminInject = await req("POST", "/api/admin/vocabulary", { token: adminToken, body: { word: "zzv12adminL", meaning: "f152", lessonId: targetLesson } });
+        check("F152 admin + lessonId still accepted (not over-blocked)", [200, 201].includes(adminInject.status), `got ${adminInject.status}`);
+        // Nothing may have leaked into the public lesson payload.
+        const anonLesson = await req("GET", `/api/lessons/${targetLesson}`);
+        const leaked = JSON.stringify(anonLesson.data?.vocabularies || []).includes(vw + "L");
+        check("F152 no injected word in the public lesson payload", leaked === false, `leaked=${leaked}`);
+        R.f152 = { targetLesson, injectFresh: injectFresh.status, injectExisting: injectExisting.status, adminInject: adminInject.status, leaked };
+      } else {
+        blocked("F152 lessonId injection", "no lesson id available");
+      }
     } else {
       blocked("F147 deck-scoped save", "student has no deck to save into");
     }
@@ -331,6 +355,11 @@ const login = async ({ email, password }) => {
     check("  quality out of range (9) -> 400", (await req("POST", "/api/flashcards/review", { token: userToken, body: { vocabularyId: VOCAB, quality: 9 } })).status === 400, "expected 400");
     check("  legacy isKnown body is rejected (shape changed)", (await req("POST", "/api/flashcards/review", { token: userToken, body: { vocabularyId: VOCAB, isKnown: true } })).status === 400, "old shape should no longer be accepted");
     check("flashcards anon 401", (await req("POST", "/api/flashcards/review", { body: { vocabularyId: VOCAB, quality: 4 } })).status === 401, "expected 401");
+    // audit-v12 F153: the drill is a plain back/continue reader; it records its study day
+    // through /study (so a flashcard-only learner keeps their streak). This is that path.
+    const study = await req("POST", "/api/flashcards/study", { token: userToken });
+    check("POST /api/flashcards/study 200", study.status === 200, `got ${study.status}`);
+    check("  flashcards/study anon 401", (await req("POST", "/api/flashcards/study")).status === 401, "expected 401");
   }
 
   // ═══════════════════════════════════════════════════ C8 SRS (3) — zero-coverage

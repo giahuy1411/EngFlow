@@ -9,7 +9,7 @@ DELETE FROM deck_words WHERE vocab_id IN (SELECT vocab_id FROM vocabulary WHERE 
 DELETE FROM vocabulary WHERE word LIKE 'zzv12authshape%' OR word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word = 'zzv12probe';
 DELETE FROM payment_transactions
  WHERE transaction_id IS NULL AND status = 'PENDING'
-   AND (order_code = 'ENG4187694DB942' OR created_at >= CONVERT(date, '2026-09-21'));
+   AND (order_code = 'ENG9A3DEC5F1175' OR created_at >= CONVERT(date, '2026-09-21'));
 SELECT 'AUDIT_DECKS=' + CAST((SELECT COUNT(*) FROM decks WHERE name LIKE 'AUDIT-V12-API-%') AS varchar(10))
      + ' AUDIT_VOCAB=' + CAST((SELECT COUNT(*) FROM vocabulary WHERE word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word='zzv12probe') AS varchar(10))
      + ' AUDIT_LESSONS=' + CAST((SELECT COUNT(*) FROM lessons WHERE title LIKE 'AUDIT-V12-%') AS varchar(10))

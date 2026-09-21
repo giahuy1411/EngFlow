@@ -308,6 +308,90 @@ Trong khi `DeckService.getDeckById(deckId, userId)` **đã có sẵn đúng logi
 
 ---
 
+## F152 — non-admin gắn được vocabulary vào BẤT KỲ lesson nào (đường ghi student dùng chung DTO với admin)
+
+**Mức:** MEDIUM (toàn vẹn nội dung + ô nhiễm dữ liệu) · **Trạng thái:** **FIXED** (Phase 11)
+**Phát hiện:** bởi `/review-agent` trên chính các commit Phase 9/10, không nằm trong audit gốc.
+
+### Đo live (probe đã chạy và đã dọn)
+
+```
+student POST /api/vocabulary?deckId=<deck của mình> {word:…, lessonId:41881}  -> 200
+anon    GET  /api/lessons/41881  -> 200; vocabularies=1; từ bị inject CÓ mặt = true
+```
+
+### Gốc rễ
+
+**Đường ghi student dùng CHUNG DTO với đường admin, và truyền thẳng một field chỉ admin được đặt.**
+`lessonId` là khái niệm admin-only; `VocabularyRequest` được share giữa
+`AdminService.createVocabulary` (đường admin, gate ở `SecurityConfig:108`) và `VocabularyService.createScoped`
+(đường student), nên field lọt qua. `Lesson` **không có cột owner** ⇒ câu hỏi duy nhất là "admin hay không".
+
+**Đây là hành vi MỚI, không phải lỗi cũ:** controller trước đây **bỏ qua** `lessonId` hoàn toàn
+(`// lesson field handling skipped for simplicity`) nên khả năng này **chưa từng tồn tại**. Commit `4c6f351`
+coi việc bỏ qua đó là bug và "sửa" — nhưng **sửa mà không mang theo admin gate**.
+
+Đường rò: `GET /api/lessons/**` là `permitAll` (`SecurityConfig:84`) → `LessonRepository.findByIdWithDetails`
+(**`LEFT JOIN FETCH l.vocabularies`**, `:38`) → `LessonResponse.vocabularies` (`LessonService:203,238`).
+
+### Vị trí guard — bản nháp đầu của tôi SAI (defense-in-depth bắt được)
+
+> Guard đặt trong `build()` sẽ **bị bypass**: `build()` chỉ chạy ở nhánh `orElseGet` của dedupe
+> (`findReusable(request).orElseGet(() -> save(build(request)))`). Từ đã tồn tại (đường tấn công lặp lại
+> dễ nhất) ⇒ `build()` không chạy ⇒ guard không chạy.
+
+### Fix
+
+Guard ở **đầu `createScoped`**, cạnh guard `deckId` sẵn có — chạy **TRƯỚC** dedupe nên mọi nhánh đều qua.
+Dùng `BadRequestException` (400) cho nhất quán với `DeckService` (`:103,:127,:142,:151`) và guard `deckId`
+cùng file; codebase **không có** `ForbiddenException`. Kèm `log.warn` để truy vết.
+
+| File | Thay đổi |
+|---|---|
+| `service/VocabularyService.java` | Guard `lessonId != null && !isAdmin` ở đầu `createScoped` + `log.warn`; ghi INVARIANT ở `build()` |
+| `VocabularyServiceTest.java` | +1 test: non-admin + `lessonId` ⇒ 400 **và** `verifyNoInteractions(vocabularyRepository, lessonRepository, deckService)` — assertion thứ hai **khoá vị trí guard** (nếu chuyển vào `build()`, `findReusable` chạy trước ⇒ test đỏ) |
+| `sweep/v12/f152-lesson-inject-probe.js` **(mới)** | Probe 5 ca, **9/9 PASS** |
+| `sweep/v12/api-sweep.js` | +4 assert trong block F147 (dùng lại deck đã cấp phát) |
+
+### Đo lại — `f152-lesson-inject-probe.js`, ALL PASS
+
+| # | Ca | Trước | Sau |
+|---|---|---|---|
+| V1 | student + `lessonId` (từ mới) | **200** | **400** ✓ |
+| V2 | student + `lessonId` (**từ đã có** — nhánh dedupe) | **200** | **400** ✓ ← ca bản nháp đầu của tôi làm hở |
+| V3a | student **không** `lessonId` | 200 | **200** ✓ (không khoá nhầm) |
+| V3b | admin + `lessonId` (`/api/admin/vocabulary`) | 200 | **200** ✓ (không khoá nhầm) |
+| V4 | `GET /api/lessons/{id}` ẩn danh | từ bị inject **có mặt** | **không có** ✓ |
+
+### Đã loại trừ: `save-vocab` KHÔNG phải đường thứ hai
+
+`AiVocabService.saveVocabBatch` hardcode `.source("AI_GENERATED")` và **không bao giờ** set `.lesson(...)`
+(đọc code xác nhận, không suy đoán từ việc "cùng DTO").
+
+---
+
+## F153 — Flashcard mất streak khi bỏ quality (phát hiện khi thiết kế lại, đã xử lý)
+
+**Mức:** MEDIUM (hồi quy chức năng) · **Trạng thái:** **FIXED** (Phase 11)
+
+Người dùng yêu cầu rút flashcard còn **2 nút Back/Continue** và cho rằng "chơi 1 trò bất kì là tính streak".
+Kiểm chứng: **đúng một phần**.
+
+- **Đúng:** game (quiz/memory/typing/listening/mixed) tính streak độc lập với SRS —
+  `GameController.submitGameResult → GameService:258 → streakService.checkin → recordStudy`.
+- **SAI:** **flashcard KHÔNG đi qua `GameController`.** Đường ghi ngày học **duy nhất** của flashcard là
+  `POST /api/flashcards/review → FlashcardService:48 → SrsService.reviewWord:115 → recordStudy`.
+  Bỏ quality mà không thêm đường mới ⇒ flashcard **mất streak**.
+
+**Fix:** thêm `POST /api/flashcards/study` (`FlashcardService.recordStudyDay`, `@Transactional` vì
+`recordStudy` là `Propagation.MANDATORY`) — gọi **1 lần/phiên** ở lần "Tiếp theo" đầu tiên (người học có thể
+thoát giữa chừng; ghi lúc *hoàn thành* sẽ mất streak cho phiên dở dang).
+
+**Ghi chú:** defect "requeue không reset" (từng định đặt mã F153) **bị thay thế bởi thiết kế này** — cơ chế
+requeue bị gỡ hoàn toàn nên bug đó không còn tồn tại.
+
+---
+
 ## Lỗi của PROBE (không phải finding — ghi để không ai "sửa" code đúng)
 
 | # | Probe đầu báo | Sự thật | Verdict |

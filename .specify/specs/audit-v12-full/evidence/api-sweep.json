@@ -1,5 +1,5 @@
 {
-  "pass": 137,
+  "pass": 143,
   "fail": 0,
   "blocked": 1,
   "n_a": 3,
@@ -26,7 +26,7 @@
       "blocked": 0
     },
     "crud": {
-      "pass": 19,
+      "pass": 23,
       "fail": 0,
       "blocked": 0
     },
@@ -36,7 +36,7 @@
       "blocked": 0
     },
     "flashcard": {
-      "pass": 5,
+      "pass": 7,
       "fail": 0,
       "blocked": 0
     },
@@ -410,6 +410,26 @@
       "status": "PASS"
     },
     {
+      "area": "crud",
+      "name": "F152 student + lessonId (new word) rejected 400",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 student + lessonId (existing word, dedupe branch) rejected 400",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 admin + lessonId still accepted (not over-blocked)",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 no injected word in the public lesson payload",
+      "status": "PASS"
+    },
+    {
       "area": "game",
       "name": "GET /api/games/quiz/{deckId} 200",
       "status": "PASS"
@@ -497,6 +517,16 @@
     {
       "area": "flashcard",
       "name": "flashcards anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "POST /api/flashcards/study 200",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "  flashcards/study anon 401",
       "status": "PASS"
     },
     {
@@ -812,11 +842,18 @@
   ],
   "c1": {
     "status": 200,
-    "id": 50360,
-    "deckId": 50082,
+    "id": 50372,
+    "deckId": 50089,
     "visibleToAnon": true
   },
-  "createdOrderCode": "ENG4187694DB942",
+  "f152": {
+    "targetLesson": 41881,
+    "injectFresh": 400,
+    "injectExisting": 400,
+    "adminInject": 200,
+    "leaked": false
+  },
+  "createdOrderCode": "ENG9A3DEC5F1175",
   "cleanup": {
     "decks": 0,
     "vocab": 0,

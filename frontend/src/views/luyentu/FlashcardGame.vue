@@ -90,11 +90,11 @@
           <AppButton @click="restart" variant="primary">Luyện lại</AppButton>
         </div>
 
-        <!-- Navigation buttons -->
+        <!-- Navigation buttons — audit-v12 F153: two buttons only. The drill no longer rates
+             the word, so there is nothing to send but the study day (see advance()). -->
         <div v-if="currentWord" class="flex items-center justify-center gap-4">
-          <AppButton @click="markWord('again')" variant="pink">Lại</AppButton>
-          <AppButton @click="markWord('good')" variant="primary">Tiếp theo</AppButton>
-          <AppButton @click="markWord('easy')" variant="emerald">Dễ</AppButton>
+          <AppButton @click="goBack" variant="secondary" :disabled="currentIndex === 0">Quay lại</AppButton>
+          <AppButton @click="advance" variant="primary">Tiếp theo</AppButton>
         </div>
       </div>
     </div>
@@ -176,6 +176,7 @@ async function loadDeck() {
     words.value = data.words || []
     currentIndex.value = 0
     isFlipped.value = false
+    studyRecorded.value = false
   } catch (e) {
     error.value = e.response?.data?.message || 'Không tải được bộ từ.'
   } finally {
@@ -191,44 +192,28 @@ function playAudio(url) {
   new Audio(url).play()
 }
 
-// audit-v12 F148: the three buttons map to the SM-2 quality scale. Before this, "Dễ" and
-// "Tiếp theo" sent an identical request (both collapsed to isKnown=true), so the extra
-// signal the learner gave was discarded. Now each button is a distinct quality:
-//   Lại       -> 1  (not recalled: resets the repetition chain, interval back to 1 day)
-//   Tiếp theo -> 4  (recalled with effort)
-//   Dễ        -> 5  (recalled easily: raises the ease factor, so the interval grows faster)
-const RATING_QUALITY = { again: 1, good: 4, easy: 5 }
-// Safety cap so a learner who keeps pressing "Lại" cannot loop forever on one card.
-const MAX_REQUEUES_PER_WORD = 3
-const requeueCount = ref({})
+// audit-v12 F153: the drill is a plain reader now — "Quay lại" (back) and "Tiếp theo"
+// (continue). It no longer rates the word, so it sends no SM-2 quality and does not touch
+// user_vocabulary_progress. It DOES still count as a study day for the streak, which is
+// recorded once per session on the first "continue" (a learner may leave mid-deck, so
+// waiting for completion would lose the day).
+const studyRecorded = ref(false)
 
-function markWord(rating) {
-  if (currentIndex.value >= words.value.length) return
-  const word = currentWord.value
-  const vocabularyId = word?.id
-
-  // Fire-and-forget: a failed review must not block the drill (only logs to console).
-  if (vocabularyId) {
-    flashcardService.reviewFlashcard(vocabularyId, RATING_QUALITY[rating] ?? 4)
-      .catch(err => console.warn('Không lưu được review:', err?.message || err))
-  }
-
-  const key = vocabularyId ?? currentIndex.value
-  const requeues = requeueCount.value[key] || 0
-  const isLastCard = currentIndex.value >= words.value.length - 1
-
-  if (rating === 'again' && requeues < MAX_REQUEUES_PER_WORD && !isLastCard) {
-    // "Lại" means "ask me this again" — move the card to the END of the deck and leave
-    // currentIndex where it is, so it now points at the word that followed. Removing the
-    // current element (not duplicating it) keeps the list length — and the progress bar —
-    // stable. On the last card there is nowhere to move it, so it just advances.
-    requeueCount.value[key] = requeues + 1
-    const next = words.value.slice()
-    next.splice(currentIndex.value, 1)
-    next.push(word)
-    words.value = next
+function goBack() {
+  if (currentIndex.value > 0) {
+    currentIndex.value--
     isFlipped.value = false
-    return
+  }
+}
+
+function advance() {
+  if (currentIndex.value >= words.value.length) return
+
+  if (!studyRecorded.value) {
+    studyRecorded.value = true
+    // Fire-and-forget: a failed record must not block the drill.
+    flashcardService.recordStudy()
+      .catch(err => console.warn('Không ghi được ngày học:', err?.message || err))
   }
 
   currentIndex.value++
@@ -238,5 +223,6 @@ function markWord(rating) {
 function restart() {
   currentIndex.value = 0
   isFlipped.value = false
+  studyRecorded.value = false
 }
 </script>

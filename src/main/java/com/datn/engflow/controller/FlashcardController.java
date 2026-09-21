@@ -39,4 +39,18 @@ public class FlashcardController {
         Integer masteryLevel = flashcardService.getStatus(vocabularyId, email);
         return ResponseEntity.ok(masteryLevel);
     }
+
+    /**
+     * audit-v12 F153: the drill records its study day here so reading flashcards still counts
+     * toward the streak. It no longer sends an SM-2 quality, so {@code /review} is not called
+     * by the UI — this endpoint replaces it as the streak source for flashcards.
+     */
+    @PostMapping("/study")
+    public ResponseEntity<?> recordStudyDay(Authentication authentication) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập");
+        }
+        flashcardService.recordStudyDay(authentication.getName());
+        return ResponseEntity.ok().build();
+    }
 }

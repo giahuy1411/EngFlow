@@ -58,6 +58,17 @@ public class VocabularyService {
                     "Cần chọn bộ từ để lưu từ vựng. Từ vựng dùng chung chỉ quản trị viên mới thêm được.");
         }
 
+        // audit-v12 F152: `lessonId` is an ADMIN-ONLY field. This DTO is shared with the admin
+        // path (AdminService.createVocabulary), so the check must live here — and at the TOP,
+        // BEFORE the dedupe lookup: build() only runs on the orElseGet branch, so a guard
+        // placed inside build() is silently skipped whenever the word already exists (the
+        // easiest repeat of the attack). Lessons are shared curriculum with no owner column,
+        // so "is the caller an admin" is the whole rule.
+        if (request.getLessonId() != null && !isAdmin) {
+            log.warn("Từ chối gắn lesson: user={} lessonId={} (không phải admin)", userId, request.getLessonId());
+            throw new BadRequestException("Chỉ quản trị viên mới gắn được từ vựng vào bài học.");
+        }
+
         // audit-v12 F147: dedupe. The word "negotiate" exists twice today, which makes
         // /api/vocabulary/search return duplicate results. Reusing an identical word keeps
         // the shared dictionary from growing a copy per save.
@@ -93,6 +104,11 @@ public class VocabularyService {
         // audit-v12 F147: the old controller ignored lessonId entirely (a comment said
         // "skipped for simplicity"), so a caller that supplied one silently got a
         // lesson-less word. Resolve it the same way AdminService.createVocabulary does.
+        //
+        // INVARIANT (audit-v12 F152): this method is reached ONLY after createScoped has
+        // already rejected a non-admin that supplied lessonId. Do not call build() from any
+        // other path without repeating that check — the admin gate lives in createScoped, not
+        // here, precisely because build() is skipped on the dedupe branch.
         Lesson lesson = null;
         if (request.getLessonId() != null) {
             lesson = lessonRepository.findById(request.getLessonId())

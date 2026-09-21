@@ -136,3 +136,29 @@ Không mục nào chuyển `[x]` nhờ hàng xóm.
 - [x] P10.5 Verify tổng hợp — backend **496**/0/0, frontend **128**, build xanh, API sweep 137/0/0,
       Lighthouse route mới **100/100/100**, parity mới đúng, 0 rác
 
+## Phase 11 — Review fixes + rút flashcard còn 2 nút + bỏ "ôn từ đến hạn"
+
+Nguồn: `/code-review:code-review` không chạy được (không PR, không `gh`) → review bằng `/review-agent`
+trên chính commit của nhánh, rồi người dùng **đổi hướng thiết kế**.
+
+- [x] P11.1 **F152** (mới, bảo mật) — non-admin gắn được vocabulary vào bất kỳ lesson nào.
+      Guard `lessonId != null && !isAdmin` ở **đầu** `createScoped` (TRƯỚC dedupe — bản nháp đầu đặt trong
+      `build()` sẽ bị bypass). Probe `f152-lesson-inject-probe.js` **5/5 PASS**; +1 test backend
+- [x] P11.2 **F153** — flashcard rút còn **2 nút Back/Continue**; bỏ quality/SM-2 khỏi drill.
+      Thêm `POST /api/flashcards/study` (`recordStudyDay`) để **giữ streak** (flashcard không đi qua
+      `GameController` nên không có đường ghi ngày học nào khác). +2 test backend, +6 test frontend
+- [x] P11.3 **Bỏ tính năng "ôn từ đến hạn"** — xoá `DueReview.vue` + test, `srsService.js` + test,
+      route `/decks/:id/review`, nút ở `DeckDetail.vue` (41 route → 40)
+- [x] P11.4 Verify — backend **499**/0/0, frontend **127**, build xanh (177.44 kB), API sweep, parity không đổi
+
+### Phase 12 (HOÃN — nợ kỹ thuật, có chủ ý)
+
+Theo lựa chọn "đập từng bước": `SrsService` + `SrsController` + `POST /api/srs/review` +
+`GET /api/srs/due/{deckId}` + `GET /api/srs/stats` + `GET /api/flashcards/status/{id}` +
+`POST /api/flashcards/review` + `FlashcardReviewRequest` + bảng `user_vocabulary_progress` (51 row) +
+6 test class (F106/F151) **vẫn còn**, chưa UI nào gọi.
+
+Lý do giữ: chúng còn là regression test cho **F106** (bug 500 interval-overflow đã xảy ra thật) và
+**F151** (IDOR). Xoá ngay sẽ kéo theo xoá `SrsDueWordsAuthzTest` + `f151-idor-probe.js` + sửa
+`api-sweep`/`perf-probe`. Dọn ở đợt riêng.
+

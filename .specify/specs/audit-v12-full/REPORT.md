@@ -160,9 +160,9 @@ sau khi sửa probe drift. **0 lỗi sản phẩm mới.**
 | `analyze.md` / `converge.md` | Đối chiếu chéo + bù việc |
 | `sweep/v12/*` | Probe, SQL, harness (`f151-idor-probe.js`, `cleanup*.sql`, `fk-map.sql`) |
 
-**Trạng thái cuối:** backend **496/0/0**, frontend **128/1 skipped (26 file)**, build **177.64 kB**, parity
-**`1470|43734|72|118|28|15|4|126|10|5`** (đổi có chủ ý — dọn 9 vocab + 4 deck + 1 lesson),
-**0 rác**, API sweep **137 pass / 0 fail**, Lighthouse Accessibility **100** (kể cả route mới).
+**Trạng thái cuối (sau Phase 11):** backend **499/0/0**, frontend **127/1 skipped (25 file)**, build **177.44 kB**, parity
+**`1470|43734|72|118|28|15|4|126|10|5`** (không đổi), route **40** (41→40 — bỏ due-words),
+**0 rác**, API sweep **143 pass / 0 fail**, A11y flashcard **all WCAG checks pass**.
 
 ---
 

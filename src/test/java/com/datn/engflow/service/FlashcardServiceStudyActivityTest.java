@@ -33,6 +33,7 @@ class FlashcardServiceStudyActivityTest {
     @Mock private UserRepository userRepository;
     @Mock private UserVocabularyProgressRepository progressRepository;
     @Mock private SrsService srsService;
+    @Mock private StudyActivityService studyActivityService;
     @InjectMocks private FlashcardService service;
 
     private void existingUser() {
@@ -87,5 +88,31 @@ class FlashcardServiceStudyActivityTest {
 
         when(progressRepository.findByUserIdAndVocabularyId(42L, 8L)).thenReturn(Optional.empty());
         assertThat(service.getStatus(8L, "study@example.test")).isZero();
+    }
+
+    /**
+     * audit-v12 F153: the flashcard drill no longer sends a quality (it is a plain
+     * back/continue reader now), so the streak must be recorded by its own call. The
+     * drill DOES still count as a study day — a learner who only reads flashcards must not
+     * lose their streak.
+     */
+    @Test
+    void recordStudyDayRecordsTheStudyDay() {
+        existingUser();
+
+        service.recordStudyDay("study@example.test");
+
+        verify(studyActivityService).recordStudy(42L);
+    }
+
+    /** A missing user must fail loudly, not silently skip the study day. */
+    @Test
+    void recordStudyDayUnknownUserThrows() {
+        when(userRepository.findByEmail("ghost@example.test")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.recordStudyDay("ghost@example.test"))
+                .isInstanceOf(com.datn.engflow.exception.ResourceNotFoundException.class);
+
+        verifyNoInteractions(studyActivityService);
     }
 }
