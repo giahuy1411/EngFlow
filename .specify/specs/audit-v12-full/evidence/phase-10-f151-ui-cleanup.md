@@ -207,8 +207,7 @@ Residue: `AUDIT_DECKS=0 AUDIT_VOCAB=0 AUDIT_LESSONS=0 AUDIT_PAY=0`; parity **kh�
 | V4 | UI rỗng (E2E thật) | "Không có từ nào đến hạn" ✓ |
 | V5 | UI submit | quality **1 / 4 / 5** đúng body ✓ |
 | V6 | UI a11y | Lighthouse **100/100/100**; contrast 0 vi phạm; mobile 0 overflow ✓ |
-| V7 | Backend suite | **496 run / 0 fail / 0 error / 11 skipped — BUILD SUCCESS** |
-| V8 | Frontend suite | **128 passed / 1 skipped (26 file)** (121 + 7) |
+| V7 | Backend suite | **496 run / 0 fail / 0 error / 11 skipped — BUILD SUCCESS** || V8 | Frontend suite | **128 passed / 1 skipped (26 file)** (121 + 7) |
 | V9 | Build | xanh, entry **177.64 kB**, chunk `DueReview` 8.41 kB |
 | V10 | **Parity mới** | **`1470\|43734\|72\|118\|28\|15\|4\|126\|10\|5`** ✓ khớp dự đoán |
 | V11 | Dọn sạch | orphans **18** (đều là từ AI thật) · 0 deck test · lesson 61882 **0** ✓ |
@@ -216,3 +215,18 @@ Residue: `AUDIT_DECKS=0 AUDIT_VOCAB=0 AUDIT_LESSONS=0 AUDIT_PAY=0`; parity **kh�
 | V13 | Backup | `RESTORE VERIFYONLY` — "backup set on file 1 is valid" ✓ |
 
 **Rác sau cùng: 0.**
+
+---
+
+## Kiểm lại SAU cleanup (thứ tự thời gian quan trọng)
+
+Suite backend ở bảng trên chạy **trước** khi dọn dữ liệu. Vì test Spring Boot có thể chạm DB thật, đã **chạy lại
+toàn bộ sau cleanup** để chắc chắn việc xoá 9 vocab + 4 deck + lesson 61882 không phá gì:
+
+| Kiểm | Kết quả |
+|---|---|
+| Backend suite (chạy lại **sau** cleanup) | **496 run / 0 fail / 0 error / 11 skipped — BUILD SUCCESS** |
+| Parity sau khi chạy lại suite | **`1470\|43734\|72\|118\|28\|15\|4\|126\|10\|5`** — **không đổi** |
+| Residue | `orphans=18 testdecks=0 lesson61882=0 auditdecks=0 auditvocab=0` · `Msg`: none |
+
+⇒ Cleanup **không hồi quy** và không có test nào phụ thuộc dữ liệu đã xoá.

@@ -60,5 +60,9 @@ Mọi sweep có giới hạn đều **ghi rõ đã bỏ gì**:
 - Perf: đo 22/131 endpoint (hot read path + path mới) — **không** đo toàn bộ 131 (vô nghĩa cho mục đích perf).
 - UI: 20 route × 3 role (không phải cả 39 route) + responsive 3 route × 5 width — đủ phủ mọi loại guard và layout.
 
+> **Addendum Phase 10:** router nay có **40** route record (39 + `/decks/:id/review`). Route mới được kiểm
+> riêng bằng cả 2 MCP (Playwright: 4 trạng thái + quality 1/4/5; chrome-devtools: Lighthouse a11y **100**,
+> contrast 0 vi phạm, mobile 0 overflow) — không đưa vào bộ 20 route lịch sử để giữ nguyên phép đo cũ.
+
 **Verdict: CONVERGED.** Mọi requirement có artifact; hạng mục chưa đóng đều được ghi rõ với lý do và phân loại
 (owner-decision / blocked-by-design / N-A).

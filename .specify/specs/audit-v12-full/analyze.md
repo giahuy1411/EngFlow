@@ -73,3 +73,17 @@ hưởng kết luận.
 
 **ANALYZE: PASS.** Không có artifact nào mâu thuẫn mà không giải thích; mọi requirement có bằng chứng; các hạng mục
 chưa đóng đều được ghi rõ và phân loại. Một lệch số (FK 25 vs 26) được ghi là **phát hiện**, không bị che.
+
+---
+
+## Addendum Phase 10 (2026-09-21) — số liệu mới
+
+| Hạng mục | Phase 5 | **Phase 10** | Ghi chú |
+|---|---|---|---|
+| Backend test | 485 | **496** | +4 `SrsDueWordsAuthzTest` (F151), +6 `VocabularyServiceTest` (F147), +4 `FlashcardServiceStudyActivityTest` viết lại (F148), −3 thay thế |
+| Frontend test | 119 / 24 file | **128 / 26 file** | +3 `srsService.test.js`, +4 `DueReview.test.js`; +2 file |
+| Build entry | 177.44 kB | **177.64 kB** | +chunk `DueReview` 8.41 kB (lazy) |
+| API sweep | 133/0/0 | **137/0/0** | +4 assert F147 (harness nay tự cấp phát deck) |
+| **Parity** | `1471\|43735\|72\|127\|28\|15\|4\|126\|14\|5` | **`1470\|43734\|72\|118\|28\|15\|4\|126\|10\|5`** | **Đổi có chủ ý** — dọn 9 vocab rác + 4 deck test + 1 lesson |
+
+**Finding mới:** F151 (IDOR `/api/srs/due/{deckId}`) — không có trong audit gốc, phát hiện khi làm Item A. Đã fix + verify.
