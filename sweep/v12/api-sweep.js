@@ -261,9 +261,14 @@ const login = async ({ email, password }) => {
     const noDeck = await req("POST", "/api/vocabulary", { token: userToken, body: { word: vw, meaning: "auth-shape probe", source: "AUDIT_V12" } });
     check("F147 student WITHOUT deckId is rejected (400)", noDeck.status === 400, `got ${noDeck.status}`);
 
-    const ownDecks = await req("GET", "/api/decks/my", { token: userToken });
-    const deckList = Array.isArray(ownDecks.data) ? ownDecks.data : (ownDecks.data?.content || []);
-    const ownDeckId = deckList[0]?.id ?? deckList[0]?.deckId;
+    // Self-provision both decks. This suite must not depend on ambient rows: the Phase-10
+    // cleanup removed the leftover "Test Deck" rows (owner = the student user) that used to
+    // supply `ownDeckId`, and the admin-owned deck 30033 that used to play "another user's
+    // deck". Both are now created here and removed by the `AUDIT-V12-API-%` cleanup below.
+    const ownDeck = await req("POST", "/api/decks", { token: userToken, body: { name: "AUDIT-V12-API-F147", description: "audit f147 own", isPublic: false } });
+    const ownDeckId = ownDeck.data?.id ?? ownDeck.data?.deckId ?? ownDeck.data?.data?.id;
+    const foreignDeck = await req("POST", "/api/decks", { token: adminToken, body: { name: "AUDIT-V12-API-FOREIGN", description: "audit f147 foreign", isPublic: false } });
+    const foreignDeckId = foreignDeck.data?.id ?? foreignDeck.data?.deckId ?? foreignDeck.data?.data?.id;
     if (ownDeckId) {
       const vc = await req("POST", `/api/vocabulary?deckId=${ownDeckId}`, { token: userToken, body: { word: vw, meaning: "auth-shape probe", source: "AUDIT_V12" } });
       check("F147 student WITH own deckId is accepted", [200, 201].includes(vc.status), `got ${vc.status}`);
@@ -274,7 +279,7 @@ const login = async ({ email, password }) => {
       check("F147   word is LINKED to the deck in the same transaction", linked, "word not found in the deck after save");
 
       // IDOR: attaching to somebody else's deck must be refused (and rolled back).
-      const foreign = await req("POST", "/api/vocabulary?deckId=30033", { token: userToken, body: { word: vw + "x", meaning: "idor" } });
+      const foreign = await req("POST", `/api/vocabulary?deckId=${foreignDeckId}`, { token: userToken, body: { word: vw + "x", meaning: "idor" } });
       check("F147   attaching to ANOTHER user's deck is blocked", foreign.status === 400, `got ${foreign.status}`);
 
       const seen = await req("GET", `/api/vocabulary/search?keyword=${vw}`);

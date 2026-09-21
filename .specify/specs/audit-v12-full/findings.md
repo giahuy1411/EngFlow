@@ -257,6 +257,57 @@ Accessibility vẫn **100**.
 
 ---
 
+## F151 — IDOR: `/api/srs/due/{deckId}` rò rỉ nội dung deck private của người khác
+
+**Mức:** MEDIUM (bảo mật — rò rỉ nội dung, không chỉ metadata) · **Trạng thái:** **FIXED** (Phase 10)
+**Phát hiện:** khi nghiên cứu Item A (UI "ôn từ đến hạn"), không nằm trong audit gốc.
+
+### Đo live
+
+Deck `30033` (`owner_id=3` = admin, `is_public=0`):
+
+```
+student GET /api/decks/30033    -> 400 "Bạn không có quyền truy cập bộ từ vựng này"   (đúng)
+student GET /api/srs/due/30033  -> 200 [ {"vocabId":10020,"word":"determine",
+                                        "pronunciation":"/dɪˈtɜː.mɪn/","definitionVi":"xác định", …} ]
+```
+
+Rò rỉ **nội dung từ vựng thật** (`word`, `pronunciation`, `definitionVi`, `definitionEn`,
+`exampleSentence`), không chỉ sự tồn tại của deck.
+
+### Gốc rễ
+
+`SrsService.getDueWords(userId, deckId)` (`SrsService.java:113`) chỉ làm:
+
+```java
+List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
+```
+
+**Không kiểm quyền sở hữu.** `SrsController.getDueWords` cũng chỉ null-check `userPrincipal`.
+Trong khi `DeckService.getDeckById(deckId, userId)` **đã có sẵn đúng logic** cần dùng.
+
+### Fix — tái dùng primitive đã có, không viết lại logic quyền
+
+| File | Thay đổi |
+|---|---|
+| `service/SrsService.java` | `getDueWords` gọi `deckService.getDeckById(deckId, userId)` **trước** khi đọc `deck_words`; thêm `DeckService` vào constructor (không circular — `DeckService` không phụ thuộc `SrsService`) |
+| `controller/SrsController.java` | Không đổi (`BadRequestException` → `GlobalExceptionHandler` → 400, khớp `/api/decks/{id}`) |
+| `src/test/.../SrsDueWordsAuthzTest.java` **(mới)** | 4 test: deck private người khác → `BadRequestException` + `verifyNoInteractions(deckWordRepository)`; deck của mình → OK; public → OK; không tồn tại → `ResourceNotFoundException` |
+
+### Đo lại — `sweep/v12/f151-idor-probe.js`, **9/9 PASS**
+
+| Probe | Trước | Sau |
+|---|---|---|
+| `student GET /api/srs/due/30033` | **200** + nội dung | **400** ✓ |
+| Nội dung từ vựng trong body | rò rỉ | **không lộ** ✓ |
+| `GET /api/srs/due/999999` | **200 + `[]`** | **404** ✓ |
+| `GET /api/srs/due/10006` (public) | 200 | **200** ✓ |
+| Owner đọc deck private của mình | 200 | **200** ✓ |
+
+**Lợi ích kèm theo:** deck không tồn tại nay **404** (khớp `/api/decks/{id}`) thay vì 200 + rỗng.
+
+---
+
 ## Lỗi của PROBE (không phải finding — ghi để không ai "sửa" code đúng)
 
 | # | Probe đầu báo | Sự thật | Verdict |
@@ -272,5 +323,6 @@ Accessibility vẫn **100**.
 | V9 | "7 tap-target vi phạm WCAG 2.5.8" | Cả 7 đều **EXEMPT** theo ngoại lệ **Inline**/**Spacing** của 2.5.8 (đo khoảng cách tâm target) | probe bug |
 | V10 | "fix F150 không hiệu quả" (3 lần) | `addInitScript` **không hề chạy** (`injected: false`) → đo trên build chưa đổi | probe bug |
 | V11 | "KB4 streak sai (streak=2, không phải 1)" | Scenario chèn "hôm qua" = **2026-09-20**, nay **bằng** cutover nên đúng là ngày học. Đo lại với 2026-09-19 (thật sự trước cutover) → streak 1, đúng | probe bug (drift theo lịch) |
+| V12 | Sau cleanup Item B: "F147 deck-scoped save **BLOCKED** — student has no deck" | **Không phải lỗi sản phẩm**: chính tôi đã xoá 3 deck "Test Deck" **do user student sở hữu** mà sweep ngầm dựa vào; sweep còn hardcode `deckId=30033` (cũng vừa xoá) nên assert IDOR **lặng lẽ ngừng chạy**. Sửa **harness**: sweep tự tạo `AUDIT-V12-API-F147` (student) + `AUDIT-V12-API-FOREIGN` (admin) → **137 pass / 0 fail** | probe bug (phụ thuộc dữ liệu ambient) |
 
-Cả 11 đều bị **probe thứ hai** giết trước khi thành finding.
+Cả 12 đều bị **probe thứ hai** giết trước khi thành finding.

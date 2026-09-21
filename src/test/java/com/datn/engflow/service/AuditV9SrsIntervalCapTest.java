@@ -46,7 +46,7 @@ class AuditV9SrsIntervalCapTest {
     @BeforeEach
     void setUp() {
         srsService = new SrsService(progressRepository, userRepository, vocabularyRepository, deckWordRepository,
-                org.mockito.Mockito.mock(StudyActivityService.class));
+                org.mockito.Mockito.mock(StudyActivityService.class), org.mockito.Mockito.mock(DeckService.class));
 
         User user = User.builder().id(2L).build();
         Vocabulary vocabulary = Vocabulary.builder().id(10017L).build();

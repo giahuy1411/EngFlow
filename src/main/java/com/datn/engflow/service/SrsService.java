@@ -47,6 +47,11 @@ public class SrsService {
     private final VocabularyRepository vocabularyRepository;
     private final DeckWordRepository deckWordRepository;
     private final StudyActivityService studyActivityService;
+    /**
+     * audit-v12 F151: used to enforce deck ownership before reading due words. DeckService
+     * does not depend on SrsService, so this is not a circular dependency.
+     */
+    private final DeckService deckService;
 
     @Transactional
     public void reviewWord(Long userId, Long vocabId, int quality) {
@@ -111,6 +116,14 @@ public class SrsService {
     }
 
     public List<Map<String, Object>> getDueWords(Long userId, Long deckId) {
+        // audit-v12 F151: authorise BEFORE reading. Without this, any authenticated user could
+        // pass another user's deckId and read that private deck's words — the same deck that
+        // GET /api/decks/{id} correctly refuses with 400. DeckService.getDeckById already
+        // implements the rule (public decks are readable; a private deck only by its owner),
+        // and it also 404s a deck that does not exist, so this reuses it rather than
+        // re-deriving the policy here.
+        deckService.getDeckById(deckId, userId);
+
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
         List<Map<String, Object>> dueWords = new ArrayList<>();
 

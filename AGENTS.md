@@ -11,9 +11,13 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **378 tests** (audit-v8: 332 + 22 regression: 9 upload-XSS `AuditV8UploadXssTest`, 7 `GameControllerSubmitTypeTest`, 3 rate-limit bucket routing, 3 AI parse/guard; vòng 3 lần 2: 15 test F88/F89 — 5 `AuditV8VideoLessonUpdateTranscriptTest`, 7 `AuditV8DraftLessonVisibilityTest`, 3 `AuditV8VideoLessonDraftVisibilityTest`; audit-v8-full vòng 1: +6 `RateLimitFilterTest` F91/F92 bucket routing, +3 `GlobalExceptionHandlerProblemDetailTest` F93 timeout→504). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
-- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **89 tests / 18 files** (audit-v8 +3 `src/utils/sanitize-a11y.test.js`, +3 `src/views/admin/AdminVideoLessons.test.js`; audit-v8-full vòng 1: +4 `src/services/api.test.js` F94 chuẩn hoá shape lỗi `{"error"}`).
-- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **176.80 kB** (gzip 67.39).
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **496 tests / 0 fail / 0 error / 11 skipped** (audit-v12 Phase 10, 2026-09-21). Trước đó: 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
+- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **128 passed / 1 skipped (26 files)** (audit-v12 Phase 10, 2026-09-21). Trước đó: 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
+- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.64 kB** (gzip 67.61).
+- **Parity DB chuẩn (2026-09-21, sau dọn rác Phase 10):** `1470|43734|72|118|28|15|4|126|10|5`
+  (`lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks|snapshots`).
+  Đo bằng `python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql`. Giá trị cũ `…|127|…|14|5` là **trước** khi xoá
+  9 row vocab rác + 4 deck test + lesson 61882 — đó là thay đổi **có chủ ý**, không phải drift.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
 - SQL runner dùng chung: `python sweep/v8/sqlrun.py <file.sql>` (pipe vào `docker exec -i engflow-sqlserver sqlcmd`). DELETE trên bảng có filtered index (`IX_uvp_due`) **bắt buộc** `SET QUOTED_IDENTIFIER ON;` ở đầu batch.
 - Browser harness (không có MCP browser trong môi trường này): `cmd /c "set NODE_PATH=%APPDATA%\npm\node_modules&& node <file>.js"` — playwright-core toàn cục + Chromium cache, scripts ở `sweep/v8/` (p1–p5 + `ui/`: `routes.js`, `design.js`, `v3.js`).

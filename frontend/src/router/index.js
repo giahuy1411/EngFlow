@@ -91,6 +91,14 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    // audit-v12: the due-words review screen. Backed by GET /api/srs/due/{deckId}, which
+    // had no caller until now.
+    path: '/decks/:id/review',
+    name: 'DueReview',
+    component: () => import('@/views/luyentu/DueReview.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/decks/:id/play/quiz',
     name: 'QuizGame',
     component: () => import('@/views/luyentu/QuizGame.vue'),

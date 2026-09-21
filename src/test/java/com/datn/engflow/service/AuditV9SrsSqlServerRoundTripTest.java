@@ -31,7 +31,7 @@ class AuditV9SrsSqlServerRoundTripTest {
         var userRepository = mock(UserRepository.class);
         var vocabularyRepository = mock(VocabularyRepository.class);
         var service = new SrsService(progressRepository, userRepository, vocabularyRepository,
-                mock(DeckWordRepository.class), mock(StudyActivityService.class));
+                mock(DeckWordRepository.class), mock(StudyActivityService.class), mock(DeckService.class));
         var user = User.builder().id(1L).build();
         var vocabulary = Vocabulary.builder().id(1L).build();
         var progress = UserVocabularyProgress.builder().user(user).vocabulary(vocabulary)

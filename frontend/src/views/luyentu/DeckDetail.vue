@@ -38,6 +38,9 @@
 
         <!-- Game Buttons -->
         <div class="flex flex-wrap gap-3 mb-10">
+          <router-link :to="`/decks/${deck.id}/review`"
+            class="px-6 py-3 bg-quaternary text-foreground font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+          >Ôn từ đến hạn</router-link>
           <router-link :to="`/decks/${deck.id}/play/flashcard`"
             class="px-6 py-3 bg-accent-strong text-white font-bold text-sm uppercase tracking-wider border-2 border-foreground rounded-full shadow-pop hover:shadow-pop-hover hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
           >Flashcard</router-link>

@@ -122,3 +122,17 @@ Không mục nào chuyển `[x]` nhờ hàng xóm.
 - [x] P9.3 **F150** — `#main-content{min-height:100vh}`; CLS 0.104 → 0.001 (Playwright ×5 + Lighthouse)
 - [x] P9.4 **C6** — xoá Azure SDK + `azure.speech.*` + DTO chết; khai báo tường minh `jackson-datatype-jsr310`
 - [x] P9.5 Verify tổng hợp — backend 492/0/0, frontend 121, API sweep 137/0/0, parity không đổi, 0 rác
+
+## Phase 10 — 3 hạng mục cuối (F151 · UI · dọn dữ liệu)
+
+- [x] P10.1 **F151 (mới)** — IDOR `/api/srs/due/{deckId}`; uỷ quyền `DeckService.getDeckById`; 4 test authz;
+      probe `f151-idor-probe.js` **9/9 PASS**; kèm sửa 200+`[]` → 404 cho deck không tồn tại
+- [x] P10.2 **Item A** — UI "ôn từ đến hạn": `srsService.js` (map field) + `DueReview.vue` + route
+      `/decks/:id/review` + nút vào ở `DeckDetail.vue`; 7 test mới; E2E live 4 trạng thái + quality 1/4/5
+- [x] P10.3 **Item B** — backup (`COMPRESSION,CHECKSUM` + `VERIFYONLY`) → dọn 9 vocab rác + 4 deck test +
+      lesson 61882 + con; parity mới **`1470|43734|72|118|28|15|4|126|10|5`** (khớp dự đoán)
+- [x] P10.4 **Hồi quy do chính P10.3 gây ra** — sweep phụ thuộc dữ liệu ambient (deck student bị xoá);
+      sửa **harness** tự cấp phát deck → **137 pass / 0 fail**
+- [x] P10.5 Verify tổng hợp — backend **496**/0/0, frontend **128**, build xanh, API sweep 137/0/0,
+      Lighthouse route mới **100/100/100**, parity mới đúng, 0 rác
+
