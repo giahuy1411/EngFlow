@@ -11,5 +11,7 @@ public enum DeckSource {
     IELTS,
     THPT,
     AI_GENERATED,
-    USER_CREATED
+    USER_CREATED,
+    /** audit-v12 F147: a word the learner saved while watching a video lesson. */
+    VIDEO_LESSON
 }

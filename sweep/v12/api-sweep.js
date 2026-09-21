@@ -253,20 +253,38 @@ const login = async ({ email, password }) => {
     check("POST /api/lessons anon 401/403", [401, 403].includes((await req("POST", "/api/lessons", { body: { title: "x" } })).status), "expected 401/403");
     check("POST /api/lessons student 403", (await req("POST", "/api/lessons", { token: userToken, body: { title: "x", level: "ELEMENTARY", category: "A" } })).status === 403, "expected 403");
 
-    // ── C1 (auth-shape): can a STUDENT write a GLOBAL vocabulary row? ──
-    // SecurityConfig maps POST /api/vocabulary -> .authenticated() while PUT/DELETE ->
-    // hasRole('ADMIN'). This measures the blast radius: does the row become visible to
-    // EVERYONE through the global /search (permitAll)?
+    // ── C1 (F147, FIXED): a STUDENT may no longer write to the shared dictionary ──
+    // `vocabulary` has no owner column; ownership lives in decks.owner_id + deck_words.
+    // The student save path must therefore name a deck and be linked server-side, in one
+    // transaction. These assertions are the regression guard for that fix.
     const vw = "zzv12authshape" + PUBLIC_DECK;
-    const vc = await req("POST", "/api/vocabulary", { token: userToken, body: { word: vw, meaning: "auth-shape probe", source: "AUDIT_V12" } });
-    check("C1 POST /api/vocabulary as STUDENT accepted", [200, 201].includes(vc.status), `got ${vc.status}`);
-    R.c1 = { status: vc.status, id: vc.data?.id ?? vc.data?.vocabId ?? null };
-    const seen = await req("GET", `/api/vocabulary/search?keyword=${vw}`);
-    const visibleToAnon = Array.isArray(seen.data) && seen.data.some((v) => v.word === vw);
-    R.c1.visibleToAnon = visibleToAnon;
-    check("C1   student-created row is GLOBALLY visible (anon /search)", visibleToAnon === true,
-      `visibleToAnon=${visibleToAnon} — if true, one student's write enters the shared dictionary`);
-    check("C1   student cannot DELETE it (admin-only)", [401, 403].includes((await req("DELETE", `/api/vocabulary/${R.c1.id}`, { token: userToken })).status), "student was allowed to DELETE a global vocab row");
+    const noDeck = await req("POST", "/api/vocabulary", { token: userToken, body: { word: vw, meaning: "auth-shape probe", source: "AUDIT_V12" } });
+    check("F147 student WITHOUT deckId is rejected (400)", noDeck.status === 400, `got ${noDeck.status}`);
+
+    const ownDecks = await req("GET", "/api/decks/my", { token: userToken });
+    const deckList = Array.isArray(ownDecks.data) ? ownDecks.data : (ownDecks.data?.content || []);
+    const ownDeckId = deckList[0]?.id ?? deckList[0]?.deckId;
+    if (ownDeckId) {
+      const vc = await req("POST", `/api/vocabulary?deckId=${ownDeckId}`, { token: userToken, body: { word: vw, meaning: "auth-shape probe", source: "AUDIT_V12" } });
+      check("F147 student WITH own deckId is accepted", [200, 201].includes(vc.status), `got ${vc.status}`);
+      R.c1 = { status: vc.status, id: vc.data?.id ?? vc.data?.vocabId ?? null, deckId: ownDeckId };
+
+      const deckAfter = await req("GET", `/api/decks/${ownDeckId}`, { token: userToken });
+      const linked = JSON.stringify(deckAfter.data || {}).includes(vw);
+      check("F147   word is LINKED to the deck in the same transaction", linked, "word not found in the deck after save");
+
+      // IDOR: attaching to somebody else's deck must be refused (and rolled back).
+      const foreign = await req("POST", "/api/vocabulary?deckId=30033", { token: userToken, body: { word: vw + "x", meaning: "idor" } });
+      check("F147   attaching to ANOTHER user's deck is blocked", foreign.status === 400, `got ${foreign.status}`);
+
+      const seen = await req("GET", `/api/vocabulary/search?keyword=${vw}`);
+      const visibleToAnon = Array.isArray(seen.data) && seen.data.some((v) => v.word === vw);
+      R.c1.visibleToAnon = visibleToAnon;
+      check("F147   a word saved this way is still a shared dictionary entry (by design)", visibleToAnon === true,
+        `visibleToAnon=${visibleToAnon} — vocabulary is a shared dictionary; the FIX is that the write now goes through the ownership layer, not that the word is hidden`);
+    } else {
+      blocked("F147 deck-scoped save", "student has no deck to save into");
+    }
   }
 
   // ═══════════════════════════════════════════════════ C6 GAME (6) — zero-coverage in v11
@@ -301,9 +319,13 @@ const login = async ({ email, password }) => {
     const VOCAB = 10017;
     const st = await req("GET", `/api/flashcards/status/${VOCAB}`, { token: userToken });
     check("GET /api/flashcards/status/{vocabId} 200", st.status === 200, `got ${st.status}`);
-    const rv = await req("POST", "/api/flashcards/review", { token: userToken, body: { vocabularyId: VOCAB, isKnown: true } });
-    check("POST /api/flashcards/review 200", rv.status === 200, `got ${rv.status}`);
-    check("flashcards anon 401", (await req("POST", "/api/flashcards/review", { body: { vocabularyId: VOCAB, isKnown: true } })).status === 401, "expected 401");
+    // audit-v12 F148: the body is now {vocabularyId, quality 0-5}, not {vocabularyId, isKnown}.
+    // The old boolean collapsed "Dễ" and "Tiếp theo" into one value; quality keeps them distinct.
+    const rv = await req("POST", "/api/flashcards/review", { token: userToken, body: { vocabularyId: VOCAB, quality: 4 } });
+    check("POST /api/flashcards/review quality=4 200", rv.status === 200, `got ${rv.status}`);
+    check("  quality out of range (9) -> 400", (await req("POST", "/api/flashcards/review", { token: userToken, body: { vocabularyId: VOCAB, quality: 9 } })).status === 400, "expected 400");
+    check("  legacy isKnown body is rejected (shape changed)", (await req("POST", "/api/flashcards/review", { token: userToken, body: { vocabularyId: VOCAB, isKnown: true } })).status === 400, "old shape should no longer be accepted");
+    check("flashcards anon 401", (await req("POST", "/api/flashcards/review", { body: { vocabularyId: VOCAB, quality: 4 } })).status === 401, "expected 401");
   }
 
   // ═══════════════════════════════════════════════════ C8 SRS (3) — zero-coverage
@@ -483,12 +505,13 @@ SELECT 'AUDIT_PAY_CANDIDATES=' + CAST(COUNT(*) AS varchar(10)) AS marker FROM pa
  WHERE transaction_id IS NULL AND status='PENDING' AND created_at >= CONVERT(date, '2026-09-21');
 DELETE FROM deck_words WHERE deck_id IN (SELECT deck_id FROM decks WHERE name LIKE 'AUDIT-V12-API-%');
 DELETE FROM decks WHERE name LIKE 'AUDIT-V12-API-%';
-DELETE FROM vocabulary WHERE word LIKE 'zzv12authshape%' OR word = 'zzv12probe';
+DELETE FROM deck_words WHERE vocab_id IN (SELECT vocab_id FROM vocabulary WHERE word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word = 'zzv12probe');
+DELETE FROM vocabulary WHERE word LIKE 'zzv12authshape%' OR word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word = 'zzv12probe';
 DELETE FROM payment_transactions
  WHERE transaction_id IS NULL AND status = 'PENDING'
    AND (order_code = '${R.createdOrderCode || "__none__"}' OR created_at >= CONVERT(date, '2026-09-21'));
 SELECT 'AUDIT_DECKS=' + CAST((SELECT COUNT(*) FROM decks WHERE name LIKE 'AUDIT-V12-API-%') AS varchar(10))
-     + ' AUDIT_VOCAB=' + CAST((SELECT COUNT(*) FROM vocabulary WHERE word LIKE 'zzv12authshape%' OR word='zzv12probe') AS varchar(10))
+     + ' AUDIT_VOCAB=' + CAST((SELECT COUNT(*) FROM vocabulary WHERE word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word='zzv12probe') AS varchar(10))
      + ' AUDIT_LESSONS=' + CAST((SELECT COUNT(*) FROM lessons WHERE title LIKE 'AUDIT-V12-%') AS varchar(10))
      + ' AUDIT_PAY=' + CAST((SELECT COUNT(*) FROM payment_transactions WHERE transaction_id IS NULL AND status='PENDING' AND created_at >= CONVERT(date, '2026-09-21')) AS varchar(10)) AS marker;
 `;

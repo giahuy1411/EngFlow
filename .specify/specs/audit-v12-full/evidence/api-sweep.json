@@ -1,5 +1,5 @@
 {
-  "pass": 133,
+  "pass": 137,
   "fail": 0,
   "blocked": 1,
   "n_a": 3,
@@ -26,7 +26,7 @@
       "blocked": 0
     },
     "crud": {
-      "pass": 17,
+      "pass": 19,
       "fail": 0,
       "blocked": 0
     },
@@ -36,7 +36,7 @@
       "blocked": 0
     },
     "flashcard": {
-      "pass": 3,
+      "pass": 5,
       "fail": 0,
       "blocked": 0
     },
@@ -386,17 +386,27 @@
     },
     {
       "area": "crud",
-      "name": "C1 POST /api/vocabulary as STUDENT accepted",
+      "name": "F147 student WITHOUT deckId is rejected (400)",
       "status": "PASS"
     },
     {
       "area": "crud",
-      "name": "C1   student-created row is GLOBALLY visible (anon /search)",
+      "name": "F147 student WITH own deckId is accepted",
       "status": "PASS"
     },
     {
       "area": "crud",
-      "name": "C1   student cannot DELETE it (admin-only)",
+      "name": "F147   word is LINKED to the deck in the same transaction",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147   attaching to ANOTHER user's deck is blocked",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147   a word saved this way is still a shared dictionary entry (by design)",
       "status": "PASS"
     },
     {
@@ -471,7 +481,17 @@
     },
     {
       "area": "flashcard",
-      "name": "POST /api/flashcards/review 200",
+      "name": "POST /api/flashcards/review quality=4 200",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "  quality out of range (9) -> 400",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "  legacy isKnown body is rejected (shape changed)",
       "status": "PASS"
     },
     {
@@ -792,10 +812,11 @@
   ],
   "c1": {
     "status": 200,
-    "id": 50333,
+    "id": 50350,
+    "deckId": 10016,
     "visibleToAnon": true
   },
-  "createdOrderCode": "ENG5288BBA72312",
+  "createdOrderCode": "ENG46834588FE0B",
   "cleanup": {
     "decks": 0,
     "vocab": 0,

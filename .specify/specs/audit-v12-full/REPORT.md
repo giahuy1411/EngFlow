@@ -90,25 +90,30 @@ sau khi sửa probe drift. **0 lỗi sản phẩm mới.**
 
 ## 2. CHƯA làm gì (ghi rõ, không giấu)
 
+> **Cập nhật Phase 9.** Bốn hạng mục từng OPEN ở đây **đã được xử lý** sau khi owner chọn hướng:
+> **F147** (deck-scoped + atomic), **F148** (hợp nhất 2 thuật toán SRS về SM-2), **F150** (CLS 0.104 → 0.001),
+> **C6** (xoá Azure SDK + config/DTO chết). Chi tiết + số đo lại: `evidence/phase-9-open-items.md`.
+> Dưới đây là những gì **vẫn** chưa làm.
+
 | Hạng mục | Trạng thái | Lý do |
 |---|---|---|
-| **F147** `POST /api/vocabulary` mở cho mọi user ghi bảng **global** | **OPEN — chờ owner** | Hai hướng fix **ngược nhau**; đã đo blast-radius (student tạo → **hiện với ẩn danh** qua `/search`). Đề xuất cả hai hướng ở `findings.md` |
-| **F148** `/api/srs/*` (3 endpoint) **0 caller frontend** | **OPEN — chờ owner** | Giữ làm API nội bộ / bổ sung UI / retire |
-| **F150** CLS 0.104 trên `/` | **OPEN** | Đã truy gốc (1 phần tử: FOOTER), đã đo 1 phương án fix (0.104 → **0.098, không đủ**) và **REVERT**. Fix thật cần đổi kiến trúc render |
-| **C6** dependency Azure Speech SDK (~15MB, **0 import**) | **OWNER DECISION** | Xoá cần rebuild + full test |
+| UI "ôn từ đến hạn" (`/decks/:id/review` + `GET /api/srs/due/{deckId}`) | **CHƯA** | Owner chọn **chưa cần**. `/api/srs/due` + `/stats` vẫn hoạt động |
+| Xoá **27 row `vocabulary`** không thuộc deck nào (+ vài row test) | **CHƯA** | Xoá dữ liệu là quyết định owner; cần liệt kê ID cụ thể |
+| Repair 14 row `uvp` có `ease_factor=2.5` | **KHÔNG CẦN** | Giá trị khởi tạo hợp lệ của SM-2 — tự lành ở lần review kế tiếp |
+| Retire `/api/srs/*` | **KHÔNG LÀM** | Sau hợp nhất, `SrsService` là nguồn sự thật duy nhất |
 | Giao dịch ngân hàng thật với SePay | **BLOCKED by design** | Là thanh toán thật. Đã kiểm phía **nhận** (chữ ký sai → reject) |
 | Chấm điểm phát âm giọng thật | **N/A** | Mic giả phát im lặng → Whisper trả rỗng → `FAILED` **đúng thiết kế** |
 | Snapshot create/restore qua API | **N/A** | Ghi/khôi phục nội dung thật |
 | Speaking upload/assess, avatar upload | **N/A** | Cần media thật (MinIO/Cloudinary); v11 đã có bằng chứng |
 
-### Issue GitHub đã tạo cho 4 hạng mục chưa fix (T8.4)
+### Issue GitHub đã tạo (T8.4) — và trạng thái sau Phase 9
 
-| Issue | Nội dung |
-|---|---|
-| [#5](https://github.com/giahuy1411/EngFlow/issues/5) | security(authz): `POST /api/vocabulary` cho mọi user ghi bảng global (F147) |
-| [#6](https://github.com/giahuy1411/EngFlow/issues/6) | chore(api): `/api/srs/*` 0 caller frontend (F148) |
-| [#7](https://github.com/giahuy1411/EngFlow/issues/7) | perf(frontend): CLS 0.104 trên `/` (F150) |
-| [#8](https://github.com/giahuy1411/EngFlow/issues/8) | chore(deps): Azure Speech SDK ~15MB không dùng (C6) |
+| Issue | Nội dung | Sau Phase 9 |
+|---|---|---|
+| [#5](https://github.com/giahuy1411/EngFlow/issues/5) | security(authz): `POST /api/vocabulary` ghi bảng global (F147) | **ĐÃ FIX** — cần đóng issue |
+| [#6](https://github.com/giahuy1411/EngFlow/issues/6) | chore(api): `/api/srs/*` 0 caller frontend (F148) | **ĐÃ FIX một phần** — hợp nhất thuật toán xong; UI ôn từ đến hạn vẫn chưa làm |
+| [#7](https://github.com/giahuy1411/EngFlow/issues/7) | perf(frontend): CLS 0.104 trên `/` (F150) | **ĐÃ FIX** — cần đóng issue |
+| [#8](https://github.com/giahuy1411/EngFlow/issues/8) | chore(deps): Azure Speech SDK ~15MB không dùng (C6) | **ĐÃ FIX** — cần đóng issue |
 
 ---
 

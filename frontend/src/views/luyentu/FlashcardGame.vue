@@ -191,18 +191,48 @@ function playAudio(url) {
   new Audio(url).play()
 }
 
+// audit-v12 F148: the three buttons map to the SM-2 quality scale. Before this, "Dễ" and
+// "Tiếp theo" sent an identical request (both collapsed to isKnown=true), so the extra
+// signal the learner gave was discarded. Now each button is a distinct quality:
+//   Lại       -> 1  (not recalled: resets the repetition chain, interval back to 1 day)
+//   Tiếp theo -> 4  (recalled with effort)
+//   Dễ        -> 5  (recalled easily: raises the ease factor, so the interval grows faster)
+const RATING_QUALITY = { again: 1, good: 4, easy: 5 }
+// Safety cap so a learner who keeps pressing "Lại" cannot loop forever on one card.
+const MAX_REQUEUES_PER_WORD = 3
+const requeueCount = ref({})
+
 function markWord(rating) {
-  if (currentIndex.value < words.value.length) {
-    // Ghi nhận review SRS (fire-and-forget): 'again' → chưa thuộc,
-    // 'good'/'easy' → đã thuộc. Lỗi không chặn việc học, chỉ log console.
-    const vocabularyId = currentWord.value?.id
-    if (vocabularyId) {
-      flashcardService.reviewFlashcard(vocabularyId, rating !== 'again')
-        .catch(err => console.warn('Không lưu được review:', err?.message || err))
-    }
-    currentIndex.value++
-    isFlipped.value = false
+  if (currentIndex.value >= words.value.length) return
+  const word = currentWord.value
+  const vocabularyId = word?.id
+
+  // Fire-and-forget: a failed review must not block the drill (only logs to console).
+  if (vocabularyId) {
+    flashcardService.reviewFlashcard(vocabularyId, RATING_QUALITY[rating] ?? 4)
+      .catch(err => console.warn('Không lưu được review:', err?.message || err))
   }
+
+  const key = vocabularyId ?? currentIndex.value
+  const requeues = requeueCount.value[key] || 0
+  const isLastCard = currentIndex.value >= words.value.length - 1
+
+  if (rating === 'again' && requeues < MAX_REQUEUES_PER_WORD && !isLastCard) {
+    // "Lại" means "ask me this again" — move the card to the END of the deck and leave
+    // currentIndex where it is, so it now points at the word that followed. Removing the
+    // current element (not duplicating it) keeps the list length — and the progress bar —
+    // stable. On the last card there is nowhere to move it, so it just advances.
+    requeueCount.value[key] = requeues + 1
+    const next = words.value.slice()
+    next.splice(currentIndex.value, 1)
+    next.push(word)
+    words.value = next
+    isFlipped.value = false
+    return
+  }
+
+  currentIndex.value++
+  isFlipped.value = false
 }
 
 function restart() {

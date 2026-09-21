@@ -760,3 +760,23 @@
   .app-navbar__user { gap: 0.35rem; }
   .app-navbar__username { max-width: 90px; }
 }
+
+/* ============================================================================
+   audit-v12 F150 — reserve a full viewport for the main region (CLS fix)
+
+   Measured on `/` (viewport 867px): the shell's `min-h-screen` let the footer
+   paint its FIRST frame at y≈827 — inside the viewport, so its top 40px were
+   visible. Home is a lazy route, so its chunk arrived afterwards and grew
+   <main> to ~3351px, pushing the footer to y≈3415. A 96px block moving from
+   visible to off-screen is the entire CLS score: 0.104 (reproduced 4 times).
+
+   An earlier attempt used `calc(100vh - 64px - 96px)` = 707px, which put the
+   footer at y=771 — STILL inside the 867px viewport — so it only reached 0.098.
+
+   `100vh` puts the footer at y = 64 (navbar) + 867 = 931 > 867, i.e. below the
+   fold on the very first paint, so its later relocation is not a shift of a
+   visible element. `flex-grow` still lets main expand past 100vh for long pages.
+   ============================================================================ */
+#main-content {
+  min-height: 100vh;
+}

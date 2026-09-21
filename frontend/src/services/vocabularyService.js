@@ -9,7 +9,13 @@ import api from './api'
  *     origin, syllables, pronunciation }
  */
 export default {
-  create: async (vocabData) => api.post('/api/vocabulary', vocabData).then(r => r.data),
+  // audit-v12 F147: `deckId` is sent so the server links the word to the deck in the SAME
+  // transaction. Previously the caller had to make a second call to link it, which could
+  // fail and strand the word in the shared dictionary with no owner.
+  create: async (vocabData, deckId) => api.post(
+    deckId ? `/api/vocabulary?deckId=${encodeURIComponent(deckId)}` : '/api/vocabulary',
+    vocabData
+  ).then(r => r.data),
 
   search: async (keyword) => {
     const trimmed = (keyword || '').trim()

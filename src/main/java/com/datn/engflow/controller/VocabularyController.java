@@ -3,6 +3,7 @@ package com.datn.engflow.controller;
 import com.datn.engflow.model.dto.VocabularyRequest;
 import com.datn.engflow.model.entity.Vocabulary;
 import com.datn.engflow.repository.VocabularyRepository;
+import com.datn.engflow.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.cache.annotation.Cacheable;
 import com.datn.engflow.service.DictionaryService;
+import com.datn.engflow.service.VocabularyService;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class VocabularyController {
 
     private final VocabularyRepository vocabularyRepository;
     private final DictionaryService dictionaryService;
+    private final VocabularyService vocabularyService;
 
     @GetMapping
     public ResponseEntity<Page<Vocabulary>> list(@PageableDefault(size = 20, sort = "word") Pageable pageable) {
@@ -64,23 +67,23 @@ public class VocabularyController {
     }
 
     @PostMapping
-    public ResponseEntity<Vocabulary> create(@Valid @RequestBody VocabularyRequest request, Authentication authentication) {
+    public ResponseEntity<Vocabulary> create(
+            @Valid @RequestBody VocabularyRequest request,
+            @RequestParam(name = "deckId", required = false) Long deckId,
+            Authentication authentication) {
         if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Vocabulary vocabulary = Vocabulary.builder()
-                .word(request.getWord())
-                .pronunciation(request.getPronunciation())
-                .meaning(request.getMeaning())
-                .exampleSentence(request.getExampleSentence())
-                .audioUrl(request.getAudioUrl())
-                .imageUrl(request.getImageUrl())
-                .wordType(request.getWordType())
-                .definitionEn(request.getDefinitionEn())
-                .cefrLevel(request.getCefrLevel())
-                .source(request.getSource())
-                // lesson field handling skipped for simplicity unless lessonId is used properly
-                .build();
-        return ResponseEntity.ok(vocabularyRepository.save(vocabulary));
+        // audit-v12 F147: a non-admin must name the deck the word goes into, and the link is
+        // made server-side in the same transaction. Previously the client had to make a
+        // second call to link the deck, which could fail and strand the word in the shared
+        // dictionary, and nothing checked that the deck belonged to the caller.
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        Long userId = (authentication.getPrincipal() instanceof UserPrincipal principal)
+                ? principal.getId()
+                : null;
+        Vocabulary saved = vocabularyService.createScoped(request, deckId, userId, isAdmin);
+        return ResponseEntity.ok(saved);
     }
 }

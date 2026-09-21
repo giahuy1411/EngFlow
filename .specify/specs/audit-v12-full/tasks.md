@@ -114,3 +114,11 @@ Không mục nào chuyển `[x]` nhờ hàng xóm.
 | 7 | `addyosmani-doubt-driven-development`, `generate-tests`, `generate-test-cases` |
 | Docs | `addyosmani-documentation-and-adrs`, `claude-md-management:claude-md-improver` |
 | Orchestration | `workflow-authoring` + `Workflow` |
+
+## Phase 9 — xử lý 4 hạng mục OPEN (sau khi owner chọn hướng)
+
+- [x] P9.1 **F148** — hợp nhất 2 thuật toán SRS về SM-2; 3 nút Lại/Tiếp/Dễ khác nhau thật; "Lại" requeue
+- [x] P9.2 **F147** — `POST /api/vocabulary` deck-scoped + atomic; dedupe; IDOR rollback; thêm enum `VIDEO_LESSON`
+- [x] P9.3 **F150** — `#main-content{min-height:100vh}`; CLS 0.104 → 0.001 (Playwright ×5 + Lighthouse)
+- [x] P9.4 **C6** — xoá Azure SDK + `azure.speech.*` + DTO chết; khai báo tường minh `jackson-datatype-jsr310`
+- [x] P9.5 Verify tổng hợp — backend 492/0/0, frontend 121, API sweep 137/0/0, parity không đổi, 0 rác

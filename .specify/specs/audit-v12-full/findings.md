@@ -51,7 +51,7 @@ văn bản, không phải code. Số trong README/CLAUDE.md nay khớp `.p0-v12-
 
 ## F147 — `POST /api/vocabulary` cho mọi user đã đăng nhập ghi vào bảng từ vựng **GLOBAL**
 
-**Mức:** MEDIUM (bề mặt lạm dụng/ô nhiễm dữ liệu) · **Trạng thái:** **OPEN — chờ quyết định của owner**
+**Mức:** MEDIUM (bề mặt lạm dụng/ô nhiễm dữ liệu) · **Trạng thái:** **FIXED** (Phase 9 — deck-scoped + atomic)
 **Nguồn:** C1 trong kế hoạch
 
 ### Đo được (probe 3 role, live)
@@ -81,41 +81,83 @@ DELETE /api/vocabulary/** -> .hasRole('ADMIN')
 - Student **không thể** xoá/sửa (PUT/DELETE admin-only) ⇒ nếu ghi sai, họ **không tự sửa được**.
 - Đây là **bất đối xứng quyền**: tạo thì mở, sửa/xoá thì đóng.
 
-### Vì sao KHÔNG tự sửa
+### Vì sao KHÔNG sửa ngay trong vòng audit đầu
 
-Đổi authorization của một API **đã ship** là **quyết định sản phẩm**, không phải fix kỹ thuật: nếu bảng `vocabulary`
-là **từ điển chung** (mọi người đóng góp) thì hành vi hiện tại là *chủ ý*, chỉ thiếu rate-limit/kiểm duyệt; nếu nó
-là **kho từ của từng người** thì `PUT/DELETE` admin-only mới là chỗ sai, và `POST` phải chuyển sang deck-scoped
-(như F145 đã làm cho `save-vocab`). Hai hướng fix **ngược nhau**.
+Đổi authorization của một API **đã ship** là **quyết định sản phẩm**, không phải fix kỹ thuật. Hai hướng fix
+**ngược nhau**, nên v12 dừng ở mức nêu finding + đo blast-radius, chờ owner.
 
-### Đề xuất (chờ owner chọn)
+### Bản chất thật (đo ở Phase 9) — KHÔNG phải lỗi schema
 
-- **Hướng A (từ điển chung):** giữ `POST` authenticated, nhưng thêm rate-limit + gắn `source`/kiểm duyệt, và cho
-  phép chủ sở hữu sửa/xoá row do mình tạo (cần thêm cột owner).
-- **Hướng B (kho từ cá nhân):** chuyển `POST /api/vocabulary` sang ghi **deck-scoped** (dùng `DeckService.addWordToDeck`
-  đã có ownership check), siết `POST` về ADMIN cho đường tạo từ điển.
+`vocabulary` là **từ điển chung**, không phải kho từ cá nhân: **không có cột `owner`/`user_id` nào**. Quyền sở hữu
+nằm ở `decks.owner_id` + `deck_words`. Đo live: 90/127 row là từ điển curated, 31 AI_GENERATED, **1** có
+`lesson_id`, **0** thuộc deck do user sở hữu. ⇒ Lỗi là **đường ghi của student bỏ qua tầng sở hữu**, không phải
+thiếu cột.
+
+Triệu chứng người dùng thấy được: `GET /api/vocabulary/search?keyword=negotiate` trả **2 kết quả trùng**.
+
+### Fix (Phase 9) — deck-scoped + atomic
+
+`VocabularyService.createScoped` (mới): non-admin **bắt buộc** `deckId`; **dedupe** (dùng lại row cùng `word` chưa
+gắn lesson); gọi `DeckService.addWordToDeck` **trong cùng `@Transactional`**; resolve `lessonId` (trước bị bỏ qua).
+`VideoLesson.vue` gọi **1 call** thay vì 2. Thêm enum `DeckSource.VIDEO_LESSON`.
+
+### Đo lại (E2E trên container)
+
+| Probe | Kết quả |
+|---|---|
+| Student không deckId | **400** ✓ |
+| Student có deckId của mình | **200**; vocab row **và** `deck_words` link cùng transaction ✓ |
+| Student gắn deck **người khác** (IDOR) | **400** ✓ **và vocab row rollback** (0 leak) ✓ |
+| Lưu cùng từ 2 lần | **1** row, link **2** deck (dedupe) ✓ |
+
+Chi tiết: `evidence/phase-9-open-items.md`.
 
 ---
 
-## F148 — `/api/srs/*` (3 endpoint) không có caller nào ở frontend
+## F148 — Hai thuật toán SRS độc lập ghi cùng bảng (ban đầu báo nhầm là "API mồ côi")
 
-**Mức:** LOW (bề mặt mồ côi) · **Trạng thái:** **OPEN — chờ quyết định**
-**Nguồn:** C8 trong kế hoạch
+**Mức:** MEDIUM (nâng từ LOW — 2 thuật toán SRS ghi cùng bảng) · **Trạng thái:** **FIXED** (Phase 9 — hợp nhất về SM-2)
+**Nguồn:** C8 trong kế hoạch; **mức độ thật lộ ra ở Phase 9**
 
-### Đo được
+### Đo được (ban đầu — mới chỉ thấy phần nổi)
 
 ```
 grep -rn "api/srs" frontend/src   -> 0 hit
 SrsController: /api/srs/review, /api/srs/due/{deckId}, /api/srs/stats   (cả 3 đều 200 khi probe API)
 ```
 
-`SrsService` **có** được dùng trong backend — `FlashcardService:70` gọi `SrsService.reviewWord` trong cùng
-transaction. Nên **logic SRS chạy**, chỉ là **qua đường flashcard**, không qua `/api/srs/*`.
+### Sự thật sâu hơn (Phase 9): HAI thuật toán, MỘT bảng
 
-### Phân loại
+`SrsController` là **caller DUY NHẤT** của `SrsService`. UI thật (`FlashcardGame.vue`) gọi `FlashcardService`, mà
+service này **không hề gọi** `SrsService` (dòng 68 chỉ là **comment** nói "giống"). Hai thuật toán:
 
-Không phải lỗi (endpoint hoạt động đúng khi gọi trực tiếp), mà là **bề mặt API không có UI**. Cần owner quyết:
-giữ làm API nội bộ, bổ sung UI ôn tập theo SRS, hay retire 3 endpoint.
+| | `SrsService` (SM-2) | `FlashcardService` (cũ) |
+|---|---|---|
+| Ghi `ease_factor`/`repetitions`/`srs_interval` | có | **KHÔNG** |
+| Cap interval | 365 ngày (F106) | 14 ngày |
+| Ai gọi | chỉ `SrsController` (0 caller UI) | `FlashcardGame.vue` (**UI thật**) |
+
+Bằng chứng dữ liệu: **11/14 row `ease_factor` kẹt ở 2.5**; **2 row `review_count > 2` nhưng `repetitions = 0`**.
+
+Lỗi UI kèm theo: `markWord()` gộp `rating !== 'again'` ⇒ **"Dễ" và "Tiếp theo" gửi request y hệt nhau**; và
+**"Lại" không đưa từ quay lại** trong phiên.
+
+### Fix (Phase 9)
+
+`FlashcardReviewRequest.isKnown` → `quality` (0–5); `FlashcardService` uỷ quyền `SrsService.reviewWord`; xoá bảng
+1/3/7/14; `FlashcardGame.vue` map `again→1, good→4, easy→5` + **requeue cho "Lại"**.
+
+### Đo lại (E2E)
+
+| Probe | Trước | Sau |
+|---|---|---|
+| `{quality:5}` trên vocab 10018 | — | `ease 2.5→**2.6**`, `reps 1→**2**`, `interval 1→**6**` ✓ |
+| `{quality:1}` ("Lại") | — | `reps→**0**`, `interval→**1**`, `ease→**2.06**` ✓ |
+| `{quality:9}` | — | **400** ✓ |
+| **"Dễ"(5) vs "Tiếp theo"(4)** | **giống hệt** | `ease +0.1` vs `+0.0` — **khác nhau thật** ✓ |
+
+14 row cũ **không cần migrate** (giá trị khởi tạo hợp lệ, tự lành ở lần review kế tiếp). `/api/srs/*` **giữ lại**
+(`SrsService` nay là nguồn sự thật duy nhất) — vẫn chưa có UI, ghi rõ. Chi tiết: `evidence/phase-9-open-items.md`.
 
 ---
 
@@ -166,7 +208,7 @@ quay lại class `/60` **và** việc hạ hex của token xuống dưới AA. *
 
 ## F150 — CLS 0.104 trên `/` do footer bị đẩy khỏi viewport sau first paint
 
-**Mức:** LOW (performance, một route) · **Trạng thái:** **OPEN** (đã truy gốc + đo phương án fix, **revert** vì không đủ)
+**Mức:** LOW (performance, một route) · **Trạng thái:** **FIXED** (Phase 9 — `#main-content{min-height:100vh}`; CLS 0.104 → 0.001)
 **Nguồn:** Lighthouse (chrome-devtools MCP) — audit `cumulative-layout-shift` = 0.103
 
 ### Đo được (Playwright, PerformanceObserver + attribution, production build)
@@ -185,14 +227,29 @@ clsTotal = 0.104    (tái lập 4 lần: 0.104 / 0.111 / 0.104 / 0.104)
 ⇒ Shell `min-h-screen` cho footer **first paint ở y≈827 = đáy viewport (đang nhìn thấy)**. Khi chunk Home về,
 `<main>` giãn lên 3351px → footer bị đẩy xuống dưới fold. Một khối 96px **đang thấy** rời khỏi màn hình = 0.104 CLS.
 
-### Đã đo phương án fix và **REVERT**
+### Lần thử đầu dùng SAI GIÁ TRỊ (và đã revert)
 
 | Phương án | Đo | Kết luận |
 |---|---|---|
-| `#main-content{min-height:calc(100vh - 64px - 96px)}` | **0.104 → 0.098** | Không đủ (footer vẫn first paint trong viewport). **Đã revert** — không ship non-fix |
+| `#main-content{min-height:calc(100vh - 64px - 96px)}` | 0.104 → **0.098** | **Sai giá trị**: 707px → footer ở `64+707=771` < 867 ⇒ **vẫn trong màn hình**. Đã revert |
 
-Fix thật cần **đổi kiến trúc render** (SSR/prerender, hoặc bỏ lazy Home, hoặc đặt footer sau nội dung trong
-`main`) — vượt phạm vi một fix nhỏ, có rủi ro hồi quy. **Ghi OPEN kèm số để owner quyết.**
+### Fix (Phase 9) — giá trị ĐÚNG
+
+```css
+#main-content { min-height: 100vh; }   /* footer first-paint ở 64 + 867 = 931 > 867 = ngoài màn hình */
+```
+Ghi ở `frontend/src/assets/app-layout.css`, kèm comment nêu cả số của lần thử sai để không lặp lại.
+
+### Đo lại — Playwright `PerformanceObserver` trên **production build**, 5 lần
+
+```
+trước:  0.104 / 0.111 / 0.104 / 0.104
+sau:    0.0001 / 0.00008 / 0.0001 / 0.00005 / 0.00013   (footer shift BIẾN MẤT)
+```
+
+4 route đều sạch: `/` 0.00013 · `/lessons` 0.00008 · `/login` 0.00012 · `/decks` 0.0001; 0 overflow thật.
+**Lighthouse xác nhận độc lập** (chrome-devtools MCP, `/`): `cumulative-layout-shift` **0.103 → 0.001** (score 1);
+Accessibility vẫn **100**.
 
 > **Lỗi probe tự bắt trong quá trình này:** 3 biến thể "inject CSS lúc runtime" đều báo CLS y nguyên, nhưng khi
 > kiểm chính cơ chế thì `injected: false` — **init script không hề chạy**. Ba kết quả đó vô giá trị. Chỉ tin phép

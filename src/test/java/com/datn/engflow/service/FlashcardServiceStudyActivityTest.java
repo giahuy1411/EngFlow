@@ -2,10 +2,9 @@ package com.datn.engflow.service;
 
 import com.datn.engflow.model.dto.request.FlashcardReviewRequest;
 import com.datn.engflow.model.entity.User;
-import com.datn.engflow.model.entity.Vocabulary;
+import com.datn.engflow.model.entity.UserVocabularyProgress;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.UserVocabularyProgressRepository;
-import com.datn.engflow.repository.VocabularyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,66 +13,79 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * Flashcard review là hoạt động học thật, nên phải tính ngày học giống SRS review.
- * Trước đây luồng này không gọi {@code recordStudy}, khiến user học flashcard thấy
- * streak không tăng và rơi khỏi danh sách nhận mail nhắc — trong khi thao tác tương
- * đương ở {@code /api/srs/review} thì được tính.
+ * audit-v12 F148: the flashcard review path must delegate to {@link SrsService} so there is
+ * ONE spaced-repetition algorithm. Previously this service had its own 1/3/7/14-day table
+ * and never wrote {@code ease_factor} / {@code repetitions}, while {@code SrsService}
+ * wrote the same rows with SM-2 — the two drifted apart (11/14 live rows stuck at
+ * {@code ease_factor = 2.5}).
+ *
+ * <p>The streak contract is unchanged and still asserted here: one flashcard review is one
+ * real study activity. It is now satisfied transitively, because
+ * {@code SrsService.reviewWord} is what calls {@code recordStudy}.
  */
 @ExtendWith(MockitoExtension.class)
 class FlashcardServiceStudyActivityTest {
-    @Mock private UserVocabularyProgressRepository progressRepository;
     @Mock private UserRepository userRepository;
-    @Mock private VocabularyRepository vocabularyRepository;
-    @Mock private StudyActivityService studyActivityService;
+    @Mock private UserVocabularyProgressRepository progressRepository;
+    @Mock private SrsService srsService;
     @InjectMocks private FlashcardService service;
 
-    private void existingWord() {
+    private void existingUser() {
         when(userRepository.findByEmail("study@example.test"))
                 .thenReturn(Optional.of(User.builder().id(42L).build()));
-        when(vocabularyRepository.findById(9L))
-                .thenReturn(Optional.of(Vocabulary.builder().id(9L).build()));
     }
 
-    private FlashcardReviewRequest review(boolean isKnown) {
+    private FlashcardReviewRequest review(int quality) {
         FlashcardReviewRequest request = new FlashcardReviewRequest();
         request.setVocabularyId(9L);
-        request.setIsKnown(isKnown);
+        request.setQuality(quality);
         return request;
     }
 
     @Test
-    void reviewCountsStudyDayAfterSavingProgress() {
-        existingWord();
+    void reviewDelegatesToSrsWithTheGivenQuality() {
+        existingUser();
 
-        service.reviewFlashcard(review(true), "study@example.test");
+        service.reviewFlashcard(review(5), "study@example.test");
 
-        var order = inOrder(progressRepository, studyActivityService);
-        order.verify(progressRepository).save(any());
-        order.verify(studyActivityService).recordStudy(42L);
+        // The quality the UI sent must reach SM-2 unchanged — that is what makes "Dễ"
+        // different from "Tiếp theo".
+        verify(srsService).reviewWord(42L, 9L, 5);
     }
 
-    /** "Chưa thuộc" vẫn là một lượt luyện tập thật — không được bỏ qua. */
+    /** "Lại" (quality 1) is still a real practice attempt and must not be skipped. */
     @Test
-    void unknownRatingStillCounts() {
-        existingWord();
+    void lowQualityStillRecorded() {
+        existingUser();
 
-        service.reviewFlashcard(review(false), "study@example.test");
+        service.reviewFlashcard(review(1), "study@example.test");
 
-        verify(studyActivityService).recordStudy(42L);
+        verify(srsService).reviewWord(42L, 9L, 1);
     }
 
     @Test
-    void persistenceFailureDoesNotCount() {
-        existingWord();
-        when(progressRepository.save(any())).thenThrow(new IllegalStateException("save failed"));
+    void srsFailurePropagatesSoTheTransactionRollsBack() {
+        existingUser();
+        doThrow(new IllegalStateException("srs failed")).when(srsService).reviewWord(anyLong(), anyLong(), anyInt());
 
-        assertThatThrownBy(() -> service.reviewFlashcard(review(true), "study@example.test"))
+        assertThatThrownBy(() -> service.reviewFlashcard(review(4), "study@example.test"))
                 .isInstanceOf(IllegalStateException.class);
-        verifyNoInteractions(studyActivityService);
+    }
+
+    @Test
+    void getStatusReturnsMasteryLevelOrDefaultZero() {
+        existingUser();
+        when(progressRepository.findByUserIdAndVocabularyId(42L, 9L))
+                .thenReturn(Optional.of(UserVocabularyProgress.builder().masteryLevel(2).build()));
+
+        assertThat(service.getStatus(9L, "study@example.test")).isEqualTo(2);
+
+        when(progressRepository.findByUserIdAndVocabularyId(42L, 8L)).thenReturn(Optional.empty());
+        assertThat(service.getStatus(8L, "study@example.test")).isZero();
     }
 }

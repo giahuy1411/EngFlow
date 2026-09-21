@@ -476,16 +476,19 @@ async function saveWordToDeck() {
   saveWordMessage.value = ''
   saveWordError.value = false
   try {
-    const created = await vocabularyService.create({
+    // audit-v12 F147: ONE call. The server creates the word AND links it to the deck in a
+    // single transaction, with an ownership check. Before this, the second call
+    // (deckService.addWordToDeck) was a separate request that could fail and leave the word
+    // orphaned in the shared dictionary — and nothing verified the deck was the caller's.
+    await vocabularyService.create({
       word: lookupWordInfo.value.word,
       pronunciation: lookupWordInfo.value.phonetic,
       wordType: lookupWordInfo.value.meanings[0]?.partOfSpeech || '',
       meaning: lookupWordInfo.value.meanings[0]?.definition || lookupWordInfo.value.word,
       definitionEn: lookupWordInfo.value.meanings[0]?.definition || '',
       exampleSentence: lookupWordInfo.value.meanings[0]?.example || '',
-      source: 'Video lesson'
-    })
-    await deckService.addWordToDeck(selectedDeckId.value, created.id)
+      source: 'VIDEO_LESSON'
+    }, selectedDeckId.value)
     saveWordMessage.value = `Đã lưu "${lookupWordInfo.value.word}" vào bộ từ.`
   } catch (e) {
     saveWordError.value = true

@@ -75,6 +75,17 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
+		<!-- audit-v12 C6: this was previously only on the classpath TRANSITIVELY, via the
+		     Azure Speech SDK. Removing that SDK (0 imports anywhere) silently dropped the
+		     JavaTimeModule, and SpeakingSubmissionResponseTest started failing with
+		     "Java 8 date/time type LocalDateTime not supported by default". Declared
+		     explicitly so the app's Jackson date handling no longer depends on an unused
+		     library. Version is managed by the Spring Boot BOM. -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
@@ -147,13 +158,6 @@
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 			<version>8.5.14</version>
-		</dependency>
-
-		<!-- Azure Speech SDK for pronunciation assessment -->
-		<dependency>
-			<groupId>com.microsoft.cognitiveservices.speech</groupId>
-			<artifactId>client-sdk</artifactId>
-			<version>1.51.1</version>
 		</dependency>
 
 		<!-- Spring Mail for streak reminder emails -->
