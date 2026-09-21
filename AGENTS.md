@@ -20,8 +20,9 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
   9 row vocab rác + 4 deck test + lesson 61882 — đó là thay đổi **có chủ ý**, không phải drift.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
 - SQL runner dùng chung: `python sweep/v8/sqlrun.py <file.sql>` (pipe vào `docker exec -i engflow-sqlserver sqlcmd`). DELETE trên bảng có filtered index (`IX_uvp_due`) **bắt buộc** `SET QUOTED_IDENTIFIER ON;` ở đầu batch.
-- Browser harness (không có MCP browser trong môi trường này): `cmd /c "set NODE_PATH=%APPDATA%\npm\node_modules&& node <file>.js"` — playwright-core toàn cục + Chromium cache, scripts ở `sweep/v8/` (p1–p5 + `ui/`: `routes.js`, `design.js`, `v3.js`).
-- API sweep vòng 3: `Set-Location sweep\v8; node p5.js` (auth/lockout, streak, search/sort, re-verify F81/F83/F86 → `p5.json`).
+- Browser harness (headless, không cần MCP): `cmd /c "set NODE_PATH=%APPDATA%\npm\node_modules&& node <file>.js"` — playwright-core toàn cục + Chromium cache, scripts ở `sweep/v8/` (p1–p5 + `ui/`: `routes.js`, `design.js`, `v3.js`).
+  **MCP browser CÓ sẵn** (audit-v12 xác nhận): `chrome-devtools` (`evaluate_script`, `list_network_requests`, `lighthouse_audit`, `emulate`) và `playwright` (`browser_*`). Dùng MCP cho tương tác/đo tương tác; dùng script headless cho sweep hàng loạt.
+- API sweep v12 (phủ hết 131 endpoint): `node sweep/v12/api-sweep.js` — tự cấp phát deck test và tự dọn (`AUDIT-V12-API-%`). **Đừng để harness phụ thuộc dữ liệu ambient** (bài học Phase 10: xoá deck "Test Deck" của student làm assert F147 ngừng chạy mà không báo lỗi).
 - SQL: `docker exec engflow-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourPassword123' -d english_learning -Q "..." -C`.
 
 ## Code Conventions
