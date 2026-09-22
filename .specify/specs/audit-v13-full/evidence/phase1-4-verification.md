@@ -83,3 +83,25 @@ không áp ra ngoài component đó. Hệ quả: bấm "In tài liệu" thì sec
 Sửa: `@media print` + selector riêng trong scope của `LessonBlocks.vue`.
 Verify live: `emulateMedia({media:'print'})` → `display = "none"` (đã đo).
 Kiểm luôn: không còn chỗ nào khác dùng `no-print` ngoài `LessonContent.vue`.
+
+## Phase 2 — mọi endpoint tiêu thụ streak (kiểm live sau khi xoá cột)
+
+Xoá cột chỉ an toàn nếu **mọi** DTO có field `currentStreak` vẫn được nuôi từ nguồn thật.
+Đã gọi thật cả 5 đường (2026-09-22):
+
+| Endpoint | Kết quả | Nguồn |
+|---|---|---|
+| `GET /api/auth/me` | `currentStreak = 2` | `UserService:322` → `streakService.getCurrentStreak` |
+| `GET /api/dashboard/stats` | `currentStreak = 2` | `DashboardService:35` |
+| `GET /api/leaderboard` | `student=2, administrator=1, auditadmin=0` | `LeaderboardService:48` (batch) |
+| `GET /api/admin/users` | 3 row, `currentStreak = 0/0/0` | `AdminService:77` (batch `currentStreaks`) |
+| `GET /api/streak/current` + `/snapshot` | 200 | `StudyActivityService` |
+
+Kết luận: **0 endpoint hỏng** do xoá cột — tất cả đọc từ `study_days` như thiết kế.
+
+## Phase 3 — a11y của section mới (constitution P7)
+
+`sweep/v13/f1302-a1-a11y.js` → **8/8 PASS** trên lesson 447: 1 `h1`; thứ tự heading
+`H2 → H3` (không nhảy cấp); `aria-labelledby` resolve; 0 `img` thiếu `alt`; TABLE có
+`<thead>`+`<th>`; id không trùng; **contrast AA cho cả 31 text node, min ratio 6.26**.
+Dùng lại `COMPOSITE_FN` của repo (composite alpha, bottom-up), không viết bản thứ hai.
