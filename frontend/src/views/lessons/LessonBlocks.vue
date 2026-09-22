@@ -13,7 +13,7 @@
       2. Only TEXT/IMAGE/AUDIO/TABLE are shown. QUESTION/SUBMISSION have no learner view and
          no grading path yet (A2/A3); they are skipped rather than half-rendered.
   -->
-  <section v-if="visibleSections.length" class="mt-8 no-print" aria-labelledby="lesson-authored-title">
+  <section v-if="visibleSections.length" class="mt-8" aria-labelledby="lesson-authored-title">
     <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">Nội dung biên soạn</p>
     <h2 id="lesson-authored-title" class="mt-1 text-2xl font-black">Tài liệu bổ sung cho bài học này</h2>
 
@@ -152,3 +152,16 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+/* Print: hide the authored section.
+   `.no-print` is defined only in LessonContent.vue's SCOPED style, so it has no effect
+   outside that component — a shared class name that silently does nothing. Define it here
+   for this component's own scope. If a third component ever needs it, move it to
+   assets/design-system.css instead of copying again. */
+@media print {
+  section[aria-labelledby='lesson-authored-title'] {
+    display: none !important;
+  }
+}
+</style>
