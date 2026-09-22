@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -50,8 +49,7 @@ class UserServiceStudyActivityTest {
         userService = new UserService(userRepository, null, authenticationManager,
                 tokenProvider, streakService, redisTemplate, null, clock);
         user = User.builder().id(42L).email("study@example.test").username("study")
-                .isActive(true).isAdmin(false).isPremium(false)
-                .currentStreak(7).lastStudyDate(LocalDate.of(2026, 9, 17)).build();
+                .isActive(true).isAdmin(false).isPremium(false).build();
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
     }
 
@@ -83,8 +81,10 @@ class UserServiceStudyActivityTest {
     }
 
     private void assertStudyStateUnchanged() {
-        assertThat(user.getCurrentStreak()).isEqualTo(7);
-        assertThat(user.getLastStudyDate()).isEqualTo(LocalDate.of(2026, 9, 17));
+        // audit-v13 F-13-08: the legacy users.current_streak / last_study_date columns were
+        // dropped, so there is no stored counter left to assert on. "Unchanged" is now
+        // proven by the absence of any write (below) plus the streak being READ from the
+        // computed source (study_days) rather than a column.
         verify(streakService).getCurrentStreak(user.getId());
         org.mockito.Mockito.verifyNoMoreInteractions(streakService);
         verify(userRepository, never()).save(any());

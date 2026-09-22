@@ -16,7 +16,6 @@ import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +51,6 @@ class AdminServiceDashboardStreakSourceTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // asserting the deprecated legacy method is NOT used
     void recentUsersComesFromStudyDaysNotTheLegacyColumn() {
         when(userRepository.count()).thenReturn(100L);
         when(userRepository.countByIsActiveTrue()).thenReturn(90L);
@@ -61,8 +59,12 @@ class AdminServiceDashboardStreakSourceTest {
         AdminStatsDTO stats = adminService.getDashboardStats();
 
         assertThat(stats.getRecentUsers()).isEqualTo(7L);
-        // The stale legacy column must not be read any more.
-        verify(userRepository, never()).countByLastStudyDateAfter(org.mockito.ArgumentMatchers.any());
+        // The stale legacy column must not be read any more. That used to be asserted with
+        // verify(userRepository, never()).countByLastStudyDateAfter(...); audit-v13 F-13-08
+        // then DROPPED both the query method and the users.last_study_date column, so the
+        // guarantee is now enforced at compile time rather than at runtime. What is still
+        // worth pinning is that the value came from the study_days-backed service.
+        verify(streakService).countActiveLearnersInLastDays(7);
     }
 
     @Test

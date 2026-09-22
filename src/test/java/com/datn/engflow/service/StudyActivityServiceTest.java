@@ -38,8 +38,11 @@ class StudyActivityServiceTest {
     void setUp() {
         when(users.findForStudyUpdate(anyLong())).thenAnswer(invocation -> {
             Long id = invocation.getArgument(0);
-            return Optional.of(User.builder().id(id).isActive(true).currentStreak(99)
-                    .lastStudyDate(start.minusDays(1)).build());
+            // audit-v13 F-13-08: the legacy users.current_streak / last_study_date columns
+            // were dropped. The test used to seed them with sentinel values (99 / a past
+            // date) to prove the service ignored them; with the columns gone, seeding the
+            // real source (study_days) below is what matters.
+            return Optional.of(User.builder().id(id).isActive(true).build());
         });
         when(policies.findById(1)).thenReturn(Optional.of(new StudyPolicy(1, start)));
         when(days.existsByUserIdAndStudyDate(anyLong(), any())).thenAnswer(invocation -> {

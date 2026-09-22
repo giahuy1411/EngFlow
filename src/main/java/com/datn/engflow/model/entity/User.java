@@ -76,12 +76,15 @@ public class User {
     @Column(name = "premium_expiry")
     private LocalDate premiumExpiry;
 
-    @Column(name = "last_study_date")
-    private LocalDate lastStudyDate;
-
-    @Builder.Default
-    @Column(name = "current_streak")
-    private Integer currentStreak = 0;
+    // audit-v13 F-13-08: `last_study_date` and `current_streak` were REMOVED here.
+    // Both were legacy counters from the old "streak = consecutive login days" model.
+    // The streak refactor moved the source of truth to the `study_days` table
+    // (entity StudyDay) and nothing has written or read these columns since:
+    //   - 0 writers in src/main (no @PrePersist/@PreUpdate, no trigger)
+    //   - 0 readers in src/main (every streak value served to clients comes from
+    //     StreakService -> StudyActivityService -> study_days)
+    // The DB columns were dropped in the same change (ddl-auto=update never drops,
+    // so the ALTER was run by hand). Do not reintroduce them.
 
     /**
      * Số lượt sinh từ AI đã dùng, tính trong ngày ghi ở {@link #aiQuotaDate}.

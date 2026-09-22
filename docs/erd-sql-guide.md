@@ -99,8 +99,6 @@ CREATE TABLE users (
     is_active           BIT DEFAULT 1,
     is_premium          BIT DEFAULT 0,
     premium_expiry      DATE,
-    last_study_date     DATE,
-    current_streak      INT DEFAULT 0,
     ai_generation_count INT DEFAULT 0,
     created_at          DATETIME2,
     updated_at          DATETIME2
@@ -392,7 +390,7 @@ CREATE TABLE video_attempts (
 4. `exercise_attempts.lesson_id` **không phải FK** — vẽ đường nối tới `lessons` là sai, chỉ `user_id` có FK.
 5. `speaking_submissions` và `video_attempts` mỗi bảng có **2 FK tới `users`** (người nộp + người chấm) — ERD phải thể hiện cả 2 đường.
 6. Enum lưu dạng **VARCHAR** (`@Enumerated(STRING)`), không phải số.
-7. `users` mang cả trường premium (`is_premium`, `premium_expiry`) — không có bảng premium riêng. Hai cột `current_streak` / `last_study_date` là **legacy**, streak thật ở `study_days`.
+7. `users` mang cả trường premium (`is_premium`, `premium_expiry`) — không có bảng premium riêng. Hai cột `current_streak` / `last_study_date` **đã bị xoá** (audit-v13 F-13-08) — streak thật ở `study_days`.
 8. Giá Premium thật: **MONTH 10.000đ, YEAR 20.000đ** (`PremiumPage.vue`) — đừng dùng số cũ 99k/890k.
 9. Streak/ngày học **không** đọc từ `users` hay `user_streaks` — đọc `study_days` (UNIQUE `user_id`+`study_date`).
 
@@ -433,7 +431,6 @@ Table users {
   is_admin bit [default: 0]
   is_premium bit [default: 0]
   premium_expiry date
-  current_streak int [default: 0]
   total_points int [default: 0]
 }
 

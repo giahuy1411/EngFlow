@@ -51,28 +51,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByIsActiveTrue();
 
-    /**
-     * @deprecated audit-v13 F-13-08: reads the legacy {@code users.last_study_date} column,
-     *     which the streak refactor stopped maintaining (measured 2026-09-22: user 2 had
-     *     last_study_date=2026-09-19 while studying on 2026-09-22). Its last caller was the
-     *     admin dashboard, now served from {@code study_days} via
-     *     {@link com.datn.engflow.service.StudyActivityService#countActiveLearnersInLastDays(int)}.
-     *     Do not add new callers; use the study_days queries instead.
-     */
-    @Deprecated
-    long countByLastStudyDateAfter(LocalDate threshold);
-
-    /** User active đã bỏ học từ trước threshold (kể cả never-studied) — legacy, giữ cho tương thích. */
-    @Query("SELECT u FROM User u WHERE u.isActive = true AND (u.lastStudyDate IS NULL OR u.lastStudyDate < :threshold)")
-    List<User> findUsersWhoHaveNotLoggedInSince(@Param("threshold") LocalDate threshold);
-
-    /** User active đã bỏ ≥2 ngày (có từng học), loại never-studied — cho mail comeback. */
-    @Query("SELECT u FROM User u WHERE u.isActive = true AND u.lastStudyDate IS NOT NULL AND u.lastStudyDate < :threshold")
-    List<User> findUsersWithBrokenStreak(@Param("threshold") LocalDate threshold);
-
-    /** User active có hoạt động đúng studyDate yesterday — streak đang nguy hiểm hôm nay. */
-    @Query("SELECT u FROM User u WHERE u.isActive = true AND u.lastStudyDate = :studyDate")
-    List<User> findActiveUsersWhoLastStudiedOn(@Param("studyDate") LocalDate studyDate);
+    // audit-v13 F-13-08: four queries on the legacy `users.last_study_date` column were
+    // REMOVED here (countByLastStudyDateAfter, findUsersWhoHaveNotLoggedInSince,
+    // findUsersWithBrokenStreak, findActiveUsersWhoLastStudiedOn). All four had zero
+    // callers; the column was dropped in the same change. The reminder path that
+    // superseded them queries `study_days` instead — see findStudyReminderAtRisk /
+    // findStudyReminderBroken above.
 
     @Modifying
     @Query("UPDATE User u SET u.isPremium = false, u.premiumExpiry = NULL WHERE u.isPremium = true AND u.premiumExpiry IS NOT NULL AND u.premiumExpiry < :today")

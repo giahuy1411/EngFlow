@@ -79,8 +79,7 @@ class StudySqlIntegrationTest {
         policies.saveAndFlush(new StudyPolicy(1, start));
         String suffix = UUID.randomUUID().toString().replace("-", "");
         userId = users.saveAndFlush(User.builder().username("study_" + suffix)
-                .email(suffix + "@example.test").passwordHash("test-only")
-                .currentStreak(99).lastStudyDate(start.minusDays(1)).build()).getId();
+                .email(suffix + "@example.test").passwordHash("test-only").build()).getId();
         at(start);
     }
 

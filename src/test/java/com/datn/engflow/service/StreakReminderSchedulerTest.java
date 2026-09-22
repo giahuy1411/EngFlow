@@ -60,8 +60,10 @@ class StreakReminderSchedulerTest {
         user.setId(id);
         user.setEmail(email);
         user.setFullName("User " + id);
-        user.setLastStudyDate(lastStudyDate);
-        user.setCurrentStreak(streak);
+        // audit-v13 F-13-08: the legacy users.last_study_date / current_streak columns were
+        // dropped. `lastStudyDate` and `streak` are still the inputs that decide the stubs
+        // below, but they now live only in the (mocked) streak service — which is where the
+        // scheduler actually reads them from.
         lenient().when(streakService.reminderEligible(id, true)).thenReturn(
                 lastStudyDate.equals(LocalDate.now().minusDays(1)));
         lenient().when(streakService.reminderEligible(id, false)).thenReturn(
