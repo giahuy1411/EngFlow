@@ -32,6 +32,9 @@ describe('LessonLayout — F-13-18 lesson page must expose exactly one h1', () =
         stubs: {
           StreakBanner: true,
           LessonContent: true,
+          // audit-v13 F-13-02 A1: LessonBlocks fetches /structure on mount; this test is
+          // about the h1, so stub it rather than let it make a real request.
+          LessonBlocks: true,
           LessonExerciseTab: true,
           LessonPreview: true,
           GuestCtaCard: true,
