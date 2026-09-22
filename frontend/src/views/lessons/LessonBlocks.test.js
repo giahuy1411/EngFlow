@@ -79,6 +79,19 @@ describe('LessonBlocks — F-13-02 A1', () => {
     expect(w.text()).toContain('ok')
   })
 
+  it('removes a style tag and its content from TEXT output', async () => {
+    // Measured: DOMPurify drops both the <style> element AND its text content even with only
+    // FORBID_TAGS (verified directly — output identical with/without FORBID_CONTENTS for this
+    // input). This test pins the OBSERVABLE outcome, not the option that produces it.
+    getStructure.mockResolvedValue(realSection([
+      { id: 1, blockType: 'TEXT', data: JSON.stringify({ content: '<p>visible</p><style>body{color:red}</style>' }) },
+    ]))
+    const w = await mountIt()
+    expect(w.html()).not.toContain('<style')
+    expect(w.text()).not.toContain('body{color:red}')
+    expect(w.text()).toContain('visible')
+  })
+
   it('renders a TABLE block with headers and rows', async () => {
     getStructure.mockResolvedValue(realSection([
       {

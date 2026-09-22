@@ -108,6 +108,10 @@ function sanitizeHtml(html) {
     ADD_TAGS: ['details', 'summary', 'audio', 'source'],
     ADD_ATTR: ['controls', 'src', 'open', 'preload'],
     FORBID_TAGS: ['iframe', 'ins', 'script', 'style', 'noscript'],
+    // Same options as LessonContent.vue. Measured 2026-09-22: for a <style> payload DOMPurify
+    // removes the element AND its text either way, so this is defence-in-depth / parity with
+    // the sibling component, not the thing that makes the XSS test pass.
+    FORBID_CONTENTS: ['iframe', 'script', 'style', 'noscript'],
   })
 }
 
