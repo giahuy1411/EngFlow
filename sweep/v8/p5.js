@@ -154,8 +154,9 @@ async function login(email, password) {
   try { j = JSON.parse(r.txt); } catch (e) {}
   note("xoá hết ngày học -> streak 0", j.currentStreak, 0, JSON.stringify(j));
 
-  // Hai cột cũ đã write-dead: login không động chạm chúng.
-  note("DB current_streak vẫn là giá trị cũ (write-dead)", sql("SELECT current_streak FROM users WHERE user_id = " + userRowId), "0");
+  // audit-v13 F-13-08: users.current_streak/last_study_date đã bị XOÁ khỏi schema (chúng
+  // write-dead từ lâu). Streak thật đọc từ study_days — assert đúng nguồn đó.
+  note("xoá hết study_days -> DB không còn ngày học nào", sql("SELECT COUNT(*) FROM study_days WHERE user_id = " + userRowId), "0");
   r = await probe("streak history noauth", "GET", "/api/streak/history", "none", 401);
   note("streak cần đăng nhập -> 401", r.code, 401);
 

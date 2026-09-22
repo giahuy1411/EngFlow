@@ -154,7 +154,9 @@ const bad = (calls) => calls.filter((c) => c.code >= 400 && c.code !== 403 && c.
     await pageU.waitForTimeout(2200);
     const st = callsU.find((c) => c.url.startsWith("/api/streak/current"));
     const txt = await pageU.locator("body").innerText();
-    const dbStreak = sql("SELECT current_streak FROM users WHERE email = 'user@gmail.com'");
+    // audit-v13 F-13-08: users.current_streak was DROPPED. The real streak lives in
+    // study_days; count the user's study days instead of reading a column that no longer exists.
+    const dbStreak = sql("SELECT COUNT(*) FROM study_days WHERE user_id = (SELECT user_id FROM users WHERE email = 'user@gmail.com')");
     const uiHasStreak = /streak|chuỗi|liên tiếp/i.test(txt);
     j("J4 streak", st && st.code === 200 && uiHasStreak && /^\d+$/.test(dbStreak),
       "streakApi=" + (st && st.code) + " uiMentionsStreak=" + uiHasStreak + " dbCurrentStreak=" + dbStreak);
