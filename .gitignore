@@ -64,7 +64,20 @@ skills-lock.json
 .playwright/
 chrome-wrapper.*
 .mimosa/
-sweep/
+# sweep/ is per-run scratch EXCEPT the tooling AGENTS.md documents as the
+# standard harness (SQL runner, parity query, browser harness, API sweep,
+# backfill export) — those stay tracked and must be usable after a clone.
+sweep/**
+!sweep/v8/sqlrun.py
+!sweep/v8/p16-parity.sql
+!sweep/v8/lib.js
+!sweep/v8/ui/lib.js
+!sweep/v8/ui/design.js
+!sweep/v8/ui/design-v2.js
+!sweep/v8/ui/routes.js
+!sweep/v8/ui/routes-all.js
+!sweep/v12/api-sweep.js
+!sweep/backfill-export.ps1
 audit-v*-shots/
 audit-v*-*.json
 *.network-request
