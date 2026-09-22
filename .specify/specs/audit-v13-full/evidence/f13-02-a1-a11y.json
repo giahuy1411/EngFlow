@@ -1,0 +1,45 @@
+{
+  "ranAt": "2026-09-22T11:20:46.885Z",
+  "results": [
+    {
+      "name": "section found on 447",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exactly one h1 on the page",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "heading order h2 then h3 (no skip)",
+      "ok": true,
+      "detail": "H2,H3,H3,H3"
+    },
+    {
+      "name": "aria-labelledby resolves to an element",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no <img> missing alt",
+      "ok": true,
+      "detail": "missing=0"
+    },
+    {
+      "name": "TABLE uses <thead> with <th>",
+      "ok": true,
+      "detail": "th=3"
+    },
+    {
+      "name": "no duplicate ids in the section",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "contrast AA for all 31 text nodes in the section",
+      "ok": true,
+      "detail": "min ratio=6.26"
+    }
+  ]
+}
