@@ -105,3 +105,23 @@ Kết luận: **0 endpoint hỏng** do xoá cột — tất cả đọc từ `st
 `H2 → H3` (không nhảy cấp); `aria-labelledby` resolve; 0 `img` thiếu `alt`; TABLE có
 `<thead>`+`<th>`; id không trùng; **contrast AA cho cả 31 text node, min ratio 6.26**.
 Dùng lại `COMPOSITE_FN` của repo (composite alpha, bottom-up), không viết bản thứ hai.
+
+## Phase 3 — bằng chứng TRỰC TIẾP cho bẫy trùng nội dung (đo qua API thật)
+
+Gọi `GET /api/lessons/445/structure` (bài **không** có section nào được materialize):
+
+```
+sections: 1
+  section id=None  <-- VIRTUAL (id null)  title='Nội dung bài học'  blocks=1
+     block id=None  type=TEXT  dataLen=6764   <-- chính là lesson.content
+```
+
+Còn `GET /api/lessons/447/structure` (bài CÓ section thật):
+
+```
+section id=5 / 6 / 7  (id thật, khác null)   blocks id=1..9
+```
+
+⇒ Nếu render **mọi thứ** endpoint trả về, 445 (và ~1.462 bài tương tự) sẽ hiện nội dung
+bài **HAI LẦN**. Guard `s.id != null` trong `LessonBlocks.vue` chặn đúng ca này — và live
+probe đã xác nhận 445 render **0** section.
