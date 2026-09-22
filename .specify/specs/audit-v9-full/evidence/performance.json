@@ -1,0 +1,317 @@
+{
+  "results": [
+    {
+      "name": "GET /api/lessons",
+      "median": 24,
+      "min": 21,
+      "max": 31,
+      "times": [
+        21,
+        22,
+        24,
+        30,
+        31
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/lessons (admin)",
+      "median": 70,
+      "min": 44,
+      "max": 171,
+      "times": [
+        44,
+        53,
+        70,
+        75,
+        171
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/decks",
+      "median": 20,
+      "min": 15,
+      "max": 178,
+      "times": [
+        15,
+        16,
+        20,
+        20,
+        178
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/leaderboard",
+      "median": 22,
+      "min": 18,
+      "max": 32,
+      "times": [
+        18,
+        20,
+        22,
+        22,
+        32
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/exercises (admin)",
+      "median": 75,
+      "min": 58,
+      "max": 141,
+      "times": [
+        58,
+        73,
+        75,
+        76,
+        141
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/vocabulary/search?q=travel",
+      "median": 12,
+      "min": 10,
+      "max": 19,
+      "times": [
+        10,
+        11,
+        12,
+        12,
+        19
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/streak/current",
+      "median": 11,
+      "min": 10,
+      "max": 14,
+      "times": [
+        10,
+        11,
+        11,
+        12,
+        14
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/srs/due/10006",
+      "median": 19,
+      "min": 19,
+      "max": 33,
+      "times": [
+        19,
+        19,
+        19,
+        21,
+        33
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/speaking-prompts",
+      "median": 10,
+      "min": 9,
+      "max": 41,
+      "times": [
+        9,
+        10,
+        10,
+        11,
+        41
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/flashcards/review?deckId=10006",
+      "median": 9,
+      "min": 6,
+      "max": 10,
+      "times": [
+        6,
+        8,
+        9,
+        10,
+        10
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/admin/users",
+      "median": 21,
+      "min": 17,
+      "max": 26,
+      "times": [
+        17,
+        20,
+        21,
+        26,
+        26
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/v1/video-lessons",
+      "median": 16,
+      "min": 13,
+      "max": 19,
+      "times": [
+        13,
+        14,
+        16,
+        17,
+        19
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/v1/speaking-submissions/history",
+      "median": 10,
+      "min": 8,
+      "max": 22,
+      "times": [
+        8,
+        10,
+        10,
+        10,
+        22
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/admin/speaking-submissions",
+      "median": 13,
+      "min": 13,
+      "max": 17,
+      "times": [
+        13,
+        13,
+        13,
+        13,
+        17
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/games/status/test",
+      "median": 16,
+      "min": 15,
+      "max": 19,
+      "times": [
+        15,
+        16,
+        16,
+        17,
+        19
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/user/progress",
+      "median": 15,
+      "min": 13,
+      "max": 15,
+      "times": [
+        13,
+        14,
+        15,
+        15,
+        15
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/progress",
+      "median": 13,
+      "min": 12,
+      "max": 14,
+      "times": [
+        12,
+        13,
+        13,
+        14,
+        14
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/vocabulary/dictionary/hello",
+      "median": 13,
+      "min": 10,
+      "max": 19882,
+      "times": [
+        10,
+        11,
+        13,
+        21,
+        19882
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/v1/payment/premium-status",
+      "median": 14,
+      "min": 11,
+      "max": 17,
+      "times": [
+        11,
+        12,
+        14,
+        14,
+        17
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/dashboard/stats",
+      "median": 18,
+      "min": 15,
+      "max": 27,
+      "times": [
+        15,
+        16,
+        18,
+        19,
+        27
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/lessons/10001",
+      "median": 14,
+      "min": 12,
+      "max": 17,
+      "times": [
+        12,
+        13,
+        14,
+        16,
+        17
+      ],
+      "status": "FAST"
+    },
+    {
+      "name": "GET /api/lessons/10001/exercises",
+      "median": 14,
+      "min": 12,
+      "max": 17,
+      "times": [
+        12,
+        12,
+        14,
+        14,
+        17
+      ],
+      "status": "FAST"
+    }
+  ],
+  "summary": {
+    "fast": 22,
+    "ok": 0,
+    "slow": 0
+  }
+}

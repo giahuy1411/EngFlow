@@ -1,0 +1,10 @@
+{
+  "pass": 22,
+  "fail": 1,
+  "findings": [
+    {
+      "name": "D6: polka decoration",
+      "detail": "not found in DOM"
+    }
+  ]
+}

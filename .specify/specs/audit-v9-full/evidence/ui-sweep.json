@@ -1,0 +1,412 @@
+{
+  "pass": 405,
+  "fail": 0,
+  "findings": [],
+  "routes": {
+    "guest|/|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/login|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/login|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/login|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/login|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/login|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/register|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/register|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/register|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/register|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/register|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/lessons|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/lessons|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/lessons|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/lessons|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/lessons|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/decks|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/decks|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/decks|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/decks|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/decks|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/leaderboard|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/leaderboard|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/leaderboard|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/leaderboard|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/leaderboard|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/search|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/search|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/search|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/search|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/search|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/premium|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/premium|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/premium|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/premium|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/premium|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/forgot-password|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/forgot-password|768": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/forgot-password|1280": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/forgot-password|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "guest|/forgot-password|1920": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/lessons|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/lessons|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/decks|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/decks|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/leaderboard|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/leaderboard|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/search|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/search|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/profile|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/profile|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/decks/10006|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/decks/10006|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/ai-vocab-generator|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/ai-vocab-generator|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/speaking|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/speaking|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/premium|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "user|/premium|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/dashboard|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/dashboard|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/lessons|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/lessons|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/exercises|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/exercises|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/users|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/users|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/speaking-prompts|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/speaking-prompts|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/speaking-submissions|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/speaking-submissions|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/videos|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/videos|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/video-attempts|360": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    },
+    "admin|/admin/video-attempts|1440": {
+      "status": "PASS",
+      "detail": "",
+      "consoleErrors": 0
+    }
+  }
+}

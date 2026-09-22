@@ -1,0 +1,863 @@
+{
+  "pass": 143,
+  "fail": 0,
+  "blocked": 1,
+  "n_a": 3,
+  "findings": [],
+  "areas": {
+    "auth": {
+      "pass": 13,
+      "fail": 0,
+      "blocked": 0
+    },
+    "lessons": {
+      "pass": 18,
+      "fail": 0,
+      "blocked": 0
+    },
+    "streak": {
+      "pass": 5,
+      "fail": 0,
+      "blocked": 0
+    },
+    "search": {
+      "pass": 8,
+      "fail": 0,
+      "blocked": 0
+    },
+    "crud": {
+      "pass": 23,
+      "fail": 0,
+      "blocked": 0
+    },
+    "game": {
+      "pass": 13,
+      "fail": 0,
+      "blocked": 0
+    },
+    "flashcard": {
+      "pass": 7,
+      "fail": 0,
+      "blocked": 0
+    },
+    "srs": {
+      "pass": 6,
+      "fail": 0,
+      "blocked": 0
+    },
+    "misc": {
+      "pass": 6,
+      "fail": 0,
+      "blocked": 0
+    },
+    "submission": {
+      "pass": 6,
+      "fail": 0,
+      "blocked": 0
+    },
+    "speaking": {
+      "pass": 9,
+      "fail": 0,
+      "blocked": 0
+    },
+    "video": {
+      "pass": 7,
+      "fail": 0,
+      "blocked": 0
+    },
+    "admin": {
+      "pass": 10,
+      "fail": 0,
+      "blocked": 0
+    },
+    "ai": {
+      "pass": 5,
+      "fail": 0,
+      "blocked": 0
+    },
+    "payment": {
+      "pass": 7,
+      "fail": 0,
+      "blocked": 1
+    }
+  },
+  "probed": [
+    {
+      "area": "auth",
+      "name": "GET /api/auth/me (student) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "  /me contract {email,isAdmin}",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "GET /api/auth/me (admin) isAdmin=true",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "GET /api/auth/me anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "login wrong password 401",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "login short password 400 (validation)",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "login malformed email 400",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "GET /me garbage JWT 401",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "register duplicate email 400/409",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "POST /api/auth/forgot-password 200",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "POST /api/auth/reset-password malformed 400",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "POST /api/auth/change-password wrong current 400/401",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "PUT /api/auth/avatar empty body 400",
+      "status": "PASS"
+    },
+    {
+      "area": "auth",
+      "name": "POST /api/auth/avatar/upload",
+      "status": "N/A",
+      "detail": "multipart with real media — covered by F145/AGENTS.md evidence; not re-run here"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "  lesson list contract {content[]}",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "  list does NOT leak lesson content LOB",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons/{id} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons/{id}/exercises 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "  includeAnswers=false strips correctAnswer",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "  includeAnswers=true as ANON does not leak answers",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "  includeAnswers=true as ADMIN 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons/{id}/structure (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons/{id}/exercises/content 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "POST /api/lessons/{id}/exercises/grade anon 401/403",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons/{id}/exercises/attempts (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "GET /api/lessons/{id}/exercises/attempts anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "F88 draft lesson anon -> 404",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "F89 draft lesson student -> 404",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "F126 draft structure student -> 404",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "F115 draft exercises student blocked",
+      "status": "PASS"
+    },
+    {
+      "area": "lessons",
+      "name": "draft lesson admin -> 200",
+      "status": "PASS"
+    },
+    {
+      "area": "streak",
+      "name": "GET /api/streak/snapshot 200",
+      "status": "PASS"
+    },
+    {
+      "area": "streak",
+      "name": "  snapshot has all 7 declared fields, typed",
+      "status": "PASS"
+    },
+    {
+      "area": "streak",
+      "name": "GET /api/streak/current 200",
+      "status": "PASS"
+    },
+    {
+      "area": "streak",
+      "name": "GET /api/streak/history?days=30 200",
+      "status": "PASS"
+    },
+    {
+      "area": "streak",
+      "name": "streak snapshot anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "GET /api/vocabulary/search?keyword=ab 200 (permitAll)",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "  keyword=1 char -> 200 + [] (designed)",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "GET /api/vocabulary/dictionary/hello reachable",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "GET /api/vocabulary anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "GET /api/vocabulary (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "GET /api/admin/exercises?q=the (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "GET /api/admin/exercises anon 401/403",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "  ?sort= re-measured (v11 said IGNORED)",
+      "status": "PASS"
+    },
+    {
+      "area": "search",
+      "name": "?sort= asc vs desc ids",
+      "status": "INFO",
+      "detail": "asc=[41881,81895,91900,91919,91920] desc=[41881,81895,91900,91919,91920] same=true"
+    },
+    {
+      "area": "crud",
+      "name": "POST /api/decks create 200/201",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  read deck round-trips name",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  update deck 200",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  edit persisted",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  PRIVATE deck hidden from anon (400/403/404)",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  delete deck 200/204",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  re-GET deleted deck 404",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "POST /api/lessons create (admin) 200/201",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  read lesson 200",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  update lesson 200",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  delete lesson 200/204",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "  re-GET deleted lesson 404",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "POST /api/lessons anon 401/403",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "POST /api/lessons student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147 student WITHOUT deckId is rejected (400)",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147 student WITH own deckId is accepted",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147   word is LINKED to the deck in the same transaction",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147   attaching to ANOTHER user's deck is blocked",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F147   a word saved this way is still a shared dictionary entry (by design)",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 student + lessonId (new word) rejected 400",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 student + lessonId (existing word, dedupe branch) rejected 400",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 admin + lessonId still accepted (not over-blocked)",
+      "status": "PASS"
+    },
+    {
+      "area": "crud",
+      "name": "F152 no injected word in the public lesson payload",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "GET /api/games/quiz/{deckId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "  quiz returns sessionId",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "GET /api/games/memory/{deckId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "  memory returns sessionId",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "GET /api/games/typing/{deckId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "  typing returns sessionId",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "GET /api/games/listening/{deckId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "  listening returns sessionId",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "GET /api/games/mixed/{deckId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "  mixed returns sessionId",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "POST /api/games/submit blank sessionId 400",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "  submit real session 200",
+      "status": "PASS"
+    },
+    {
+      "area": "game",
+      "name": "GET /api/games/quiz/{deck} anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "GET /api/flashcards/status/{vocabId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "POST /api/flashcards/review quality=4 200",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "  quality out of range (9) -> 400",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "  legacy isKnown body is rejected (shape changed)",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "flashcards anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "POST /api/flashcards/study 200",
+      "status": "PASS"
+    },
+    {
+      "area": "flashcard",
+      "name": "  flashcards/study anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "srs",
+      "name": "GET /api/srs/due/{deckId} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "srs",
+      "name": "GET /api/srs/stats 200",
+      "status": "PASS"
+    },
+    {
+      "area": "srs",
+      "name": "POST /api/srs/review quality=3 200",
+      "status": "PASS"
+    },
+    {
+      "area": "srs",
+      "name": "  quality=9 out of range 400",
+      "status": "PASS"
+    },
+    {
+      "area": "srs",
+      "name": "  missing vocabId 400",
+      "status": "PASS"
+    },
+    {
+      "area": "srs",
+      "name": "srs anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "misc",
+      "name": "GET /api/leaderboard anon 200 (permitAll)",
+      "status": "PASS"
+    },
+    {
+      "area": "misc",
+      "name": "  leaderboard contract {content[]}",
+      "status": "PASS"
+    },
+    {
+      "area": "misc",
+      "name": "GET /api/users/progress (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "misc",
+      "name": "GET /api/users/progress anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "misc",
+      "name": "GET /api/dashboard/stats (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "misc",
+      "name": "GET /api/dashboard/stats anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "POST /api/lesson-submissions/submit draft guard blocked",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "GET /api/lesson-submissions/my/lesson/{id}/skill/{type} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "lesson-submissions anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "GET /api/admin/lessons/{id}/snapshots (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "  snapshots student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "  snapshots anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "submission",
+      "name": "POST /api/admin/lessons/{id}/snapshots + /restore",
+      "status": "N/A",
+      "detail": "writes a real snapshot/restores content — probe only if an audit-namespaced lesson exists; not run to avoid content mutation"
+    },
+    {
+      "area": "speaking",
+      "name": "GET /api/v1/speaking-prompts anon 200",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "GET /api/v1/speaking-prompts?q=... 200",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "GET /api/v1/video-prompts alias 200",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "GET /api/v1/admin/speaking-prompts (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "  admin speaking-prompts student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "  admin speaking-prompts anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "GET /api/v1/speaking-submissions (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "GET /api/v1/admin/speaking-submissions (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "  admin speaking-submissions student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "speaking",
+      "name": "POST /api/v1/speaking-submissions/upload + /assess",
+      "status": "N/A",
+      "detail": "needs real media (MinIO object); covered by v11 speaking-record-test.js — not re-run here"
+    },
+    {
+      "area": "video",
+      "name": "GET /api/v1/video-lessons anon 200",
+      "status": "PASS"
+    },
+    {
+      "area": "video",
+      "name": "GET /api/v1/video-lessons/{id} 200",
+      "status": "PASS"
+    },
+    {
+      "area": "video",
+      "name": "GET /api/v1/video-attempts (auth) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "video",
+      "name": "GET /api/v1/admin/video-attempts (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "video",
+      "name": "  admin video-attempts student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "video",
+      "name": "GET /api/v1/admin/video-lessons (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "video",
+      "name": "  admin video-lessons anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/admin/stats  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/admin/users  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/admin/lessons  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/admin/vocabulary  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/v1/admin/speaking-prompts  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/v1/admin/video-lessons  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "ROLE GET /api/v1/admin/video-attempts  anon=401 student=403 admin=200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "GET /api/admin/exercises/ai/status (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "  ai/status anon 401/403",
+      "status": "PASS"
+    },
+    {
+      "area": "admin",
+      "name": "GET /api/admin/exercises/ai/backfill-answers/status (admin) 200",
+      "status": "PASS"
+    },
+    {
+      "area": "ai",
+      "name": "POST /api/ai/generate-vocab anon 401/403",
+      "status": "PASS"
+    },
+    {
+      "area": "ai",
+      "name": "POST /api/ai/generate-vocab (auth) 200 or quota 429",
+      "status": "PASS"
+    },
+    {
+      "area": "ai",
+      "name": "POST /api/ai/enrich-word (auth) 200/429",
+      "status": "PASS"
+    },
+    {
+      "area": "ai",
+      "name": "POST /api/ai/save-vocab 200",
+      "status": "PASS"
+    },
+    {
+      "area": "ai",
+      "name": "  F145 header present (X-AI-Linked-To-Deck)",
+      "status": "PASS"
+    },
+    {
+      "area": "ai",
+      "name": "save-vocab headers",
+      "status": "INFO",
+      "detail": "linked=false count=1"
+    },
+    {
+      "area": "ai",
+      "name": "TTS :8001 reachable",
+      "status": "INFO",
+      "detail": "status=401"
+    },
+    {
+      "area": "payment",
+      "name": "GET /api/v1/payment/status 200",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "POST /api/v1/payment/create-order 200",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "  orderCode starts ENG",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "POST /api/webhook/sepay invalid signature rejected (body success=false)",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "  stale timestamp also refused",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "webhook with VALID HMAC signature",
+      "status": "BLOCKED",
+      "detail": "mutates a real payment_transactions row — real-money boundary (v11 proved it with cleanup; not repeated)"
+    },
+    {
+      "area": "payment",
+      "name": "cleanup produced 0 SQL errors (Msg scan)",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "cleanup left 0 residue",
+      "status": "PASS"
+    }
+  ],
+  "c1": {
+    "status": 200,
+    "id": 50395,
+    "deckId": 50100,
+    "visibleToAnon": true
+  },
+  "f152": {
+    "targetLesson": 41881,
+    "injectFresh": 400,
+    "injectExisting": 400,
+    "adminInject": 200,
+    "leaked": false
+  },
+  "createdOrderCode": "ENG363807490386",
+  "cleanup": {
+    "decks": 0,
+    "vocab": 0,
+    "lessons": 0,
+    "payments": 0
+  }
+}
