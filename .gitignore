@@ -43,6 +43,9 @@ dist/
 *.out
 logs/
 !tasks/evidence/*.log
+# audit-v13-full evidence is committed (findings.md/tasks.md link it by name);
+# secret-scanned 2026-09-22 — only the known AGENTS.md seed-password WARN.
+!.specify/specs/audit-v13-full/evidence/*.log
 
 # Runtime / scratch
 *.pid
@@ -83,8 +86,14 @@ audit-v*-*.json
 *.network-request
 *.network-response
 
-# Audit evidence — per-run scratch, never committed (active spec kept tracked)
-.specify/specs/*/evidence/
+# Audit evidence — finished audit runs stay local-only; the active run
+# (audit-v13-full) is committed because findings.md/tasks.md link its files
+# by name.
+.specify/specs/audit-v8-full/evidence/
+.specify/specs/audit-v9-full/evidence/
+.specify/specs/audit-v10-full/evidence/
+.specify/specs/audit-v11-full/evidence/
+.specify/specs/audit-v12-full/evidence/
 
 # Tailscale / Ngrok node auth + serve state
 .tailscale/
