@@ -1,0 +1,45 @@
+{
+  "skeptic": 2,
+  "claim": "?sort= silently ignored by /api/lessons, /api/admin/exercises, /api/decks; /api/vocabulary honours it and 500s on unknown property",
+  "refuted": false,
+  "correctedSeverity": "LOW",
+  "subClaims": [
+    {
+      "claim": "lessons/admin-exercises/decks ignore ?sort= (hardcoded Sort.by)",
+      "verdict": "CONFIRMED",
+      "evidence": "src LessonController.java:38, AdminExerciseController.java:39, DeckController.java:34,50 - no sort @RequestParam; live asc==desc==default for all three"
+    },
+    {
+      "claim": "/api/vocabulary honours ?sort=",
+      "verdict": "CONFIRMED",
+      "evidence": "VocabularyController.java:37 @PageableDefault(sort=word) Pageable; asc [agenda..analyze] vs desc [volunteer..thermal]"
+    },
+    {
+      "claim": "unknown sort property -> HTTP 500 via GlobalExceptionHandler",
+      "verdict": "REFUTED (stale)",
+      "evidence": "live /api/vocabulary?sort=notacolumn,asc -> HTTP 400 {'detail':'Tham số sắp xếp không hợp lệ.'}; PropertyReferenceException handler added 2026-09-22 03:30:31, evidence JSON captured 03:13:24"
+    },
+    {
+      "claim": "sort=word;DROP -> 500 (InvalidDataAccessApiUsageException)",
+      "verdict": "CONFIRMED but reclassified",
+      "evidence": "malformed sort strings ('word;',';DROP','word$x','word)','word\\'') -> 500 catch-all; not SQLi (never reaches SQL); no info leak"
+    }
+  ],
+  "liveReadings": {
+    "lessons_sort_asc": [41881, 81895, 91900, 91919, 91920, 11301],
+    "lessons_sort_desc": [41881, 81895, 91900, 91919, 91920, 11301],
+    "lessons_no_sort": [41881, 81895, 91900, 91919, 91920, 11301],
+    "lessons_sort_notacolumn_status": 200,
+    "admin_ex_sort_asc_eq_desc": true,
+    "admin_ex_sort_notacolumn_status": 200,
+    "decks_sort_asc": ["Academic Word List", "Common English Idioms", "Essential Phrasal Verbs", "Everyday English", "IELTS Academic: Environment", "Oxford 3000 (A1-B2)"],
+    "decks_sort_desc": ["Academic Word List", "Common English Idioms", "Essential Phrasal Verbs", "Everyday English", "IELTS Academic: Environment", "Oxford 3000 (A1-B2)"],
+    "vocab_sort_asc": ["agenda", "airport", "algorithm", "ambiguous", "ambitious", "analyze"],
+    "vocab_sort_desc": ["volunteer", "virtual", "urbanization", "under the weather", "turn down", "thermal"],
+    "vocab_sort_notacolumn_status": 400,
+    "vocab_sort_word_semicolon_DROP_status": 500
+  },
+  "severityJustification": "No frontend caller sends ?sort= (grep frontend/src/services -> none). No user-visible impact. 500 body is generic, no stack/SQL leaked. LOW stands.",
+  "rateLimitFlushed": 2,
+  "probes": ["tmp/skeptic2-sort.js", "tmp/skeptic2-vocab.js", "tmp/skeptic2-500.js"]
+}

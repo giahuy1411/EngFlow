@@ -1,0 +1,54 @@
+{
+  "finding": "F-13-01",
+  "title": "Chọn 'Trắc nghiệm' nhưng học viên thấy ô điền từ (text input)",
+  "severity": "HIGH",
+  "status": "FIXED",
+  "reproduced": "2026-09-22 (+07)",
+  "method": "live UI via Playwright MCP + real DB row + real API (no mock data)",
+  "real_data": {
+    "db_row": "exercises.exercise_id=777434, lesson_id=91920 ('thầy bình'), exercise_type=MULTIPLE_CHOICE, options=[\"a\",\"b\",\"c\",\"d\"], correct_answer='d', created_at=2026-09-21 22:01:00",
+    "sibling_row": "exercise_id=766150 same lesson same shape",
+    "api": "GET /api/lessons/91920/exercises -> [{exerciseType:'MULTIPLE_CHOICE', options:'[\"a\",\"b\",\"c\",\"d\"]'}, ...]"
+  },
+  "before_live_ui": {
+    "url": "http://localhost:5173/lessons/91920 (tab Bài tập)",
+    "badge_shown": "TRẮC NGHIỆM (both exercises)",
+    "radio_or_option_buttons": 0,
+    "text_inputs": 2,
+    "text_input_placeholder": "Nhập câu trả lời...",
+    "screenshot": "f13-01-repro-before.png"
+  },
+  "scale_measured": {
+    "MC_TOTAL": 33556,
+    "MC_options_IS_NULL": 32814,
+    "MC_options_empty_array": 101,
+    "MC_options_letter_only": 0,
+    "LISTENING_no_options": 319,
+    "correction": "An earlier draft of this evidence called 32,814 rows 'placeholder options'. That was WRONG. The correct query shows those rows have options IS NULL; ZERO rows have bare-letter options. Row 777434 (options [a,b,c,d]) is a rare exception, not the majority. The majority (options NULL) was always answered by typing the answer and graded server-side, so the first fix (which removed the text input) was a mass regression 44x the original bug. Corrected after adversarial review."
+  },
+  "root_cause": {
+    "file": "frontend/src/views/lessons/LessonExerciseTab.vue",
+    "mechanism": "parsedOptions() treats options matching the bare-letter pattern as placeholders and returns null; hasOptionChoices() then returns false for a MULTIPLE_CHOICE row, and the template falls through to the <input type=text> branch. For row 777434 the learner therefore saw a different exercise type than the admin selected.",
+    "create_path_gap": "AdminExercises.vue saveExercise() serialized options without validating they carry real answer text, and ExerciseService.createExercise() had no options validation either."
+  },
+  "fix": {
+    "render_path": "LessonExerciseTab.vue — hasOptionChoices() keeps letter options as choices (type is never silently changed); when options are missing the text-answer fallback is KEPT (so the 32,814 legacy NULL-option rows stay answerable) with a role=note content warning; rawOptions() filters blanks so no empty option button renders.",
+    "create_path_frontend": "AdminExercises.vue saveExercise() rejects a new MULTIPLE_CHOICE with fewer than 2 options or all bare letters, with a clear Vietnamese message.",
+    "create_path_backend": "ExerciseService.assertNewChoiceOptionsUsable() — validates only NEW choice items, or updates that supply options; deliberately never validates the stored shape of legacy NULL-option rows, which would block all their legitimate edits. Throws BadRequestException (HTTP 400).",
+    "ai_path": "AiExerciseService.validateSchema() now requires at least one option with real content (the local model could emit [a,b,c,d] — distinct and size 4 — which passed every prior check).",
+    "first_attempt_regression": "Removing the text-input fallback made 32,814 MULTIPLE_CHOICE + 319 LISTENING rows unanswerable (a dead card). Caught by adversarial review; reverted to keeping the text fallback with a content warning."
+  },
+  "regression_tests": [
+    "frontend/src/views/lessons/LessonExerciseTab.f13.test.js (8 tests, incl. 4 mass-regression guards)",
+    "src/test/java/com/datn/engflow/service/ExerciseServiceMultipleChoiceOptionsTest.java (11 tests, incl. legacy-edit-not-blocked)"
+  ],
+  "after_live_ui": {
+    "url": "http://localhost:5173/lessons/91920 (tab Bài tập)",
+    "text_inputs": 0,
+    "mc_option_buttons": 8,
+    "option_texts": ["a", "b", "c", "d", "a", "b", "c", "d"],
+    "badge_shown": "TRẮC NGHIỆM",
+    "screenshot": "f13-01-after.png"
+  },
+  "verdict": "FIXED — the reported row now renders as multiple choice; legacy NULL-option rows stay answerable; the AI path can no longer persist the bad shape."
+}

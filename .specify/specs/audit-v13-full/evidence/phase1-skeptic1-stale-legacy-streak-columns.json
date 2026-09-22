@@ -1,0 +1,101 @@
+{
+  "claim": "users.last_study_date / users.current_streak are stale after the SQL cutover, and AdminService dashboard still reads them",
+  "skeptic": "skeptic #1",
+  "verdict": "NOT REFUTED — claim holds on every material point; only the window sub-detail is slightly understated",
+  "area": "Phase 1 — SQL Server data-layer audit",
+  "claimed_severity": "MEDIUM",
+  "corrected_severity": "LOW",
+  "severity_note": "Real but bounded: the only live consumer is one admin-dashboard stat + a dead column. No user-facing, security, or data-integrity impact. MEDIUM is defensible; LOW is more accurate. The claim itself is not refuted.",
+
+  "reproduced_source_facts": {
+    "admin_service_reads_legacy_column": {
+      "file": "src/main/java/com/datn/engflow/service/AdminService.java",
+      "line": 51,
+      "code": "long recentUsers = userRepository.countByLastStudyDateAfter(sevenDaysAgo.toLocalDate());",
+      "derived_repository_query": "countByLastStudyDateAfter -> WHERE u.lastStudyDate > :threshold (users.last_study_date)"
+    },
+    "no_writer_of_legacy_columns_in_main": {
+      "grep": "setLastStudyDate / setCurrentStreak / lastStudyDate assignments in src/main/java",
+      "result": "0 writers in src/main/java (only the @Column fields in User.java; only test fixtures set them)"
+    },
+    "no_trigger_no_computed_column": {
+      "triggers_on_users": 0,
+      "computed_columns_on_users": 0,
+      "sql": "SELECT COUNT(*) FROM sys.triggers WHERE parent_id=OBJECT_ID('users'); SELECT name FROM sys.computed_columns WHERE object_id=OBJECT_ID('users');",
+      "note": "So nothing keeps the legacy column in sync with study_days."
+    },
+    "column_current_streak_is_dead": {
+      "evidence": "grep '\\.getCurrentStreak()' in src/main/java matches only streakService.getCurrentStreak(...) (StudyActivityService-backed); User.getCurrentStreak() column getter has 0 readers",
+      "note": "AdminUserDTO.currentStreak is populated from streakService, not the column"
+    },
+    "cutover_policy": {
+      "sql": "SELECT TOP 1 effective_from FROM study_policy;",
+      "effective_from": "2026-09-20"
+    }
+  },
+
+  "reproduced_db_facts": {
+    "user_legacy_vs_study_days": {
+      "sql": "SELECT u.user_id,u.last_study_date,u.current_streak,(SELECT MAX(sd.study_date) FROM study_days sd WHERE sd.user_id=u.user_id) FROM users u ORDER BY u.user_id;",
+      "rows": [
+        {"user_id": 2, "username": "student", "last_study_date": "2026-09-19", "current_streak": 1, "study_days_max": "2026-09-22"},
+        {"user_id": 3, "username": "administrator", "last_study_date": "2026-09-19", "current_streak": 1, "study_days_max": "2026-09-21"}
+      ],
+      "note": "Matches the claim exactly (user 2: 09-19 vs 09-22; user 3: 09-19 vs 09-21)"
+    },
+    "study_days_rows": {
+      "sql": "SELECT user_id,study_date FROM study_days WHERE user_id IN (2,3) ORDER BY user_id,study_date;",
+      "rows": [[2, "2026-09-21"], [2, "2026-09-22"], [3, "2026-09-21"]],
+      "consequence": "truth currentStreak(user2)=2 (09-21,09-22 consecutive to today 09-22) while legacy users.current_streak=1"
+    },
+    "window_comparison_today_2026-09-22": {
+      "sql": "legacy: COUNT(*) users WHERE last_study_date > DATEADD(day,-N,today) | truth: COUNT(DISTINCT user_id) study_days WHERE study_date > DATEADD(day,-N,today)",
+      "results": [
+        {"window": "7d", "legacy": 2, "truth": 2, "diverges": false},
+        {"window": "3d", "legacy": 0, "truth": 2, "diverges": true},
+        {"window": "2d", "legacy": 0, "truth": 2, "diverges": true},
+        {"window": "1d", "legacy": 0, "truth": 1, "diverges": true}
+      ],
+      "correction_to_claim": "Claim said 3d -> '2 vs 2'. Measured 3d -> legacy 0 vs truth 2. Direction/divergence claim is right; that one sub-number is wrong. All other windows match the claim."
+    }
+  },
+
+  "reproduced_live_http_facts": {
+    "login": "POST /api/auth/login {admin@gmail.com,123456} -> 200, token at body.token",
+    "rate_limit_flush": "docker exec engflow-redis redis-cli --scan --pattern 'rate_limit:*' then del each (done before the batch)",
+    "admin_stats": {
+      "request": "GET http://localhost:8080/api/admin/stats (Bearer admin token)",
+      "response": {"totalUsers": 72, "totalLessons": 1470, "totalVocabulary": 118, "activeUsers": 50, "recentUsers": 2, "totalExercises": 43737, "totalSubmissions": 4},
+      "note": "recentUsers=2 comes from the stale users.last_study_date (only users 2,3 have 2026-09-19 > 2026-09-15). No 429 produced."
+    },
+    "admin_users_streak_for_user2": {
+      "request": "GET http://localhost:8080/api/admin/users?q=student&size=10 (Bearer admin token)",
+      "response_row": {"id": 2, "username": "student", "api_currentStreak": 2},
+      "note": "The per-row streak is CORRECT (2, from study_days) because it is served by streakService, not the users.current_streak column — this bounds the impact to the one aggregate stat."
+    }
+  },
+
+  "blast_radius_check": {
+    "legacy_query_callers": {
+      "countByLastStudyDateAfter": ["AdminService.java:51 (the only live consumer)"],
+      "findUsersWhoHaveNotLoggedInSince": [],
+      "findUsersWithBrokenStreak": [],
+      "findActiveUsersWhoLastStudiedOn": [],
+      "note": "Confirmed by grep across src/ — the three finders are unreferenced in main source. Claim correct."
+    },
+    "scheduler": {
+      "file": "src/main/java/com/datn/engflow/service/StreakReminderScheduler.java",
+      "path": "streakService.getUsersWithStreakAtRisk()/getUsersWithBrokenStreak() -> StudyActivityService.reminderCandidates -> users.findStudyReminderAtRisk/findStudyReminderBroken (study_days-backed)",
+      "conclusion": "Reminder mail is unaffected by the stale column. Claim correct."
+    },
+    "frontend": "frontend/src/views/admin/AdminDashboard.vue:64 renders stats.recentUsers as 'Học trong 7 ngày' — the stale value is user-visible"
+  },
+
+  "answers_to_probe_questions": {
+    "real_or_probe_artefact": "Real. Two independent real DB reads (sqlcmd) plus a real HTTP 200 from the live admin endpoint. No 429 (rate-limit buckets flushed first). Not a scrollbar/guard artefact — this is a data-layer comparison.",
+    "severity_justified": "Partially. The defect is real but cosmetic/bounded (one admin stat + a dead column); no user-facing, security, or data-integrity impact. LOW is more accurate than MEDIUM, but the claim itself stands.",
+    "correct_behaviour_or_bug": "Bug / incomplete cutover. The new StudyActivityService.recordStudy path writes study_days only and never touches users.last_study_date, while AdminService still reads the legacy column. It is not an intentional design — the per-row streak was correctly migrated to streakService, showing the aggregate was simply missed."
+  },
+
+  "verdict_reason": "Every material assertion reproduced against the live system: AdminService.java:51 reads users.last_study_date; nothing in main source (or any trigger/computed column) writes it; users 2/3 have stale last_study_date (2026-09-19) vs study_days max (2026-09-22 / 2026-09-21); current_streak frozen at 1 vs truth 2; windowed divergence reproduced at 3d/2d/1d; the three legacy finders are unreferenced and the scheduler uses the study_days path; the live /api/admin/stats returns recentUsers=2 sourced from the stale column. Only the claim's '3d -> 2 vs 2' sub-number is wrong (measured 0 vs 2). Claim NOT REFUTED; severity corrected MEDIUM -> LOW."
+}

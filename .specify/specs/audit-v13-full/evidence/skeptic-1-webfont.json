@@ -1,0 +1,57 @@
+{
+  "skeptic": 1,
+  "claim_title": "Webfont payload is 125376 bytes and invisible to Resource Timing",
+  "verdict": "REFUTED",
+  "date": "2026-09-22",
+  "environment": "live: frontend http://localhost:5173 (Vite dev), backend :8080, real browser via chrome-devtools MCP (Chromium 153)",
+  "findings": [
+    {
+      "id": "S1-A",
+      "assertion": "Webfont payload is 125376 bytes",
+      "verdict": "REFUTED",
+      "evidence": {
+        "declared_faces_in_css": 18,
+        "note_18": "6 weights (400/500/600/700/800/900) x 3 unicode subsets (latin, latin-ext, vietnamese) - confirmed by parsing https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap with a Chrome UA (7836 B CSS, 18 @font-face blocks, 6 unicode-range x 6 weights).",
+        "fetched_woff2_count": 15,
+        "current_served_total_bytes_curl": 237740,
+        "current_served_total_bytes_resource_timing": 237740,
+        "current_served_total_transfer_bytes": 242240,
+        "measurement": "The exact 15 woff2 URLs the browser requested (read from the Network panel on a cold load) were downloaded with curl (Chrome UA and curl UA, identical result): 237740 B content-length sum. Independent in-browser reproduction: fetching the same 15 URLs cache-busted yields Resource Timing encodedBodySize sum = 237740, transferSize sum = 242240 (0 entries with transferSize 0).",
+        "why_125376_is_stale": "125376 matches an OLD cached font build served under different filenames. On the cached page the filenames ended in extra suffixes (e.g. QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXoYZ7Aj) and decodedBodySize summed to exactly 125376 (sample: 12908/4720/6880 B). Those suffixed URLs still resolve today but the CURRENT canonical URLs (e.g. QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXo) serve larger files (21168/11532/13056 B). Google Fonts re-cut the build; the number is not reproducible against the live system.",
+        "understatement": "125376 vs 237740 = the claimed figure understates the real payload by ~47% (112364 B)."
+      }
+    },
+    {
+      "id": "S1-B",
+      "assertion": "Those bytes are invisible to Resource Timing because cross-origin woff2 without Timing-Allow-Origin hides transferSize",
+      "verdict": "REFUTED",
+      "evidence": {
+        "tao_header_present": "timing-allow-origin: *",
+        "tao_verified_by": [
+          "curl -D - on https://fonts.gstatic.com/s/bevietnampro/v12/QdVPSTAyLFyeg_IDWvOJmVES_Hw3BXo.woff2 -> 'Timing-Allow-Origin: *'",
+          "the browser's own Network panel response headers for reqid=31 -> 'timing-allow-origin: *'"
+        ],
+        "decisive_experiment": "In a fresh isolated browser context, fetched the same 15 woff2 URLs with a cache-busting query (?cb=<ts>, cache:'no-store'). Resource Timing reported all 15 entries with transferSize exposed: transferSum=242240, encodedBodySize=237740, decodedBodySize=237740, 0 entries with transferSize===0. So the bytes are NOT hidden.",
+        "real_mechanism": "The transferSize===0 observed on a plain page load is the standard Resource Timing behaviour for CACHE HITS (transferSize 0 means 'not fetched from network'). The font files were already in the HTTP cache (Cache-Control: public, max-age=31536000). The claim misdiagnosed a cache hit as a TAO limitation.",
+        "note_on_missing_entries": "On the cold load the 15 woff2 did not appear in Resource Timing at all (0 gstatic entries among 43), while the Network panel recorded all 15 as 200. That is a separate timing-availability quirk, not TAO suppression; a cache-busted fetch of the same URLs populates RT with transferSize. Either way the claim's stated cause (no Timing-Allow-Origin) is false."
+      }
+    },
+    {
+      "id": "S1-C",
+      "assertion": "No cut recommended: weight 800 is required (17 usages)",
+      "verdict": "SUPPORTED",
+      "evidence": {
+        "usage_count": 17,
+        "breakdown": "design-system.css 10, LearningPath.vue 3, app-layout.css 2, app-logo.css 2 (grep font-weight:800 | font-extrabold, source only)",
+        "width_probe": "With the 800 face loaded, measured widths of 'EngFlow Learning Path' at 100px: 700 -> 1160.406px, 800 -> 1173.906px, 900 -> 1187.109px - all distinct, so 800 renders as a real face (no synthesis). document.fonts reports 15 loaded faces incl. 400/500/700/800/900.",
+        "conclusion": "The decision to keep weight 800 is correct. This part of the claim is a 'do nothing' recommendation, not a defect."
+      }
+    }
+  ],
+  "summary": "Both factual pillars of the finding are wrong. (1) The 125376 B figure is a stale cached Google Fonts build; the live payload is 237740 B (verified by curl and by in-browser cache-busted Resource Timing). (2) fonts.gstatic.com DOES send 'timing-allow-origin: *', and a cache-busted fetch exposes transferSize (242240 B across 15 files, 0 zero-transfer entries) - the zero transferSize on a plain load is a cache hit, not TAO suppression. The only correct element is the 'keep weight 800' decision, which recommends no change and is not a defect.",
+  "severity": {
+    "claimed": "LOW",
+    "corrected": "INFO / non-actionable",
+    "rationale": "The finding recommends no action ('recorded, not recommended for cutting'), and its measurement (byte count) and mechanism (TAO) are both incorrect. There is no defect to fix; as an observation it is also numerically wrong."
+  }
+}

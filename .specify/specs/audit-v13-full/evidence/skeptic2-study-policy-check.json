@@ -1,0 +1,28 @@
+{
+  "claim": "study_policy singleton CHECK (id=1) absent from live DB because deploy.sql guards it inside the table-existence block (F124 bug class, unfixed for this table)",
+  "verdict": "NOT REFUTED — claim holds, reproduced against live system",
+  "file": "tasks/streak-study/deploy.sql",
+  "severity_claimed": "HIGH",
+  "evidence": {
+    "source_guard": "deploy.sql:27-31: `IF OBJECT_ID(N'dbo.study_policy','U') IS NULL CREATE TABLE ... CONSTRAINT ck_study_policy_singleton CHECK (id = 1)` — CHECK is inside the table guard, confirmed by reading the file",
+    "entity_mapped": "src/main/java/com/datn/engflow/model/entity/StudyPolicy.java @Entity @Table(name=\"study_policy\"); application.properties: spring.jpa.hibernate.ddl-auto=update",
+    "live_check_constraint_count_for_name": 0,
+    "whole_db_check_inventory_count": 8,
+    "study_policy_tables_in_check_inventory": 0,
+    "enforceability_test": {
+      "sql": "BEGIN TRAN; INSERT INTO dbo.study_policy(id,effective_from) VALUES (2,'2020-01-01');",
+      "outcome": "SUCCEEDED",
+      "rows_in_txn": ["1|2026-09-20", "2|2020-01-01"],
+      "after_rollback": ["1|2026-09-20"]
+    },
+    "f124_precedent_confirmed_live": {
+      "study_days_fk": "fk_study_days_user (present)",
+      "study_days_unique": "uq_study_days_user_date (present)",
+      "note": "study_days constraints exist because each has its own guard; study_policy CHECK has none"
+    },
+    "single_definition_check": "grep ck_study_policy_singleton across repo => only tasks/streak-study/deploy.sql:31; no migration V1-V9 adds it",
+    "write_path_survey": "Only read path in app code is StudyActivityService.policies.findById(1). No save()/persist of StudyPolicy in main code. Insertion test used the SQL runner directly."
+  },
+  "severity_assessment": "HIGH is defensible (matches project's own F124 precedent for the identical bug class) but no live app write path inserts a second row today, so current exploitability is low — latent schema-integrity defect. Not downgraded because the claim is factual, reproducible, and the same class was already accepted as a real defect.",
+  "not_probe_artefact": "No HTTP involved; no rate-limit bucket touched; rolled-back DDL-free txn; no scrollbar/DOM involved. Result reproducible."
+}

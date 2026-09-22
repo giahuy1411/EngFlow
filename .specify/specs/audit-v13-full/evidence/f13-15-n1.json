@@ -1,0 +1,27 @@
+{
+  "finding": "F-13-15",
+  "title": "/api/srs/due/{deckId} N+1 query on user_vocabulary_progress",
+  "severity": "MEDIUM",
+  "status": "FIXED",
+  "discovered_by": "Phase 5 performance sweep (workflow), proven by sys.dm_exec_query_stats delta — not by reading the code",
+  "root_cause": "SrsService.getDueWords() called progressRepository.findByUserIdAndVocabularyId(userId, vocab.getId()) INSIDE the loop over DeckWord — one query per word.",
+  "fix": {
+    "repository": "added List<UserVocabularyProgress> findByUserIdAndVocabularyIdIn(Long userId, Collection<Long> vocabularyIds)",
+    "service": "SrsService.getDueWords() now collects the deck's vocab ids, runs ONE batched query, builds Map<vocabId, progress>, and looks up in the loop",
+    "preserved": "F151 deck-ownership check (before any read) and F106 interval cap are untouched"
+  },
+  "regression_test": "SrsDueWordsAuthzTest.dueWordsUsesOneBatchedProgressQueryNotOnePerWord — asserts findByUserIdAndVocabularyIdIn called exactly once and findByUserIdAndVocabularyId never called",
+  "verification": "5/5 tests in SrsDueWordsAuthzTest pass (4 pre-existing authz tests + the new N+1 test)",
+  "live_measurement": {
+    "method": "sys.dm_exec_query_stats filtered by statement text — count executions of the per-word lookup vs the batched lookup around ONE /api/srs/due/10006 call",
+    "before_fix": {
+      "single_lookup_exec_delta": "+14 per call",
+      "note": "the per-word statement incremented once per deck word"
+    },
+    "after_fix": {
+      "single_lookup_exec": "454 -> 454 (unchanged, +0)",
+      "batch_lookup_exec": "3 -> 6",
+      "verdict": "the endpoint now uses the batched query and issues ZERO per-word lookups"
+    }
+  }
+}

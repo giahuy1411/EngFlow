@@ -1,0 +1,1451 @@
+{
+  "label": "before",
+  "phase": "audit-v13-full Phase 5 — performance measured BEFORE any optimisation (P5)",
+  "at": "2026-09-21T20:19:34.310Z",
+  "api": "http://localhost:8080",
+  "runs": 5,
+  "passes": 3,
+  "method": "5 calls per endpoint per pass, MEDIAN per pass, then MEDIAN across the 3 passes; body fully read before the clock stops; rate_limit:* flushed before each endpoint batch",
+  "backendStartedAt": "2026-09-21T20:17:29Z (container rebuilt+restarted by a concurrent audit phase)",
+  "endpointCount": 35,
+  "results": [
+    {
+      "name": "admin exercise search q=the",
+      "path": "/api/admin/exercises?page=0&size=10&q=the",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 6410,
+      "medianMs": 185.1,
+      "medianPerPass": [
+        185.1,
+        176.1,
+        186.1
+      ],
+      "minPerPass": 176.1,
+      "maxPerPass": 186.1,
+      "allSamples": [
+        235.1,
+        185.1,
+        187.5,
+        170.7,
+        170.1,
+        155,
+        176.1,
+        218.5,
+        164.8,
+        227.7,
+        169.6,
+        188.3,
+        185,
+        225.9,
+        186.1
+      ],
+      "medianOfAllSamples": 185.1
+    },
+    {
+      "name": "admin exercise list (no q)",
+      "path": "/api/admin/exercises?page=0&size=10",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 4961,
+      "medianMs": 72,
+      "medianPerPass": [
+        72,
+        77.8,
+        52.4
+      ],
+      "minPerPass": 52.4,
+      "maxPerPass": 77.8,
+      "allSamples": [
+        174.6,
+        72,
+        59.2,
+        43.8,
+        90.7,
+        97.7,
+        101.4,
+        77.8,
+        46.8,
+        41.7,
+        69.7,
+        52.2,
+        52.4,
+        47.7,
+        55.9
+      ],
+      "medianOfAllSamples": 59.2
+    },
+    {
+      "name": "admin stats",
+      "path": "/api/admin/stats",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 136,
+      "medianMs": 32.8,
+      "medianPerPass": [
+        41.3,
+        24.3,
+        32.8
+      ],
+      "minPerPass": 24.3,
+      "maxPerPass": 41.3,
+      "allSamples": [
+        95.6,
+        44.5,
+        32.7,
+        23,
+        41.3,
+        23.3,
+        30.4,
+        40.9,
+        21.5,
+        24.3,
+        57.3,
+        31.1,
+        32.8,
+        16.7,
+        36.5
+      ],
+      "medianOfAllSamples": 32.7
+    },
+    {
+      "name": "srs due (deck)",
+      "path": "/api/srs/due/10006",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 2,
+      "medianMs": 27,
+      "medianPerPass": [
+        29.7,
+        27,
+        17.7
+      ],
+      "minPerPass": 17.7,
+      "maxPerPass": 29.7,
+      "allSamples": [
+        38.4,
+        29.1,
+        29.7,
+        29.7,
+        34,
+        29.5,
+        24.7,
+        24.4,
+        27,
+        53.3,
+        23.7,
+        15.6,
+        14.6,
+        17.7,
+        24
+      ],
+      "medianOfAllSamples": 27
+    },
+    {
+      "name": "video lessons (admin)",
+      "path": "/api/v1/admin/video-lessons?page=0&size=10",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1801,
+      "medianMs": 25.5,
+      "medianPerPass": [
+        32.7,
+        12.3,
+        25.5
+      ],
+      "minPerPass": 12.3,
+      "maxPerPass": 32.7,
+      "allSamples": [
+        42.7,
+        16.6,
+        32.7,
+        43,
+        20.8,
+        12.3,
+        12.3,
+        11.7,
+        13.7,
+        13.9,
+        37.3,
+        25.5,
+        35.3,
+        25.3,
+        25.5
+      ],
+      "medianOfAllSamples": 25.3
+    },
+    {
+      "name": "admin users",
+      "path": "/api/admin/users?page=0&size=10",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 2976,
+      "medianMs": 25.5,
+      "medianPerPass": [
+        18.1,
+        41.1,
+        25.5
+      ],
+      "minPerPass": 18.1,
+      "maxPerPass": 41.1,
+      "allSamples": [
+        24,
+        18.1,
+        18.6,
+        18.1,
+        15.7,
+        41.1,
+        44.3,
+        47.6,
+        35.7,
+        36.3,
+        35.7,
+        35.7,
+        25.5,
+        21.6,
+        17.4
+      ],
+      "medianOfAllSamples": 25.5
+    },
+    {
+      "name": "lesson list (page 5)",
+      "path": "/api/lessons?page=5&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3884,
+      "medianMs": 22.5,
+      "medianPerPass": [
+        22.5,
+        53.1,
+        18.1
+      ],
+      "minPerPass": 18.1,
+      "maxPerPass": 53.1,
+      "allSamples": [
+        44.4,
+        22,
+        22.5,
+        28.3,
+        22,
+        53.1,
+        53.2,
+        70.9,
+        44.4,
+        32.8,
+        19.8,
+        15.1,
+        15.1,
+        21.7,
+        18.1
+      ],
+      "medianOfAllSamples": 22.5
+    },
+    {
+      "name": "lesson detail",
+      "path": "/api/lessons/41881",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3173,
+      "medianMs": 22.2,
+      "medianPerPass": [
+        41.7,
+        22.2,
+        10.6
+      ],
+      "minPerPass": 10.6,
+      "maxPerPass": 41.7,
+      "allSamples": [
+        542.5,
+        43.6,
+        41.7,
+        29.8,
+        23.6,
+        27.2,
+        24.4,
+        17.3,
+        22.2,
+        13.1,
+        10.1,
+        10.6,
+        8,
+        18.5,
+        14.6
+      ],
+      "medianOfAllSamples": 22.2
+    },
+    {
+      "name": "dashboard stats",
+      "path": "/api/dashboard/stats",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 156,
+      "medianMs": 22.1,
+      "medianPerPass": [
+        41.9,
+        22.1,
+        14
+      ],
+      "minPerPass": 14,
+      "maxPerPass": 41.9,
+      "allSamples": [
+        54.8,
+        41.9,
+        43.2,
+        24.2,
+        22.3,
+        33.6,
+        60.3,
+        17.6,
+        22.1,
+        12.3,
+        18.6,
+        21.9,
+        14,
+        13,
+        12.9
+      ],
+      "medianOfAllSamples": 22.1
+    },
+    {
+      "name": "vocabulary list (auth)",
+      "path": "/api/vocabulary?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 4337,
+      "medianMs": 21.3,
+      "medianPerPass": [
+        21.3,
+        36,
+        19.3
+      ],
+      "minPerPass": 19.3,
+      "maxPerPass": 36,
+      "allSamples": [
+        61.2,
+        20.8,
+        15.3,
+        21.3,
+        29.7,
+        36,
+        37.7,
+        23.8,
+        49.6,
+        24.8,
+        19.3,
+        23,
+        25.3,
+        12,
+        17.2
+      ],
+      "medianOfAllSamples": 23.8
+    },
+    {
+      "name": "leaderboard",
+      "path": "/api/leaderboard?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 2453,
+      "medianMs": 21.3,
+      "medianPerPass": [
+        34,
+        14.7,
+        21.3
+      ],
+      "minPerPass": 14.7,
+      "maxPerPass": 34,
+      "allSamples": [
+        41.7,
+        25.7,
+        34,
+        29.3,
+        36.4,
+        14.7,
+        12.5,
+        13.7,
+        18.7,
+        16.4,
+        24.2,
+        21.3,
+        23,
+        17.5,
+        12.9
+      ],
+      "medianOfAllSamples": 21.3
+    },
+    {
+      "name": "streak current",
+      "path": "/api/streak/current",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 40,
+      "medianMs": 20.2,
+      "medianPerPass": [
+        20.7,
+        20.2,
+        11.8
+      ],
+      "minPerPass": 11.8,
+      "maxPerPass": 20.7,
+      "allSamples": [
+        19.7,
+        20.7,
+        16.6,
+        20.7,
+        26.6,
+        21.5,
+        20.2,
+        28.3,
+        13.1,
+        11.9,
+        10.3,
+        9.9,
+        21.2,
+        18.2,
+        11.8
+      ],
+      "medianOfAllSamples": 19.7
+    },
+    {
+      "name": "game session (quiz)",
+      "path": "/api/games/quiz/10006",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 1518,
+      "medianMs": 19.5,
+      "medianPerPass": [
+        60.1,
+        19.5,
+        14.6
+      ],
+      "minPerPass": 14.6,
+      "maxPerPass": 60.1,
+      "allSamples": [
+        39.6,
+        60.1,
+        61.3,
+        48.4,
+        78.7,
+        30.3,
+        19.5,
+        22.1,
+        14.4,
+        19.4,
+        14.6,
+        13.4,
+        15,
+        15.1,
+        14.1
+      ],
+      "medianOfAllSamples": 19.5
+    },
+    {
+      "name": "decks (public)",
+      "path": "/api/decks?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3161,
+      "medianMs": 18.5,
+      "medianPerPass": [
+        19.4,
+        11,
+        18.5
+      ],
+      "minPerPass": 11,
+      "maxPerPass": 19.4,
+      "allSamples": [
+        30.5,
+        19.4,
+        14.5,
+        16.8,
+        27.7,
+        16.3,
+        10.3,
+        11.8,
+        11,
+        10,
+        30.9,
+        21.5,
+        12.6,
+        18.5,
+        13.7
+      ],
+      "medianOfAllSamples": 16.3
+    },
+    {
+      "name": "user progress",
+      "path": "/api/users/progress",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 59,
+      "medianMs": 17.8,
+      "medianPerPass": [
+        38.7,
+        17.8,
+        13.4
+      ],
+      "minPerPass": 13.4,
+      "maxPerPass": 38.7,
+      "allSamples": [
+        42.2,
+        25.9,
+        38.8,
+        15.4,
+        38.7,
+        18.2,
+        15.6,
+        10.9,
+        19.2,
+        17.8,
+        11.7,
+        10.7,
+        14.9,
+        15.6,
+        13.4
+      ],
+      "medianOfAllSamples": 15.6
+    },
+    {
+      "name": "speaking prompts (admin)",
+      "path": "/api/v1/admin/speaking-prompts?page=0&size=10",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 4565,
+      "medianMs": 16.2,
+      "medianPerPass": [
+        14.7,
+        16.2,
+        16.3
+      ],
+      "minPerPass": 14.7,
+      "maxPerPass": 16.3,
+      "allSamples": [
+        35.3,
+        12.9,
+        13.9,
+        14.7,
+        14.9,
+        17.9,
+        21.2,
+        12,
+        16.2,
+        15.2,
+        16.3,
+        12.6,
+        17,
+        22.4,
+        13.8
+      ],
+      "medianOfAllSamples": 15.2
+    },
+    {
+      "name": "admin lessons",
+      "path": "/api/admin/lessons?page=0&size=10",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 2966,
+      "medianMs": 16.2,
+      "medianPerPass": [
+        24.3,
+        15.1,
+        16.2
+      ],
+      "minPerPass": 15.1,
+      "maxPerPass": 24.3,
+      "allSamples": [
+        76.1,
+        37.1,
+        13.4,
+        14.5,
+        24.3,
+        19,
+        16.7,
+        15.1,
+        11.4,
+        10.3,
+        16.2,
+        28.7,
+        42.9,
+        15.5,
+        13.8
+      ],
+      "medianOfAllSamples": 16.2
+    },
+    {
+      "name": "streak snapshot",
+      "path": "/api/streak/snapshot",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 390,
+      "medianMs": 16,
+      "medianPerPass": [
+        25.9,
+        16,
+        12.4
+      ],
+      "minPerPass": 12.4,
+      "maxPerPass": 25.9,
+      "allSamples": [
+        35.5,
+        21,
+        18.1,
+        36.2,
+        25.9,
+        16,
+        15.1,
+        24.1,
+        17.4,
+        12.8,
+        12.3,
+        12.4,
+        10.9,
+        13.2,
+        19.4
+      ],
+      "medianOfAllSamples": 17.4
+    },
+    {
+      "name": "game session (mixed)",
+      "path": "/api/games/mixed/10006",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1241,
+      "medianMs": 16,
+      "medianPerPass": [
+        16,
+        14.3,
+        16.9
+      ],
+      "minPerPass": 14.3,
+      "maxPerPass": 16.9,
+      "allSamples": [
+        15,
+        16,
+        25.6,
+        15.4,
+        16.3,
+        13.8,
+        13.2,
+        16.3,
+        14.3,
+        23.7,
+        17.5,
+        16.9,
+        20.2,
+        12.6,
+        13.3
+      ],
+      "medianOfAllSamples": 16
+    },
+    {
+      "name": "video attempts (my)",
+      "path": "/api/v1/video-attempts",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1426,
+      "medianMs": 15.8,
+      "medianPerPass": [
+        15.8,
+        15.3,
+        20.6
+      ],
+      "minPerPass": 15.3,
+      "maxPerPass": 20.6,
+      "allSamples": [
+        24.3,
+        15.8,
+        15.2,
+        11.3,
+        18.8,
+        15.3,
+        32.6,
+        16.4,
+        12.8,
+        10.9,
+        18.7,
+        20.6,
+        21.9,
+        15.7,
+        29
+      ],
+      "medianOfAllSamples": 16.4
+    },
+    {
+      "name": "flashcard status",
+      "path": "/api/flashcards/status/10017",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 1,
+      "medianMs": 14.5,
+      "medianPerPass": [
+        22.4,
+        14.5,
+        9.9
+      ],
+      "minPerPass": 9.9,
+      "maxPerPass": 22.4,
+      "allSamples": [
+        22.4,
+        13.9,
+        18.9,
+        24.9,
+        30.9,
+        14.3,
+        13.8,
+        21.4,
+        14.5,
+        17,
+        10.3,
+        9.9,
+        9.7,
+        12.9,
+        9.7
+      ],
+      "medianOfAllSamples": 14.3
+    },
+    {
+      "name": "lesson list (page 0)",
+      "path": "/api/lessons?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3210,
+      "medianMs": 14.4,
+      "medianPerPass": [
+        25.9,
+        14.4,
+        12.7
+      ],
+      "minPerPass": 12.7,
+      "maxPerPass": 25.9,
+      "allSamples": [
+        33,
+        25.6,
+        33.6,
+        25.9,
+        21.2,
+        14.4,
+        12.9,
+        15.7,
+        15.6,
+        13.8,
+        14.6,
+        13.6,
+        11.3,
+        12.7,
+        11.4
+      ],
+      "medianOfAllSamples": 14.6
+    },
+    {
+      "name": "video lessons (public)",
+      "path": "/api/v1/video-lessons?page=0&size=10",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 1801,
+      "medianMs": 14.2,
+      "medianPerPass": [
+        15.2,
+        11.2,
+        14.2
+      ],
+      "minPerPass": 11.2,
+      "maxPerPass": 15.2,
+      "allSamples": [
+        76.1,
+        15.2,
+        12.1,
+        15.8,
+        13.2,
+        11.2,
+        14.5,
+        9.5,
+        9.5,
+        11.2,
+        15,
+        11.8,
+        10.1,
+        14.8,
+        14.2
+      ],
+      "medianOfAllSamples": 13.2
+    },
+    {
+      "name": "game session (memory)",
+      "path": "/api/games/memory/10006",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1271,
+      "medianMs": 14.1,
+      "medianPerPass": [
+        18.9,
+        12.3,
+        14.1
+      ],
+      "minPerPass": 12.3,
+      "maxPerPass": 18.9,
+      "allSamples": [
+        17.1,
+        18.9,
+        14.6,
+        24.6,
+        18.9,
+        20.3,
+        16,
+        12.3,
+        12.2,
+        11,
+        25.5,
+        14.1,
+        20.1,
+        14.1,
+        13.4
+      ],
+      "medianOfAllSamples": 16
+    },
+    {
+      "name": "lesson submissions (my)",
+      "path": "/api/lesson-submissions/my/lesson/41881/skill/SPEAKING",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 0,
+      "medianMs": 14,
+      "medianPerPass": [
+        14,
+        12.8,
+        33.5
+      ],
+      "minPerPass": 12.8,
+      "maxPerPass": 33.5,
+      "allSamples": [
+        30.4,
+        14,
+        16.7,
+        13,
+        13.8,
+        12.5,
+        16,
+        11.4,
+        13.3,
+        12.8,
+        47.3,
+        24.7,
+        33.5,
+        41.6,
+        21.7
+      ],
+      "medianOfAllSamples": 16
+    },
+    {
+      "name": "auth me",
+      "path": "/api/auth/me",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 421,
+      "medianMs": 13.5,
+      "medianPerPass": [
+        17.5,
+        11.9,
+        13.5
+      ],
+      "minPerPass": 11.9,
+      "maxPerPass": 17.5,
+      "allSamples": [
+        15.3,
+        17.5,
+        18.6,
+        14.2,
+        20.3,
+        11.9,
+        10.7,
+        13.8,
+        14.3,
+        11.9,
+        21.8,
+        22.9,
+        13.1,
+        13.5,
+        11.1
+      ],
+      "medianOfAllSamples": 14.2
+    },
+    {
+      "name": "srs stats",
+      "path": "/api/srs/stats",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 82,
+      "medianMs": 13.5,
+      "medianPerPass": [
+        14,
+        13.5,
+        8.1
+      ],
+      "minPerPass": 8.1,
+      "maxPerPass": 14,
+      "allSamples": [
+        29,
+        13.1,
+        33.8,
+        14,
+        10.8,
+        14.9,
+        11.7,
+        8.4,
+        13.5,
+        13.6,
+        10.2,
+        7.7,
+        7.6,
+        14.2,
+        8.1
+      ],
+      "medianOfAllSamples": 13.1
+    },
+    {
+      "name": "exercise list (lesson)",
+      "path": "/api/lessons/41881/exercises",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 1766,
+      "medianMs": 12.9,
+      "medianPerPass": [
+        43.1,
+        12.2,
+        12.9
+      ],
+      "minPerPass": 12.2,
+      "maxPerPass": 43.1,
+      "allSamples": [
+        44.8,
+        53.9,
+        41,
+        43.1,
+        23,
+        13.1,
+        12.2,
+        13.2,
+        9.2,
+        10,
+        17.9,
+        19.8,
+        12.9,
+        7.7,
+        10.4
+      ],
+      "medianOfAllSamples": 13.2
+    },
+    {
+      "name": "streak history",
+      "path": "/api/streak/history",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 27,
+      "medianMs": 12.2,
+      "medianPerPass": [
+        16.1,
+        12.2,
+        11.7
+      ],
+      "minPerPass": 11.7,
+      "maxPerPass": 16.1,
+      "allSamples": [
+        18.2,
+        16.6,
+        16.1,
+        12.5,
+        15.5,
+        14.2,
+        11.1,
+        11,
+        12.2,
+        16.7,
+        28.1,
+        11.7,
+        16.7,
+        10.8,
+        11.6
+      ],
+      "medianOfAllSamples": 14.2
+    },
+    {
+      "name": "lesson structure",
+      "path": "/api/lessons/41881/structure",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3065,
+      "medianMs": 11.8,
+      "medianPerPass": [
+        39.1,
+        11.6,
+        11.8
+      ],
+      "minPerPass": 11.6,
+      "maxPerPass": 39.1,
+      "allSamples": [
+        113.2,
+        43.4,
+        34.7,
+        39.1,
+        36.6,
+        11.6,
+        12.5,
+        9.5,
+        13.1,
+        10.8,
+        17.7,
+        16.5,
+        11.8,
+        10.8,
+        10.2
+      ],
+      "medianOfAllSamples": 13.1
+    },
+    {
+      "name": "payment status",
+      "path": "/api/v1/payment/status",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 69,
+      "medianMs": 11.8,
+      "medianPerPass": [
+        11.8,
+        11.6,
+        19.2
+      ],
+      "minPerPass": 11.6,
+      "maxPerPass": 19.2,
+      "allSamples": [
+        13.8,
+        10.8,
+        14.3,
+        11.8,
+        11.1,
+        10.7,
+        13,
+        8.5,
+        11.6,
+        15.3,
+        11.1,
+        12.8,
+        19.6,
+        22.9,
+        19.2
+      ],
+      "medianOfAllSamples": 12.8
+    },
+    {
+      "name": "lesson exercise content",
+      "path": "/api/lessons/41881/exercises/content",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 2967,
+      "medianMs": 11.7,
+      "medianPerPass": [
+        18.6,
+        11.7,
+        10.3
+      ],
+      "minPerPass": 10.3,
+      "maxPerPass": 18.6,
+      "allSamples": [
+        52.4,
+        18.6,
+        14.1,
+        17.3,
+        18.9,
+        11.7,
+        12.6,
+        10.9,
+        11.4,
+        12.9,
+        9.9,
+        14.1,
+        10.3,
+        12.3,
+        10
+      ],
+      "medianOfAllSamples": 12.6
+    },
+    {
+      "name": "decks (my)",
+      "path": "/api/decks/my",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 315,
+      "medianMs": 10,
+      "medianPerPass": [
+        12.3,
+        10,
+        9.3
+      ],
+      "minPerPass": 9.3,
+      "maxPerPass": 12.3,
+      "allSamples": [
+        44.9,
+        12.3,
+        11.8,
+        11.6,
+        12.5,
+        10,
+        13.4,
+        12.2,
+        9.2,
+        9.1,
+        10.3,
+        9.3,
+        8.8,
+        8.7,
+        9.3
+      ],
+      "medianOfAllSamples": 10.3
+    },
+    {
+      "name": "vocabulary search",
+      "path": "/api/vocabulary/search?keyword=the",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3372,
+      "medianMs": 9.6,
+      "medianPerPass": [
+        12.7,
+        9.6,
+        7.7
+      ],
+      "minPerPass": 7.7,
+      "maxPerPass": 12.7,
+      "allSamples": [
+        52,
+        10.7,
+        10.7,
+        14.8,
+        12.7,
+        9.5,
+        9.6,
+        11.6,
+        13.5,
+        7.8,
+        8.9,
+        8.6,
+        7,
+        7.7,
+        6.6
+      ],
+      "medianOfAllSamples": 9.6
+    },
+    {
+      "name": "speaking prompts (public)",
+      "path": "/api/v1/speaking-prompts?page=0&size=10",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 4565,
+      "medianMs": 9.4,
+      "medianPerPass": [
+        10.8,
+        9.4,
+        7.1
+      ],
+      "minPerPass": 7.1,
+      "maxPerPass": 10.8,
+      "allSamples": [
+        24.3,
+        13.8,
+        10.3,
+        10.8,
+        9.2,
+        8.2,
+        9.4,
+        9.7,
+        7.3,
+        11,
+        7.9,
+        7.1,
+        7.5,
+        6.1,
+        7
+      ],
+      "medianOfAllSamples": 9.2
+    }
+  ],
+  "rawPasses": {
+    "before": "sweep/v13/perf-before.json",
+    "before-r2": "sweep/v13/perf-before-r2.json",
+    "before-r3": "sweep/v13/perf-before-r3.json"
+  },
+  "ancillary": {
+    "adminExerciseSearch": {
+      "measured": {
+        "q_the_ms": 185.1,
+        "no_q_ms": 72.0,
+        "q_zzqx_ms": 61.1
+      },
+      "runs": "3 passes x 5 calls, median of medians; q_the per-pass 185.1 / 176.1 / 186.1",
+      "predicate": "LOWER(e.question) LIKE LOWER(CONCAT('%',:kw,'%')) OR LOWER(COALESCE(e.explanation,'')) LIKE LOWER(CONCAT('%',:kw,'%'))",
+      "plan": "Clustered Index Scan(PK__exercise__C121418ED83A5E11) + Filter(Compute Scalar: lower(question), lower(coalesce(explanation,''))). Confirmed by SET SHOWPLAN_TEXT and the real query_plan from sys.dm_exec_query_plan.",
+      "indexes_on_exercises": [
+        "PK exercise_id (clustered)",
+        "idx_exercises_type",
+        "idx_exercises_difficulty",
+        "idx_exercises_lesson_order",
+        "idx_exercises_lesson_type_order",
+        "IX_exercises_lesson_type_diff_order"
+      ],
+      "index_on_question": null,
+      "rows_scanned": 43735,
+      "matching_rows_q_the": 16588,
+      "logical_reads": 1294,
+      "sql_measurements": {
+        "count_q_the_current": {
+          "reads": 1294,
+          "cpu_ms": "100-155",
+          "matches": 16588
+        },
+        "count_q_the_no_lower": {
+          "reads": 1294,
+          "cpu_ms": "80-92",
+          "matches": 16588,
+          "note": "collation is case-insensitive, so dropping LOWER() keeps the result; saves ~20-25ms CPU, plan unchanged"
+        },
+        "count_prefix_the_pct": {
+          "reads": 1294,
+          "cpu_ms": "12-13",
+          "matches": 3859,
+          "note": "still scans (no index on question); would only seek if an index existed"
+        },
+        "count_no_q": {
+          "reads": 133,
+          "cpu_ms": "0-4",
+          "matches": 43735
+        },
+        "page_no_q_wide_isolated": {
+          "reads": 1364,
+          "cpu_ms": "116-188",
+          "elapsed_ms": "15-25"
+        },
+        "page_q_the_wide_isolated": {
+          "reads": 1364,
+          "cpu_ms": "393-459",
+          "elapsed_ms": "30-83"
+        }
+      },
+      "query_stats_delta_one_call": {
+        "page_statement": {
+          "reads": 4770,
+          "cpu_ms": 183.8,
+          "elapsed_ms": 30.6,
+          "note": "app's parameterized catch-all measured HIGHER than the same SQL with a literal NULL (1364 reads) - recorded as measured, not explained"
+        },
+        "count_statement": {
+          "reads": 1301,
+          "cpu_ms": 18.3,
+          "elapsed_ms": 18.3
+        }
+      },
+      "deep_pagination": {
+        "verdict": "NOT a finding - did not reproduce under controlled interleaving",
+        "first_observation_ms": {
+          "page_0": 158.0,
+          "page_800": 376.6,
+          "page_1658": 448.9,
+          "caveat": "measured while a concurrent audit phase (sweep/v13/ui-sweep.js) was loading the stack"
+        },
+        "controlled_interleaved_ms": {
+          "p0": 213.4,
+          "p400": 197.3,
+          "p800": 199.6,
+          "p1200": 218.9,
+          "p1658": 109.4
+        },
+        "sql_offset_ms": {
+          "shallow_offset_0_elapsed": "30-33",
+          "deep_offset_16580_elapsed": "63-79",
+          "reads_both": 1364
+        }
+      }
+    },
+    "srsDueDeck": {
+      "median_ms": 27.0,
+      "n_plus_1": true,
+      "deck_words": 10,
+      "progress_queries_per_call": 10,
+      "other_queries_per_call": 2,
+      "evidence": "sys.dm_exec_query_stats delta across one GET /api/srs/due/10006: 10 executions of the findByUserIdAndVocabularyId statement + 1 deck_words statement + 1 auth statement",
+      "source": "SrsService.getDueWords loops deckWords and calls progressRepository.findByUserIdAndVocabularyId per word",
+      "scaling_note": "linear in deck size; seed decks hold 10 words so the cost is 27ms today"
+    },
+    "bundle": {
+      "entry_js": {
+        "raw_bytes": 177545,
+        "gzip_bytes": 67444,
+        "file": "index-DBFid7BZ.js"
+      },
+      "entry_css": {
+        "raw_bytes": 87670,
+        "gzip_bytes": 15242,
+        "file": "index-DQKziDQ5.css"
+      },
+      "largest_lazy_chunk": {
+        "raw_bytes": 64950,
+        "gzip_bytes": 21953,
+        "file": "markdown-DBu3buwd.js"
+      },
+      "route_transfer_measured": {
+        "/": {
+          "local_transfer_bytes": 290387,
+          "requests": 12
+        },
+        "/lessons": {
+          "local_transfer_bytes": 350539,
+          "requests": 13
+        }
+      },
+      "fonts": {
+        "css_faces_declared": 18,
+        "files_fetched_by_browser": 15,
+        "bytes_fetched": 125376,
+        "note": "cross-origin woff2 are invisible to Resource Timing without Timing-Allow-Origin, so they are NOT in the local_transfer numbers above; real page weight = local + 125376"
+      }
+    },
+    "lighthouse": {
+      "tool": "chrome-devtools MCP lighthouse_audit",
+      "limitation": "this MCP build returns only accessibility, best-practices, seo, agentic-browsing - the Performance category (and thus a Lighthouse performance score / LCP / TBT) is NOT produced. CLS is produced. LCP was taken from performance_start_trace instead.",
+      "runs": {
+        "/ (dev 5173)": {
+          "accessibility": 1.0,
+          "best_practices": 1.0,
+          "seo": 1.0,
+          "agentic_browsing": 0.67,
+          "cls": 0.00062,
+          "failed_audits": [
+            "llms-txt"
+          ]
+        },
+        "/lessons (dev 5173)": {
+          "accessibility": 1.0,
+          "best_practices": 1.0,
+          "seo": 1.0,
+          "agentic_browsing": 0.67,
+          "cls": 0.00049,
+          "failed_audits": [
+            "llms-txt"
+          ]
+        },
+        "/login (dev 5173)": {
+          "accessibility": 1.0,
+          "best_practices": 1.0,
+          "seo": 0.66,
+          "agentic_browsing": 0.67,
+          "cls": 0.00058,
+          "failed_audits": [
+            "is-crawlable",
+            "llms-txt"
+          ]
+        },
+        "/ (production build 8098)": {
+          "accessibility": 1.0,
+          "best_practices": 1.0,
+          "seo": 1.0,
+          "agentic_browsing": 0.67,
+          "cls": 0.00106,
+          "failed_audits": [
+            "llms-txt"
+          ]
+        }
+      },
+      "llms_txt": "GET /llms.txt returns 200 with index.html (the SPA fallback), not a Markdown file -> Lighthouse reports 'missing H1' + 'no links'. The file does not exist in frontend/public or frontend/dist.",
+      "is_crawlable_login": "robots.txt intentionally Disallows /login, /register, /forgot-password, /profile, /admin - expected, not a defect"
+    },
+    "cls_playwright": {
+      "probe": "sweep/v13/cls-probe.js",
+      "method": "fresh context per run (cold cache), PerformanceObserver type=layout-shift buffered+attribution, 3 runs, asserts observer armed",
+      "results": {
+        "/": {
+          "median": 0.00069,
+          "runs": [
+            0.00067,
+            0.00069,
+            0.00069
+          ],
+          "armed_all": true
+        },
+        "/lessons": {
+          "median": 0.00095,
+          "runs": [
+            0.00095,
+            0.00095,
+            0.00095
+          ],
+          "armed_all": true
+        },
+        "/login": {
+          "median": 3e-05,
+          "runs": [
+            3e-05,
+            3e-05,
+            3e-05
+          ],
+          "armed_all": true
+        }
+      },
+      "worst_single_entry": {
+        "route": "/lessons",
+        "t_ms": 642,
+        "value": 0.00071,
+        "sources": [
+          "DIV.flex.flex-wrap.gap-2",
+          "A.app-navbar__link"
+        ]
+      },
+      "verdict": "v12 F150 (CLS 0.104 on /) stays fixed: all three routes < 0.001"
+    },
+    "lcp_trace": {
+      "tool": "chrome-devtools MCP performance_start_trace (lab, unthrottled, local)",
+      "results": {
+        "/ (production build)": {
+          "lcp_ms": 260,
+          "ttfb_ms": 7,
+          "render_delay_ms": 253,
+          "cls": 0.0
+        },
+        "/lessons (production build)": {
+          "lcp_ms": 200,
+          "ttfb_ms": 5,
+          "render_delay_ms": 195,
+          "cls": 0.0
+        }
+      },
+      "cache_wasted_bytes": {
+        "/": 289000,
+        "/lessons": 349300
+      },
+      "note": "python -m http.server sends no cache headers, so the wasted-bytes figure is an artefact of the throwaway static server, not of the app"
+    },
+    "contention_note": "A concurrent audit phase (sweep/v13/ui-sweep.js, pid 4728) rebuilt and restarted engflow-backend at 2026-09-21T20:17:29Z and was running during the first probe pass. Those readings were discarded; all numbers in 'results' come from 3 passes that ran after that restart and after the sweep exited."
+  },
+  "timeline": {
+    "discarded_passes": {
+      "at": [
+        "2026-09-21T20:12:56Z",
+        "2026-09-21T20:13:32Z",
+        "2026-09-21T20:14:04Z"
+      ],
+      "reason": "ran before the 20:17:29 backend restart; lesson list (page 0) median 47.1ms vs 14.4ms clean (>3x)",
+      "files_deleted": [
+        "sweep/v13/perf-before-r2.json",
+        "sweep/v13/perf-before-r3.json"
+      ]
+    },
+    "used_passes": {
+      "at": [
+        "2026-09-21T20:19:34Z",
+        "2026-09-21T20:20:03Z",
+        "2026-09-21T20:20:29Z"
+      ],
+      "reason": "all after the 20:17:29 restart and before the 20:31:40 restart -> same backend instance"
+    },
+    "later_restart": {
+      "at": "2026-09-21T20:31:40Z",
+      "reason": "a second backend restart by the concurrent phase, after all canonical perf passes; affects only the later ancillary probes (deep-pagination interleave, SRS delta), whose conclusions do not depend on timing"
+    },
+    "concurrent_process": "sweep/v13/ui-sweep.js (another audit phase) was running for much of the session"
+  },
+  "contention_note": "The stack was NOT quiet: a concurrent audit phase restarted engflow-backend at 20:17:29Z and again at 20:31:40Z and ran a UI sweep. All 'results' numbers come from 3 passes in the 20:19:34-20:20:29 window (one backend instance, no build in flight). Earlier passes were discarded and their files deleted. See 'timeline'."
+}

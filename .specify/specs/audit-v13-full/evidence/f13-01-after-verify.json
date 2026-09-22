@@ -1,0 +1,29 @@
+{
+  "probe": "live UI (Playwright MCP) + real API on :8080 + real DB rows, after the corrected fix",
+  "date": "2026-09-22 (+07)",
+  "case_A_reported_bug_lesson_91920": {
+    "data": "exercises 777434 & 766150 — MULTIPLE_CHOICE, options=[\"a\",\"b\",\"c\",\"d\"]",
+    "url": "http://localhost:5173/lessons/91920 tab Bài tập",
+    "badges": ["Trắc nghiệm", "Trắc nghiệm"],
+    "text_inputs": 0,
+    "mc_option_buttons": 8,
+    "option_texts": ["a", "b", "c", "d", "a", "b", "c", "d"],
+    "verdict": "PASS — the reported exercise now renders as multiple choice (was 0 buttons / 2 text inputs)"
+  },
+  "case_B_mass_regression_guard_lesson_567": {
+    "data": "12 MULTIPLE_CHOICE rows with options IS NULL (the shape of 32,814 rows = 97.8% of all MC)",
+    "url": "http://localhost:5173/lessons/567 tab Bài tập",
+    "api_returns": "12 rows exerciseType=MULTIPLE_CHOICE, options=None",
+    "badges": {"Trắc nghiệm": 12, "Điền từ": 27},
+    "text_inputs": 39,
+    "mc_option_buttons": 0,
+    "verdict": "PASS — every legacy NULL-option card keeps an enabled text input, so it stays answerable. The first fix had made these dead cards; that regression is gone."
+  },
+  "api_guard_cases": {
+    "create_bare_letter_MC": {"http": 400, "detail": "MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \"a\"/\"b\"/\"c\"/\"d\"", "verdict": "PASS — rejected"},
+    "create_real_MC": {"http": 200, "verdict": "PASS — accepted"},
+    "edit_legacy_NULL_option_row_question_only": {"http": 200, "verdict": "PASS — NOT blocked (the first fix wrongly returned 400 here)"}
+  },
+  "cleanup": "probe rows deleted by listed id; question of 766150 restored to 'câu 1'; PROBE_LEFT=0",
+  "conclusion": "F-13-01 fixed at render + create + AI paths without regressing the 32,814 legacy rows. Verified against live UI, live API and the real DB."
+}

@@ -1,0 +1,50 @@
+{
+  "skeptic": "skeptic #1",
+  "claim_id": "F-13-01c",
+  "claim_title": "?sort= is silently ignored by three paged endpoints; /api/vocabulary honours it and returns 500 on an unknown property",
+  "verdict": "REFUTED (partially — headline evidence is stale)",
+  "measured_at": "2026-09-22 (+07), live stack backend :8080 (container engflow-backend)",
+  "auth": "real login user@gmail.com / admin@gmail.com (POST /api/auth/login, body.token)",
+  "rate_limit_prep": "docker exec engflow-redis redis-cli --scan --pattern 'rate_limit:*' | del — flushed before probes",
+
+  "part_1_unknown_property_500": {
+    "claim": "GET /api/vocabulary?size=2&sort=notacolumn,asc -> HTTP 500 (PropertyReferenceException)",
+    "live_result": "HTTP 400",
+    "body": "{\"detail\":\"Tham số sắp xếp không hợp lệ.\",\"instance\":\"/api/vocabulary\",\"status\":400,\"title\":\"Bad Request\"}",
+    "repeatability": "2/2 -> 400 400",
+    "backend_log": "WARN c.d.e.exception.GlobalExceptionHandler : Invalid sort property: No property 'notacolumn' found for type 'Vocabulary'",
+    "why": "The live working tree already contains an uncommitted fix: GlobalExceptionHandler.handlePropertyReferenceException(...) -> ProblemDetail 400, documented in-source as 'audit-v13 F-13-11'. It is in `git diff` (+17 lines) but NOT in HEAD (`git show HEAD:...GlobalExceptionHandler.java | grep PropertyReferenceException` -> empty). The claim was recorded BEFORE the fix and was never re-measured after it.",
+    "existing_evidence_in_repo": "evidence/f13-11-13-verify.json records F-13-11_invalid_sort {before:500, after:400} and evidence/api-sweep.md F-13-01c already states the same 500. The claim under review is a stale copy of an already-fixed item.",
+    "conclusion": "FALSE against the live system."
+  },
+
+  "part_2_sort_ignored_three_endpoints": {
+    "claim": "?sort= silently ignored by /api/lessons, /api/admin/exercises, /api/decks",
+    "live_result": "REPRODUCED",
+    "lessons": "GET /api/lessons?size=5&sort=title,asc vs ,desc -> IDENTICAL payloads: [(41881,'test'),(81895,'Admin Created Lesson'),(91900,...),(91919,'test'),(91920,'thầy bình ')]; totalElements=1465; both HTTP 200",
+    "admin_exercises": "GET /api/admin/exercises?size=5&sort=title,asc vs ,desc (admin token) -> IDENTICAL, ids [766149,766150,777434,745554,745559]; both HTTP 200",
+    "decks": "GET /api/decks?size=5&sort=name,asc vs ,desc (user token) -> IDENTICAL, names ['Academic Word List','Common English Idioms','Essential Phrasal Verbs','Everyday English','IELTS Academic: Environment']; both HTTP 200",
+    "vocabulary_control": "GET /api/vocabulary?size=3&sort=word,asc -> ['agenda','airport','algorithm']; ,desc -> ['volunteer','virtual','urbanization'] -> correctly reversed",
+    "source_confirmed": "LessonController:38 PageRequest.of(..., Sort.by(\"orderIndex\").ascending().and(Sort.by(\"id\"))); AdminExerciseController:39 Sort.by(\"orderIndex\"); DeckController:34,50 Sort.by(\"name\"). All three build their own PageRequest and never read ?sort=. VocabularyController:37 binds @PageableDefault(size=20, sort=\"word\") Pageable.",
+    "is_this_a_bug": "No actionable defect. (a) Zero frontend callers send ?sort= to any of these endpoints — `grep -rn 'sort=' frontend/src` returns no hits, so the parameter is unused. (b) The hardcoded order is deliberate and meaningful (orderIndex = curriculum order; name = alphabetical deck list), so the 200 default order is the correct, stable response, not a silent wrong answer to a real request."
+  },
+
+  "part_3_word_drop_500": {
+    "claim": "sort=word;DROP -> 500 (InvalidDataAccessApiUsageException)",
+    "live_result": "HTTP 500 CONFIRMED, 2/2",
+    "body": "{\"detail\":\"Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.\",\"instance\":\"/api/vocabulary\",\"status\":500,\"title\":\"Internal Server Error\"}",
+    "note": "This is a DIFFERENT exception class from the fixed one — the sort string 'word;DROP' is not parsed as a property reference, so PropertyReferenceException never fires and it falls through to the catch-all 500. Real, but: no SQL injection (sort is mapped to a JPA property path, never concatenated), no data loss (parity table intact), requires authentication, and no frontend caller sends a sort string of this shape.",
+    "severity": "LOW (independent of the claim's headline)"
+  },
+
+  "not_a_probe_artefact": "No 429 was observed (buckets flushed first; all probes 200/400/500 by status, never 429). Not a UI/DOM reading, so no scrollbar/redirect confound. The 500-vs-400 discrepancy is not flaky: repeated 2/2 each.",
+  "side_effects": "Probes were GET-only + login POSTs; no rows created, nothing to clean up. PROBE_LEFT=0.",
+  "parity_at_end": "1470|43737|75|118|29|15|4|126|10|5 (baseline 1470|43735|72|...; the +2 exercises / +3 users drift is from concurrently running audit agents, not this probe).",
+
+  "severity_verdict": {
+    "as_claimed": "LOW",
+    "corrected": "INFORMATIONAL for the ignored-?sort= residual (dead parameter, intended defaults); the word;DROP 500 is a separate LOW",
+    "why": "The claim's severity driver was the 500 on an unknown property, which no longer occurs. What remains is an unused query parameter being ignored in favour of a deliberate default sort — correct behaviour, not a defect."
+  },
+  "final": "refuted=true — the headline evidence (500 on an unknown property) does not hold against the live system; the residual behaviour is intended and has no caller."
+}

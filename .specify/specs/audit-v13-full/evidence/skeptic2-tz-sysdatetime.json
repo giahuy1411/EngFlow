@@ -1,0 +1,71 @@
+{
+  "claim_id": "phase1-sysdatetime-utc-vs-07",
+  "skeptic": "skeptic#2",
+  "verdict": "REFUTED",
+  "refuted": true,
+  "claimed_severity": "LOW",
+  "corrected_severity": "INFO",
+  "summary": "The three-clock observation is real and reproducible, but it is NOT a defect. No application code path reads the DB clock, the live schema has zero GETDATE() defaults, and the repo's own audit tooling already documents and compensates for this exact fact. The claim's stated mechanism (DATEDIFF reports stored rows '7h older') is also directionally wrong.",
+
+  "sub_claims_verified_true": [
+    {
+      "claim": "SQL Server container SYSDATETIME() == SYSUTCDATETIME(), offset 0",
+      "verdict": "TRUE",
+      "evidence": "python sweep/v8/sqlrun.py tmp/tz-final.sql -> sysdatetime=2026-09-21 20:58:25.5833112 ; sysutcdatetime=2026-09-21 20:58:25.5833112 ; sysdatetimeoffset=2026-09-21T20:58:25.5833112Z ; offset_minutes=0"
+    },
+    {
+      "claim": "backend container runs TZ=Asia/Ho_Chi_Minh at docker-compose.yml:52",
+      "verdict": "TRUE",
+      "evidence": "sed -n '52p' docker-compose.yml -> '- TZ=Asia/Ho_Chi_Minh' ; docker exec engflow-backend sh -c 'echo $TZ; date' -> TZ=Asia/Ho_Chi_Minh / Tue Sep 22 03:54:51 +07 2026"
+    },
+    {
+      "claim": "sqlserver container has no TZ set",
+      "verdict": "TRUE",
+      "evidence": "docker exec engflow-sqlserver sh -c 'echo $TZ; date' -> TZ= (empty) / Mon Sep 21 20:54:51 UTC 2026"
+    },
+    {
+      "claim": "host clock is +07",
+      "verdict": "TRUE",
+      "evidence": "date -> 2026-09-22 03:54:45 +0700 (same instant as backend)"
+    }
+  ],
+
+  "refutation": [
+    {
+      "point": "No application code reads the DB clock; the JVM is the sole timestamp writer.",
+      "evidence": "grep 'nativeQuery' src/main/java -> 0 matches. grep -iE 'CURRENT_DATE|CURRENT_TIMESTAMP|CURRENT_TIME' src/main/java -> 0 matches. All 33 @Query are JPQL with no clock functions. Writes are JVM-side: @CreationTimestamp/@UpdateTimestamp on 15 entities, LocalDateTime.now() in 9 services. Confirmed by repo's own note sweep/v8/ui/lib.js:28-48 ('SQL Server's own clock is UTC and no column has a SYSDATETIME() default, so the JVM is the only writer')."
+    },
+    {
+      "point": "The GETDATE() defaults the claim implies are live do NOT exist in the running schema.",
+      "evidence": "SELECT COUNT(*) FROM sys.default_constraints -> 0 ; SELECT COUNT(*) FROM sys.columns WHERE default_object_id <> 0 -> 0. Flyway is disabled (application.properties:20 spring.flyway.enabled=false) and Hibernate ddl-auto manages the schema, so the DEFAULT GETDATE() text in db/migration/V1,V3,V9 (reference-only) is never applied. There is no column that can silently receive a UTC value."
+    },
+    {
+      "point": "The claim's stated mechanism is directionally wrong.",
+      "evidence": "Measured on a real fresh row: SELECT DATEDIFF(MINUTE, MAX(updated_at), SYSDATETIME()) FROM users -> -418 (and on exercise_attempts -> -420 in tmp/dir.sql case A). Because stored values are VN wall-clock (UTC+7) and SYSDATETIME() is UTC, the column reads ~7h in the FUTURE (negative), not '7h older than it is' as the claim states. The direction in the claim is inverted."
+    },
+    {
+      "point": "This is documented, intended, compensated-for environment behavior, not a discovery.",
+      "evidence": "sweep/v8/db-audit.sql:6-7: 'SYSDATETIME() in this container returns UTC, so comparing it to a business timestamp is off by 7h. We therefore only use SYSDATETIME() to label the run, never to judge data.' sweep/v8/ui/lib.js:28-48 documents the same and explains the fix (use VN date, not toISOString()). db-audit-out.txt section [8] shows the guard: 'lessons created more than 1 day in the future (would mean a UTC write) = 0'."
+    },
+    {
+      "point": "Running SQL Server in UTC is the container default, not a misconfiguration.",
+      "evidence": "Docker containers default to UTC when TZ is unset; SQL Server does not require TZ. The backend explicitly pins +07 to match business logic, and the two are internally consistent because only the JVM writes timestamps."
+    }
+  ],
+
+  "impact_assessment": {
+    "application_endpoints_affected": 0,
+    "data_corruption_observed": false,
+    "affected_code_paths": "none found",
+    "note": "The only GETDATE()/SYSDATETIME() usages found are in auditor sweep tooling (sweep/v8/p24_journeys.js:245), not application code. Those are probe-side and the claim is about the app stack."
+  },
+
+  "repro_commands": [
+    "docker exec engflow-backend date '+%Y-%m-%d %H:%M:%S %z'",
+    "docker exec engflow-sqlserver date '+%Y-%m-%d %H:%M:%S %z'",
+    "python sweep/v8/sqlrun.py tmp/tz-final.sql",
+    "grep -rn 'nativeQuery' src/main/java | wc -l"
+  ],
+
+  "conclusion": "The clock facts are accurate and reproducible (not a probe artefact), but the finding does not hold as a defect: there is no code path, no live default, and no data where the two clocks meet. It is informational at most, and it is already recorded in the repository's own audit tooling. Severity corrected from LOW to INFO."
+}

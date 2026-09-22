@@ -1,0 +1,48 @@
+{
+  "method": "live DOM via Playwright MCP, effective background computed by compositing alpha bottom-up, WCAG relative luminance",
+  "measurements": [
+    {
+      "finding": "F-13-03",
+      "file": "frontend/src/views/Profile.vue:44",
+      "element": "Flame icon in 'Lịch học' heading",
+      "class_before": "text-tertiary",
+      "color": "#FBBF24 (251,191,36)",
+      "background": "#FFFFFF (255,255,255)",
+      "ratio_before": 1.67,
+      "verdict_before": "FAIL (needs 4.5:1)",
+      "fix": "text-tertiary-ink (#B45309)",
+      "ratio_after": 5.02
+    },
+    {
+      "finding": "F-13-04",
+      "file": "frontend/src/views/admin/AdminDashboard.vue:19",
+      "element": "StatCard 'Bài tập' icon",
+      "class_before": "text-tertiary on bg-tertiary/10",
+      "fix": "text-tertiary-ink",
+      "verdict": "FIXED"
+    },
+    {
+      "finding": "F-13-05",
+      "file": "frontend/src/views/admin/AdminDashboard.vue:20",
+      "element": "StatCard 'Bài nộp' icon",
+      "class_before": "text-quaternary on bg-quaternary/10",
+      "fix": "text-quaternary-ink",
+      "verdict": "FIXED"
+    },
+    {
+      "finding": "F-13-06-CONTRAST (NOT A BUG)",
+      "file": "frontend/src/layouts/AdminLayout.vue:28,66",
+      "element": "'EngFlow' logo + 'Administrator' label",
+      "class": "text-tertiary",
+      "background": "sidebar bg-foreground #1E293B",
+      "ratio_measured_live": 8.76,
+      "verdict": "PASS — correctly left unchanged (amber on dark passes AA/AAA). Changing it would be a false-positive 'fix'."
+    }
+  ],
+  "after_fix_live": {
+    "route": "/admin/dashboard",
+    "contrast_failures": 0,
+    "note": "was 2 before the fix"
+  },
+  "conclusion": "3 real residual contrast defects fixed; 1 suspected site proven correct by measurement and deliberately NOT changed."
+}

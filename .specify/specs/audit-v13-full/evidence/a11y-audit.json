@@ -1,0 +1,1554 @@
+{
+  "meta": {
+    "driver": "playwright chromium-1237 + chrome-devtools MCP",
+    "method": "real DOM reads on live stack",
+    "alt_rule": "!el.hasAttribute(\"alt\") - alt=\"\" is VALID and not counted",
+    "tap_rule": "min(width,height) < 24px = WCAG 2.5.8 AA floor; 24-44 is AAA only",
+    "routes_tested": 39,
+    "cells": 117
+  },
+  "totals": {
+    "missingAlt": 0,
+    "noAccessibleName": 0,
+    "smallTargetsCells": 118,
+    "distinctSmallTargets": 18,
+    "headingSkipRoutes": [
+      "/videos"
+    ]
+  },
+  "byRoute": {
+    "/": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/login": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/register": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/register",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/forgot-password": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/forgot-password",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/reset-password": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/reset-password",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/lessons": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/lessons/445": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 0,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/lessons/445",
+          "h1": 0,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/lessons/445",
+          "h1": 0,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/lessons/445",
+          "h1": 0,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/videos": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium?redirect=/videos",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/videos",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": "1->3"
+        },
+        "admin": {
+          "landed": "/videos",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": "1->3"
+        }
+      }
+    },
+    "/videos/1": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium?redirect=/videos/1",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/videos/1",
+          "h1": 1,
+          "smallTargets": 15,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/videos/1",
+          "h1": 1,
+          "smallTargets": 15,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/profile": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/profile",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/profile",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/search": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/search",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/search",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/search",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/leaderboard": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/leaderboard",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/leaderboard",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/leaderboard",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/decks",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006/play/flashcard": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006/play/flashcard",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006/play/flashcard",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006/play/quiz": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006/play/quiz",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006/play/quiz",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006/play/memory": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006/play/memory",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006/play/memory",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006/play/typing": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006/play/typing",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006/play/typing",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006/play/listening": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006/play/listening",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006/play/listening",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/10006/play/mixed": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/10006/play/mixed",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/10006/play/mixed",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/ai-vocab-generator": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/ai-vocab-generator",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/ai-vocab-generator",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/decks/create": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/decks/create",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/decks/create",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/speaking": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium?redirect=/speaking",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/speaking",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/speaking",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/speaking/history": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium?redirect=/speaking/history",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/speaking/history",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/speaking/history",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/speaking/3": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium?redirect=/speaking/3",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/speaking/3",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/speaking/3",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/speaking/3/record": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium?redirect=/speaking/3/record",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/speaking/3/record",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/speaking/3/record",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/premium": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 1,
+      "roles": {
+        "anon": {
+          "landed": "/premium",
+          "h1": 1,
+          "smallTargets": 1,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/premium",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/premium",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/premium/checkout": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/premium/checkout",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/premium/checkout",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/dashboard",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/dashboard": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/dashboard",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/lessons": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/lessons",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/exercises": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/exercises",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/users": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/users",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/speaking-prompts": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/speaking-prompts",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/speaking-submissions": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/speaking-submissions",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/videos": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/videos",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/video-attempts": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/video-attempts",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/admin/445/build": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 3,
+      "roles": {
+        "anon": {
+          "landed": "/login",
+          "h1": 1,
+          "smallTargets": 3,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/admin/445/build",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    },
+    "/definitely-not-a-route": {
+      "lang": "vi",
+      "skipLink": true,
+      "h1": 1,
+      "headingSkip": null,
+      "missingAlt": 0,
+      "noName": 0,
+      "smallTargets": 0,
+      "roles": {
+        "anon": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "student": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        },
+        "admin": {
+          "landed": "/",
+          "h1": 1,
+          "smallTargets": 0,
+          "noName": 0,
+          "missingAlt": 0,
+          "headingSkip": null
+        }
+      }
+    }
+  },
+  "distinctSmallTargets": [
+    {
+      "route": "/login",
+      "role": "anon",
+      "t": "INPUT",
+      "label": "",
+      "w": 16,
+      "h": 16
+    },
+    {
+      "route": "/login",
+      "role": "anon",
+      "t": "A",
+      "label": "QUÊN MẬT KHẨU?",
+      "w": 120,
+      "h": 16
+    },
+    {
+      "route": "/login",
+      "role": "anon",
+      "t": "A",
+      "label": "Đăng ký",
+      "w": 58,
+      "h": 18
+    },
+    {
+      "route": "/register",
+      "role": "anon",
+      "t": "A",
+      "label": "Đăng nhập",
+      "w": 77,
+      "h": 18
+    },
+    {
+      "route": "/forgot-password",
+      "role": "anon",
+      "t": "A",
+      "label": "Quay lại đăng nhập",
+      "w": 136,
+      "h": 18
+    },
+    {
+      "route": "/videos",
+      "role": "anon",
+      "t": "A",
+      "label": "đăng nhập",
+      "w": 75,
+      "h": 18
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "to",
+      "w": 22,
+      "h": 26
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "I",
+      "w": 9,
+      "h": 26
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "I",
+      "w": 8,
+      "h": 26
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "a",
+      "w": 14,
+      "h": 26
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "or",
+      "w": 21,
+      "h": 26
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "of",
+      "w": 21,
+      "h": 26
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "t": "BUTTON",
+      "label": "by",
+      "w": 24,
+      "h": 26
+    },
+    {
+      "route": "/decks/10006",
+      "role": "student",
+      "t": "A",
+      "label": "QUAY LẠI",
+      "w": 98,
+      "h": 20
+    },
+    {
+      "route": "/decks/10006/play/mixed",
+      "role": "student",
+      "t": "A",
+      "label": "←\nQUAY LẠI",
+      "w": 94,
+      "h": 20
+    },
+    {
+      "route": "/decks/create",
+      "role": "student",
+      "t": "INPUT",
+      "label": "",
+      "w": 20,
+      "h": 20
+    },
+    {
+      "route": "/speaking/3",
+      "role": "student",
+      "t": "A",
+      "label": "← DANH SÁCH LUYỆN NÓI",
+      "w": 171,
+      "h": 22
+    },
+    {
+      "route": "/speaking/3/record",
+      "role": "student",
+      "t": "A",
+      "label": "← QUAY LẠI ĐỀ BÀI",
+      "w": 128,
+      "h": 22
+    }
+  ],
+  "routesWithoutH1": [
+    "/lessons/445"
+  ],
+  "routesWithoutH1Note": "/lessons/445 renders h3 x6 and no h1 in all 3 roles (LessonLayout/LessonContent own only an h2). /videos anon cell reported h1=0 with textLen=0 (unrendered redirect target); not a heading finding.",
+  "findings": [
+    {
+      "id": "F13-03",
+      "severity": "LOW",
+      "route": "/lessons/445",
+      "issue": "no h1; heading order starts at h3",
+      "evidence": "document.querySelectorAll(\"h1..h6\") -> h3 x6, h1 count 0 (playwright + live DOM)",
+      "status": "OPEN"
+    },
+    {
+      "id": "F13-02b",
+      "severity": "LOW",
+      "route": "/videos/1",
+      "issue": "18 transcript word buttons, 8x26 to 24x26",
+      "evidence": "video transcript buttons=103 small(<24)=12; inline word buttons inside a <p> (2.5.8 inline exception), but 8px wide",
+      "status": "OPEN"
+    }
+  ]
+}

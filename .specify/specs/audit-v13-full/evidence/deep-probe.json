@@ -1,0 +1,558 @@
+{
+  "pass": 56,
+  "fail": 2,
+  "blocked": 0,
+  "n_a": 0,
+  "findings": [
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"A - Salad\",\"B - Cheeseburger\",...] -> 200 (real 651717 style)",
+      "detail": "got 400 — guard over-blocks a shape that exists as a real row"
+    },
+    {
+      "area": "mc-guard",
+      "name": "LISTENING with bare-letter options [\"A\",\"B\",\"C\",\"D\"] -> 400 (guard covers the same defect class)",
+      "detail": "got 200 — LISTENING renders as a choice type too, but the guard is MULTIPLE_CHOICE-only"
+    }
+  ],
+  "probed": [
+    {
+      "area": "mc-guard",
+      "name": "setup: create audit lesson (admin)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"a\",\"b\",\"c\",\"d\"] -> 400 (the F-13-01 payload)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "  rejection body",
+      "status": "INFO",
+      "detail": "{\"detail\":\"MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \\\"a\\\"/\\\"b\\\"/\\\"c\\\"/\\\"d\\\"\",\"instance\":\"/api/admin/exercises\",\"status\":400,\"title\":\"Bad Request\"}"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"Apple\",\"Banana\",\"Cherry\",\"Date\"] -> 200 (legit not over-blocked)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"A - Salad\",\"B - Cheeseburger\",...] -> 200 (real 651717 style)",
+      "status": "FAIL",
+      "detail": "got 400 — guard over-blocks a shape that exists as a real row"
+    },
+    {
+      "area": "mc-guard",
+      "name": "  dash-style response",
+      "status": "INFO",
+      "detail": "status=400 body={\"detail\":\"MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \\\"a\\\"/\\\"b\\\"/\\\"c\\\"/\\\"d\\\"\",\"instance\":\"/api/admin/exercis"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options with 1 entry -> 400",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [] -> 400",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options omitted (null) -> 400",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"a\",\"b\"] (2 bare letters) -> 400",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"Yes\",\"No\"] (exactly 2 real) -> 200 (boundary)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "MC options [\"a\",\"Watermelon\"] (mixed) -> 200",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "FILL_BLANK with options [\"a\",\"b\",\"c\",\"d\"] -> 200 (guard is MC-scoped)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "LISTENING with bare-letter options [\"A\",\"B\",\"C\",\"D\"] -> 400 (guard covers the same defect class)",
+      "status": "FAIL",
+      "detail": "got 200 — LISTENING renders as a choice type too, but the guard is MULTIPLE_CHOICE-only"
+    },
+    {
+      "area": "mc-guard",
+      "name": "PUT legit MC -> options [\"a\",\"b\",\"c\",\"d\"] -> 400 (update path)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "PUT legit MC -> real options -> 200",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "real MC row 651717 still readable (admin)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "  real row options",
+      "status": "INFO",
+      "detail": "[\"A - Salad\", \"B - Cheeseburger\", \"C - Pizza\", \"D - Bread\"]"
+    },
+    {
+      "area": "mc-guard",
+      "name": "POST a copy of real row 651717's exact options -> 400 (admin cannot re-create it either)",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "  real-row copy response",
+      "status": "INFO",
+      "detail": "{\"detail\":\"MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \\\"a\\\"/\\\"b\\\"/\\\"c\\\"/\\\"d\\\"\",\"instance\":\"/api/admin/exercises\",\"status\":400,\"ti"
+    },
+    {
+      "area": "mc-guard",
+      "name": "POST /api/admin/exercises anon 401/403",
+      "status": "PASS"
+    },
+    {
+      "area": "mc-guard",
+      "name": "POST /api/admin/exercises student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "sort",
+      "name": "?sort= lessons (title)",
+      "status": "INFO",
+      "detail": "asc=[\"test\",\"Admin Created Lesson\",\"English Grammar Exercises for A1 – be, possessives and pronouns\",\"test\",\"thầy bình \",\"be, possessives and pronouns - GRAMMAR\",\"English Grammar Exercises for A1 – have got and articles\",\"English Grammar Exercises for A1 – have got and articles - GRAMMAR\"] desc=[\"test\",\"Admin Created Lesson\",\"English Grammar Exercises for A1 – be, possessives and pronouns\",\"test\",\"thầy bình \",\"be, possessives and pronouns - GRAMMAR\",\"English Grammar Exercises for A1 – have got and articles\",\"English Grammar Exercises for A1 – have got and articles - GRAMMAR\"] same=true"
+    },
+    {
+      "area": "sort",
+      "name": "?sort= admin/exercises (question)",
+      "status": "INFO",
+      "detail": "asc=[\"câu 1\",\"câu 1\",\"câu2\",\"You can describe your daily routine by focusing on:\",\"What is the correct structure to form the past simple tense of the verb 'to have'?\",\"I can understand instructions.\",\"I can understand a text about a social media campaign.\",\"Which of the following is a correct plural form of the noun 'book'?\"] desc=[\"câu 1\",\"câu 1\",\"câu2\",\"You can describe your daily routine by focusing on:\",\"What is the correct structure to form the past simple tense of the verb 'to have'?\",\"I can understand instructions.\",\"I can understand a text about a social media campaign.\",\"Which of the following is a correct plural form of the noun 'book'?\"] same=true"
+    },
+    {
+      "area": "sort",
+      "name": "?sort= vocabulary (word)",
+      "status": "INFO",
+      "detail": "asc=[\"agenda\",\"airport\",\"algorithm\",\"ambiguous\",\"ambitious\",\"analyze\",\"apartment\",\"articulate\"] desc=[\"volunteer\",\"virtual\",\"urbanization\",\"under the weather\",\"turn down\",\"thermal\",\"terminal\",\"technology\"] same=false"
+    },
+    {
+      "area": "sort",
+      "name": "  vocabulary (word) ?sort= honoured (asc ordered + desc reversed)",
+      "status": "PASS"
+    },
+    {
+      "area": "sort",
+      "name": "?sort= decks (name)",
+      "status": "INFO",
+      "detail": "asc=[\"Academic Word List\",\"Common English Idioms\",\"Essential Phrasal Verbs\",\"Everyday English\",\"IELTS Academic: Environment\",\"Oxford 3000 (A1-B2)\",\"Oxford 5000 (C1-C2)\",\"THPT Quốc Gia: Lớp 12\"] desc=[\"Academic Word List\",\"Common English Idioms\",\"Essential Phrasal Verbs\",\"Everyday English\",\"IELTS Academic: Environment\",\"Oxford 3000 (A1-B2)\",\"Oxford 5000 (C1-C2)\",\"THPT Quốc Gia: Lớp 12\"] same=true"
+    },
+    {
+      "area": "sort",
+      "name": "lessons ?sort= is IGNORED (asc payload == desc payload)",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(1) lesson list item {id:number, title:string}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  lesson list item keys",
+      "status": "INFO",
+      "detail": "audioUrl,category,completionPercentage,description,durationMinutes,id,isCompleted,level,orderIndex,skillType,thumbnailUrl,title"
+    },
+    {
+      "area": "contract",
+      "name": "(1) lesson detail {id:number, title:string}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  lesson detail keys",
+      "status": "INFO",
+      "detail": "id,title,description,content,level,category,durationMinutes,thumbnailUrl,audioUrl,orderIndex,isCompleted,completionPercentage,vocabularies"
+    },
+    {
+      "area": "contract",
+      "name": "(1) exercise item {id,lessonId:number, question:string, exerciseType:string}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  exercise keys",
+      "status": "INFO",
+      "detail": "audioUrl,correctAnswer,difficulty,exerciseType,explanation,id,imageUrl,lessonId,lessonTitle,options,orderIndex,question"
+    },
+    {
+      "area": "contract",
+      "name": "(2) streak snapshot {currentStreak:number, studiedToday:boolean, studiedDays:array}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(2) streak/current payload",
+      "status": "INFO",
+      "detail": "{\"today\":\"2026-09-22\",\"currentStreak\":2}"
+    },
+    {
+      "area": "contract",
+      "name": "(3) login {token:string}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  login keys",
+      "status": "INFO",
+      "detail": "id,username,email,fullName,avatarUrl,isAdmin,currentLevel,totalPoints,currentStreak,isPremium,premiumExpiry,aiGenerationCount,hasPremiumAccess,aiGenerationsRemainingToday,token"
+    },
+    {
+      "area": "contract",
+      "name": "(3) /me {email:string, isAdmin:boolean}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(4) search returns a JSON array",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  search 'hello' returned empty",
+      "status": "INFO",
+      "detail": "len=0"
+    },
+    {
+      "area": "contract",
+      "name": "(5) POST /api/decks -> 200/201 with id",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(5) deck read {id:number, name:string}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  deck keys",
+      "status": "INFO",
+      "detail": "id,owner,name,description,source,cefrLevel,isPublic,thumbnailUrl,words,createdAt,updatedAt"
+    },
+    {
+      "area": "contract",
+      "name": "(5) DELETE deck -> 200/204",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(5) re-GET deleted deck 404",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(6) ai/generate-vocab",
+      "status": "INFO",
+      "detail": "status=200 body=[{\"id\":null,\"word\":\"travel\",\"pronunciation\":\"træˈliː\",\"meaning\":\"du lịch\",\"exampleSentence\":\"I plan to travel to Europe next month.\",\"audioUrl\":null,\"imageUrl\":"
+    },
+    {
+      "area": "contract",
+      "name": "(6) ai/generate-vocab reachable (200/429/504 latency)",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "(6) generate-vocab item {word:string, meaning:string}",
+      "status": "PASS"
+    },
+    {
+      "area": "contract",
+      "name": "  ai item keys",
+      "status": "INFO",
+      "detail": "id,word,pronunciation,meaning,exampleSentence,audioUrl,imageUrl,wordType,definitionEn,cefrLevel,source,createdAt"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/admin/stats student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/admin/users student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/admin/exercises student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/admin/exercises/ai/status student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/v1/admin/speaking-prompts student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/v1/admin/video-lessons student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/admin/lessons student=403 anon=401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY POST /api/admin/lessons student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY POST /api/lessons student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY PUT /api/vocabulary/1 student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY DELETE /api/vocabulary/1 student 403",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "ALLOW GET /api/admin/stats admin 200",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "ALLOW GET /api/admin/exercises admin 200",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/streak/snapshot anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/dashboard/stats anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY GET /api/users/progress anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "DENY POST /api/games/submit anon 401",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "ALLOW GET /api/lessons anon 200",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "ALLOW GET /api/leaderboard anon 200",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "ALLOW GET /api/vocabulary/search?keyword=ab anon 200",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "cleanup: delete audit lesson (cascades its exercises)",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "cleanup: audit lesson has no exercises left",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "cleanup: audit lesson re-GET 404",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "cleanup SQL produced 0 errors (Msg scan)",
+      "status": "PASS"
+    },
+    {
+      "area": "roles",
+      "name": "cleanup left 0 audit residue",
+      "status": "PASS"
+    }
+  ],
+  "areas": {
+    "mc-guard": {
+      "pass": 16,
+      "fail": 2,
+      "blocked": 0
+    },
+    "sort": {
+      "pass": 2,
+      "fail": 0,
+      "blocked": 0
+    },
+    "contract": {
+      "pass": 13,
+      "fail": 0,
+      "blocked": 0
+    },
+    "roles": {
+      "pass": 25,
+      "fail": 0,
+      "blocked": 0
+    }
+  },
+  "mcGuard": {
+    "lessonId": 103622,
+    "badLetter": 400,
+    "good": 200,
+    "dash": 400,
+    "one": 400,
+    "none": 400,
+    "null": 400,
+    "two": 200
+  },
+  "sortProbes": [
+    {
+      "label": "lessons (title)",
+      "asc": [
+        "test",
+        "Admin Created Lesson",
+        "English Grammar Exercises for A1 – be, possessives and pronouns",
+        "test",
+        "thầy bình ",
+        "be, possessives and pronouns - GRAMMAR",
+        "English Grammar Exercises for A1 – have got and articles",
+        "English Grammar Exercises for A1 – have got and articles - GRAMMAR"
+      ],
+      "desc": [
+        "test",
+        "Admin Created Lesson",
+        "English Grammar Exercises for A1 – be, possessives and pronouns",
+        "test",
+        "thầy bình ",
+        "be, possessives and pronouns - GRAMMAR",
+        "English Grammar Exercises for A1 – have got and articles",
+        "English Grammar Exercises for A1 – have got and articles - GRAMMAR"
+      ],
+      "identical": true,
+      "ascStatus": 200,
+      "descStatus": 200
+    },
+    {
+      "label": "admin/exercises (question)",
+      "asc": [
+        "câu 1",
+        "câu 1",
+        "câu2",
+        "You can describe your daily routine by focusing on:",
+        "What is the correct structure to form the past simple tense of the verb 'to have'?",
+        "I can understand instructions.",
+        "I can understand a text about a social media campaign.",
+        "Which of the following is a correct plural form of the noun 'book'?"
+      ],
+      "desc": [
+        "câu 1",
+        "câu 1",
+        "câu2",
+        "You can describe your daily routine by focusing on:",
+        "What is the correct structure to form the past simple tense of the verb 'to have'?",
+        "I can understand instructions.",
+        "I can understand a text about a social media campaign.",
+        "Which of the following is a correct plural form of the noun 'book'?"
+      ],
+      "identical": true,
+      "ascStatus": 200,
+      "descStatus": 200
+    },
+    {
+      "label": "vocabulary (word)",
+      "asc": [
+        "agenda",
+        "airport",
+        "algorithm",
+        "ambiguous",
+        "ambitious",
+        "analyze",
+        "apartment",
+        "articulate"
+      ],
+      "desc": [
+        "volunteer",
+        "virtual",
+        "urbanization",
+        "under the weather",
+        "turn down",
+        "thermal",
+        "terminal",
+        "technology"
+      ],
+      "identical": false,
+      "ascStatus": 200,
+      "descStatus": 200
+    },
+    {
+      "label": "decks (name)",
+      "asc": [
+        "Academic Word List",
+        "Common English Idioms",
+        "Essential Phrasal Verbs",
+        "Everyday English",
+        "IELTS Academic: Environment",
+        "Oxford 3000 (A1-B2)",
+        "Oxford 5000 (C1-C2)",
+        "THPT Quốc Gia: Lớp 12"
+      ],
+      "desc": [
+        "Academic Word List",
+        "Common English Idioms",
+        "Essential Phrasal Verbs",
+        "Everyday English",
+        "IELTS Academic: Environment",
+        "Oxford 3000 (A1-B2)",
+        "Oxford 5000 (C1-C2)",
+        "THPT Quốc Gia: Lớp 12"
+      ],
+      "identical": true,
+      "ascStatus": 200,
+      "descStatus": 200
+    }
+  ],
+  "deepDeckId": 50114,
+  "cleanup": {
+    "lessons": 0,
+    "decks": 0,
+    "exercises": 0
+  }
+}

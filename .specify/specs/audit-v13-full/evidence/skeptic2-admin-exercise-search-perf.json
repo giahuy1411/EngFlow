@@ -1,0 +1,90 @@
+{
+  "role": "skeptic #2",
+  "claim": "admin exercise search q=the is 185.1ms — measured a 4th time, optimization still refused with numbers",
+  "area": "performance (Phase 5), severity LOW",
+  "verdict": "NOT REFUTED — every asserted number independently reproduced",
+  "refuted": false,
+  "correctedSeverity": null,
+  "checked_at": "2026-09-22",
+  "method": "independent re-measure: live HTTP (admin token, rate_limit:* flushed before each batch), real SQL via sqlrun.py with STATISTICS IO/TIME, SHOWPLAN_XML, and sys.dm_exec_query_stats / sys.indexes",
+
+  "http_reproduction": {
+    "endpoint": "GET /api/admin/exercises?page=0&size=10&q=the",
+    "auth": "admin@gmail.com / 123456 (real login)",
+    "status": 200,
+    "bytes": 6410,
+    "my_median_3passes_x_5": 161.7,
+    "my_per_pass": [175.8, 161.7, 154.6],
+    "claim_median": 185.1,
+    "claim_per_pass": [185.1, 176.1, 186.1],
+    "no_q_status": 200,
+    "no_q_bytes": 4961,
+    "my_no_q_median": 44.7,
+    "claim_no_q_median": 72.0,
+    "note": "Same status/bytes; ~13% lower than the claim's median but within the sample spread the claim itself reports (154-235ms). Reproducible, NOT a probe artefact: status 200 with 6410B real JSON, buckets flushed, no 429."
+  },
+
+  "plan": {
+    "source": "SHOWPLAN_XML on the exact predicate",
+    "operators": [
+      "Compute Scalar lower([exercises].[question])",
+      "Compute Scalar lower(CASE WHEN [exercises].[explanation] IS NOT NULL THEN [exercises].[explanation] ELSE CONVERT_IMPLICIT(nvarchar(max),'',0) END)",
+      "Filter [Expr1011] like lower('%the%') OR [Expr1012] like lower('%the%')",
+      "Clustered Index Scan PK__exercise__C121418ED83A5E11, TableCardinality=43735, EstimateRows=43735"
+    ],
+    "claim_match": "exact — Clustered Index Scan over 43735 rows + Filter + Compute Scalar lower(question), lower(coalesce(explanation,''))"
+  },
+
+  "indexes": {
+    "exercise_rows": 43735,
+    "index_count": 6,
+    "names": [
+      "PK__exercise__C121418ED83A5E11 (CLUSTERED exercise_id)",
+      "idx_exercises_type",
+      "idx_exercises_difficulty",
+      "idx_exercises_lesson_order",
+      "idx_exercises_lesson_type_order",
+      "IX_exercises_lesson_type_diff_order"
+    ],
+    "index_on_question": false,
+    "claim_match": "exact (6 indexes, none on question)"
+  },
+
+  "sql_layer": {
+    "A_current_predicate": { "logical_reads": 1294, "cpu_ms": "5/115", "matches": 16588, "claim": "1294 reads / 100-155ms CPU / 16588 matches" },
+    "B_drop_LOWER":        { "logical_reads": 1294, "cpu_ms": "0/86",  "matches": 16588, "claim": "identical 1294 reads / 80-92ms CPU / same 16588 matches" },
+    "C_prefix_the_pct":    { "logical_reads": 1294, "cpu_ms": "0/12",  "matches": 3859,  "claim": "1294 reads / 12-13ms but only 3859 matches (changes semantics)" },
+    "D_no_q_count":        { "logical_reads": 133,  "cpu_ms": "0/4",   "matches": 43735, "claim": "133 reads" },
+    "claim_match": "exact on every cell"
+  },
+
+  "plan_cache_corroboration": {
+    "source": "sys.dm_exec_query_stats for the Hibernate statement",
+    "paged_search_select": { "execution_count": 83, "avg_logical_reads": 4566, "avg_cpu_ms": 147 },
+    "count_search": { "execution_count": 83, "avg_logical_reads": 1301, "avg_cpu_ms": 53 },
+    "note": "The real server-side cost of the search statement is ~50-150ms CPU + 1300-4566 logical reads per call — independently confirms the HTTP 185ms is not a client-side/probe artefact."
+  },
+
+  "source": {
+    "file": "src/main/java/com/datn/engflow/repository/ExerciseRepository.java",
+    "method": "findAdminPage",
+    "predicate": "LOWER(e.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(COALESCE(e.explanation,'')) LIKE LOWER(CONCAT('%', :keyword, '%'))",
+    "controller": "AdminExerciseController.getAllExercises, @PreAuthorize(\"hasRole('ADMIN')\") — admin-only, not learner-facing"
+  },
+
+  "severity_assessment": {
+    "claimed": "LOW",
+    "my_assessment": "LOW is justified",
+    "why": "Admin-only endpoint; ~160-185ms absolute latency on a 43k-row table; leading-wildcard LIKE over LOWER() is non-sargable and no index exists on question, so no low-risk fix exists. The claim does NOT propose a fix — it records a measurement and a reasoned 'do not optimise' decision, which is correct behaviour, not a bug."
+  },
+
+  "refutation_attempts": [
+    "429 self-inflicted by probe? NO — buckets flushed, status 200, bytes 6410 real JSON.",
+    "Scrollbar/guard/redirect misread? NO — raw API call, not a UI probe; 200 + JSON body.",
+    "Cold-JVM/one-off artefact? NO — consistent across v11 (169.3ms), v12 (197.6ms), v13 (185.1ms) and my own (161.7ms).",
+    "Wrong root cause (gap due to something else)? NO — the no-q count uses a narrow index (133 reads) while the q count forces a 1294-read clustered scan; plan cache confirms the scan on the search statement.",
+    "Is it a bug rather than correct behaviour? NO — it is a known non-sargable-predicate cost on an admin screen, already recorded and deliberately left unoptimised."
+  ],
+
+  "conclusion": "The claim is accurate and reproducible. Every asserted figure (plan, 6 indexes, no question index, 1294/133 reads, 16588/3859 matches, the LOWER() no-op, the prefix-semantics change) was independently reproduced on the live system. Severity LOW is appropriate. NOT refuted."
+}

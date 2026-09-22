@@ -1,0 +1,17 @@
+{
+  "probe": "sweep/v13 (real HTTP on :8080, real admin JWT, real lesson 91920)",
+  "case_1_reject_bare_letter_MC": {
+    "request": "POST /api/admin/exercises {lessonId:91920, exerciseType:MULTIPLE_CHOICE, options:[\"a\",\"b\",\"c\",\"d\"], correctAnswer:'d'}",
+    "http_status": 400,
+    "body": {"detail":"MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \"a\"/\"b\"/\"c\"/\"d\"","instance":"/api/admin/exercises","status":400,"title":"Bad Request"},
+    "verdict": "PASS — the exact bug payload is now refused"
+  },
+  "case_2_accept_real_MC": {
+    "request": "POST /api/admin/exercises {lessonId:91920, exerciseType:MULTIPLE_CHOICE, options:[\"rise\",\"rises\",\"rose\",\"rising\"], correctAnswer:'rises'}",
+    "http_status": 200,
+    "created_id": 777463,
+    "verdict": "PASS — legitimate multiple choice still accepted (no over-blocking)"
+  },
+  "cleanup": "DELETE exercise_id=777463 (question='AUDIT-V13 probe good MC') -> AUDIT_V13_EX_LEFT=0; parity back to 43735",
+  "conclusion": "F-13-01 fixed at both render and create paths, verified against the live container with real data."
+}

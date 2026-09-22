@@ -1,0 +1,69 @@
+{
+  "skeptic": "skeptic #2 (adversarial refutation)",
+  "claim_under_test": {
+    "id": "F-13-15 (as stated in the Phase 5 claim text)",
+    "title": "srs/due/{deckId} issues N+1 queries — proven by query-stats delta",
+    "claimed_severity": "MEDIUM",
+    "claimed_state": "Not fixed. 'every seeded deck is 10 words, so the cost is 27ms today and there is no large deck in real data to measure a before/after — fixing now would be an optimization without a number (P5).'",
+    "claimed_root_cause": "Per-word progress lookup inside a loop instead of one batched query for the deck's vocab ids.",
+    "claimed_file_lines": "SrsService.getDueWords lines 132-134 loop deckWords and call progressRepository.findByUserIdAndVocabularyId(userId, vocab.getId()) inside the loop"
+  },
+  "verdict": "REFUTED",
+  "refuted": true,
+  "corrected_severity": "NOT A FINDING (already fixed; the live endpoint issues zero per-word lookups)",
+  "reason": "The claim describes a state of the code that no longer exists. At the audited commit (HEAD of audit-streak-review, working tree clean of any SrsService change relative to the fix) SrsService.getDueWords already performs ONE batched lookup via findByUserIdAndVocabularyIdIn and has done so under an explicit 'audit-v13 F-13-15' fix comment. The claim's own cited lines 132-134 are now that fix comment, not a loop calling the per-word repository method. Crucially, this is not merely a code-reading argument: the LIVE running backend (localhost:8080) was measured with sys.dm_exec_query_stats deltas around single calls and the per-word statement did NOT increment, while the batched statement incremented by exactly 1 per call.",
+
+  "live_evidence": {
+    "target": "GET /api/srs/due/10006 with a real student JWT (user@gmail.com), real DB rows",
+    "http": "200, median of 5 calls ~36ms (range 34.5-43.2ms) — consistent with the claimed 27ms order of magnitude, so the endpoint itself is real and reachable",
+    "deck_shape": "deck_words for deck 10006 = 10 rows; all 10 decks in real data have exactly 10 words (SELECT deck_id, COUNT(*) FROM deck_words GROUP BY deck_id -> min 10 / max 10). The claim's 'every seeded deck is 10 words' is factually correct.",
+    "method": "Two JPA statements were isolated by query_hash and execution_count in sys.dm_exec_query_stats, filtered to 'select uvp1_0%': (a) 0x7036764232593B0E = (@P0 bigint,@P1 bigint) = the PER-WORD lookup findByUserIdAndVocabularyId; (b) 0x1F1DD11708648468 = (@P0..@P10 bigint, 11 params) = the BATCHED lookup findByUserIdAndVocabularyIdIn (userId + 10 vocabIds).",
+    "control": "Two consecutive reads 3s apart with NO api call: per-word 453 -> 453, batch 17 -> 17. Zero drift, so the counters are stable and deltas are attributable to the call.",
+    "single_call_deltas": [
+      {"run": 1, "before": {"perword": 453, "batch": 18}, "after": {"perword": 453, "batch": 19}},
+      {"run": 2, "before": {"perword": 453, "batch": 19}, "after": {"perword": 453, "batch": 20}},
+      {"run": 3, "before": {"perword": 453, "batch": 20}, "after": {"perword": 453, "batch": 21}},
+      {"run": 4, "before": {"perword": 453, "batch": 21}, "after": {"perword": 453, "batch": 22}}
+    ],
+    "delta_verdict": "per-word lookup = +0 executions on every one of 4 isolated calls; batched lookup = +1 on every call. A 10-word deck calling the per-word method in a loop would have produced +10 per call. It produced 0. The N+1 is not present in the running build.",
+    "endpoint_attribution": "Cross-check with two other endpoints over the same counter: srs/due/10006 moved batch 17->18; GET /api/srs/stats moved nothing; GET /api/decks moved nothing. The +1 batch delta is attributable specifically to srs/due/{deckId}.",
+    "no_residual_per_word_loading": "Vocabulary loading was also checked (DeckWord.vocabulary is FetchType.LAZY): the vocabulary select hash 0xC54A3FD4E8F879E6 stayed at 60 before and after the call, and the deck_words select hash 0xDEEAB13533EEA857 moved 54->55 (one query for the deck, not one per word). No hidden per-word query remains."
+  },
+
+  "source_evidence": {
+    "working_tree": "src/main/java/com/datn/engflow/service/SrsService.java lines 133-142 read: collect deckWords vocab ids -> findByUserIdAndVocabularyIdIn(userId, vocabIds) -> collect into Map<vocabId, progress> -> look up in the loop. There is no call to findByUserIdAndVocabularyId inside the loop.",
+    "fix_marker": "The code carries an explicit comment: '// audit-v13 F-13-15: one batched progress lookup for the whole deck instead of a query per word.'",
+    "repository": "UserVocabularyProgressRepository declares both findByUserIdAndVocabularyId (line 15) and findByUserIdAndVocabularyIdIn (line 25).",
+    "regression_test": "src/test/java/com/datn/engflow/service/SrsDueWordsAuthzTest.java: dueWordsUsesOneBatchedProgressQueryNotOnePerWord verifies findByUserIdAndVocabularyIdIn called times(1) and findByUserIdAndVocabularyId never().",
+    "audit_records_agree": "The audit's own artifacts record this as FIXED, not open: findings.md marks F-13-15 'FIXED'; evidence/f13-15-n1.json has status FIXED; REPORT.md line 127 lists F-13-15 as FIXED; performance.md section 3.4 is the historical 'before' note explicitly labelled 'KHÔNG tối ưu BÂY GIỜ' (not optimising now) with the intent recorded as a candidate, and round-2.md line 41 re-measures it as 'XÁC NHẬN — 0 per-word lookup sau fix'."
+  },
+
+  "claim_provenance_note": "The claim text is a verbatim snapshot of performance.md section 3.4, which was the Phase 5 BEFORE-fix observation. Read in isolation it asserts the N+1 is present and deliberately unfixed. That was true when measured, but it is stale as a statement about the system today: the fix landed as F-13-15 and is live. Re-asserting the 'before' note as a current MEDIUM finding is a drift error of exactly the class the repo has flagged before (see commit 93d44e5 'correct two stale claims').",
+
+  "severity_assessment": {
+    "claimed": "MEDIUM",
+    "assessment": "Not justified as a current finding. There is no live defect: the endpoint issues 1 batched progress query per call, measured directly. Even taken as a historical performance observation, the claim itself concedes it had no before/after number (10-word decks, 27ms) and therefore could not meet the bar the audit set for an optimization (P5). A stale 'before' note cannot carry MEDIUM against the current build.",
+    "corrected_severity": "None (informational / historical only)"
+  },
+
+  "reproducibility": {
+    "reproducible": true,
+    "steps": [
+      "docker exec engflow-redis redis-cli --scan --pattern 'rate_limit:*' | xargs del  (flush buckets before each batch)",
+      "Login: POST /api/auth/login {user@gmail.com / 123456} -> token",
+      "Baseline: python sweep/v8/sqlrun.py <query-stats query grouping by query_hash for 'select uvp1_0%'>",
+      "curl -H 'Authorization: Bearer <token>' http://localhost:8080/api/srs/due/10006",
+      "Re-read the same query-stats: per-word hash 0x7036764232593B0E stays flat; batch hash 0x1F1DD11708648468 increments by exactly 1"
+    ],
+    "artifacts": [
+      ".specify/specs/audit-v13-full/evidence/skeptic2-f13-15-n1-refute.json"
+    ],
+    "cleanup": "No probe rows written. SELECT COUNT(*) FROM user_vocabulary_progress WHERE user_id=2 AND vocabulary_id<0 = 0. Read-only measurement; no DELETE batch was required."
+  },
+
+  "answers_to_the_specific_questions": {
+    "is_the_evidence_real_or_a_probe_artefact": "The ORIGINAL before-fix measurement was plausibly real (10 per-word execs for a 10-word deck), but the claim as a CURRENT finding is an artefact of reading a stale 'before' note: it does not reproduce against the live build. Not a 429 artefact — buckets were flushed and calls returned 200; not a guard misread — the endpoint returned 200 with real data.",
+    "is_severity_justified": "No. Live system shows zero per-word lookups; MEDIUM is not supportable.",
+    "is_this_correct_behaviour_rather_than_a_bug": "The current implementation (one batched query + in-memory map) is correct behaviour and is the correct fix. The only defensible framing of the claim is as a historical record, already captured as FIXED in the audit's own files."
+  }
+}

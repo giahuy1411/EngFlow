@@ -1,0 +1,68 @@
+{
+  "claim_id": "phase3-premium-redirect-param-unconsumed",
+  "skeptic": 1,
+  "verdict": "REFUTED_FALSE_POSITIVE_CONFIRMED",
+  "refuted": false,
+  "claim_status_after_review": "CONFIRMED",
+  "severity_claimed": "LOW",
+  "severity_after_review": "LOW",
+  "summary": "The claim holds. /premium?redirect=... is produced by the router guard and by the LearningPath CTA but no code anywhere in frontend/src reads the param back, and a real guest/non-premium bounce followed by a real login lands on /lessons, not the requested route.",
+
+  "static_evidence": {
+    "producers": [
+      "frontend/src/router/index.js:206 -> next('/premium?redirect=' + encodeURIComponent(to.fullPath))",
+      "frontend/src/components/home/LearningPath.vue:95 -> to: '/premium?redirect=%2Fspeaking'",
+      "frontend/src/components/home/LearningPath.test.js:38 -> asserts the href '/premium?redirect=%2Fspeaking' is produced (test only locks the producer, not any consumer)"
+    ],
+    "consumers_found": "NONE",
+    "grep": "grep -rn 'redirect' frontend/src (excl node_modules) returns exactly 5 matches: the 3 above + router/index.js:178 'redirect: /admin/dashboard' + router/index.js:193 'redirect: /' (both are static vue-router redirect config, unrelated).",
+    "query_redirect_reader_grep": "grep -rn 'query.redirect|URLSearchParams|location.search|params.redirect|redirect=' frontend/src -> only the 2 producers. PremiumCheckout.vue:57 reads route.query.plan (not redirect). PremiumPage.vue has no useRoute at all.",
+    "global_hooks": "frontend/src/router/index.js defines only beforeEach (line 202). No afterEach, no scrollBehavior. frontend/src/main.js and frontend/src/App.vue contain no route/redirect handling.",
+    "login_landing": "frontend/src/views/Login.vue:68 -> router.push('/lessons') unconditionally; frontend/src/views/Register.vue:96 -> router.push('/lessons') unconditionally."
+  },
+
+  "live_evidence": {
+    "stack": "frontend http://localhost:5173 (Vue dev), backend http://localhost:8080, Playwright chrome-devtools MCP, isolated browser contexts",
+    "rate_limit_flush": "docker exec engflow-redis redis-cli --scan --pattern 'rate_limit:*' | xargs del (before HTTP batch)",
+    "probe_account": {
+      "email": "skeptic1refute@t.com",
+      "user_id": 201747,
+      "created_via": "real UI registration at /register (real backend POST /api/auth/register)",
+      "is_premium": false,
+      "cleanup": "DELETE FROM users WHERE user_id = 201747; -> 1 row, verified by listed id (not LIKE). parity restored to 1470|43735|72|118|29|15|4|126|10|5 (72 users = baseline)."
+    },
+    "steps": [
+      {
+        "step": 1,
+        "action": "guest navigates to /speaking (no token in isolated context)",
+        "result": "location = http://localhost:5173/premium?redirect=/speaking ; search = '?redirect=/speaking' ; URLSearchParams -> {redirect: '/speaking'} ; h1 = 'EngFlow Premium'",
+        "meaning": "guard bounce reproduces live; producer emits the param"
+      },
+      {
+        "step": 2,
+        "action": "cleared localStorage/sessionStorage, then real non-premium user (isPremium=false in stored user) navigates to /speaking",
+        "result": "location = http://localhost:5173/premium?redirect=/speaking ; stored user isPremium=false ; page shows Premium pricing; no /speaking content",
+        "meaning": "bounce also reproduces for a logged-in non-premium user"
+      },
+      {
+        "step": 3,
+        "action": "exact claimed flow: guest bounced to /premium?redirect=/speaking, then navigates to /login and submits real credentials for the non-premium probe account",
+        "result": "location after login = http://localhost:5173/lessons ; search = '' ; loggedIn=true ; isPremium=false ; h1 = 'Bài học'",
+        "meaning": "the user is NOT returned to /speaking. The param is discarded. Claim's core assertion proven live."
+      }
+    ],
+    "query_string_survived_to_landing": false
+  },
+
+  "skeptic_checks": {
+    "probe_artefact_429": "ruled out - all probes used the Vue dev server routing (client-side guard) and one real login; no rate-limit 429 observed; buckets flushed before the batch",
+    "scrollbar_false_positive": "n/a - not an overflow claim",
+    "guard_redirect_misread": "ruled out - the redirect target itself is the evidence (the query param is present in location.search), and the absence of any consumer is independently proven by source grep, not by a redirect being read as failure",
+    "correct_behaviour_question": "No. The param is emitted with the clear intent of a post-login return (LearningPath CTA 'Xem Premium' even pre-encodes /speaking), but nothing consumes it. This is dead code / broken intent, not intentional design.",
+    "severity_justification": "LOW is correct. No security, data-loss, or access-control impact. No user is blocked; every affected route is a premium paywall a non-premium user cannot enter anyway. The only loss is a post-login convenience redirect. It is a real, reproducible UX defect, hence not refuted."
+  },
+
+  "notes_for_panel": "The finding is accurate and reproducible. The only nuance a fix author should know: the param is doubly dead because both Login.vue and Register.vue hardcode router.push('/lessons'), so even wiring a consumer in a premium component would not help - the fix belongs in the auth landing path (or a global beforeEach consumer) plus PremiumCheckout's post-activation push (PremiumCheckout.vue:87 pushes '/speaking' hardcoded).",
+  "cleanup_count": 1,
+  "parity_after_cleanup": "1470|43735|72|118|29|15|4|126|10|5"
+}

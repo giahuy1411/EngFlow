@@ -1,0 +1,56 @@
+{
+  "skeptic": "skeptic #1",
+  "claim_area": "Phase 3 — UI sweep (a11y), severity LOW",
+  "claim_title": "/lessons/:id has no h1 and heading order starts at h3",
+  "verdict": "NOT REFUTED — claim holds",
+  "live_verification": {
+    "timestamp_local": "2026-09-22",
+    "url": "http://localhost:5173/lessons/445",
+    "lesson_445_db_row": {"lesson_id": 445, "title": "English Grammar Exercises for A1 – have got and articles", "is_published": 1},
+    "student_role_dom": {
+      "query": "document.querySelectorAll('h1,h2,h3,h4,h5,h6')",
+      "counts": {"H3": 6},
+      "h1_count": 0,
+      "headings": [
+        "H3: 1. Complete the message. Use the affirmative form of have got.",
+        "H3: 2. Complete the first part of sentences 1-6 with the negative form of have got",
+        "H3: 3. Look at the chart. Write questions and short answers about Emily",
+        "H3: 4. Write a or an.",
+        "H3: 5. Complete the dialogue with a, an or the.",
+        "H3: 6. Choose the correct answers."
+      ],
+      "main_content_present": true,
+      "lesson_content_rendered": true
+    },
+    "anon_role_dom_isolated_context": {
+      "counts": {"H3": 6},
+      "h1_count": 0,
+      "note": "Fresh isolated browser context (no auth) -> same 0 h1 / 6 h3"
+    },
+    "admin_role": {
+      "source": "evidence/a11y-audit.json",
+      "entry": "/lessons/445 -> h1: 0 for roles anon, student, admin (all landed /lessons/445)",
+      "note": "role-independent: LessonLayout heading markup does not branch on role"
+    },
+    "exercises_tab_probe": {
+      "after_clicking_tab_Bai_tap": ["H2: Bài tập"],
+      "h1_count": 0,
+      "note": "Even the exercises tab has no h1; content tab h2 (lesson-speaking-title) not rendered on lesson 445 because it has no speaking prompts"
+    }
+  },
+  "source_confirmation": {
+    "frontend/src/views/lessons/LessonLayout.vue": "No <h1> in template; renders StreakBanner + role=tablist + tabpanels only",
+    "frontend/src/views/lessons/LessonContent.vue": "Renders scraped lesson HTML via v-html; only owned heading is <h2 id=\"lesson-speaking-title\"> (conditional)",
+    "components/common/Header.vue": "Brand is a router-link, NOT a heading (no h1 anywhere in header/footer)",
+    "grep_h1_in_lessons_and_chrome": "no <h1> in views/lessons/*, Header.vue, Footer.vue, GuestCtaCard.vue"
+  },
+  "refutation_attempts": [
+    {"angle": "probe artefact (429 / rate limit)", "result": "REJECTED — DOM read is local querySelector, no network dependency; content rendered fully (6 h3s, lesson-content present)"},
+    {"angle": "guard redirect misread", "result": "REJECTED — anon role landed on /lessons/445 (route meta requiresAuth:false); no redirect; student and admin also land on /lessons/445"},
+    {"angle": "h1 exists but hidden/visually-hidden", "result": "REJECTED — document.querySelectorAll('h1') === 0 on full document, all roles"},
+    {"angle": "correct behaviour / acceptable", "result": "REJECTED — a page-level heading is expected on every page; every other audited route has exactly one h1 (see a11y-audit.json)"},
+    {"angle": "severity overstated", "result": "REJECTED — LOW is appropriate. Missing h1 / heading-order-skip is a best-practice-to-minor-WCAG issue (axe 'page-has-heading-one' and 'heading-order' are best-practice rules; Lighthouse does not fail on missing h1). Cited 2.4.6/1.3.1 are defensible."}
+  ],
+  "corrected_severity": "LOW (unchanged)",
+  "conclusion": "Finding is real, reproducible, and correctly scoped. No evidence of probe artefact. Keep as OPEN, LOW."
+}

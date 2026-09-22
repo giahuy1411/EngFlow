@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "spec": "Playful Geometric (design-system.css)",
+    "driver": "playwright + chrome-devtools MCP",
+    "contrast_method": "WCAG relative luminance, alpha composited bottom-up over white",
+    "font_check": "document.fonts.check('16px \"Be Vietnam Pro\"')",
+    "note": "A concurrent process applied the F13-01/F13-02 contrast fixes DURING this audit. Final re-measure: contrastFails=0."
+  },
+  "liveTokens": {
+    "geoBg": "#FFFDF5",
+    "geoFg": "#1E293B",
+    "geoMuted": "#F1F5F9",
+    "geoMutedFg": "#556070",
+    "geoAccent": "#8B5CF6",
+    "geoAccentStrong": "#7C3AED",
+    "geoAccentInk": "#6D28D9",
+    "geoSecondaryStrong": "#DB2777",
+    "geoTertiaryInk": "#B45309",
+    "geoQuaternaryInk": "#047857",
+    "geoRadius": "16px",
+    "geoBorderWidth": "2px",
+    "bodyBg": "rgb(255, 253, 245)",
+    "bodyFont": "\"Be Vietnam Pro\", system-ui, sans-serif",
+    "hasLucide": true,
+    "lucideStroke": "2.5px",
+    "skipLink": true,
+    "scrollGutter": "stable"
+  },
+  "font": {
+    "bodyFamily": "\"Be Vietnam Pro\", system-ui, sans-serif",
+    "checkBeVietnam": true,
+    "loadedFamilies": [
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro unloaded",
+      "Be Vietnam Pro unloaded",
+      "Be Vietnam Pro unloaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded",
+      "Be Vietnam Pro loaded"
+    ],
+    "fontCount": 18
+  },
+  "fontCheckByRoute": {
+    "/": true,
+    "/lessons": true,
+    "/admin/dashboard": true
+  },
+  "lucideStrokeByRoute": {
+    "/": "2.5px",
+    "/lessons": null,
+    "/admin/dashboard": "2.5px"
+  },
+  "checks": [
+    {
+      "name": "tokens match spec",
+      "result": "PASS",
+      "detail": "--geo-bg/-fg/-muted/-muted-fg/accent-strong/ink match design-system.css; --geo-danger-ink #BE123C added by concurrent fix"
+    },
+    {
+      "name": "font Be Vietnam Pro loaded",
+      "result": "PASS",
+      "detail": "document.fonts.check = true on /, /lessons, /admin/dashboard"
+    },
+    {
+      "name": "lucide stroke-width 2.5",
+      "result": "PASS",
+      "detail": "computed strokeWidth = 2.5px"
+    },
+    {
+      "name": "scrollbar-gutter stable (CLS)",
+      "result": "PASS",
+      "detail": "html { scrollbar-gutter: stable }"
+    },
+    {
+      "name": "skip link present",
+      "result": "PASS",
+      "detail": "every route has a.skip-link / a[href=\"#main-content\"]"
+    },
+    {
+      "name": "contrast AA",
+      "result": "PASS (0 failures)",
+      "detail": "7 failures measured on the first pass; 3 were fixed live by the concurrent process (F13-01/F13-02); final re-run = 0"
+    }
+  ],
+  "contrast": {
+    "finalState": "0 failures across 117 cells (re-measured after concurrent fixes)",
+    "foundDuringAudit": [
+      {
+        "id": "F13-02",
+        "site": "AdminLessonBuilder.vue:6-7",
+        "text": "B",
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(139,92,246)",
+        "ratioBefore": 4.23,
+        "ratioAfter": 5.7,
+        "need": 4.5,
+        "fix": "bg-accent -> bg-accent-strong",
+        "status": "FIXED"
+      },
+      {
+        "id": "F13-02",
+        "site": "AdminLessonBuilder.vue:120",
+        "text": "x",
+        "fg": "rgba(255,255,255,0.4)",
+        "bg": "rgb(30,41,59)",
+        "ratioBefore": 3.61,
+        "need": 4.5,
+        "fix": "opacity /40 -> /60",
+        "status": "FIXED"
+      },
+      {
+        "id": "F13-02",
+        "site": "AdminLessonBuilder.vue:155",
+        "text": "x",
+        "fg": "rgba(30,41,59,0.4)",
+        "bg": "rgb(255,255,255)",
+        "ratioBefore": 2.35,
+        "need": 4.5,
+        "fix": "text-foreground/40 -> text-muted-foreground",
+        "status": "FIXED"
+      }
+    ],
+    "systemic": [
+      {
+        "id": "F13-01",
+        "pattern": "text-danger on bg-danger/10",
+        "fg": "rgb(225,29,72)",
+        "bg": "rgb(252,231,228)",
+        "ratioBefore": 3.95,
+        "ratioAfter": 12.29,
+        "need": 4.5,
+        "routes": [
+          "/admin/dashboard",
+          "/decks",
+          "/leaderboard"
+        ],
+        "evidence": "forced error state with page.route abort; reproduced on 3 routes",
+        "fix": "--geo-danger-ink #BE123C added + text-danger -> text-danger-ink",
+        "status": "FIXED"
+      }
+    ],
+    "suspectSitesChecked": [
+      {
+        "site": "AdminDashboard.vue:19-20",
+        "token": "text-tertiary-ink / text-quaternary-ink",
+        "ratio": 5.02,
+        "verdict": "PASS (already ink) - false positive"
+      },
+      {
+        "site": "Profile.vue:44",
+        "token": "text-tertiary-ink",
+        "ratio": 5.02,
+        "verdict": "PASS (already ink) - false positive"
+      },
+      {
+        "site": "AdminLayout.vue:28,66",
+        "token": "text-tertiary on dark #1E293B",
+        "ratio": 8.76,
+        "verdict": "PASS (dark surface) - false positive"
+      }
+    ],
+    "namedSuspectsVerdict": "All three named suspects were FALSE POSITIVES - they already use the -ink layer or sit on the dark sidebar."
+  }
+}

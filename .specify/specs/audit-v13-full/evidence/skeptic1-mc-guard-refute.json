@@ -1,0 +1,80 @@
+{
+  "role": "skeptic-1",
+  "claim_area": "API sweep (live container :8080) — audit-v13-full Phase 2",
+  "claim_title": "MULTIPLE_CHOICE guard over-blocks the \"A - <content>\" option style that exists as a real production row",
+  "claimed_severity": "HIGH",
+  "verdict": "REFUTED",
+  "refuted": true,
+  "summary": "The claimed 400 does NOT reproduce on the live container. POST and PUT of the exact payload both return HTTP 200 (3/3 POST attempts). The deployed bytecode contains the CORRECTED regex (?i)^[a-d]$, not the claimed ^[A-D](\\s*-\\s*.*)?$. The source explicitly documents this exact finding (row 651717) as the reason the regex was narrowed. The observation was genuine at capture time against the pre-fix build, but the finding has since been remediated and is not an open defect.",
+
+  "real_db_row_confirmed": {
+    "exercise_id": 651717,
+    "lesson_id": 10976,
+    "exercise_type": "MULTIPLE_CHOICE",
+    "correct_answer": "A - Salad",
+    "options": "[\"A - Salad\", \"B - Cheeseburger\", \"C - Pizza\", \"D - Bread\"]",
+    "query": "SELECT exercise_id,lesson_id,exercise_type,correct_answer,options FROM exercises WHERE exercise_id=651717",
+    "note": "Row is real and matches the claim exactly. Scope also verified: exactly 2 rows use the 'A - ' style — 651717 (MULTIPLE_CHOICE) and 650864 (FILL_BLANK). Claim's scope statement is accurate."
+  },
+
+  "live_http_probes": {
+    "rate_limit_buckets": "flushed before every batch (docker exec engflow-redis redis-cli --scan --pattern 'rate_limit:*' | del)",
+    "auth": "real POST /api/auth/login admin@gmail.com/123456, token length 230",
+    "results": [
+      { "method": "POST", "path": "/api/admin/exercises", "payload": "options=[\"A - Salad\",\"B - Cheeseburger\",\"C - Pizza\",\"D - Bread\"], exerciseType=MULTIPLE_CHOICE", "http": 200, "claim_expected": 400, "outcome": "CONTRADICTS CLAIM (created id 777629)" },
+      { "method": "POST", "path": "/api/admin/exercises", "repeat": "3x on final clean run", "http": "200,200,200", "claim_expected": 400, "outcome": "CONTRADICTS CLAIM (ids 777634-777636)" },
+      { "method": "PUT", "path": "/api/admin/exercises/777629", "payload": "dash style", "http": 200, "claim_expected": 400, "outcome": "CONTRADICTS CLAIM" },
+      { "method": "POST", "path": "/api/admin/exercises", "payload": "options=[\"a\",\"b\",\"c\",\"d\"]", "http": 400, "outcome": "control correct — guard still rejects bare letters" },
+      { "method": "PUT", "path": "/api/admin/exercises/777629", "payload": "options=[\"a\",\"b\",\"c\",\"d\"]", "http": 400, "outcome": "control correct" },
+      { "method": "PUT", "path": "/api/admin/exercises/777629", "payload": "options=[\"a\",\"b\",\"c\",\"Hanoi\"] (mixed)", "http": 200, "outcome": "control correct" }
+    ]
+  },
+
+  "deployed_bytecode": {
+    "container": "engflow-backend",
+    "container_started_at": "2026-09-22T03:43:24+07:00 (2026-09-21T20:43:24Z)",
+    "class": "BOOT-INF/classes/com/datn/engflow/service/ExerciseService.class",
+    "regex_string_in_class": "(?i)^[a-d]$",
+    "claimed_old_regex_present_in_class": false,
+    "conclusion": "The running container deploys the FIXED regex, so 'A - Salad' is not classified as a bare-letter placeholder and is accepted."
+  },
+
+  "source_corroboration": {
+    "file": "src/main/java/com/datn/engflow/service/ExerciseService.java",
+    "working_tree_regex": "option.trim().matches(\"(?i)^[a-d]$\")",
+    "source_comment": "Deliberately does NOT treat \"A - Salad\" as a placeholder ... (real row exercise_id=651717, options [\"A - Salad\",...]). The old regex ^[A-D](\\s*-\\s*.*)?$ matched it, which would have wrongly rejected a legitimate exercise.",
+    "git": "the whole guard (assertNewChoiceOptionsUsable/isBareLetterOption) is UNCOMMITTED working-tree code; HEAD has no guard. The working tree already carries the corrected regex.",
+    "source_mtime": "2026-09-22 03:25:27"
+  },
+
+  "timeline_reconstructed": {
+    "03:03:10": "backend-rebuild.log — build of pre-fix code",
+    "~03:17:52": "container restart referenced by the claim (pre-fix build with old regex)",
+    "03:22:18": "deep-probe.json captured the FAIL (HTTP 400) — genuine at this moment",
+    "03:25:27": "ExerciseService.java modified — regex narrowed to (?i)^[a-d]$",
+    "03:39-03:44": "backend-full-after-fix.log / backend-final.log — rebuild + restart with fixed code",
+    "03:43:24": "current container start (fixed code)",
+    "now": "POST/PUT dash style -> 200; not reproducible"
+  },
+
+  "probe_artefact_check": {
+    "429_self_inflicted": "NO — buckets flushed before each batch; responses were 200/400 with correct bodies, never 429",
+    "false_positive_mechanism": "NO — this is an HTTP status assertion, not a DOM/scrollbar reading; 200 vs 400 is unambiguous",
+    "stale_build_artefact": "the probe's 400 was real against the pre-fix build; the current live container runs fixed bytecode"
+  },
+
+  "severity_assessment": {
+    "at_capture_time": "genuinely HIGH — a guard that rejects a shape already present in production would block legitimate create/edit",
+    "now": "NONE / FIXED — not reproducible on the live container; the guard is correctly narrowed and still rejects bare letters"
+  },
+
+  "cleanup": {
+    "method": "DELETE by listed IDs only (never LIKE)",
+    "deleted_ids": [777629, 777634, 777635, 777636],
+    "deleted_count": 4,
+    "msg_scan": "SET QUOTED_IDENTIFIER ON; no 'Msg <n>' in output",
+    "verification": "SELECT exercise_id FROM exercises WHERE question LIKE 'SKEPTIC1%' -> 0 rows remain"
+  },
+
+  "residual_note": "The probe's second FAIL (LISTENING with bare-letter options -> 200, guard is MULTIPLE_CHOICE-only) is a separate claim and is not addressed here."
+}

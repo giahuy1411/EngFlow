@@ -1,0 +1,71 @@
+{
+  "skeptic": 1,
+  "finding": "AdminLessonBuilder contrast: white on raw bg-accent 4.23:1, text-white/40 3.61:1, text-foreground/40 2.35:1",
+  "verdict": "CONFIRMED — NOT REFUTED",
+  "claimed_severity": "LOW",
+  "corrected_severity": "LOW",
+  "method": {
+    "live_url": "http://localhost:5173/admin/445/build",
+    "lesson_445_real": "GET /api/admin/lessons/445 -> id 445, title 'English Grammar Exercises for A1 - have got and articles' (matches page subtitle rendered live)",
+    "auth": "real admin login admin@gmail.com/123456, token written to localStorage per frontend/src/store/modules/auth.js:64-67",
+    "contrast": "WCAG 2.x relative luminance; alpha composited bottom-up for fg AND every ancestor bg; base white",
+    "tools": ["Playwright MCP (live DOM)", "Chrome DevTools MCP (independent live DOM)", "offline recomputation in Python"]
+  },
+  "evidence_before_fix": {
+    "source": "git HEAD (= pre-fix working tree); verified classes existed at HEAD:frontend/src/views/admin/AdminLessonBuilder.vue lines 6, 66, 120, 155",
+    "element_1_logo_tile": {
+      "file_line": "frontend/src/views/admin/AdminLessonBuilder.vue:6-7",
+      "class_before": "bg-accent + span.text-white",
+      "computed": "fg rgb(255,255,255) on bg rgb(139,92,246) #8B5CF6",
+      "ratio_before": 4.23,
+      "need": 4.5,
+      "font": "text-sm 14px, font-black (not large text -> 4.5:1 applies)",
+      "verdict_before": "FAIL"
+    },
+    "element_2_section_close": {
+      "file_line": "frontend/src/views/admin/AdminLessonBuilder.vue:119-122",
+      "class_before": "text-white/40 on bg-foreground",
+      "computed": "rgba(255,255,255,0.4) composited over rgb(30,41,59) #1E293B",
+      "ratio_before": 3.61,
+      "need": 4.5,
+      "verdict_before": "FAIL"
+    },
+    "element_3_block_remove": {
+      "file_line": "frontend/src/views/admin/AdminLessonBuilder.vue:154-156",
+      "class_before": "text-foreground/40 on bg-white",
+      "computed": "rgb(30,41,59) at 40% over white",
+      "ratio_before": 2.35,
+      "need": 4.5,
+      "verdict_before": "FAIL"
+    }
+  },
+  "evidence_after_fix_live": {
+    "element_1_logo_tile": { "class": "bg-accent-strong + span.text-white", "fg": "rgb(255,255,255)", "bg": "rgb(124,58,237) #7C3AED", "ratio": 5.7, "verdict": "PASS" },
+    "element_2_section_close": { "class": "text-white/60 on bg-foreground", "fg": "rgba(255,255,255,0.6)", "bg": "rgb(30,41,59)", "ratio": 6.23, "verdict": "PASS" },
+    "element_3_block_remove": { "class": "text-muted-foreground on bg-white", "fg": "rgb(85,96,112) #556070", "bg": "rgb(255,255,255)", "ratio": 6.38, "verdict": "PASS" }
+  },
+  "independent_recomputation": {
+    "white_on_8B5CF6": 4.23,
+    "white40_on_1E293B": 3.61,
+    "fg40_on_white": 2.35,
+    "white_on_7C3AED": 5.70,
+    "white60_on_1E293B": 6.23,
+    "mutedforeground_556070_on_white": 6.38,
+    "note": "Python recomputation reproduces every claimed ratio to 2dp; matches both browser tools."
+  },
+  "root_cause_verified": {
+    "claim": "v11 F132 migrated buttons to --geo-accent-strong but this logo tile kept the raw bg-accent",
+    "check": "commit 30bc9b6 (fix(audit-v11) ... F132) DID touch AdminLessonBuilder.vue (6 lines: badge, hover:text-accent->accent-ink x2, modal text-accent->accent-ink, AUDIO badge bg-accent->bg-accent-strong, SUBMISSION badge bg-secondary->bg-secondary-strong) but did NOT migrate the header logo tile at line 6 (bg-accent) nor the two 40%-opacity controls",
+    "documented_rule": "frontend/tailwind.config.js: 'vivid tokens are for FILLS... Anywhere the token carries TEXT, use *-ink (on light) or *-strong (as a background under white text)'",
+    "conclusion": "Root cause is accurate — F132 migrated some bg-accent usages in this file but left the logo tile on raw bg-accent, exactly as claimed."
+  },
+  "artefact_checks": {
+    "guard_redirect": "A first attempt was misread: a non-admin session was redirected /admin/445/build -> / (localStorage user not admin). Re-run with a real admin token rendered the builder (sections=1, heading 'Xay Dung Bai Hoc'). Not a redirect artefact.",
+    "rate_limit_429": "rate_limit:* buckets flushed before the sweep; no 429 in console/network; page rendered 200 with real lesson data.",
+    "console_errors": "none (Chrome DevTools list_console_messages: no error/warn)",
+    "false_positive_disclosed": "My own broad page scan initially reported 3 items (a 'Block' ghost button 1:1, and two 3.45:1). Those were MY probe bugs: I had not composited (a) ancestor opacity-50 during a delete confirm, and (b) semi-transparent ancestor backgrounds like bg-accent/10. After correcting the compositing the scan shows 0 contrast failures. This does NOT affect the three claimed findings, whose ratios I measured directly and confirmed three independent ways."
+  },
+  "severity_justification": "LOW is correct. Real WCAG 1.4.3 failures, but on an admin-only route, all three controls carry aria-labels so they remain operable, and the logo 'B' is a small decorative mark. Non-blocking, cosmetic-adjacent accessibility defect -> LOW.",
+  "refuted": false,
+  "reason": "Every claimed ratio (4.23 / 3.61 / 2.35) reproduced exactly via live DOM in two independent browser tools and via offline recomputation; the pre-fix classes existed at HEAD; the F132 root cause is verified against the commit diff; and the post-fix values (5.70 / 6.23 / 6.38) were re-measured live and all pass AA. No 429, redirect or scrollbar artefact. Claim holds."
+}

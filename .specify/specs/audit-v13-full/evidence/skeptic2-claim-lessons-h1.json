@@ -1,0 +1,114 @@
+{
+  "claim": {
+    "area": "Phase 3 — UI sweep",
+    "title": "/lessons/:id has no h1 and heading order starts at h3",
+    "severity": "LOW",
+    "file": "frontend/src/views/lessons/LessonLayout.vue",
+    "wcag": ["2.4.6", "1.3.1"]
+  },
+  "skeptic": "skeptic #2 (refute-first)",
+  "verdict": "CONFIRMED (not refuted)",
+  "refuted": false,
+
+  "reproduction": {
+    "route": "/lessons/445",
+    "frontend": "http://localhost:5173",
+    "roles_tested": [
+      {
+        "role": "STUDENT",
+        "token_sub": "user@gmail.com",
+        "pageId": 12,
+        "counts": { "H3": 6 },
+        "h1_count": 0,
+        "h1_anywhere_incl_header_footer": 0,
+        "h2_anywhere": 0,
+        "first_heading_tag": "H3",
+        "lessonContent_present": true
+      },
+      {
+        "role": "GUEST",
+        "isolatedContext": "guest-check",
+        "pageId": 13,
+        "counts": { "H3": 6 },
+        "h1_count": 0,
+        "h1_anywhere_incl_header_footer": 0,
+        "first_heading_tag": "H3",
+        "lessonContent_present": true
+      },
+      {
+        "role": "ADMIN",
+        "token_sub": "admin@gmail.com",
+        "isolatedContext": "admin-check",
+        "pageId": 15,
+        "counts": { "H3": 6 },
+        "h1_count": 0,
+        "h1_anywhere_incl_header_footer": 0,
+        "h2_anywhere": 0,
+        "first_heading_tag": "H3",
+        "lessonContent_present": true
+      }
+    ],
+    "heading_texts_445": [
+      "1. Complete the message. Use the affirmative form of have got.",
+      "2. Complete the first part of sentences 1-6 with the negative form of have got.",
+      "3. Look at the chart. Write questions and short answers about Emily and ...",
+      "4. Write a or an.",
+      "5. Complete the dialogue with a, an or the.",
+      "6. Choose the correct answers."
+    ]
+  },
+
+  "generality_check": {
+    "route": "/lessons/10892",
+    "pageId": 10,
+    "counts": { "H2": 1 },
+    "h1_count": 0,
+    "note": "Different lesson id: still 0 h1; only an H2 ('Bài tập') which is also a section heading, not a page title. Confirms the defect is structural, not lesson-445-specific."
+  },
+
+  "root_cause_verified": {
+    "source_files": [
+      "frontend/src/views/lessons/LessonLayout.vue",
+      "frontend/src/views/lessons/LessonContent.vue"
+    ],
+    "finding": "LessonLayout.vue renders only a tablist + tabpanels; it never renders a page-level <h1>. LessonContent.vue renders the lesson body with v-html and owns only one <h2 id=\"lesson-speaking-title\"> inside an optional section. The H3s are emitted by the scraped lesson HTML, not by the app.",
+    "raw_api_proof": {
+      "endpoint": "GET /api/lessons/445/exercises/content (Authorization: Bearer <student>)",
+      "response_keys": ["cleanHtml"],
+      "cleanHtml_length": 6764,
+      "heading_tags_in_raw_cleanHtml": ["h3", "h3", "h3", "h3", "h3", "h3"],
+      "first_160_chars": "<h3><strong>1. Complete the message. Use the affirmative form of<em>have got</em>.</strong></h3> <p>Hi! My name is Isaac and I’m a big Manchester United fan,"
+    }
+  },
+
+  "refutation_attempts": [
+    {
+      "hypothesis": "Probe artefact — 429 / rate-limit manufactured the reading.",
+      "result": "REJECTED. Rate-limit buckets were flushed before the HTTP batches; DOM was read via Chrome DevTools evaluate_script (in-page DOM), not HTTP. The page rendered full lesson content (bodyTextLen=2755, .lesson-content present), so no error/empty state was misread."
+    },
+    {
+      "hypothesis": "Guard redirect misread as failure — e.g. the guest/admin page was actually redirected.",
+      "result": "REJECTED. location.href === http://localhost:5173/lessons/445 on all three pages; no redirect. Route meta is requiresAuth:false, so guest access is legitimate and rendered."
+    },
+    {
+      "hypothesis": "A page-level <h1> exists elsewhere (header/footer/modal) and was missed by the scoped query.",
+      "result": "REJECTED. document.querySelectorAll('h1') across the WHOLE document returned length 0 on student, guest and admin pages. The first heading in document order is an H3."
+    },
+    {
+      "hypothesis": "The h2 in LessonContent.vue is a page title, so the page is not heading-less.",
+      "result": "REJECTED as a page title. It is conditional (v-if=\"speakingPrompts.length\") and labelled 'Luyện nói cho bài học này' (Speaking Coach), i.e. a section heading. On /lessons/445 it is not even rendered (h2_anywhere = 0); on /lessons/10892 the only h2 is 'Bài tập'. Either way, no h1 exists."
+    },
+    {
+      "hypothesis": "This is correct/acceptable behaviour, not a bug.",
+      "result": "REJECTED. There is no page-level heading at all, so the document has no title heading for assistive tech and heading order begins at H3 (h1 -> h3 skips two levels). WCAG 2.4.6 Headings and Labels is AAA, and WCAG 1.3.1 Info and Relationships is A; axe-core's page-has-heading-one / heading-order rules would flag this. A LOW severity is defensible for a single content page with otherwise-sane structure."
+    }
+  ],
+
+  "severity_assessment": {
+    "claimed": "LOW",
+    "skeptic_view": "LOW is justified. It is a real WCAG issue (missing h1 + heading level skip), reproducible in all roles and across lesson ids, but impact is limited to one route family and the page remains navigable/legible. Not inflated to MEDIUM/HIGH."
+  },
+
+  "evidence_type": "real (live DOM in 3 roles via Chrome DevTools MCP + raw authenticated HTTP + source read)",
+  "notes": "No application source was modified. Only read-only probes were performed; no probe rows were created, so no cleanup was required."
+}

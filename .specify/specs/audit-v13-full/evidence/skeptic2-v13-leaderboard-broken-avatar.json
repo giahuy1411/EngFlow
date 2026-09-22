@@ -1,0 +1,68 @@
+{
+  "skeptic": "skeptic2",
+  "phase": "Phase 3 — UI sweep",
+  "claim": "Leaderboard renders a broken avatar with no onerror fallback",
+  "claimed_severity": "LOW",
+  "verdict": "NOT REFUTED — claim confirmed",
+  "refuted": false,
+  "corrected_severity": "LOW (unchanged)",
+  "checked_at": "2026-09-22",
+
+  "db_evidence": {
+    "runner": "python sweep/v8/sqlrun.py tmp/q_avatar.sql",
+    "row": {"user_id": 150011, "username": "testaudit2026", "avatar_url": "https://example.com/avatar.png", "total_points": 3, "is_active": 1, "created_at": "2026-08-28 17:32:48.0372051", "updated_at": "2026-08-28 17:48:55.8775232"},
+    "count_matching_example_com": 1,
+    "total_users": 72,
+    "null_or_empty_avatar_url": 0,
+    "note": "Row created 2026-08-28, ~3 weeks BEFORE this audit (2026-09-22) -> NOT a probe artefact of this sweep. Only 1 of 72 users has a bad URL; 0 have null/empty, so this is stale test data, not an empty-value code path."
+  },
+
+  "api_evidence": {
+    "request": "GET http://localhost:8080/api/leaderboard?page=0&size=20 (Bearer student token, rate-limit buckets flushed first)",
+    "http_status": 200,
+    "totalElements": 72,
+    "totalPages": 4,
+    "row_position": "rank 5, page 1 of 4 -> visible without any paging trickery",
+    "avatarUrl_returned": "https://example.com/avatar.png"
+  },
+
+  "url_evidence": {
+    "curl_head": "HTTP/1.1 404 Not Found (Content-Type: text/html, cloudflare, body = 'Example Domain' HTML)",
+    "note": "The host returns 404 text/html, so Chromium blocks the response as an image: net::ERR_BLOCKED_BY_ORB."
+  },
+
+  "live_dom_evidence": {
+    "tool": "Chrome DevTools MCP evaluate_script on http://localhost:5173/leaderboard",
+    "total_imgs": 21,
+    "broken_count": 1,
+    "broken": [{"src": "https://example.com/avatar.png", "alt": "Ảnh đại diện", "hasAttribute_alt": true, "complete": true, "naturalWidth": 0, "naturalHeight": 0, "rect": {"w": 48, "h": 48}, "objectFit": "cover", "backgroundColor": "rgba(0, 0, 0, 0)", "border": "2px solid rgb(30, 41, 59)", "row": "rank 5, @testaudit2026"}],
+    "console_messages": "none (no error/warn emitted)",
+    "screenshot": "skeptic2-v13-leaderboard-broken-avatar.png (rank 5 shows the browser broken-image glyph with 'Ảnh' alt text in the 48x48 slot)"
+  },
+
+  "network_evidence": {
+    "tool": "Chrome DevTools MCP list_network_requests (image)",
+    "example_com_request": "reqid=714 GET https://example.com/avatar.png [net::ERR_BLOCKED_BY_ORB]",
+    "other_20_images": "all 200 (2 cloudinary, 18 dicebear)"
+  },
+
+  "source_evidence": {
+    "file": "frontend/src/views/Leaderboard.vue",
+    "line": 45,
+    "code": "<img :src=\"user.avatarUrl || 'https://api.dicebear.com/7.x/thumbs/svg?seed=engflow'\" ... alt=\"Ảnh đại diện\" />",
+    "root_cause_confirmed": "The `||` fallback only fires for null/empty/undefined. A non-empty but dead URL is truthy, so the dicebear fallback never applies. There is no @error/onerror handler on this img (grep: none in Leaderboard.vue, none in components/common/, no global handler in main.js or App.vue).",
+    "sibling_components_same_pattern": ["frontend/src/layouts/AdminLayout.vue:58", "frontend/src/views/Profile.vue:9", "frontend/src/views/admin/AdminUsers.vue:67"],
+    "existing_error_handlers_elsewhere": ["frontend/src/views/admin/AdminExercises.vue:239 @error=\"onImageError\"", "frontend/src/views/videos/VideoLibrary.vue:66 @error=\"brokenThumbs.push(lesson.id)\""],
+    "note_on_pattern": "The project already uses an @error image-fallback pattern in two other views; Leaderboard.vue's omission is an inconsistency/gap, not a deliberate design choice."
+  },
+
+  "refutation_attempts": [
+    {"attempt": "Probe artefact (429 / self-manufactured)?", "result": "NO. Row created 2026-08-28, 3 weeks before the audit. Rate-limit buckets were flushed before the HTTP batch; API returned 200. The broken request is a cross-origin image fetch to example.com, unrelated to the API rate limiter."},
+    {"attempt": "Scrollbar / responsive false positive?", "result": "NO. This is an image naturalWidth==0 check plus a real network failure (ERR_BLOCKED_BY_ORB), not an overflow measurement. Screenshot visually confirms the broken glyph."},
+    {"attempt": "Guard redirect misread as failure?", "result": "NO. /leaderboard rendered 20 article rows and 72 total users; page is the real leaderboard, not a login redirect."},
+    {"attempt": "Is this correct browser behaviour rather than a bug?", "result": "PARTIALLY. Rendering alt text on a failed image is standard browser behaviour, and the alt text is meaningful, so this is NOT an a11y failure. But a user-visible broken-image glyph on a ranking row is a genuine (minor) UI defect, and the component has no robustness against a URL that later 404s (e.g. a deleted Cloudinary asset). The claim is a legitimate LOW."},
+    {"attempt": "Is it only bad data, not a code defect?", "result": "The trigger is stale test data (1 of 72 users), so the report's fix should include cleaning the row; but the missing @error fallback is a real gap the claim correctly identifies. The claim itself already says 'add @error and/or clean the row', so it does not overstate the code defect."}
+  ],
+
+  "conclusion": "Confirmed by real DB row, real HTTP 200 payload, real DOM (naturalWidth 0), real network failure (ERR_BLOCKED_BY_ORB) and a screenshot. Not a probe artefact; the row predates the audit. The claimed LOW severity is justified: cosmetic, one row of 72, alt text still present, functionality unaffected. No severity correction."
+}

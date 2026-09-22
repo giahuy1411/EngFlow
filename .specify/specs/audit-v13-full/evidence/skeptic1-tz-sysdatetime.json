@@ -1,0 +1,47 @@
+{
+  "claim_id": "phase1-sysdatetime-utc",
+  "claim_title": "SYSDATETIME() on the SQL Server container is UTC, not +07 — three clocks in the stack disagree",
+  "claimed_severity": "LOW",
+  "skeptic": "skeptic#1",
+  "verdict": "REFUTED",
+  "corrected_severity": "INFO",
+  "checked_at_local": "2026-09-22 04:00 +07:00",
+  "observations_verified_true": [
+    "Host local clock = 2026-09-22 03:54:51 +0700; host UTC = 2026-09-21 20:54:51 +0000.",
+    "engflow-backend container date = 2026-09-22 03:54:52 +0700 (compose docker-compose.yml line 52 = 'TZ=Asia/Ho_Chi_Minh'; backend.Dockerfile line 14 ENV TZ and line 17 -Duser.timezone=Asia/Ho_Chi_Minh).",
+    "engflow-sqlserver container date = 2026-09-21 20:54:51 +0000; docker inspect shows NO TZ env var on the sqlserver container.",
+    "SELECT SYSDATETIME() = 2026-09-21 20:54:56.2829823; SYSUTCDATETIME() = 2026-09-21 20:54:56.2829823; SYSDATETIMEOFFSET() = 2026-09-21 20:54:56.2829823 +00:00; DATEDIFF(MINUTE, SYSDATETIME(), SYSUTCDATETIME()) = 0. The claim's raw clock facts are REAL and REPRODUCIBLE."
+  ],
+  "why_refuted": [
+    "IMPACT MECHANISM ABSENT: zero usages of SYSDATETIME()/GETDATE()/GETUTCDATE()/CURRENT_TIMESTAMP in application source. grep -rhoiE over src/main/java/**/*.java = 0 occurrences. Zero native queries (grep nativeQuery src/main/java = 0 files). So no 'ad-hoc SYSDATETIME() comparison against a datetime2 column' exists anywhere in the app.",
+    "NO DB-SIDE CLOCK IS LIVE: sys.default_constraints count = 0 (ALL_DEFAULTS|0). The DEFAULT GETDATE() literals in db/migration/V1,V3,V9 never took effect in this DB — Flyway is disabled (spring.flyway.enabled=false) and Hibernate ddl-auto=update created the schema without them. sys.triggers = 0. No stored proc/function writes timestamps.",
+    "ALL TIMESTAMPS ARE WRITTEN BY THE JVM (+07): every entity uses @CreationTimestamp/@UpdateTimestamp (15 entities). Real HTTP write test: registered user via POST /api/auth/register at host-local 2026-09-22 03:56:56 +0700 -> stored users.created_at = 2026-09-22 03:56:56.5368774, i.e. the +07 wall clock, NOT UTC 20:56. Data is internally consistent +07 across users/speaking_submissions/video_attempts/lessons.",
+    "CLAIM'S DIRECTION IS WRONG: the claim states 'DATEDIFF(MINUTE,col,SYSDATETIME()) reports every stored timestamp 7h older than it is.' Empirically DATEDIFF(MINUTE, col, SYSDATETIME()) where col holds +07 local now = -420 (NEGATIVE), and on real data DATEDIFF(MINUTE, MAX(created_at), SYSDATETIME()) = -417. A local (+07) col appears 7h in the FUTURE relative to UTC SYSDATETIME(), not '7h older'. The stated sign is inverted.",
+    "EXPECTED BEHAVIOUR, NOT A BUG: the official mcr.microsoft.com/mssql/server image runs the container in UTC by default (no TZ). The app correctly pins its own clock to +07 (compose + Dockerfile). This is a sound design; the 'three clocks disagree' framing describes standard container config, not a defect."
+  ],
+  "residual_valid_note": "The one true, correctly-stated fact is that SYSDATETIME()/GETDATE() inside engflow-sqlserver returns UTC. That is a trap ONLY for a human/agent writing ad-hoc SQL (the existing probe scripts sweep/v8/db-audit.sql and sweep/v8/p6_db_audit_v9.sql already document and work around it). No application code path is affected. Warrants at most an INFO/docs note, not a LOW defect.",
+  "evidence_artifacts": {
+    "host_utc": "2026-09-21 20:54:51 +0000",
+    "host_local": "2026-09-22 03:54:51 +0700",
+    "backend_container": "2026-09-22 03:54:52 +0700",
+    "sqlserver_container": "2026-09-21 20:54:51 +0000",
+    "frontend_container": "2026-09-21 20:54:52 +0000",
+    "sysdatetime": "2026-09-21 20:54:56.2829823",
+    "sysutcdatetime": "2026-09-21 20:54:56.2829823",
+    "sysdatetimeoffset": "2026-09-21 20:54:56.2829823 +00:00",
+    "offset_minutes": 0,
+    "default_constraints_total": 0,
+    "triggers_total": 0,
+    "sysdatetime_usages_in_java": 0,
+    "native_queries_in_java": 0,
+    "probe_row": "users.username=zzrefute1790024216 created_at=2026-09-22 03:56:56.5368774 (host local 03:56:56 +0700)",
+    "datediff_col_to_sysdatetime_minutes": -417,
+    "datediff_simulated_local_now_minutes": -420
+  },
+  "cleanup": {
+    "method": "DELETE FROM users WHERE username LIKE 'zzrefute%'",
+    "deleted_count": 3,
+    "msg_scan": "no 'Msg <n>' errors in batch output; sqlrun printed deleted_count=3",
+    "note": "probe users zzrefute1, zzrefute1790024212, zzrefute1790024216 removed"
+  }
+}

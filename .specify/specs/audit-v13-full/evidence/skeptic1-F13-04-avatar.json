@@ -1,0 +1,25 @@
+{
+  "finding": "F13-04 Leaderboard broken avatar, no onerror fallback",
+  "verdict": "NOT REFUTED (claim holds)",
+  "source": "frontend/src/views/Leaderboard.vue:45",
+  "code": "<img :src=\"user.avatarUrl || 'https://api.dicebear.com/7.x/thumbs/svg?seed=engflow'\" class=\"h-12 w-12 ...\" alt=\"Anh dai dien\" />",
+  "db_check": {
+    "runner": "python sweep/v8/sqlrun.py",
+    "row": {"user_id": 150011, "username": "testaudit2026", "email": "testaudit@engflow.test", "avatar_url": "https://example.com/avatar.png"},
+    "count_example_com": 1,
+    "avatar_url_distribution": {"dicebear": 69, "cloudinary": 2, "example.com": 1, "empty_or_null": 0}
+  },
+  "live_dom": {
+    "page": "http://localhost:5173/leaderboard",
+    "imgCount": 21,
+    "brokenCount": 1,
+    "broken": {"src": "https://example.com/avatar.png", "complete": true, "naturalWidth": 0, "naturalHeight": 0, "alt": "Anh dai dien", "hasOnError": false, "rect": {"w": 48, "h": 48}}
+  },
+  "network": {
+    "reqid_627": "GET https://example.com/avatar.png [net::ERR_BLOCKED_BY_ORB]",
+    "direct_fetch": "status=404 content-type=text/html size=559",
+    "sibling_images": "20/20 dicebear+cloudinary avatars returned 200"
+  },
+  "probe_artefact_check": "Not a 429: image fetches are not rate-limited and 20 sibling images returned 200. Not a pending-lazy false positive: complete=true with naturalWidth=0 means loaded-and-failed. Not a guard redirect: /leaderboard rendered 20 rows, no navigation.",
+  "severity_review": "LOW stands. Trigger in live DB is test residue (1/72 rows), and the fixed h-12 w-12 box means no CLS/layout shift; harm is a broken-image glyph plus alt text. However the code path is real for any production user with a dead avatar URL, and the fix is a one-line @error handler."
+}

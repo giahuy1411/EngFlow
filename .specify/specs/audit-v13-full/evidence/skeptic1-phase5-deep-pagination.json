@@ -1,0 +1,105 @@
+{
+  "claim": "Phase 5 deep-pagination 'did NOT reproduce — negative result' (severity LOW)",
+  "verdict": "REFUTED",
+  "refuted": true,
+  "at": "2026-09-22T04:19:22.701390+07:00",
+  "why_refuted": [
+    "The claim's own saved raw run contradicts its headline: tmp/s2_deep_probe.json (rounds=7, depths 0/400/800/1200/1658) medians = 185.5/203.6/213.2/226.9/114 ms -> a RISING trend to depth 1200, not 'no trend'.",
+    "The medians quoted in the claim (p0 213.4 / p400 197.3 / p800 199.6 / p1200 218.9 / p1658 109.4) appear ONLY in the hand-written ancillary block of sweep/v13/perf-before.json; no raw artifact contains them. Every depth differs from the saved 5x7 run (0:185.5 vs 213.4; 400:203.6 vs 197.3; 800:213.2 vs 199.6; 1200:226.9 vs 218.9; 1658:114 vs 109.4).",
+    "'last page fastest' is a partial-page artefact: page 1658 (size 10) returns 8 rows/3006 B vs page 0 10 rows/6410 B. The last FULL page 1657 is 229.6 ms vs page 0 162.7 ms = 1.41x SLOWER; only the short page is fast.",
+    "Independent controlled runs reproduce a monotone depth effect: strict alternating p0 vs p1600 (N=40, bucket flushed per call) 154.4 -> 209.2 ms, 40/40 pairs deep-slower; swapped-order 40/40-ish (39/40) 159.3 -> 216.9 ms; size=20 (the UI's real pageSize) 167.1 -> 249.5 ms with 30/30 pairs.",
+    "Body size works AGAINST the claim: deep pages carry SMALLER bodies (3813 B) than page 0 (6410 B) yet are SLOWER, so serialization does not explain the gap.",
+    "SQL-level cost is real and consistent with the claim's own ~35 ms figure: OFFSET 0 = CPU 203 ms/elapsed 31 ms; OFFSET 16580 = CPU 248 ms/elapsed 61 ms, both 1364 logical reads. It DOES surface at the API layer, contrary to the claim."
+  ],
+  "not_a_probe_artefact": {
+    "statuses": "all 200 in every run (recorded in each artifact)",
+    "rate_limit": "rate_limit:* flushed before EVERY call; no 429 observed",
+    "confounds_controlled": [
+      "order randomised / rotated / swapped",
+      "paired within-round comparison",
+      "bucket flush per call",
+      "body fully read before stopping clock"
+    ]
+  },
+  "saved_raw_run_medians": {
+    "0": 185.5,
+    "400": 203.6,
+    "800": 213.2,
+    "1200": 226.9,
+    "1658": 114
+  },
+  "claimed_medians_not_in_any_raw_file": {
+    "p0": 213.4,
+    "p400": 197.3,
+    "p800": 199.6,
+    "p1200": 218.9,
+    "p1658": 109.4
+  },
+  "my_runs": {
+    "strict_alternating_p0_vs_p1600_N40": {
+      "p0": 154.4,
+      "p1600": 209.2,
+      "deep_slower_pairs": "40/40"
+    },
+    "swapped_order_p0_vs_p1600_N40": {
+      "p0": 159.3,
+      "p1600": 216.9,
+      "deep_slower_pairs": "39/40"
+    },
+    "size20_rotating_N30": {
+      "p0": 167.1,
+      "p414": 238.5,
+      "p828_lastfull": 249.5,
+      "p829_partial": 110.5,
+      "lastfull_slower_pairs": "30/30"
+    },
+    "interleave_A_12x5": {
+      "0": 163.9,
+      "400": 209.2,
+      "800": 215.4,
+      "1200": 214.6,
+      "1658": 89.1
+    },
+    "interleave_B_15x7": {
+      "0": 185.5,
+      "400": 221.7,
+      "800": 242.9,
+      "1200": 248.4,
+      "1600": 290.6,
+      "1657": 256.5,
+      "1658": 106.8
+    },
+    "last_full_vs_partial_N30": {
+      "p0": 162.7,
+      "p1657_lastfull": 229.6,
+      "p1658_partial": 99.4
+    }
+  },
+  "partial_page_confound": {
+    "p1657_rows": 10,
+    "p1657_bytes": 3925,
+    "p1658_rows": 8,
+    "p1658_bytes": 3006,
+    "ratio_lastfull_over_p0": 1.41,
+    "ratio_partial_over_p0": 0.61
+  },
+  "sql_level": {
+    "offset0": "CPU 203 ms / elapsed 31 ms / 1364 reads",
+    "offset16580": "CPU 248 ms / elapsed 61 ms / 1364 reads"
+  },
+  "corrected_severity": "LOW",
+  "severity_note": "The depth effect is real and reproducible but small (~+50 ms, ~1.3-1.8x) on an admin-only, hand-typed, size-20 page, so LOW is still the right level. What is wrong is the framing: this MUST NOT be recorded as 'did not reproduce / negative result'. It reproduced. The recommendation against keyset pagination remains defensible on cost/benefit, but not on the basis that the effect is absent.",
+  "files": [
+    "tmp/s2_deep_probe.json",
+    "tmp/s2_deep_rand.json",
+    "tmp/s2_deep_anom.json",
+    "tmp/s2_sqldelta_agg.json",
+    "tmp/_sk_deep.json",
+    "tmp/_sk_deep2.json",
+    "tmp/_sk_ab.json",
+    "tmp/_sk_ab2.json",
+    "tmp/_sk_swap.json",
+    "tmp/_sk_final.json",
+    "sweep/v13/perf-before.json"
+  ]
+}

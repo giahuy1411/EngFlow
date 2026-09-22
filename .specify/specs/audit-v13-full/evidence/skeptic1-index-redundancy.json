@@ -1,0 +1,80 @@
+{
+  "skeptic": "skeptic-1",
+  "phase": "Phase 1 - SQL Server data-layer audit",
+  "claim_title": "Three of five exercises nonclustered indexes are leading-column redundant - cleanup candidate, NOT justified for action now",
+  "claimed_severity": "LOW",
+  "verdict": "REFUTED",
+  "corrected_severity": "INVALID (not a finding - false premise)",
+  "summary": "The size/fragmentation/rowcount numbers reproduce exactly, but the central claim - that three indexes are leading-column redundant (strict prefixes) - is mathematically FALSE for all three. No index in the exercises set is a prefix of another. The claim's own operational conclusion (do nothing) is coincidentally harmless, but the finding is built on a fabricated structural premise and must not be recorded.",
+
+  "reproduced_exactly": {
+    "row_count": 43735,
+    "exercises_total_index_mb": 19.921875,
+    "sizes_mb": {
+      "idx_exercises_lesson_type_order": 3.664062,
+      "IX_exercises_lesson_type_diff_order": 2.460937,
+      "idx_exercises_type": 1.398437,
+      "idx_exercises_lesson_order": 1.125000,
+      "idx_exercises_difficulty": 1.039062
+    },
+    "fragmentation_pct": {
+      "IX_exercises_lesson_type_diff_order": 10.9215,
+      "idx_exercises_type": 4.5198,
+      "idx_exercises_lesson_type_order": 4.4843,
+      "idx_exercises_difficulty": 3.0534,
+      "idx_exercises_lesson_order": 1.4085
+    },
+    "note": "Claimed sizes 1.13/3.66/2.46/1.40 MB and total 19.92 MB match dm_db_partition_stats used_page_count*8/1024.0 within rounding. All fragmentation < 11% confirmed. These facts are REAL."
+  },
+
+  "refutation": {
+    "method": "sys.index_columns + sys.columns, is_included_column=0, ordered by key_ordinal; then a literal LIKE 'prefix%' test in T-SQL, plus manual column-by-column comparison.",
+    "actual_key_composition": {
+      "idx_exercises_difficulty": ["difficulty"],
+      "idx_exercises_lesson_order": ["lesson_id", "order_index"],
+      "idx_exercises_lesson_type_order": ["lesson_id", "exercise_type", "order_index"],
+      "idx_exercises_type": ["exercise_type"],
+      "IX_exercises_lesson_type_diff_order": ["lesson_id", "exercise_type", "difficulty", "order_index"]
+    },
+    "sql_prefix_test_results": [
+      { "claim": "lesson_order is prefix of lesson_type_order", "verdict": "FALSE" },
+      { "claim": "lesson_order is prefix of IX_lesson_type_diff_order", "verdict": "FALSE" },
+      { "claim": "type is prefix of lesson_type_order", "verdict": "FALSE" }
+    ],
+    "why_false": [
+      "idx_exercises_lesson_order (lesson_id, order_index): 2nd key col is order_index, but both candidate parents have exercise_type as their 2nd col. Column ORDER differs -> not a prefix.",
+      "idx_exercises_type (exercise_type): its only col is exercise_type, but idx_exercises_lesson_type_order LEADS with lesson_id. A single-column index is never a prefix of an index that starts with a different column.",
+      "None of the five nonclustered indexes is a strict leading-column prefix of any other in this set."
+    ],
+    "included_columns_ignored_by_claim": "idx_exercises_lesson_type_order carries INCLUDE (correct_answer, difficulty). The claim treats index key columns only and does not mention INCLUDEs; irrelevant to prefix status (included cols never affect key-prefix), but the claim's omission shows it was not derived from sys.index_columns."
+  },
+
+  "all_indexes_are_actually_used": {
+    "source": "sys.dm_db_index_usage_stats since last SQL Server restart",
+    "seeks": {
+      "IX_exercises_lesson_type_diff_order": 1484,
+      "idx_exercises_lesson_order": 231,
+      "idx_exercises_type": 24,
+      "idx_exercises_lesson_type_order": 8,
+      "PK_clustered": 59
+    },
+    "note": "Every one of the five nonclustered indexes has user_seeks > 0. idx_exercises_lesson_order (231 seeks) and idx_exercises_type (24 seeks) are demonstrably serving real query shapes, further contradicting 'redundant'."
+  },
+
+  "query_shapes_confirming_distinct_purposes": {
+    "source": "src/main/java/com/datn/engflow/repository/ExerciseRepository.java",
+    "evidence": [
+      "findByLessonIdOrderByOrderIndexAsc -> WHERE lesson_id=? ORDER BY order_index  => idx_exercises_lesson_order",
+      "findByLessonIdAndExerciseTypeOrderByOrderIndexAsc -> (lesson_id, exercise_type, order_index) => idx_exercises_lesson_type_order",
+      "findByLessonIdAndDifficultyOrderByOrderIndexAsc -> (lesson_id, difficulty, order_index) => IX_exercises_lesson_type_diff_order",
+      "findAdminPage filters on exercise_type alone (with :type IS NULL OR ...) => idx_exercises_type"
+    ],
+    "conclusion": "Each index backs a distinct, real access path. There is no prefix redundancy to clean up."
+  },
+
+  "file_reference_check": "Claim cites src/main/java/com/datn/engflow/model/entity/Exercise.java. That file contains NO @Index / @Table(indexes=...) annotations (grep for 'Index' returns nothing). The indexes were not declared in the entity, so the cited file is not the origin of these objects; a schema-diff/SQL script is. Minor but shows the claim's provenance is loose.",
+
+  "severity_assessment": "Claimed LOW. Because the premise is false, there is no cleanup candidate and no LOW-severity issue to carry. Correct disposition: DROP the finding (INVALID). The claim's own conclusion ('does NOT justify action') happens to align with reality only by accident - it says do nothing because redundant indexes aren't hurting, whereas the truth is there are no redundant indexes at all.",
+
+  "probe_artefact_check": "Not a probe artefact: this is a pure catalog/source inspection, no HTTP, no rate limit, no DOM involved. Numbers are stable and reproducible via sqlrun.py."
+}

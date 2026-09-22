@@ -1,0 +1,25 @@
+{
+  "probe": "live HTTP on :8080 after rebuilding the container with the corrected code",
+  "date": "2026-09-22 (+07)",
+  "F-13-11_invalid_sort": {
+    "request": "GET /api/vocabulary?sort=nonexistentProperty&page=0&size=3",
+    "before": 500,
+    "after": 400,
+    "fix": "GlobalExceptionHandler.handlePropertyReferenceException -> ProblemDetail 400",
+    "note": "spring-data-commons 4.0.5 moved the class to org.springframework.data.core.PropertyReferenceException; the first patch used the old org.springframework.data.mapping package and failed the Docker compile — caught by the container build, corrected."
+  },
+  "F-13-12_letter_dash_content": {
+    "request": "POST /api/admin/exercises {exerciseType:MULTIPLE_CHOICE, options:[\"A - Salad\",\"B - Cheeseburger\",\"C - Pizza\"]}",
+    "before": 400,
+    "after": 200,
+    "real_row": "exercise_id=651717 options=[\"A - Salad\",\"B - Cheeseburger\",\"C - Pizza\",\"D - Bread\"]",
+    "fix": "isBareLetterOption narrowed to ^[a-d]$ (a lone letter); 'A - <content>' carries real answer text and is accepted."
+  },
+  "F-13-01_still_rejects_bare_letters": {
+    "request": "POST /api/admin/exercises {exerciseType:MULTIPLE_CHOICE, options:[\"a\",\"b\",\"c\",\"d\"]}",
+    "result": 400,
+    "verdict": "PASS — narrowing the regex did not open the hole the guard exists to close"
+  },
+  "cleanup": "probe row deleted by id (777571); PROBE_LEFT=0; parity back to 1470|43735|72|118|29|15|4|126|10|5",
+  "conclusion": "All three fixes verified against the live container. Two of them (F-13-12, F-13-13) were defects introduced by the first F-13-01 fix and caught by adversarial review — exactly the failure mode the review step exists to prevent."
+}

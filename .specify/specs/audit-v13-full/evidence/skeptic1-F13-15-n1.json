@@ -1,0 +1,50 @@
+{
+  "reviewer": "skeptic #1",
+  "finding": "F-13-15",
+  "claim_under_review": "srs/due/{deckId} issues N+1 queries (one per deck word); NOT FIXED.",
+  "verdict": "REFUTED",
+  "refuted": true,
+  "corrected_severity": "N/A (no live defect)",
+  "why_the_claim_fails": [
+    "The claim's own text says 'Not fixed'. That is factually false against the live stack: the endpoint issues ZERO per-word progress queries.",
+    "The claim cites SrsService.getDueWords lines 132-134 looping findByUserIdAndVocabularyId. In the working tree those exact lines are now the fix comment ('audit-v13 F-13-15: one batched progress lookup...'); the loop body calls progressByVocab.get(vocab.getId()) on a pre-built Map. The line reference is stale.",
+    "The fix is in the running container, not just on disk: the backend was rebuilt (engflow-backend Up ~19 min) and the batched IN(...) statement with 11 params (userId + 10 vocabIds) is present in sys.dm_exec_query_stats."
+  ],
+  "source_evidence": {
+    "head_commit": "3c1c525 (HEAD) still contains the N+1 loop -> this is where the claim's reading came from",
+    "working_tree": "src/main/java/com/datn/engflow/service/SrsService.java lines 133-146: batched findByUserIdAndVocabularyIdIn + Map<vocabId,progress>",
+    "repository": "UserVocabularyProgressRepository.java:25 added findByUserIdAndVocabularyIdIn(Long, Collection<Long>)",
+    "remaining_single_lookups": [
+      "SrsService.reviewWord line 67 — single-vocab operation, not a loop",
+      "FlashcardService.getStatus line 78 — single-vocab operation, not a loop"
+    ],
+    "no_other_loop_callsite": "grep of src/main/java for findByUserIdAndVocabularyId( outside *In returned only those two single-item call sites"
+  },
+  "live_measurement": {
+    "method": "sys.dm_exec_query_stats bucketed by statement text: 'vocabulary_id in (%' vs 'vocabulary_id=%'; rate-limit buckets flushed before each batch; JWT valid",
+    "deck": 10006,
+    "deck_words_10006": 10,
+    "all_decks_word_count": {"distinct_decks": 10, "min": 10, "max": 10},
+    "one_call": {"http": 200, "progress_SINGLE_eq": "459 -> 459 (+0)", "progress_BATCHED_IN": "13 -> 15"},
+    "five_calls": {"http": "200 x5", "progress_SINGLE_eq": "459 -> 459 (+0)", "progress_BATCHED_IN": "35 -> 41", "deck_words": "212 -> 217 (+5, one per call)"},
+    "conclusion": "The per-word single-eq statement NEVER increments. Each call runs one deck_words query and one batched progress query. The N+1 does not reproduce on the live system."
+  },
+  "regression_test": {
+    "class": "SrsDueWordsAuthzTest",
+    "test": "dueWordsUsesOneBatchedProgressQueryNotOnePerWord",
+    "assertions": ["findByUserIdAndVocabularyIdIn called times(1)", "findByUserIdAndVocabularyId never() called"],
+    "result": "Tests run: 5, Failures: 0, Errors: 0 — BUILD SUCCESS"
+  },
+  "latency": {
+    "median_of_9_ms": 28.2,
+    "min_ms": 24.2,
+    "max_ms": 40.4,
+    "note": "Latency is unchanged by the batched fix at 10 words; this does NOT support the claim, it only shows the endpoint is fast either way."
+  },
+  "severity_note": "Even on the un-fixed HEAD code the MEDIUM severity was generous: the cost was 10 extra point-lookups on an indexed (user_id, vocabulary_id) pair at 27ms total, and every real deck in this DB is exactly 10 words. But that question is moot — the live endpoint has no N+1.",
+  "artifacts": {
+    "sql_helpers": ["tmp/qsnap2.sql", "tmp/qtext.sql", "tmp/deckcount2.sql"],
+    "existing_audit_record": ".specify/specs/audit-v13-full/evidence/f13-15-n1.json (status FIXED, matching this re-verification)"
+  },
+  "blocked": false
+}

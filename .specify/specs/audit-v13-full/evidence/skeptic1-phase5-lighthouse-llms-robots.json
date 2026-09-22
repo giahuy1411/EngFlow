@@ -1,0 +1,106 @@
+{
+  "claim_id": "phase5-lighthouse-llms-txt-and-is-crawlable",
+  "skeptic": "skeptic #1",
+  "area": "performance (Phase 5)",
+  "verdict": "NOT REFUTED — claim holds, refuted=false",
+  "severity_claimed": "LOW",
+  "severity_corrected": "LOW (unchanged — justified)",
+  "probe_timestamp_utc": "2026-09-21T21:04:58Z",
+  "live_targets": ["http://localhost:5173", "http://localhost:8080"],
+
+  "claim_restated": "Two Lighthouse audit failures (llms-txt on all runs, is-crawlable on /login) are correct behaviour or a missing file, not app defects.",
+
+  "verification": {
+    "A_llms_txt_returns_spa_fallback": {
+      "status": "CONFIRMED",
+      "command": "curl -s -D - http://localhost:5173/llms.txt",
+      "observed": {
+        "http_status": 200,
+        "content_type": "text/html",
+        "content_length": 3670,
+        "body_starts_with": "<!DOCTYPE html>\\n<html lang=\"vi\">",
+        "h1_tag_count_in_body": 0,
+        "anchor_tag_count_in_body": 0,
+        "has_vite_client_script": true,
+        "note": "served body is the Vite-transformed index.html (contains <script src=\"/@vite/client\">), i.e. the dev SPA fallback document, not a Markdown file"
+      }
+    },
+    "B_file_absent_from_public_and_dist": {
+      "status": "CONFIRMED",
+      "frontend_public_listing": ["assets/", "e2e-tts.wav (550.3K)", "robots.txt (165B)", "sitemap.xml (1.2K)"],
+      "frontend_dist_listing": ["assets/", "e2e-tts.wav (550.3K)", "index.html (3.6K)", "robots.txt (165B)", "sitemap.xml (1.2K)"],
+      "llms_txt_present": false,
+      "find_iname_llms_anywhere_excluding_node_modules": "no file matches; only string matches inside saved Lighthouse report.json files",
+      "grep_source_llms": "no match in frontend/src (no route, no static asset, no backend handler)"
+    },
+    "C_lighthouse_llms_txt_fails_on_all_4_runs": {
+      "status": "CONFIRMED",
+      "lighthouse_version": "13.4.1",
+      "runs": {
+        "lh-home (http://localhost:5173/)": {"llms-txt.score": 0, "llms-txt.title": "llms.txt does not follow recommendations", "scoreDisplayMode": "binary"},
+        "lh-lessons (http://localhost:5173/lessons)": {"llms-txt.score": 0},
+        "lh-login (http://localhost:5173/login)": {"llms-txt.score": 0},
+        "lh-prod-home (http://localhost:8098/)": {"llms-txt.score": 0}
+      },
+      "exact_failure_messages_from_lh-home_details.items": [
+        "File is missing a required H1 header (e.g., \"# Title\").",
+        "File does not appear to contain any links."
+      ],
+      "note": "exactly the two messages the claim quotes; the 200-with-index.html response satisfies Lighthouse's fetch (so the audit runs) but the HTML document has no H1 and no links"
+    },
+    "D_is_crawlable_fails_only_on_login": {
+      "status": "CONFIRMED",
+      "runs": {
+        "lh-home": {"is-crawlable.score": 1, "title": "Page isn't blocked from indexing"},
+        "lh-lessons": {"is-crawlable.score": 1},
+        "lh-login": {"is-crawlable.score": 0, "title": "Page is blocked from indexing",
+                     "evidence_item": {"source": {"type": "source-location", "url": "http://localhost:5173/robots.txt", "urlProvider": "network", "line": 3, "column": 0}}},
+        "lh-prod-home": {"is-crawlable.score": 1}
+      }
+    },
+    "E_robots_txt_disallow_is_intentional": {
+      "status": "CONFIRMED",
+      "live_curl_http_5173_robots_txt": "User-agent: *\\nAllow: /\\nDisallow: /admin\\nDisallow: /login\\nDisallow: /register\\nDisallow: /forgot-password\\nDisallow: /profile\\n\\nSitemap: https://engflow.app/sitemap.xml",
+      "file_frontend_public_robots_txt": "byte-identical to the live response",
+      "conclusion": "Disallow rules are authored, checked-in configuration — deliberate, not a misconfiguration"
+    },
+    "F_login_seo_66_is_the_expected_consequence": {
+      "status": "CONFIRMED",
+      "lh-login_category_scores": {"accessibility": 1, "best-practices": 1, "seo": 0.66, "agentic-browsing": 0.67},
+      "is-crawlable_weight_in_seo": 4.043478260869565,
+      "note": "crawlable routes score seo=1.0; only /login drops to 0.66, precisely because of the intentional Disallow"
+    },
+    "G_root_cause": {
+      "status": "CONFIRMED",
+      "llms_txt": "file was never created (absent from public/, dist/, and source); the SPA catch-all serves index.html for any unknown path",
+      "spa_fallback_proof": "GET /definitely-not-a-route-zz -> HTTP 200, Content-Type text/html, size 3670 (same document as /llms.txt)",
+      "robots_txt": "Disallow rules are intentional design"
+    }
+  },
+
+  "probe_artefact_checks": {
+    "rate_limit_429": "N/A and ruled out — llms-txt and is-crawlable are deterministic static-file/robots checks; the llms.txt response is a stable 200 text/html 3670 bytes, and an arbitrary unknown path returns the identical response",
+    "scrollbar_false_positive": "N/A — neither audit is a layout/overflow measurement",
+    "guard_redirect_misread": "ruled out — /login returned 200 (not a redirect) and the failure is attributed by Lighthouse to a source-location in robots.txt line 3, matching the Disallow: /login line; the audit is correctly reading the intentional rule",
+    "mock_or_fake_data": "none — evidence is live HTTP responses + checked-in static files + saved Lighthouse report.json"
+  },
+
+  "severity_assessment": {
+    "claimed": "LOW",
+    "verdict": "LOW is justified and I would not raise it",
+    "reasoning": [
+      "llms-txt lives only in the experimental 'agentic-browsing' category (weight 1); it is a brand-new, non-standard convention (llmstxt.org) with no ranking/user impact",
+      "all crawlable routes still score seo=100; /login's 66 is the intended cost of blocking auth pages from indexers",
+      "no user-facing defect, no functional regression, no security impact",
+      "agentic-browsing category = 0.67 solely because llms-txt is its only failing audit"
+    ]
+  },
+
+  "counterpoint_noted_but_does_not_refute": "The repo previously treated a crawler-referenced missing file as a real finding — frontend/public/sitemap.xml contains the comment 'audit-v11 F141: robots.txt advertised https://engflow.app/sitemap.xml but the file did not exist — a 404 for every crawler that followed it', and sitemap.xml was subsequently created. By that precedent llms.txt is arguably a genuine (if low-value) gap, not purely 'correct behaviour'. This does NOT refute the claim: the claim itself explicitly labels llms.txt 'a missing file', i.e. it concedes the file is absent. It only refutes the stronger, separate characterisation 'not an app defect at all'. Severity remains LOW either way, so the claim's substance and severity both stand.",
+
+  "final": {
+    "refuted": false,
+    "corrected_severity": "LOW",
+    "summary": "All eight factual assertions of the claim reproduce exactly against the live stack and the saved Lighthouse reports. llms-txt scores 0 on all 4 runs with the exact two quoted messages because GET /llms.txt is served the 200 text/html SPA fallback (index.html, 0 H1, 0 links) and no llms.txt exists in public/ or dist/; is-crawlable scores 0 only on /login, attributed by Lighthouse to robots.txt line 3, which deliberately Disallows /login. Not a probe artefact. LOW is the correct severity."
+  }
+}

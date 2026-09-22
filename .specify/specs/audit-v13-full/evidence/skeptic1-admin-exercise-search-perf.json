@@ -1,0 +1,120 @@
+{
+  "skeptic": "skeptic #1",
+  "claim_id": "phase5-admin-exercise-search-q-the",
+  "claim_title": "admin exercise search q=the is 185.1ms — measured a 4th time, optimization still refused with numbers",
+  "claimed_area": "performance (Phase 5, measured before optimization)",
+  "claimed_severity": "LOW",
+  "verdict": "NOT REFUTED — evidence is real, reproducible and correctly attributed",
+  "refuted": false,
+  "corrected_severity": "LOW holds as a measurement; effectively INFO as a finding (see severity_note)",
+  "measured_at": "2026-09-22 (+07), live stack: backend localhost:8080 (container engflow-backend), SQL Server engflow-sqlserver, db english_learning",
+  "auth": "real login admin@gmail.com / 123456 (POST /api/auth/login, body.token); student user@gmail.com / 123456 for the authz control",
+  "rate_limit_prep": "docker exec engflow-redis redis-cli --scan --pattern 'rate_limit:*' then DEL each key, flushed before every batch. Zero 429s observed in any probe (all responses 200).",
+
+  "what_was_checked_against_the_live_system": {
+
+    "1_endpoint_latency_reproduces": {
+      "claim": "GET /api/admin/exercises?page=0&size=10&q=the median 185.1ms (3 passes x 5 calls: 185.1/176.1/186.1) vs 72.0ms with no q",
+      "my_independent_run_1_3passes_x_5": {
+        "q=the": "medianPerPass=[162.3, 162.4, 211.0], median=162.4ms",
+        "no_q": "medianPerPass=[48.3, 46.8, 63.7], median=48.3ms"
+      },
+      "my_independent_run_2_interleaved_AB_12_each": {
+        "method": "A,B then B,A per round, 6 rounds = 12 samples each, bucket flushed before each round; order reversed to cancel drift",
+        "q=the": "samples=[543.2,392.2,174.5,156.2,180.6,195.9,183.6,358.0,182.6,175.5,168.1,219.8] median=183.1ms",
+        "no_q": "samples=[137.6,115.5,58.6,57.4,65.7,55.1,95.6,107.4,52.1,56.7,48.2,58.9] median=58.8ms",
+        "ratio": "3.12x"
+      },
+      "verdict": "REPRODUCED. 183.1ms vs the claimed 185.1ms — within noise. The q/no-q gap is real signal, not contention: confirmed by an order-reversed interleaved A/B in a single run."
+    },
+
+    "2_root_cause_plan_is_real": {
+      "claim": "Clustered Index Scan(PK__exercise__C121418ED83A5E11) over 43735 rows + Filter(Compute Scalar lower(question), lower(coalesce(explanation,'')))",
+      "method": "SET STATISTICS XML ON on the exact Hibernate predicate (JOIN lessons, LOWER(question) LIKE LOWER(CONCAT('%','the','%')) OR LOWER(COALESCE(explanation,'')) LIKE ...); parsed the ShowPlanXML",
+      "measured_physical_ops": ["Compute Scalar", "Stream Aggregate", "Filter", "Compute Scalar", "Clustered Index Scan"],
+      "measured_index_object": "PK__exercise__C121418ED83A5E11",
+      "measured_scalar_operator": "lower([english_learning].[dbo].[exercises].[question] as [e1_0].[question])",
+      "verdict": "CONFIRMED. The plan is exactly as claimed: a Clustered Index Scan of the whole table with a lower() residual filter. No seek."
+    },
+
+    "3_no_index_on_question": {
+      "claim": "exercises has 6 indexes, none on question",
+      "method": "sys.indexes JOIN sys.index_columns JOIN sys.columns on OBJECT_ID('exercises')",
+      "measured_indexes": [
+        "PK__exercise__C121418ED83A5E11  CLUSTERED      (exercise_id)",
+        "idx_exercises_difficulty      NONCLUSTERED   (difficulty)",
+        "idx_exercises_lesson_order    NONCLUSTERED   (lesson_id, order_index)",
+        "idx_exercises_lesson_type_order NONCLUSTERED (difficulty, correct_answer, lesson_id, exercise_type, order_index)",
+        "idx_exercises_type            NONCLUSTERED   (exercise_type)",
+        "IX_exercises_lesson_type_diff_order NONCLUSTERED (lesson_id, exercise_type, difficulty, order_index)"
+      ],
+      "measured_row_count": 43735,
+      "verdict": "CONFIRMED. Six indexes, zero contain `question` (nor `explanation`)."
+    },
+
+    "4_sql_level_numbers_reproduce_exactly": {
+      "claim": "current predicate = 1294 reads / 100-155ms CPU (16588 matches); dropping LOWER() = identical 1294 reads / 80-92ms CPU / same 16588 matches; prefix LIKE 'the%' = 1294 reads / 12-13ms but only 3859 matches; no-q count = 133 reads",
+      "method": "SET STATISTICS IO/TIME ON, python sweep/v8/sqlrun.py",
+      "measured": {
+        "A_current_LOWER": {"matches": 16588, "logical_reads": 1294, "cpu_ms": "108-155 (repeat runs 116/108/122; standalone 184-339)"},
+        "B_no_LOWER": {"matches": 16588, "logical_reads": 1294, "cpu_ms": "106-196"},
+        "C_prefix_the_pct_question_only": {"matches": 3859, "logical_reads": 1294, "cpu_ms": "10-13"},
+        "C2_prefix_the_pct_q_or_explanation": {"matches": 4572, "logical_reads": 1294, "cpu_ms": "36-40"},
+        "D_no_filter": {"matches": 43735, "logical_reads": 133, "cpu_ms": "0-4"}
+      },
+      "verdict": "CONFIRMED on all four points. Match counts (16588, 3859, 43735) and logical reads (1294, 1294, 1294, 133) match the claim exactly. Dropping LOWER() keeps the SAME match count and the SAME reads (plan unchanged, no index available) — exactly as claimed. My CPU milliseconds run somewhat higher than the claim's (machine load differs) but the ordering and ratios hold.",
+      "honest_caveat": "The claim's '100-155ms CPU for current vs 80-92ms for no-LOWER' was not reproducible to the millisecond here (I measured 108-155 vs 106-196 with the JOIN; and 184 vs 184 with NO JOIN, i.e. on the bare table the LOWER() saving is ~0). The direction ('LOWER() costs some CPU, does not change the plan') is right; the exact 20ms delta is machine-dependent and is not the load-bearing part of the claim — the load-bearing part (full scan, no index, leading wildcard) reproduces perfectly."
+    },
+
+    "5_where_the_185ms_actually_goes": {
+      "method": "delta of sys.dm_exec_query_stats around one live call to the endpoint",
+      "measured": {
+        "count_statement (q=the)": "1 exec, 1301 logical reads, 116440us CPU, 116442us elapsed",
+        "page_statement (q=the)": "1 exec, 4230-4663 logical reads, 126816us CPU, 22364us elapsed",
+        "q=zygomorphic (0 matches)": "count 1301 reads / 28822us CPU; page 4724 reads / 171039us CPU / 40755us elapsed",
+        "no-q": "count 1301 reads / 28822us CPU; page 4724 reads / 171039us CPU"
+      },
+      "finding": "With q, the COUNT's CPU jumps from ~29ms (no-q) to ~116ms — that delta is the non-sargable LIKE over all 43735 rows. The page statement's CPU is essentially q-independent (~127-171ms) because its catch-all `(:lessonId IS NULL OR ...)` predicate scans regardless. So the claim correctly attributes the +~60ms of API latency to the LIKE count, but the endpoint would not be fast even with a perfect search index: the page statement carries its own full scan."
+    },
+
+    "6_not_a_probe_artefact": {
+      "429_check": "Zero 429s. Buckets flushed before every batch; all responses HTTP 200.",
+      "contention_check": "The original artifact (sweep/v13/perf-before.json) was measured while a concurrent ui-sweep ran and the backend restarted twice (documented in evidence/performance.md §0). My reproduction was taken on a QUIET stack hours later and lands on the same median (183 vs 185ms) — so the number is NOT a contention artefact, which strengthens rather than weakens the claim.",
+      "guard_redirect_check": "Not a UI/DOM reading; this is a raw HTTP+SQL measurement, so no scrollbar/redirect confound applies.",
+      "repeatability": "q=the slow-vs-no-q fast reproduced in every run (3 independent measurement sessions)."
+    },
+
+    "7_is_it_a_bug_or_correct_behaviour": {
+      "endpoint_is_admin_only": "AdminExerciseController:27 @PreAuthorize(\"hasRole('ADMIN')\"); live control: student token -> HTTP 403 on the same URL. Confirmed admin-only.",
+      "the_claim_does_not_assert_a_bug": "The claim explicitly concludes 'Verdict: do not optimize' and classifies the real wins (prefix search, SQL Server full-text) as PRODUCT decisions that change search semantics (q=the would stop matching 'theory'). It is a documented refusal-to-act, not a defect report.",
+      "source_is_intentional": "ExerciseRepository.findAdminPage uses LOWER(...) LIKE LOWER(CONCAT('%',:keyword,'%')) on question and explanation — deliberately a contains-search over both fields, shared by the admin screen. Collation SQL_Latin1_General_CP1_CI_AS is already case-insensitive, which is why dropping LOWER() changes nothing.",
+      "verdict": "The behaviour is correct/intended. This is a performance characteristic with an explicit, evidence-backed decision not to optimize, not a bug."
+    }
+  },
+
+  "severity_note": "Claimed LOW. The measurement is real and is the slowest endpoint in the app's 35-endpoint sweep, so LOW is defensible. Strictly, because the claim is by its own terms a non-actionable, admin-only observation whose conclusion is 'do not optimize', the correct disposition is INFORMATIONAL rather than an actionable LOW defect. This is a framing correction only — it does not undermine the evidence.",
+
+  "why_not_refuted": [
+    "Every load-bearing number reproduces: 185.1ms -> 183.1ms (my interleaved median); 16588 / 3859 / 43735 match counts exact; 1294 / 1294 / 1294 / 133 logical reads exact; 6 indexes none on question; plan = Clustered Index Scan on PK + lower() filter.",
+    "The root cause is proven, not speculated: the plan was pulled from a real ShowPlanXML, not inferred.",
+    "No probe artefact: no 429, and the number survives a re-measurement on a quiet stack (removing the one weakness the original artifact itself flagged — concurrent sweep + backend restarts).",
+    "The claim does not overreach: it recommends NO code change, so there is no fix to dispute."
+  ],
+
+  "residual_issues_in_the_claim_worth_recording": [
+    "The claim's CPU ms (100-155 current / 80-92 no-LOWER) did not reproduce to the millisecond; on the bare table (no JOIN) LOWER() costs ~0 CPU. The 20ms 'saving' is machine-dependent and is not what justifies the decision — the missing index and non-sargable leading wildcard are.",
+    "The claim's 'prefix LIKE the% = 3859 matches' is the question-only prefix count; the actual endpoint ORs explanation too, so the semantically-correct prefix count is 4572. The claim's point (prefix changes semantics / drops matches) stands either way.",
+    "The endpoint would still scan ~4-5k logical reads on the page statement even with an ideal question index, because the page query's catch-all predicate is separately non-sargable. The claim attributes the whole endpoint cost to the LIKE; it is ~half right (the count half)."
+  ],
+
+  "side_effects": "All probes were GET-only plus login POSTs. No rows created or deleted. PROBE_LEFT=0. No source code modified.",
+
+  "repro_commands": [
+    "curl -s -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"admin@gmail.com\",\"password\":\"123456\"}'",
+    "python sweep/v8/sqlrun.py tmp/_idx.sql   # indexes + row count",
+    "python sweep/v8/sqlrun.py tmp/_cnt.sql   # match counts + logical reads (SET STATISTICS IO/TIME ON)",
+    "# plan: SET STATISTICS XML ON on the exact Hibernate predicate, parse PhysicalOp/Index"
+  ],
+
+  "final": "refuted=false — the claim holds. The evidence is real, reproducible and correctly attributed; the endpoint is admin-only and the claim itself recommends no change. Only correction: as a 'finding' it is INFORMATIONAL rather than an actionable LOW defect."
+}

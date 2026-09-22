@@ -1,0 +1,63 @@
+{
+  "role": "skeptic #2 — attempted refutation of a claimed LOW-severity a11y contrast finding",
+  "verdict": "REFUTED = false (claim HOLDS; every number reproduced exactly and independently)",
+  "claim": {
+    "area": "Phase 3 — UI sweep (live contrast)",
+    "file": "frontend/src/views/admin/AdminLessonBuilder.vue:6-7",
+    "title": "AdminLessonBuilder contrast: white on raw bg-accent 4.23:1, text-white/40 3.61:1, text-foreground/40 2.35:1",
+    "claimed_severity": "LOW"
+  },
+  "independence": {
+    "note": "Ratios were reproduced three ways: (a) independent WCAG math in Python, (b) live DOM via Playwright MCP, (c) live DOM via Chrome DevTools MCP page 11. All three agree to 2 decimals.",
+    "no_probe_artefacts": "No 429 involved (rate_limit:* buckets flushed before probing; global bucket is 100/min/IP). No scrollbar metric used. Route confirmed to have rendered the builder, not a guard redirect: document h2 = 'Xây Dựng Bài Học', tile present, both delete buttons present with aria-labels."
+  },
+  "measurements": [
+    {
+      "element": "logo/monogram tile span.text-white on the tile background",
+      "as_at_HEAD": { "class": "bg-accent", "bg_resolved": "#8B5CF6 rgb(139,92,246)", "fg": "#FFFFFF", "ratio": 4.23, "need": 4.5, "verdict": "FAIL (1.4.3 normal text; 14px/900, not large text)" },
+      "as_deployed_after_fix": { "class": "bg-accent-strong", "bg_resolved": "#7C3AED rgb(124,58,237)", "ratio_live_measured": 5.70, "verdict": "PASS" }
+    },
+    {
+      "element": "section delete control button[aria-label='Xóa section 1'] — class text-white/40",
+      "bg": "#1E293B rgb(30,41,59) (section header bg-foreground)",
+      "composited_fg": "rgb(120,127,137)",
+      "ratio_before": 3.61,
+      "need_1_4_3_text": 4.5, "verdict_1_4_3": "FAIL",
+      "need_1_4_11_nontext": 3.0, "verdict_1_4_11": "PASS",
+      "as_deployed_after_fix": { "class": "text-white/60", "composited": "rgb(165,169,177)", "ratio": 6.23, "verdict": "PASS" }
+    },
+    {
+      "element": "block delete control button[aria-label='Xóa block 1'] — class text-foreground/40",
+      "bg": "#FFFFFF rgb(255,255,255) (bg-white)",
+      "composited_fg": "rgb(165,169,177)",
+      "ratio_before": 2.35,
+      "need_1_4_3_text": 4.5, "verdict_1_4_3": "FAIL",
+      "need_1_4_11_nontext": 3.0, "verdict_1_4_11": "FAIL (this one fails BOTH criteria)",
+      "as_deployed_after_fix": { "class": "text-muted-foreground (#556070)", "ratio": 6.38, "verdict": "PASS" }
+    }
+  ],
+  "root_cause_verified": {
+    "claim": "v11 F132 migrated buttons to --geo-accent-strong but this logo tile kept the raw bg-accent; the two close/remove controls use 40% opacity.",
+    "confirmed": true,
+    "evidence": "git show 30bc9b6 -- frontend/src/views/admin/AdminLessonBuilder.vue migrated THREE bg-accent usages in this same file (save-error badge, AUDIO badge) to bg-accent-strong and changed hover:text-accent -> hover:text-accent-ink, but did NOT touch line 6's tile (still raw bg-accent at HEAD) nor the base text-white/40 and text-foreground/40 opacities. design-system.css:702-704 carries the F132 comment: 'white on #8B5CF6 measured 4.23:1 (needs 4.5:1). --geo-accent-strong is 5.70:1.'"
+  },
+  "refutation_attempts_that_failed": [
+    "Probe artefact (429): no — ratios are deterministic from static tokens; independently recomputed in Python and reproduced live in two browsers.",
+    "Scrollbar false positive: not applicable — this is a colour-contrast measure, no geometry involved.",
+    "Guard redirect misread as failure: no — builder actually rendered (h2 + tile + both aria-labelled buttons present).",
+    "WCAG 1.4.3 'logotype' exemption for the 'B' tile: the real EngFlow brand mark is in AdminLayout.vue (3-shape mark + 'EngFlow' wordmark). This tile is a decorative monogram, is NOT aria-hidden, and sits beside an h2. Even granting the exemption, the finding stands on the two × controls, which are unambiguously 1.4.3 failures.",
+    "'Icon-only control, so exempt': no — the × is text content in a button; 1.4.3 applies. The block × additionally fails 1.4.11 at 2.35 (needs 3.0)."
+  ],
+  "correct_behaviour_check": "Not correct behaviour — a genuine contrast defect. Reproduced live at both pre-fix and post-fix states.",
+  "severity": {
+    "claimed": "LOW",
+    "assessment": "JUSTIFIED. Admin-only, icon-only controls each carrying an accessible name (aria-label), so the visual glyph is a supplementary affordance. The block × at 2.35:1 is the worst of the three (fails 1.4.3 and 1.4.11), but LOW remains appropriate — not overstated.",
+    "corrected": "LOW (unchanged)"
+  },
+  "live_verification": {
+    "route": "/admin/445/build",
+    "auth": "admin@gmail.com / 123456 (isAdmin=true, hasPremiumAccess=true)",
+    "deployed_state_measured": "FIXED working tree (unstaged): tile bg-accent-strong 5.70:1; section × text-white/60 6.23:1; block × text-muted-foreground 6.38:1",
+    "browsers": ["Playwright MCP", "Chrome DevTools MCP (page 11)"]
+  }
+}

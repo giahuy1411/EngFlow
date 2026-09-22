@@ -1,0 +1,61 @@
+{
+  "skeptic": "skeptic2",
+  "phase": "Phase 5 performance (pre-optimization measurement)",
+  "claim_title": "admin exercise list (no q) costs 72.0ms though its COUNT is 133 reads - page statement is a 12-param catch-all running parallel",
+  "claimed_severity": "LOW",
+  "verdict": "REFUTED",
+  "corrected_severity": "INFO (not a defect; the author's own 'do not optimise' conclusion is right, but the stated mechanism and the cited plan are wrong)",
+  "checked_at": "2026-09-21T21:17:46.224476+00:00",
+  "holds_true": [
+    "Headline timing: GET /api/admin/exercises?page=0&size=10 median reproduced at 67.9 and 68.1 ms over 15 samples (claim 72.0 ms; perf-before.json per-pass 72/77.8/52.4). All HTTP 200.",
+    "DMV delta across ONE no-q call reproduced: page stmt = 4752 reads / 119.7 ms CPU / 25.5 ms elapsed (1 exec); count stmt = 1301 reads / 14.5 ms CPU (1 exec). Claim said 4770 / 183.8 / 30.6 and 1301. Real.",
+    "The page statement IS a 12-param nvarchar(4000) catch-all and IS parallel (one Parallelism / Gather Streams relop).",
+    "The unexplained 4770-vs-1364 gap is real: I also measured 4752 (app) vs 1364 (identical sp_executesql). The author's honesty about not explaining it is confirmed."
+  ],
+  "fails": [
+    "CITED PLAN IS A PROBE ARTEFACT. The claim's plan 'Top -> Parallelism -> Sort -> Hash Match -> Bitmap -> Index Scan -> Filter' is NOT the app statement's plan. The app's cached plan (plan_handle 06000500B4BF1F26E0ABDE1B0400000001000000, execs=314, reads/exec=4376) is: Top > Parallelism > Nested Loops > Filter > Compute Scalar > Sort > Clustered Index Scan > Clustered Index Seek. hashMatch=0, bitmap=0.",
+    "The Hash Match + Bitmap + Index Scan plan belongs to a DIFFERENT cached statement: a probe-authored batch beginning \"SET NOCOUNT ON; SET STATISTICS IO ON; DECLARE @P0 int=20, @P1 bigint=NULL ... PRINT '=== CASE A: no filters (default admin list) ==='\" (TOP=20, local DECLARE vars). Its ops are Top > Parallelism > Sort > Hash Match > Bitmap > Parallelism > Index Scan > Parallelism > Filter > Compute Scalar > Clustered Index Scan - the sequence the claim cites. The auditor read their own hand-rolled SQL's plan, not the app's.",
+    "The app statement's plan averages 4376 reads/exec, which matches the claimed ~4770 delta, and that plan is the Nested Loops plan - so the Hash Match/Bitmap plan cannot be the one that produced the 4770 reads. Internal contradiction.",
+    "ROOT CAUSE MISATTRIBUTED. The catch-all is not what forces the scan. Removing the WHERE entirely leaves reads IDENTICAL (1364); keeping the catch-all but ordering by the PK drops reads to 4.",
+    "SEVERITY: 72 ms on an admin-only endpoint with no threshold breached is not a defect; as a finding it is informational, not LOW."
+  ],
+  "decisive_experiments": [
+    {
+      "id": "E1",
+      "sql": "exact app shape: 12-param catch-all + ORDER BY e.order_index, e.exercise_id",
+      "logical_reads": 1364,
+      "cpu_ms": 94,
+      "elapsed_ms": 21
+    },
+    {
+      "id": "E2",
+      "sql": "catch-all WHERE clause REMOVED entirely, SAME ORDER BY order_index, exercise_id",
+      "logical_reads": 1364,
+      "cpu_ms": 85,
+      "elapsed_ms": 17,
+      "meaning": "Removing the catch-all does not reduce reads -> the catch-all is NOT the cause of the scan."
+    },
+    {
+      "id": "E3",
+      "sql": "catch-all KEPT, ORDER BY exercise_id (PK) only",
+      "logical_reads": 4,
+      "cpu_ms": 0,
+      "elapsed_ms": 0,
+      "meaning": "Keeping the catch-all but removing the unindexed sort key collapses reads 1364 -> 4 -> the ORDER BY is the cause."
+    },
+    {
+      "id": "schema",
+      "sql": "sys.indexes on exercises",
+      "result": "PK(exercise_id) clustered; idx_exercises_type(exercise_type); idx_exercises_difficulty(difficulty); idx_exercises_lesson_order(lesson_id,order_index); idx_exercises_lesson_type_order(lesson_id,exercise_type,order_index); IX_exercises_lesson_type_diff_order(lesson_id,exercise_type,difficulty,order_index). No index has order_index as leading key.",
+      "meaning": "The default sort ORDER BY order_index ASC, id ASC (AdminExerciseController.java:39) has no supporting index -> Clustered Index Scan of 43,735 rows + Sort + Top."
+    }
+  ],
+  "corrected_root_cause": "The default sort in AdminExerciseController.getAllExercises - Sort.by(\"orderIndex\").ascending().and(Sort.by(\"id\")) (AdminExerciseController.java:39) - has no supporting index (no index on exercises has order_index as the leading key), so SQL Server scans the 43,735-row clustered index and sorts it before the TOP. The 12-param catch-all is not the cause: removing it leaves logical reads unchanged at 1364, and keeping it while sorting by the PK drops reads to 4.",
+  "repro_commands": [
+    "tmp/skeptic2-decisive.sql (E1/E2/E3) via sweep/v8/sqlrun.py",
+    "sys.dm_exec_query_plan on plan_handle 06000500B4BF1F26E0ABDE1B0400000001000000 (app stmt) vs the 'CASE A' probe stmt"
+  ],
+  "parity_after": "1470|43735|72|118|29|15|4|126|10|5 (matches baseline)",
+  "cleanup_count": 0,
+  "note": "All probes were GETs; only DB write was POST /api/auth/login. No rows created."
+}

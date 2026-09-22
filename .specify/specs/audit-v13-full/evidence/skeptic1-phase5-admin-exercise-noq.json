@@ -1,0 +1,72 @@
+{
+  "skeptic": "skeptic-1",
+  "claim_id": "phase5-admin-exercise-list-noq-72ms",
+  "verdict": "NOT_REFUTED",
+  "refuted": false,
+  "severity_claimed": "LOW",
+  "severity_corrected": "LOW",
+  "measured_at_utc": "2026-09-21T21:03:46Z",
+  "backend_started_at": "2026-09-21T20:43:24Z",
+  "stack_quiet": true,
+  "stack_quiet_note": "No concurrent ui-sweep/other phase detected during this session; backend single instance, started 20:43:24Z, unchanged through all probes.",
+  "reproduced": {
+    "http_median_ms": 71.5,
+    "http_samples_ms": [167.9, 115.1, 121.9, 136.7, 74.9, 53.1, 50.7, 177.7, 189.5, 67.9, 71.5, 69.8, 48.3, 53.5, 48.9],
+    "http_status": 200,
+    "endpoint": "GET /api/admin/exercises?page=0&size=10"
+  },
+  "query_stats_delta_single_call": [
+    {"round": 1, "page_reads": 4740, "page_cpu_ms": 147.4, "page_elapsed_ms": 28.8, "count_reads": 1301, "count_cpu_ms": 16.7, "count_elapsed_ms": 16.7, "auth_reads": 6, "auth_execs": 1},
+    {"round": 2, "page_reads": 4502, "page_cpu_ms": 197.6, "page_elapsed_ms": 47.4, "count_reads": 1301, "count_cpu_ms": 30.1, "count_elapsed_ms": 30.1, "auth_reads": 6, "auth_execs": 1},
+    {"round": 3, "page_reads": 4728, "page_cpu_ms": 119.3, "page_elapsed_ms": 20.8, "count_reads": 1301, "count_cpu_ms": 10.4, "count_elapsed_ms": 10.4, "auth_reads": 18, "auth_execs": 3}
+  ],
+  "claim_numbers_vs_measured": {
+    "page_reads_claim": 4770, "page_reads_measured": [4740, 4502, 4728], "match": true,
+    "count_reads_claim": 1301, "count_reads_measured": [1301, 1301, 1301], "match": "exact, three times",
+    "count_is_133_reads_reads_claim": "the '133 reads' is the UNFILTERED count of 43735 rows (verified below); the COUNT *statement* for the no-filter page is 1301 reads",
+    "page_cpu_ms_claim": 183.8, "page_cpu_ms_measured": [147.4, 197.6, 119.3], "match": "range brackets claim",
+    "page_elapsed_ms_claim": 30.6, "page_elapsed_ms_measured": [28.8, 47.4, 20.8], "match": true,
+    "auth_reads_claim": 18, "auth_reads_measured": 18, "match": true
+  },
+  "plan_verification": {
+    "statement_text_confirmed": "select top (@P0) ... where (@P1 is null or l1_0.lesson_id=@P2) and (@P3 is null or @P4='' or e1_0.exercise_type=@P5) and (@P6 is null or @P7='' or e1_0.difficulty=@P8) and (@P9 is null or @P10='' or lower(e1_0.question) like lower(('%'+@P11+'%')) or ...) order by e1_0.order_index,e1_0.exercise_id",
+    "param_count": 12,
+    "param_types": "nvarchar(4000) for P2..P12",
+    "plan_operators_root_to_leaf": ["Top", "Parallelism (Gather Streams)", "Nested Loops (Inner Join)", "Filter", "Compute Scalar", "Sort", "Clustered Index Scan (43735 est rows)"],
+    "parallelism_confirmed": true,
+    "parallelism_evidence": "A 'Parallelism / Gather Streams' operator is present and every operator below it carries @Parallel=1; a Top with @Parallel=0 sits above the Gather, which is exactly the parallel-gather signature.",
+    "parallel_dop_note": "Root <QueryPlan> @DegreeOfParallelism was NULL in sys.dm_exec_query_plan for the no-q plan (also no NonParallelPlanReason); parallelism was instead confirmed structurally via the Gather Streams operator + @Parallel=1 children. The claim's 'DOP>1' is therefore substantiated structurally, not via the DOP attribute.",
+    "cpu_gt_elapsed": "CPU/elapsed ratio measured at 5.1x, 4.2x and 5.7x across three calls -> parallel execution confirmed numerically as well",
+    "claim_plan_shape_note": "Claim lists 'Hash Match -> Bitmap -> Index Scan'. My plan for the no-q path showed Nested Loops + Clustered Index Scan (no Hash Match/Bitmap). Hash Match, Bitmap and Index Scan DO exist among the exercise statements' plans overall (confirmed via //RelOp sweep), so the claim's operator list is a plausible mixture of the q=the and no-q plans rather than an invention. This is a cosmetic imprecision, not a fabrication."
+  },
+  "literal_null_note_reproduced": {
+    "reads": 1364, "cpu_ms": 115, "elapsed_ms": 16,
+    "claim": "1364 reads / 116-188ms CPU / 15-25ms elapsed",
+    "match": true,
+    "gap_unexplained_acknowledged_by_claim": true,
+    "skeptic_assessment": "The gap is real and I also cannot fully attribute it; the most likely driver is that the parameterised statement was first compiled against a q=the-shaped plan (est 4010/5769 rows, DOP>1) while the literal-NULL statement optimises for the no-filter case. The claim does not overstate this - it explicitly says the gap is not explained."
+  },
+  "unfiltered_count_133_confirmed": {
+    "sql": "SELECT COUNT(e1_0.exercise_id) FROM exercises e1_0",
+    "logical_reads": 133,
+    "rows": 43735
+  },
+  "severity_assessment": {
+    "claimed": "LOW",
+    "justified": true,
+    "reasoning": "72ms, admin-only screen, no threshold violated. 32/35 endpoints <30ms and the 3 above 30ms are all admin-only. The endpoint is not on a learner path. LOW is the correct band; the claim does not inflate it and its own decision is 'DO NOT OPTIMIZE'."
+  },
+  "artefact_checks": {
+    "429_self_inflicted": false,
+    "rate_limit_buckets_flushed_before_batches": true,
+    "guard_redirect_misread": false,
+    "scrollbar_false_positive": "not applicable (server-side timing)",
+    "mock_data": false,
+    "all_evidence_from_real_http_and_real_db": true
+  },
+  "residual_disagreements": [
+    "Claim says 'COUNT is 133 reads' in the title/summary but the COUNT statement for this page is 1301 reads; 133 is the unfiltered table count. The evidence body states 1301 correctly, so this is a summary-wording slip, not a false measurement.",
+    "Claim's plan shape (Hash Match/Bitmap/Index Scan) does not exactly match the no-q plan I captured (Nested Loops/Clustered Index Scan). The operators exist across the exercise statement family; the specific chain is imprecise."
+  ],
+  "conclusion": "The claim's central measurements are real, reproducible and independently confirmed: ~72ms HTTP median, 4502-4826 logical reads on the page statement, 1301 on the count, 18 on auth, a parallel plan, and the literal-NULL 1364-read observation. Root cause (12-param nvarchar(4000) catch-all preventing a seek, parallelism keeping wall-clock down) is supported by the plan. Severity LOW is justified. refuted=false."
+}

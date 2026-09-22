@@ -1,0 +1,110 @@
+{
+  "skeptic": "skeptic #2 (adversarial refutation attempt)",
+  "phase": "Phase 5 — performance (measured before optimization)",
+  "claim_under_test": {
+    "title": "Lighthouse on this host does not emit the Performance category — no Lighthouse perf score exists for these routes",
+    "claimed_severity": "LOW",
+    "claimed_root_cause": "This build of the chrome-devtools MCP Lighthouse integration does not request the performance category."
+  },
+  "verdict": {
+    "refuted": false,
+    "claim_holds": true,
+    "corrected_severity": "LOW (unchanged; arguably INFO, since it is a tool limitation, not an app defect)",
+    "confidence": "high — reproduced live, independently of the author's stored artifacts"
+  },
+  "verification_method": {
+    "author_artifacts_reused": [
+      ".specify/specs/audit-v13-full/evidence/lh-home/report.json",
+      ".specify/specs/audit-v13-full/evidence/lh-lessons/report.json",
+      ".specify/specs/audit-v13-full/evidence/lh-login/report.json",
+      ".specify/specs/audit-v13-full/evidence/lh-prod-home/report.json",
+      "sweep/v13/perf-before.json (ancillary.lighthouse / ancillary.lcp_trace)"
+    ],
+    "independent_reproduction": [
+      "chrome-devtools MCP lighthouse_audit, mode=snapshot, pageId 19 (http://localhost:5173/) — fresh run",
+      "chrome-devtools MCP lighthouse_audit, mode=navigation, pageId 19 (http://localhost:5173/lessons) — fresh run",
+      "chrome-devtools MCP performance_start_trace, pageId 19 (http://localhost:5173/) — fresh run",
+      "Source read of the installed MCP server: C:/Users/ASUS/AppData/Local/npm-cache/_npx/15c61037b1978c83/node_modules/chrome-devtools-mcp/build/src/tools/lighthouse.js"
+    ],
+    "rate_limit_buckets_flushed_before_batches": true,
+    "probe_artefact_check": "No 429s were manufactured — lighthouse_audit and performance_start_trace do not hit the app rate limiter; backend returned normally. No scrollbar/overflow measurement involved. No guard redirect involved (routes /, /lessons, /login are public)."
+  },
+  "evidence": {
+    "stored_reports_all_4_runs": {
+      "categories_present": ["accessibility", "best-practices", "seo", "agentic-browsing"],
+      "performance_category_present": false,
+      "total_audits_per_report": 112,
+      "metrics_entry_present": false,
+      "lighthouseVersion": "13.4.1",
+      "cls_numeric_vs_claim": {
+        "/ (dev 5173)": {"report": 0.0006238330575604306, "claim": 0.00062, "match": true},
+        "/lessons (dev 5173)": {"report": 0.00048614316709957633, "claim": 0.00049, "match": true},
+        "/login (dev 5173)": {"report": 0.000582064766788347, "claim": 0.00058, "match": true},
+        "/ (production build 8098)": {"report": 0.0010579299930788164, "claim": 0.00106, "match": true}
+      },
+      "category_scores_match_claim": true
+    },
+    "perf_family_audit_presence_scan": {
+      "audits_present": ["cumulative-layout-shift (score=1, display 0.001)"],
+      "audits_absent": [
+        "first-contentful-paint", "largest-contentful-paint", "total-blocking-time",
+        "speed-index", "interactive", "max-potential-fid", "first-meaningful-paint",
+        "server-response-time", "render-blocking-resources", "total-byte-weight"
+      ],
+      "substring_scan_over_all_112_audit_ids": {
+        "needles_not_found_anywhere": ["contentful", "blocking", "speed-index", "lcp", "fcp", "tti", "metrics", "fid", "bootup", "byte-weight", "server-response", "render-blocking"],
+        "only_false_positive": "interactive-element-affordance (an a11y audit, not TTI)"
+      },
+      "conclusion": "The claim's '112 audits total, only cumulative-layout-shift is scored in the perf family' is literally true."
+    },
+    "cls_is_not_in_a_performance_category": {
+      "observation": "cumulative-layout-shift is referenced by the 'agentic-browsing' category in every report — not by any performance category (there is none).",
+      "implication": "CLS is produced but never aggregated into a Performance score; the claim's framing is accurate."
+    },
+    "live_reproduction": {
+      "snapshot_mode_pageId19": {
+        "url": "http://localhost:5173/",
+        "categories": ["accessibility 100", "best-practices 100", "seo 100", "agentic-browsing 50"],
+        "total_audits": 88,
+        "performance_category_present": false,
+        "report_path": "C:/Users/ASUS/AppData/Local/Temp/chrome-devtools-mcp-GrHfzG/report.json"
+      },
+      "navigation_mode_pageId19": {
+        "url": "http://localhost:5173/lessons",
+        "categories": ["accessibility 100", "best-practices 100", "seo 100", "agentic-browsing 67"],
+        "total_audits": 112,
+        "performance_category_present": false,
+        "metrics_entry_present": false,
+        "cls_displayValue": "0.001",
+        "report_path": "C:/Users/ASUS/AppData/Local/Temp/chrome-devtools-mcp-NSeyF3/report.json"
+      },
+      "conclusion": "Reproduced independently in both modes. The 112-audit navigation-mode count matches the author's stated figure exactly; snapshot mode differs in count (88) because it analyses current state, but likewise has no performance category."
+    },
+    "root_cause_verified_in_source": {
+      "file": "C:/Users/ASUS/AppData/Local/npm-cache/_npx/15c61037b1978c83/node_modules/chrome-devtools-mcp/build/src/tools/lighthouse.js",
+      "lines": "38-47",
+      "code": "const categories = ['accessibility','seo','best-practices','agentic-browsing']; ... const flags = { onlyCategories: categories, ... }",
+      "tool_description_line_13": "Get Lighthouse score and reports for accessibility, SEO, best practices, and agentic browsing. This excludes performance. For performance audits, run performance_start_trace",
+      "package_version": "chrome-devtools-mcp 1.9.0",
+      "conclusion": "The MCP integration hardcodes onlyCategories without 'performance' (and Lighthouse's default config is ignored once onlyCategories is set). The author's stated root cause is exactly correct — and the tool itself documents performance as intentionally excluded."
+    },
+    "fallback_path_confirmed_working": {
+      "tool": "chrome-devtools MCP performance_start_trace (pageId 19, reload=true)",
+      "result": "LCP: 562 ms (TTFB 17 ms, render delay 545 ms), CLS 0.00",
+      "note": "Fresh trace yields LCP and its breakdown, so the author's substitution of the trace for the missing Lighthouse perf category is a genuine fallback, not a workaround for a broken probe. The author's stored trace values (/, 260 ms / TTFB 7 ms / render delay 253 ms; /lessons 200 ms / 5 ms / 195 ms) are in perf-before.json ancillary.lcp_trace."
+    }
+  },
+  "answers_to_the_three_probe_questions": {
+    "is_the_evidence_real_or_a_probe_artefact": "REAL. Independently reproduced live (2 Lighthouse runs + 1 trace) and confirmed at the source level. Not a 429 (no app rate limiter touched), not a scrollbar false positive (no overflow measurement), not a guard redirect (all three routes are public and loaded normally).",
+    "is_the_severity_justified": "LOW is defensible and if anything generous. This is a measurement-tool limitation on the audit host, not a defect in EngFlow. Nothing in the application is wrong; Lighthouse merely cannot produce a Performance score here because the MCP wrapper deliberately omits the category. INFO would be equally appropriate. It should NOT be escalated, and it does NOT excuse the absence of a performance number — the author supplied LCP via performance_start_trace instead, and did not invent a score.",
+    "is_this_correct_behaviour_rather_than_a_bug": "YES — it is correct/intended behaviour of chrome-devtools-mcp 1.9.0 (documented in the tool description). The only 'error' in the original write-up is calling it a finding at all; it is better framed as a recorded tool limitation. The author in fact framed it that way ('giới hạn của công cụ này' / 'I did not invent a score')."
+  },
+  "residual_uncertainty": {
+    "none_material": "Every checkable sub-claim (category set, 112 audits, absence of metrics entry, absence of LCP/TBT/FCP/SI/TTI audits, CLS-only perf-family scoring, the four CLS values, the LCP trace values, and the root cause) reproduced. No counter-evidence found.",
+    "not_checked": "The author's separate claim that /llms.txt and is-crawlable failures are non-defects was not part of this claim and was not independently re-verified here."
+  },
+  "cleanup": {
+    "db_rows_created": 0,
+    "note": "Read-only audit (Lighthouse + trace + source read). No DELETE batch required. MCP wrote temp report files under C:/Users/ASUS/AppData/Local/Temp/ only."
+  }
+}

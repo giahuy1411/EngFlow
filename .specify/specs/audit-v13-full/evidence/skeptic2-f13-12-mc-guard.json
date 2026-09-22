@@ -1,0 +1,47 @@
+{
+  "skeptic": "skeptic-2",
+  "claim_id": "mc-guard / F-13-12 (claimed HIGH)",
+  "verdict": "REFUTED",
+  "claimed_root_cause_regex": "/^[A-D](\\s*-\\s*.*)?$/i",
+  "actual_source_regex": "(?i)^[a-d]$  (ExerciseService.isBareLetterOption, line 207)",
+  "why_refuted": "The claim's evidence is a STALE PROBE ARTEFACT captured before the fix landed. The guard no longer matches 'A - Salad'. Re-run against the live container: POST and PUT of the exact claimed payload both return HTTP 200, not 400.",
+  "timeline_proof": {
+    "deep_probe_json_mtime": "2026-09-22 03:22:18 +0700 (FAIL recorded here)",
+    "exercise_service_source_mtime": "2026-09-22 03:25:27 +0700 (fixed 3 min later)",
+    "compiled_class_mtime": "2026-09-22 03:43:34 +0700 (rebuilt, BUILD SUCCESS 03:39:27)",
+    "note": "Probe ran 3 minutes BEFORE the source was fixed. The FAIL it recorded reflects the pre-fix build, not the running system at claim time."
+  },
+  "live_reproduction_2026-09-22": {
+    "rate_limit": "flushed rate_limit:* before batch",
+    "POST /api/admin/exercises dash-style ['A - Salad','B - Cheeseburger','C - Pizza','D - Bread']": "HTTP 200 (id 777630 created) -- CLAIM SAID 400",
+    "PUT /api/admin/exercises/651717 dash-style": "HTTP 200 -- CLAIM SAID 400",
+    "POST control ['Apple','Banana','Cherry','Date']": "HTTP 200 (id 777631) -- matches claim",
+    "POST bare ['a','b','c','d']": "HTTP 400 correct -- matches claim",
+    "PUT probe row -> bare ['a','b','c','d']": "HTTP 400 correct"
+  },
+  "real_row_confirmed": {
+    "exercise_id": 651717,
+    "lesson_id": 10976,
+    "exercise_type": "MULTIPLE_CHOICE",
+    "options": "[\"A - Salad\", \"B - Cheeseburger\", \"C - Pizza\", \"D - Bread\"]",
+    "correct_answer": "A - Salad",
+    "source": "sweep/v8/sqlrun.py real DB query"
+  },
+  "scope_check": {
+    "claimed": "2 rows use the A - <content> style (1 MC, 1 FILL_BLANK)",
+    "measured": "3 rows (2 MULTIPLE_CHOICE, 1 FILL_BLANK) via LIKE '%\"A - %' etc",
+    "note": "minor discrepancy; not material to the verdict"
+  },
+  "regression_test": {
+    "class": "ExerciseServiceMultipleChoiceOptionsTest",
+    "method": "createAcceptsMultipleChoiceWithLetterDashContentOptions",
+    "result": "Tests run: 12, Failures: 0, Errors: 0 -- BUILD SUCCESS"
+  },
+  "already_documented": "findings.md F-13-12 marks this exact issue FIXED (split isBareLetterOption ^[a-d]$ for MC vs isPlaceholderOption for FILL_BLANK/TRANSLATION).",
+  "corrected_severity": "NONE (already fixed before the claim was filed); the surviving underlying issue is the LISTENING scope gap (F-13-13), MEDIUM, not HIGH",
+  "cleanup": {
+    "method": "DELETE by listed IDs only (777630, 777631)",
+    "deleted_rows": 2,
+    "msg_error_scan": "no 'Msg \\d+' in sqlcmd output"
+  }
+}

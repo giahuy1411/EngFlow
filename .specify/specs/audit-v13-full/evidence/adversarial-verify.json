@@ -1,0 +1,29 @@
+{
+  "phase": "Workflow 'Verify' — 2 independent skeptics per raw finding, majority-refute kills a finding",
+  "skeptics_run": 38,
+  "refuted": 16,
+  "survived": 22,
+  "notable_refutations": [
+    {
+      "claim": "deep-probe.json 'mc-guard FAIL' — the MULTIPLE_CHOICE guard is broken",
+      "verdict": "REFUTED — STALE PROBE ARTEFACT",
+      "reason": "The deep-probe.json snapshot was taken while the FIRST (regressed) version of the fix was live. Against the corrected code the guard behaves correctly: bare-letter MC -> 400, real options -> 200, 'A - Salad' -> 200. Confirmed independently by live HTTP in f13-11-13-verify.json."
+    },
+    {
+      "claim": "nonclustered indexes on dbo.exercises are redundant and should be dropped",
+      "verdict": "REFUTED",
+      "reason": "The claim rests on leading-column prefix relationships that the verifier showed do not hold as stated; recorded as F-13-10 DEFERRED with numbers rather than acted on (constitution P5)."
+    },
+    {
+      "claim": "deep-pagination is slow",
+      "verdict": "REFUTED — did not reproduce",
+      "reason": "Recorded as a negative result in performance.md rather than reported as a defect."
+    }
+  ],
+  "survived_examples": [
+    "F-13-07 study_policy CHECK absent — reproduced live (sys.check_constraints = 0)",
+    "F-13-08 users.current_streak stale, AdminService still reads it — reproduced against source + live rows",
+    "F-13-15 srs/due N+1 — reproduced via query-stats delta"
+  ],
+  "conclusion": "The adversarial pass killed 16 claims, including one that would have made me re-fix a defect I had already fixed correctly. This is the value of the cross-review step the user required."
+}

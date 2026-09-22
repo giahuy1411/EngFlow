@@ -1,0 +1,70 @@
+{
+  "skeptic": "skeptic #1",
+  "claim_id": "F-13-14",
+  "claim_title": "text-danger on bg-danger/10 measured 3.95:1 (below AA) — design system had no danger-ink token",
+  "claimed_severity": "MEDIUM",
+  "verdict": "NOT REFUTED (claim holds) — but one evidence datum inside the claim is a probe artifact",
+  "refuted": false,
+
+  "what_i_confirmed_with_my_own_measurements": [
+    {
+      "assertion": "text-danger #E11D48 on bg-danger/10 over cream measures 3.95:1 (below 4.5:1 AA)",
+      "method": "independent WCAG relative-luminance recomputation in Python + live DOM measurement in the running app",
+      "my_value": 3.957,
+      "verdict": "CONFIRMED — matches the claimed 3.95 exactly. Composited tint = rgb(252,231,228); fg = rgb(225,29,72)."
+    },
+    {
+      "assertion": "The design system had no danger-ink token before the fix",
+      "method": "git show HEAD:frontend/tailwind.config.js | grep danger ; git show HEAD:frontend/src/assets/design-system.css | grep danger",
+      "my_value": "HEAD has only `danger: '#E11D48'` and `--geo-danger: #E11D48` / `--geo-danger-fg`. No *-ink for danger, while accent/secondary/tertiary/quaternary/success/warning all had an -ink sibling. 0 hits for danger-ink at HEAD.",
+      "verdict": "CONFIRMED — the root-cause statement is accurate."
+    },
+    {
+      "assertion": "Reproduced on /admin/dashboard, /decks, /leaderboard",
+      "method": "git show HEAD:<file> | grep -n text-danger",
+      "my_value": "Leaderboard.vue:23, Decks.vue:38, AdminDashboard.vue:9 all carried `... bg-danger/10 ... text-danger` at HEAD.",
+      "verdict": "CONFIRMED — line numbers in the claim match HEAD exactly."
+    },
+    {
+      "assertion": "Pattern in ~10 components (Leaderboard:23, Decks:38, DeckDetail:16, AdminDashboard:9, AdminVideoAttempts:23, AdminVideoLessons:83, AdminSpeakingSubmissions:189, AiGeneratePanel:94)",
+      "method": "git show HEAD for each cited file",
+      "my_value": "Every cited file/line matched at HEAD. Working tree shows 36 bare text-danger call-sites replaced across 23 files; the 10 distinct components named are a fair characterisation of the affected views.",
+      "verdict": "CONFIRMED (minor: the counts are a subset description, not an exhaustive list)."
+    },
+    {
+      "assertion": "Fix: --geo-danger-ink #BE123C added, text switched to text-danger-ink",
+      "method": "read working tree design-system.css:39, tailwind.config.js, all *.vue",
+      "my_value": "Token present in both design-system.css and tailwind.config.js. 0 bare `text-danger` remain in frontend/src/**/*.vue (regex \\btext-danger\\b(?!-)). A fresh Tailwind build (npx tailwindcss -i src/assets/main.css) emits .text-danger-ink { color: rgb(190 18 60 ...) }.",
+      "verdict": "CONFIRMED — the fix is real and correct."
+    }
+  ],
+
+  "the_one_defect_in_the_claim": {
+    "datum": "re-measured 12.29:1",
+    "problem": "12.29:1 is a PROBE ARTIFACT. It is the ratio of rgb(30,41,59) (#1E293B, the inherited foreground) on the tint — NOT the new token #BE123C. The true post-fix ratio of #BE123C on rgb(252,231,228) is 5.29:1.",
+    "root_cause_of_artifact": "The running Vite dev server (container engflow-frontend, StartedAt 2026-09-21T18:11:15Z = 01:11 +07) loaded tailwind.config.js at boot, BEFORE the file was edited (mtime 2026-09-22 03:33:58 +07). The served bundle therefore contains .text-tertiary-ink and .text-success-ink (v11 tokens, already in the config at boot) but NOT .text-danger-ink. With no rule, `class=\"text-danger-ink\"` silently inherits #1E293B.",
+    "live_proof": [
+      "document.styleSheets scan: find('danger-ink') = [] ; find('text-danger') = ['.text-danger'] ; find('tertiary-ink') = ['.text-tertiary-ink'] ; find('success-ink') = ['.text-success-ink']",
+      "getComputedStyle on a fresh div.text-danger-ink => rgb(30, 41, 59)",
+      "Forced error state on /leaderboard via page.route abort: alert className='... text-danger-ink', computed color = rgb(30,41,59), ratio 12.29",
+      "Fresh Tailwind CLI build of the SAME working tree DOES emit .text-danger-ink = rgb(190 18 60), i.e. the fix is valid; only the long-running dev bundle is stale"
+    ],
+    "impact": "The claim's headline (3.95:1 defect, missing token) is unaffected. The after-fix number is overstated (12.29 vs 5.29). Since 5.29:1 still clears AA, the conclusion 'fix works' survives — but the claim should cite 5.29:1, not 12.29:1."
+  },
+
+  "probe_artefact_check": {
+    "429_self_inflicted": "NO — the finding is a CSS/DOM measurement, not an HTTP status; rate-limit buckets were irrelevant.",
+    "scrollbar_false_positive": "NO — not an overflow finding.",
+    "guard_redirect_misread": "NO — error state was forced deliberately via page.route abort, and the [role=alert] branch did render.",
+    "genuine_artifact_found": "YES — the stale dev-server bundle (see above), which inflated the after-fix ratio from 5.29 to 12.29."
+  },
+
+  "severity_assessment": {
+    "claimed": "MEDIUM",
+    "my_assessment": "MEDIUM is defensible and internally consistent; arguably generous",
+    "reasoning": "It is a real WCAG 2.2 AA 1.4.3 failure and the project constitution P7 makes AA mandatory, across ~10 components. But it is a MARGINAL miss (3.95 vs 4.5 = 12% short) on a transient error state that most users rarely see, and the text remains legible. The project's own sibling finding F-13-03/04/05 — far worse violations (1.67:1 and 1.92:1) — was also rated MEDIUM. So MEDIUM is consistent with the project's rubric and not an over-claim relative to it. LOW would also be defensible for a marginal miss, but would be inconsistent with the siblings.",
+    "corrected_severity": "MEDIUM (unchanged)"
+  },
+
+  "conclusion": "The finding is substantiated by real, independently reproduced evidence: 3.957:1 measured and recomputed, no danger-ink token at HEAD, all cited call-sites verified, fix present and effective in a fresh build. refuted=false. One correction: the claim's post-fix '12.29:1' is a stale-dev-bundle probe artifact; the true value is 5.29:1 (still AA-passing)."
+}

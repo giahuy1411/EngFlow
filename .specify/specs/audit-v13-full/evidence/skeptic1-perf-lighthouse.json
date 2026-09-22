@@ -1,0 +1,31 @@
+{
+  "claim": "Lighthouse on this host does not emit the Performance category - no Lighthouse perf score exists for these routes",
+  "skeptic": 1,
+  "verdict": "NOT REFUTED - claim holds",
+  "severity_assessed": "LOW (justified; effectively a tooling/methodology note, not an app defect)",
+  "reproduced": {
+    "lighthouse_runs": [
+      {"url": "http://localhost:5173/", "categories": {"accessibility": 100, "best-practices": 100, "seo": 100, "agentic-browsing": 67}, "performance_category_present": false, "audit_count": 112, "metrics_audit_present": false},
+      {"url": "http://localhost:5173/lessons", "categories": {"accessibility": 100, "best-practices": 100, "seo": 100, "agentic-browsing": 67}, "performance_category_present": false}
+    ],
+    "raw_report_check": {
+      "lighthouseVersion": "13.4.1",
+      "categories_keys": ["accessibility", "best-practices", "seo", "agentic-browsing"],
+      "total_audits": 112,
+      "has_metrics_entry": false,
+      "perf_family_audits_present": {"largest-contentful-paint": false, "first-contentful-paint": false, "total-blocking-time": false, "speed-index": false},
+      "scored_perf_audit": {"cumulative-layout-shift": {"score": 1, "numericValue": 0.0016}}
+    },
+    "root_cause_source_verified": {
+      "file": "chrome-devtools-mcp/build/src/tools/lighthouse.js",
+      "constant": "const categories = ['accessibility','seo','best-practices','agentic-browsing'];",
+      "used_as": "flags.onlyCategories = categories (passed to Lighthouse navigation())",
+      "tool_description_verbatim": "Get Lighthouse score and reports for accessibility, SEO, best practices, and agentic browsing. This excludes performance. For performance audits, run performance_start_trace"
+    },
+    "trace_lcp_note": {
+      "claim_stated_lcp_ms": {"/": 260, "/lessons": 200},
+      "my_reruns_home_LCP_ms": [2157, 459],
+      "assessment": "Trace-derived LCP is unstable on this shared dev host and did not reproduce the exact claimed values; the claim's central assertion (no Lighthouse perf score exists) is unaffected, and the claim did not assert a Lighthouse perf score."
+    }
+  }
+}

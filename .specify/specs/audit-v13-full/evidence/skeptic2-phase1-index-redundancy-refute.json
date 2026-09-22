@@ -1,0 +1,106 @@
+{
+  "skeptic": "skeptic #2",
+  "phase": "Phase 1 — SQL Server data-layer audit",
+  "claim_title": "Three of five exercises nonclustered indexes are leading-column redundant",
+  "claimed_severity": "LOW",
+  "verdict": "REFUTED",
+  "corrected_severity": "NONE (not a finding — no redundancy exists)",
+  "summary": "The claim's central premise is false. No nonclustered index on dbo.exercises is a leading-column prefix of any other. The 'strict prefix' assertions mis-order key columns: e.g. idx_exercises_lesson_order is (lesson_id, order_index) while idx_exercises_lesson_type_order is (lesson_id, exercise_type, order_index) — the second column differs (order_index vs exercise_type), so it is NOT a prefix. A pairwise prefix test over the live catalogs returns zero rows. Forced-index plans prove each index is independently necessary. Sizes/rows/fragmentation are real but were quoted to support a false structural conclusion.",
+
+  "reproducible_evidence": {
+    "live_row_count": {
+      "query": "SELECT COUNT(*) FROM exercises",
+      "result": 43735,
+      "matches_claim": true
+    },
+    "index_inventory_from_sys_indexes_plus_dm_db_partition_stats": [
+      {"name": "idx_exercises_difficulty",              "type": "NONCLUSTERED", "key_cols": "difficulty",                                         "size_mb": 1.039},
+      {"name": "idx_exercises_lesson_order",            "type": "NONCLUSTERED", "key_cols": "lesson_id, order_index",                             "size_mb": 1.125},
+      {"name": "idx_exercises_lesson_type_order",       "type": "NONCLUSTERED", "key_cols": "lesson_id, exercise_type, order_index",              "size_mb": 3.664},
+      {"name": "idx_exercises_type",                    "type": "NONCLUSTERED", "key_cols": "exercise_type",                                      "size_mb": 1.398},
+      {"name": "IX_exercises_lesson_type_diff_order",   "type": "NONCLUSTERED", "key_cols": "lesson_id, exercise_type, difficulty, order_index",  "size_mb": 2.461},
+      {"name": "PK__exercise__C121418ED83A5E11",        "type": "CLUSTERED",    "key_cols": "exercise_id",                                        "size_mb": 10.234}
+    ],
+    "index_footprint_mb": 19.922,
+    "claim_sizes_match_live_metadata": true,
+    "fragmentation_pct": {
+      "idx_exercises_difficulty": 3.05,
+      "idx_exercises_lesson_order": 1.41,
+      "idx_exercises_lesson_type_order": 4.48,
+      "idx_exercises_type": 4.52,
+      "IX_exercises_lesson_type_diff_order": 10.92,
+      "PK_clustered": 0.86,
+      "note": "Claim said 'all fragmentation < 11%' — true (max 10.92%). This part is accurate but irrelevant to the redundancy claim."
+    },
+    "included_columns_note": "idx_exercises_lesson_type_order carries included (non-key) columns difficulty and correct_answer. These do not affect leading-column prefix analysis but do mean it is wider than a pure key prefix would be."
+  },
+
+  "refutation_1_no_prefix_relation_exists": {
+    "method": "Pairwise test over sys.indexes/sys.index_columns: for every ordered pair (a,b) of nonclustered indexes, test whether b.keycols starts with a.keycols + ',' (true leading prefix) or equals it.",
+    "sql": "WITH k AS (SELECT i.name idx, ic.key_ordinal ord, c.name col FROM sys.indexes i JOIN sys.index_columns ic ON ic.object_id=i.object_id AND ic.index_id=i.index_id AND ic.is_included_column=0 JOIN sys.columns c ON c.object_id=ic.object_id AND c.column_id=ic.column_id WHERE i.object_id=OBJECT_ID('exercises') AND i.type=2), v AS (SELECT idx, STRING_AGG(col,',') WITHIN GROUP (ORDER BY ord) keycols FROM k GROUP BY idx) SELECT a.idx, b.idx, a.keycols, b.keycols FROM v a JOIN v b ON a.idx<>b.idx WHERE b.keycols LIKE a.keycols + ',%' OR b.keycols = a.keycols",
+    "rows_returned": 0,
+    "conclusion": "No index is a prefix of, or identical to, any other. The claim's three 'strict prefix' relations are all structurally false."
+  },
+
+  "refutation_2_claimed_pairs_are_wrong": [
+    {
+      "claim": "idx_exercises_lesson_order (lesson_id, order_index) is a strict prefix of idx_exercises_lesson_type_order (lesson_id, exercise_type, order_index)",
+      "actual": "FALSE. Position 2 differs: order_index vs exercise_type. A prefix requires lesson_id, order_index to be the FIRST two keys of the other; the other's second key is exercise_type, not order_index.",
+      "proof": "Forced plan SELECT ... WITH (INDEX(idx_exercises_lesson_type_order)) WHERE lesson_id=1 ORDER BY order_index ASC yields 'Sort(ORDER BY order_index ASC) |-- Index Seek(...idx_exercises_lesson_type_order..., SEEK lesson_id=1) ORDERED FORWARD'. The extra Sort means the covering index cannot return rows in order_index order; the dedicated index is required to avoid the sort."
+    },
+    {
+      "claim": "idx_exercises_type (exercise_type) is a prefix of idx_exercises_lesson_type_order",
+      "actual": "FALSE. idx_exercises_lesson_type_order's LEADING column is lesson_id, not exercise_type. exercise_type is the SECOND key. A leading-column prefix must start at column 1.",
+      "proof": "Forced plan SELECT ... WITH (INDEX(idx_exercises_lesson_type_order)) WHERE exercise_type='MULTIPLE_CHOICE' yields an Index SCAN with residual predicate, not a seek. IO: natural (idx_exercises_type) = 142 logical reads; forced onto idx_exercises_lesson_type_order = 458 logical reads. 3.2x worse."
+    },
+    {
+      "claim": "idx_exercises_lesson_order is a prefix of IX_exercises_lesson_type_diff_order (lesson_id, exercise_type, difficulty, order_index)",
+      "actual": "FALSE. Same second-column mismatch: order_index vs exercise_type.",
+      "proof": "Same as pair 1 — the diff_order index orders by exercise_type then difficulty before order_index, so lesson+order_index reads are not covered."
+    }
+  ],
+
+  "refutation_3_optimizer_uses_each_index_independently": {
+    "method": "SET SHOWPLAN_TEXT ON for the real repository query shapes, plus sys.dm_db_index_usage_stats on the live instance.",
+    "plans": [
+      {"query": "WHERE lesson_id=1 ORDER BY order_index ASC  (repo: findByLessonIdOrderByOrderIndexAsc, ExerciseRepository.java:23-24)", "index_chosen": "idx_exercises_lesson_order", "op": "Index Seek, ORDERED FORWARD, no Sort"},
+      {"query": "WHERE exercise_type='MULTIPLE_CHOICE'  (repo: findAdminPage type filter, ExerciseRepository.java:50)", "index_chosen": "idx_exercises_type", "op": "Index Seek"},
+      {"query": "WHERE lesson_id=1 AND exercise_type='MULTIPLE_CHOICE' ORDER BY order_index ASC  (repo: findByLessonIdAndExerciseTypeOrderByOrderIndexAsc, line 44)", "index_chosen": "idx_exercises_lesson_type_order", "op": "Index Seek, ORDERED FORWARD, no Sort"},
+      {"query": "WHERE lesson_id=1 AND difficulty='EASY' ORDER BY order_index ASC  (repo: findByLessonIdAndDifficultyOrderByOrderIndexAsc, line 45)", "index_chosen": "idx_exercises_lesson_type_order", "op": "Index Seek + Sort"}
+    ],
+    "usage_stats_snapshot_db_uptime_164min": {
+      "idx_exercises_difficulty": {"seeks": 0, "scans": 125, "updates": 200},
+      "idx_exercises_lesson_order": {"seeks": 231, "scans": 6, "updates": 232},
+      "idx_exercises_lesson_type_order": {"seeks": 8, "scans": 0, "updates": 150},
+      "idx_exercises_type": {"seeks": 24, "scans": 0, "updates": 232},
+      "IX_exercises_lesson_type_diff_order": {"seeks": 1484, "scans": 1, "updates": 232},
+      "PK_clustered": {"seeks": 69, "scans": 725, "lookups": 256, "updates": 232}
+    },
+    "conclusion": "Each of the five nonclustered indexes is exercised by the optimizer for a distinct query shape. None is dead weight."
+  },
+
+  "refutation_4_io_measurements": {
+    "lesson_only_lesson_id": {"natural_idx_lesson_order_logical_reads": 3, "forced_idx_lesson_type_order_logical_reads": 5},
+    "type_only_exercise_type": {"natural_idx_type_logical_reads": 142, "forced_idx_lesson_type_order_logical_reads": 458},
+    "note": "Forcing the 'redundant' index's would-be cover onto either query is measurably worse (more reads and/or an added Sort), so the claim's premise that these are droppable is contradicted by execution, not just by catalog structure."
+  },
+
+  "probe_artefact_check": {
+    "is_probe_artefact": false,
+    "notes": "Sizes, row count (43,735) and fragmentation figures in the claim are genuine live readings — the claim is not fabricated at the data level. The error is analytical: the author read key-column lists and inferred prefix relations without checking column positions. No 429 / scrollbar / redirect artefacts apply (this is a SQL-layer claim)."
+  },
+
+  "answers_to_posed_questions": {
+    "is_evidence_real_or_artefact": "The raw numbers are real (reproduced exactly), but the evidence does not support the conclusion; the three prefix relations are false.",
+    "is_severity_justified": "No — LOW is unjustified. There is no redundancy, so there is no cleanup candidate and no finding at all. Corrected severity: NONE.",
+    "is_this_correct_behaviour": "Yes. Five distinct key compositions serving five distinct query shapes (lesson+order, type-only, lesson+type+order, lesson+difficulty+order, lesson+type+difficulty+order) is intentional, correct schema design, not a defect."
+  },
+
+  "hard_rule_compliance": {
+    "real_db_rows_used": true,
+    "real_execution_plans_used": true,
+    "mock_data_used": false,
+    "application_source_modified": false,
+    "delete_batches_run": false
+  }
+}
