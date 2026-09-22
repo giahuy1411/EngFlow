@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const authMock = vi.hoisted(() => ({ logout: vi.fn() }))
-const routerMock = vi.hoisted(() => ({ push: vi.fn() }))
+// audit-v13 F-13-20: `currentRoute` must be present so the interceptor can carry the
+// destination. It defaults to undefined here to also prove the helper tolerates a
+// router that does not expose it (older mock / defensive path).
+const routerMock = vi.hoisted(() => ({ push: vi.fn(), currentRoute: undefined }))
 
 vi.mock('@/router', () => ({ default: routerMock }))
 vi.mock('@/store/modules/auth', () => ({ useAuthStore: () => authMock }))
@@ -25,6 +28,8 @@ describe('api response interceptor — ProblemDetail normalization', () => {
   beforeEach(() => {
     authMock.logout.mockClear()
     routerMock.push.mockClear()
+    // Most cases below don't care about the current route; the F-13-20 block sets it.
+    routerMock.currentRoute = undefined
   })
 
   it('backfills message from ProblemDetail detail for 400 validation', async () => {
@@ -58,7 +63,8 @@ describe('api response interceptor — ProblemDetail normalization', () => {
     expect(err.response.data.message).toBe('Token đã hết hạn. Vui lòng đăng nhập lại.')
     // 401 'hết hạn' vẫn phải logout như thiết kế F7-BUG02.
     expect(authMock.logout).toHaveBeenCalled()
-    expect(routerMock.push).toHaveBeenCalledWith('/login')
+    // audit-v13 F-13-20: push now carries the destination as a query object.
+    expect(routerMock.push).toHaveBeenCalledWith({ path: '/login', query: {} })
   })
 
   it('tolerates non-object bodies', async () => {
@@ -103,5 +109,75 @@ describe('api response interceptor — ProblemDetail normalization', () => {
     const err = { response: { status: 400, data: { error: { nested: true } } } }
     await expect(runErrorInterceptor(err)).rejects.toBe(err)
     expect(err.response.data.message).toBeUndefined()
+  })
+})
+
+/**
+ * audit-v13 F-13-20 — phần còn hở. Khi phiên hết hạn GIỮA CHỪNG, interceptor phải
+ * mang theo đích đến, nếu không người dùng mất trang họ đang làm. Đích được
+ * Login.vue/Register.vue tiêu thụ qua safeRedirect() nên không cần validate ở đây.
+ */
+describe('api interceptor — F-13-20 carries the destination on auth bounce', () => {
+  const expiredJwt = () => {
+    const header = btoa(JSON.stringify({ alg: 'HS512' }))
+    const payload = btoa(JSON.stringify({ sub: '2', exp: Math.floor(Date.now() / 1000) - 60 }))
+    return `${header}.${payload}.sig`
+  }
+
+  function runRequestInterceptor() {
+    const handlers = api.interceptors.request.handlers
+    return handlers[handlers.length - 1].fulfilled({ url: '/api/x', headers: {} })
+  }
+
+  beforeEach(() => {
+    authMock.logout.mockClear()
+    routerMock.push.mockClear()
+    localStorage.clear()
+  })
+
+  it('keeps the current route when an expired token is detected', async () => {
+    routerMock.currentRoute = { value: { fullPath: '/decks/42?tab=quiz' } }
+    localStorage.setItem('token', expiredJwt())
+    await expect(runRequestInterceptor()).rejects.toThrow()
+    expect(routerMock.push).toHaveBeenCalledWith({
+      path: '/login',
+      query: { redirect: '/decks/42?tab=quiz' },
+    })
+  })
+
+  it('does not self-reference when already on /login', async () => {
+    routerMock.currentRoute = { value: { fullPath: '/login' } }
+    localStorage.setItem('token', expiredJwt())
+    await expect(runRequestInterceptor()).rejects.toThrow()
+    expect(routerMock.push).toHaveBeenCalledWith({ path: '/login', query: {} })
+  })
+
+  it('does not self-reference when on /login with a query', async () => {
+    routerMock.currentRoute = { value: { fullPath: '/login?redirect=%2Fprofile' } }
+    localStorage.setItem('token', expiredJwt())
+    await expect(runRequestInterceptor()).rejects.toThrow()
+    expect(routerMock.push).toHaveBeenCalledWith({ path: '/login', query: {} })
+  })
+
+  it('does not throw when the router exposes no currentRoute', async () => {
+    routerMock.currentRoute = undefined
+    localStorage.setItem('token', expiredJwt())
+    await expect(runRequestInterceptor()).rejects.toThrow()
+    expect(routerMock.push).toHaveBeenCalledWith({ path: '/login', query: {} })
+  })
+
+  it('carries the destination on a mid-session 401 as well', async () => {
+    routerMock.currentRoute = { value: { fullPath: '/speaking/7/record' } }
+    const err = {
+      response: {
+        status: 401,
+        data: { status: 401, message: 'Token đã hết hạn. Vui lòng đăng nhập lại.' },
+      },
+    }
+    await expect(runErrorInterceptor(err)).rejects.toBe(err)
+    expect(routerMock.push).toHaveBeenCalledWith({
+      path: '/login',
+      query: { redirect: '/speaking/7/record' },
+    })
   })
 })

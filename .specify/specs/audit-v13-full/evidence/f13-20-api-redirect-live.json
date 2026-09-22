@@ -1,0 +1,25 @@
+{
+  "ranAt": "2026-09-22T10:49:13.572Z",
+  "results": [
+    {
+      "name": "login user@gmail.com",
+      "ok": true,
+      "detail": "token issued"
+    },
+    {
+      "name": "expired token on /decks/10006 -> /login with redirect=/decks/10006",
+      "ok": true,
+      "detail": "final=http://localhost:5173/login?redirect=/decks/10006"
+    },
+    {
+      "name": "login with ?redirect returns user to /decks/10006",
+      "ok": true,
+      "detail": "final=http://localhost:5173/decks/10006"
+    },
+    {
+      "name": "?redirect=//evil.com does NOT leave the site",
+      "ok": true,
+      "detail": "final=http://localhost:5173/lessons"
+    }
+  ]
+}

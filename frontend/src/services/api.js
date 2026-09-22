@@ -7,6 +7,22 @@ const api = axios.create({
   timeout: 10000,
 })
 
+/**
+ * audit-v13 F-13-20 (phần còn hở): khi phiên hết hạn GIỮA CHỪNG, interceptor đá
+ * người dùng về /login. Trước đây đích đến bị mất nên họ phải tự tìm lại trang.
+ * Router dùng createWebHistory() nên `currentRoute` đọc được ngay tại đây — không
+ * cần thêm import/Pinia/event bus. Đầu nhận (Login.vue/Register.vue) đã gọi
+ * safeRedirect(route.query.redirect), nên chống open-redirect áp dụng tự động.
+ *
+ * Trả {} khi: chưa có route (unit test), hoặc đang ở /login — nếu không sẽ sinh
+ * redirect=/login tự tham chiếu.
+ */
+function loginRedirectQuery() {
+  const path = router.currentRoute?.value?.fullPath
+  if (!path || path === '/login' || path.startsWith('/login?')) return {}
+  return { redirect: path }
+}
+
 // Longer timeout for admin endpoints that return large datasets
 api.interceptors.request.use(config => {
   if (config.url?.startsWith('/api/admin')) {
@@ -26,13 +42,13 @@ api.interceptors.request.use(config => {
         const now = Math.floor(Date.now() / 1000)
         if (payload.exp && payload.exp < now) {
           useAuthStore().logout()
-          router.push('/login')
+          router.push({ path: '/login', query: loginRedirectQuery() })
           return Promise.reject(new Error('Token expired'))
         }
       }
     } catch (e) {
       useAuthStore().logout()
-      router.push('/login')
+      router.push({ path: '/login', query: loginRedirectQuery() })
       return Promise.reject(new Error('Invalid token'))
     }
     config.headers.Authorization = `Bearer ${token}`
@@ -65,7 +81,7 @@ api.interceptors.response.use(
       const msg = err.response?.data?.message || ''
       if (msg.includes('hết hạn') || msg.includes('không hợp lệ') || msg.includes('xác thực') || msg.includes('truy cập')) {
         useAuthStore().logout()
-        router.push('/login')
+        router.push({ path: '/login', query: loginRedirectQuery() })
       }
     }
     return Promise.reject(err)
