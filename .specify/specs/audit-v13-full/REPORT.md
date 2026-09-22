@@ -15,10 +15,10 @@
 | **Đã fix trong phiên** | **19** — F-13-01, 02, 03/04/05, 06, 07, 08, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 |
 | **OPEN có lý do** | **1** — F-13-09 (đã biết từ v7, không migrate) |
 | **CLOSED (kết luận probe SAI)** | **1** — F-13-10 (đo lại: không index nào là prefix của index khác; tất cả đang dùng) |
-| **Test hồi quy thêm** | **+66** — backend **523** (từ 499), frontend **175** (từ 127) — **0 regression** |
-| **Backend suite** | **517 / 0 fail / 0 error / 11 skipped, BUILD SUCCESS** |
-| **Frontend suite** | **175 passed / 1 skipped (30 file)** |
-| **Build entry** | **177.73 kB** (gzip 67.66) — +0.29 kB |
+| **Test hồi quy thêm** | **+84** — backend **523** (từ 499), frontend **193** (từ 127) — **0 regression** |
+| **Backend suite** | **523 / 0 fail / 0 error / 11 skipped, BUILD SUCCESS** |
+| **Frontend suite** | **193 passed / 1 skipped (31 file)** |
+| **Build entry** | **177.98 kB** (gzip 67.76) |
 | **API sweep** | **143 pass / 0 fail** (v13) + workflow sweep **199 pass / 2 fail** (2 fail = lỗi trong fix của tôi, đã sửa) |
 | **UI sweep** | **117 route×role, 0 guardFails, 0 console/page/api error, 0 contrast fail, 0 overflow** |
 | **DB audit** | constraint **hiệu lực** chứng minh trong scratch DB; parity giữ **chính xác** baseline |
@@ -92,11 +92,11 @@
 
 | # | Vấn đề | Trạng thái sau khi xử lý |
 |---|---|---|
-| **F-13-02** | Lesson Builder: block không tới học viên | **FIXED (phương án B)** — sửa bẫy "Xem trước" + banner cảnh báo + vô hiệu hoá tạo QUESTION/SUBMISSION + `docs/lesson-builder-status.md`. Renderer đầy đủ vẫn là việc tương lai (A1/A2/A3). |
+| **F-13-02** | Lesson Builder: block không tới học viên | **FIXED — nay đã tới học viên (A1)** — `LessonBlocks.vue` render TEXT/IMAGE/AUDIO/TABLE ở tab "Nội dung"; live 12/12 PASS. Kèm: sửa bẫy "Xem trước" + banner + chặn tạo QUESTION/SUBMISSION. A2/A3 (câu hỏi + chấm điểm) vẫn chưa. |
 | **F-13-07** | `study_policy` thiếu CHECK | **FIXED** — `@CheckConstraint` (JPA 3.2) + guard riêng trong `deploy.sql` + script vá DB; verify `INSERT id=2` bị chặn (Msg 547). |
-| **F-13-08** | dashboard admin đọc cột `last_study_date` chết | **FIXED** — `recentUsers` nay từ `study_days`. Cột `current_streak` + 3 query cũ là **dead code**, ghi rõ, **không xoá** (đổi schema cần quyết định riêng). |
-| **F-13-20** | `?redirect=` không ai đọc | **FIXED** — `safeRedirect()` + guard mang redirect + Login/Register đọc; 13 ca tấn công đều bị chặn; verify live 2 chiều. |
-| **F-13-09** | SQL Server chạy UTC (3 đồng hồ lệch) | **Giữ nguyên** — đã biết từ v7, đúng AGENTS.md; không migrate khi chưa có consumer thứ hai. |
+| **F-13-08** | dashboard admin đọc cột `last_study_date` chết | **FIXED + ĐÃ XOÁ CỘT** — `recentUsers` nay từ `study_days`; 2 cột `current_streak`/`last_study_date` + 4 query legacy **đã xoá** (backup trước, verify live, parity không đổi). |
+| **F-13-20** | `?redirect=` không ai đọc | **FIXED (cả 2 đường)** — `safeRedirect()` + guard mang redirect + Login/Register đọc; **thêm**: `api.js` 3 điểm bounce khi hết hạn giữa phiên nay cũng mang đích (live 4/4 PASS). |
+| **F-13-09** | SQL Server chạy UTC (3 đồng hồ lệch) | **Giữ nguyên** — đã biết từ v7, đúng AGENTS.md; đo lại: DB live có **0** `GETDATE()` default (Flyway disabled), đường streak miễn nhiễm. Không migrate khi chưa có consumer thứ hai. |
 | **F-13-10** | "3/5 index dư" | **CLOSED — kết luận probe SAI.** Đo lại: không index nào là strict prefix của index khác; cả 5 đều có seeks/scans > 0. |
 
 **Giới hạn đã gặp (ghi để không ai tưởng đã phủ):**
@@ -169,9 +169,9 @@
 
 ```bash
 # Backend
-cmd /c "mvnw.cmd -o test"                        # 517 / 0 / 0 / 11
+cmd /c "mvnw.cmd -o test"                        # 523 / 0 / 0 / 11
 # Frontend
-cd frontend && npx vitest run                    # 175 passed / 1 skipped (30 file)
+cd frontend && npx vitest run                    # 193 passed / 1 skipped (31 file)
 npx vite build                                   # entry 177.44 kB
 # API
 node sweep/v13/api-sweep.js                      # 143 pass / 0 fail
