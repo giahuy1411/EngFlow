@@ -56,10 +56,16 @@ describe('AdminLessonBuilder — F-13-02 / F-13-22', () => {
     }
   })
 
-  it('warns that authored blocks are not shown to learners', async () => {
+  // audit-v13 F-13-02: the banner used to say ALL authored blocks were invisible. After A1
+  // (LessonBlocks.vue) TEXT/IMAGE/AUDIO/TABLE DO reach the learner, and only QUESTION /
+  // SUBMISSION remain unsupported. The banner must say exactly that — an over-strict
+  // "nothing is shown" would make an admin redo work that already displays.
+  it('states which block types reach learners and which do not', async () => {
     const wrapper = await mountBuilder()
     const text = wrapper.text()
-    expect(text).toMatch(/chưa được hiển thị/i)
+    expect(text).toMatch(/sẽ hiển thị cho học viên/i)
+    expect(text).toMatch(/Tài liệu bổ sung/i)
+    expect(text).toMatch(/chưa/i)
     expect(text).toMatch(/Quản lý bài tập/)
   })
 })

@@ -1,0 +1,65 @@
+{
+  "ranAt": "2026-09-22T11:04:19.851Z",
+  "results": [
+    {
+      "name": "447: authored blocks section renders",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "447: TABLE block renders (header 'Đại từ')",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "447: TABLE block has rows",
+      "ok": true,
+      "detail": "rows=3"
+    },
+    {
+      "name": "447: QUESTION block NOT rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "447: SUBMISSION block NOT rendered",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "447: exactly one authored section (no duplication)",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "445 (no blocks): renderer is absent",
+      "ok": true,
+      "detail": "n=0"
+    },
+    {
+      "name": "lesson 446: authored section present (exactly 1)",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "lesson 567: authored section present (exactly 1)",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "lesson 11301: authored section present (exactly 1)",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "lesson 41881: authored section present (exactly 1)",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "lesson 91900: authored section present (exactly 1)",
+      "ok": true,
+      "detail": "n=1"
+    }
+  ]
+}

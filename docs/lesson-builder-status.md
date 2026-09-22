@@ -1,36 +1,47 @@
 # Lesson Builder — trạng thái và giới hạn (audit-v13 F-13-02)
 
 **Cập nhật:** 2026-09-22 (+07) · **Nguồn:** audit-v13-full, đo bằng dữ liệu thật
+**Trạng thái:** A1 **ĐÃ LÀM** (TEXT/IMAGE/AUDIO/TABLE hiển thị cho học viên). A2/A3 chưa.
 
 ## Tóm tắt một câu
 
-**Lesson Builder là công cụ soạn thảo chưa nối vào trang học.** Nội dung admin dựng ở đây
-được lưu vào DB nhưng **học viên không thấy**.
+Khối **Text / Image / Audio / Table** admin dựng ở đây **nay đã tới học viên** (tab "Nội dung",
+mục *Tài liệu bổ sung*, ngay sau nội dung gốc). Khối **Question / Submission** vẫn chưa hiển thị
+và chưa chấm được — dùng **Quản lý bài tập** cho câu hỏi.
 
 ## Đo được gì (không suy đoán)
 
 | Kiểm tra | Kết quả |
 |---|---|
 | Bảng lưu | `lesson_sections` (10 hàng), `lesson_blocks` (15 hàng) |
-| Lesson có blocks | **7**, trong đó **6 đã publish** (446, 447, 567, 11301, 41881, 91900) |
-| Learner đọc blocks? | **Không** — `getStructure()` (public API) có **0 caller** trong frontend |
-| Trang học viên hiển thị gì? | `lesson.content` — HTML **scraped** từ english-practice.net |
-| Blocks có sinh `lesson.content`? | **Không** — không có code nào chuyển blocks thành content |
-| Câu hỏi trong block có chấm điểm? | **Không** — không có endpoint grading cho block QUESTION |
+| Lesson có blocks | **8** (446, 447, 567, 11301, 41881, 91900, …) |
+| Learner đọc blocks? | **CÓ** (từ A1) — qua `LessonBlocks.vue` gọi `GET /api/lessons/{id}/structure` |
+| Trang học viên hiển thị gì? | `lesson.content` (HTML **scraped**) **+** blocks đã biên soạn |
+| Blocks có sinh `lesson.content`? | **Không** — hai nguồn độc lập, hiển thị nối tiếp |
+| Câu hỏi trong block có chấm điểm? | **Không** — chưa có endpoint grading cho block QUESTION |
 
 ### Ví dụ thật — lesson 447 ("Present simple")
 
 Admin đã soạn trong Builder:
 
-| block | loại | nội dung |
+| block | loại | hiển thị cho học viên? |
 |---|---|---|
-| 3 | TABLE | Bảng chia động từ (`I work`, `He/She/It works`…) |
-| 4 | QUESTION | `She ___ to school every day.` (trắc nghiệm, đáp án `goes`) |
-| 5 | QUESTION | `They ___ (play) football on Sundays.` (điền từ, đáp án `play`) |
-| 7 | QUESTION | `The writer wakes up at 6 AM.` (đúng/sai, đáp án `True`) |
-| 9 | SUBMISSION | `Nhap bai viet cua ban o day:` |
+| 3 | TABLE | **CÓ** — bảng chia động từ |
+| 4 | QUESTION | Không (A2/A3) |
+| 5 | QUESTION | Không (A2/A3) |
+| 7 | QUESTION | Không (A2/A3) |
+| 9 | SUBMISSION | Không (A2/A3) |
 
-Đo DOM trang học viên `/lessons/447`: **cả 4 nội dung trên đều không xuất hiện**.
+Kiểm live 2026-09-22: `sweep/v13/f1302-a1-blocks-live.js` → **12/12 PASS**; ảnh
+`evidence/f13-02-a1-blocks-after.png`.
+
+## ⚠️ Bẫy đã xử lý — chống hiển thị trùng nội dung
+
+`GET /api/lessons/{id}/structure` **tự sinh một section ảo** (`id === null`) dựng từ `lesson.content`
+khi bài **chưa** có section nào. Nếu render mọi thứ endpoint trả về, **~1.462 bài** sẽ hiện nội dung
+**HAI LẦN**. `LessonBlocks.vue` bỏ qua section ảo (`s.id != null`), và render **rỗng** khi không có
+block thật. Test khoá hành vi này: `frontend/src/views/lessons/LessonBlocks.test.js`
+(2 ca "virtual section" — đã mutation-check: bỏ filter ⇒ 2 ca đỏ).
 
 ## Hai đường tạo bài tập — dùng đúng đường
 
@@ -38,26 +49,14 @@ Admin đã soạn trong Builder:
 |---|---|---|
 | Truy cập | Admin → Bài tập (`AdminExercises.vue`) | Admin → Bài học → nút "Xây dựng" |
 | Lưu vào | bảng `exercises` | `lesson_sections` + `lesson_blocks` |
-| **Học viên thấy?** | **CÓ** (tab "Bài tập" trong bài học) | **KHÔNG** |
-| Chấm điểm? | **CÓ** (server-side) | **KHÔNG** |
+| **Học viên thấy?** | **CÓ** (tab "Bài tập") | **CÓ** với TEXT/IMAGE/AUDIO/TABLE (tab "Nội dung") |
+| Chấm điểm? | **CÓ** (server-side) | **KHÔNG** (block QUESTION chưa chấm) |
 
-→ **Muốn tạo câu hỏi cho học viên làm: dùng đường A.**
+→ **Muốn tạo câu hỏi có chấm điểm: dùng đường A.**
 
-## Thay đổi từ audit-v13
+## Việc CHƯA làm
 
-1. **Nút "Xem trước"** trong Builder từng trỏ `/lessons/{id}/preview` — route **không tồn tại**
-   → catch-all đá admin về **trang chủ**. Đã sửa thành `/lessons/{id}` (route thật).
-2. **Banner cảnh báo** thêm vào đầu trang Builder, nói rõ giới hạn.
-3. **Không tạo mới** được khối `QUESTION` / `SUBMISSION` nữa (vẫn hiển thị nếu đã có sẵn,
-   để không làm hỏng nội dung cũ).
+- **A2** — render `QUESTION` dạng tự-kiểm-tra (hiện đáp án khi bấm, không lưu điểm).
+- **A3** — grading server-side + lưu submission + tích điểm/streak.
 
-## Việc CHƯA làm (cần quyết định sản phẩm)
-
-Để nối Builder vào trang học cần:
-
-- **A1** — render `TEXT/IMAGE/AUDIO/TABLE` cho học viên (không cần grading). *Rẻ.*
-- **A2** — render `QUESTION` 3 loại dạng tự-kiểm-tra (hiện đáp án khi bấm, không lưu điểm). *Vừa.*
-- **A3** — grading server-side + lưu submission + tích hợp điểm/streak. *Lớn.*
-
-Hoặc **bỏ Builder** (cần xử lý 7 lesson có dữ liệu). Hoặc **giữ nguyên** như hiện tại
-(đã có banner cảnh báo nên không còn gây hiểu nhầm).
+Cả hai cần endpoint mới; chưa làm ở A1.

@@ -38,15 +38,17 @@
     </div>
 
     <!-- audit-v13 F-13-02: the blocks authored here are stored in lesson_sections /
-         lesson_blocks, and NO learner view renders them — the learner page shows the
-         scraped lesson.content instead. Say so plainly, so an admin does not save work
-         here and assume students can see it. -->
+         lesson_blocks and (since A1) ARE rendered to learners by LessonBlocks.vue — but only
+         TEXT/IMAGE/AUDIO/TABLE. QUESTION/SUBMISSION have no learner view and no grading path,
+         so they cannot be created here. Keep this note accurate, or an admin will either
+         redo work that already shows, or save questions no student can answer. -->
     <div class="border-2 border-warning bg-warning/10 rounded-md p-4" role="note">
       <p class="font-black text-sm uppercase tracking-wider text-warning-ink">Lưu ý về công cụ này</p>
       <p class="mt-1 text-sm">
-        Khối <strong>Text / Image / Audio / Table</strong> bạn soạn ở đây hiện <strong>chưa được hiển thị</strong>
-        cho học viên — trang bài học đang dùng nội dung gốc. Khối
-        <strong>Câu hỏi (Question)</strong> và <strong>Bài nộp (Submission)</strong> cũng chưa hiển thị và chưa chấm được.
+        Khối <strong>Text / Image / Audio / Table</strong> bạn soạn ở đây <strong>sẽ hiển thị cho học viên</strong>
+        ở tab "Nội dung" của bài học, trong mục <em>Tài liệu bổ sung</em> (sau nội dung gốc của bài).
+        Khối <strong>Câu hỏi (Question)</strong> và <strong>Bài nộp (Submission)</strong> <strong>chưa</strong> hiển thị
+        và chưa chấm được.
       </p>
       <p class="mt-2 text-sm">
         Muốn tạo câu hỏi cho học viên làm ngay bây giờ, dùng mục
