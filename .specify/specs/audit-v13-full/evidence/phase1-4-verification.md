@@ -8,7 +8,7 @@ Mọi số dưới đây **đo trong phiên này**; lệnh ghi kèm để chạy
 |---|---|---|
 | Backend | **523 / 0 fail / 0 error / 11 skipped, BUILD SUCCESS** | `.\mvnw.cmd -o test` |
 | Frontend | **193 passed / 1 skipped (31 file)** | `npx vitest run` |
-| Build | `index-2EnNbYih.js` **177.98 kB** (gzip 67.76) | `npx vite build` |
+| Build | `index-*.js` **177.98 kB** (gzip 67.74–67.76; hash đổi mỗi build) | `npx vite build` |
 | Parity | `1470\|43735\|72\|118\|29\|15\|4\|126\|10\|5` | `python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql` |
 | `ck_study_policy_singleton` | còn (1); `hb_check_probe` = 0 | `tmp/v13/ck.sql` |
 | Clean-clone | **0** import tracked→untracked | script quét 41 import |
