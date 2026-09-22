@@ -1,4 +1,0 @@
-guest session
-=== UI guest 1440px routes=14 PROBLEM=0
-  non-BVP fonts on: none
-  horizontal overflow: none

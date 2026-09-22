@@ -1,4 +1,0 @@
-dollar $x stays
-dq "here" stays
-path C:\a\b
-if (a) { return 1 }

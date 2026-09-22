@@ -1,4 +1,0 @@
-﻿DOLLAR_TEST = 5
-SINGLE = 'abc'
-DOUBLE = \ def\
-print(DOLLAR_TEST, SINGLE, DOUBLE)

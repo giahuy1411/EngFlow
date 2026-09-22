@@ -1,6 +1,4 @@
-# ===== EngFlow .gitignore =====
-
-# ---------- OS / Editor ----------
+# OS / editor
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -8,15 +6,10 @@ desktop.ini
 *.swo
 *~
 
-# ---------- Java / Maven / Spring Boot ----------
-HELP.md
+# Java / Maven
 target/
-!**/src/main/**/target/
-!**/src/test/**/target/
-.mvn/wrapper/maven-wrapper.jar
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+.mvn/wrapper/maven-wrapper.jar
 .springBeans
 .classpath
 .factorypath
@@ -25,160 +18,72 @@ build/
 .sts4-cache
 .apt_generated
 
-# ---------- IDEs ----------
+# IDE
 .idea/
-*.iws
 *.iml
+*.iws
 *.ipr
 .vscode/
-nbproject/private/
-nbbuild/
-nbdist/
-.nb-gradle/
+nbproject/
 
-# ---------- Environment & Secrets ----------
+# Env & secrets
 .env
 .env.*
-!src/main/resources/application.properties.example
+!*.env.example
 
-# ---------- Node / Frontend / Crawler ----------
+# Node / build
 node_modules/
 dist/
-frontend/dist/
-crawler/dist/
-crawler/node_modules/
-frontend/node_modules/
 .cache/
 .parcel-cache/
 
-# ---------- Logs ----------
+# Logs — except persisted secret-free evidence (referenced from AGENTS.md)
 *.log
-# ...EXCEPT persisted evidence (scanned secret-free; referenced from AGENTS.md)
-!tasks/evidence/*.log
 *.err
-logs/
 *.out
-vite-*.txt
-*hs_err_pid*.log
-replay_pid*.log
+logs/
+!tasks/evidence/*.log
 
-# ---------- Runtime Artifacts ----------
-backend.pid
+# Runtime / scratch
 *.pid
-uploads/
-
-# ---------- Debug / Temp / One-off Scripts ----------
-# tmp/ holds per-audit scratch: ~380 files including live JWTs (admin.token,
-# user.token, *_login.json). Not a secret-free zone — never commit it.
-tmp/
 *.tmp
-*.tmp-*
 *.bak
 *.orig
 *.rej
-diag_*.json
-diag_*.log
-*.network-request
-*.network-response
-*_dump.json
-api_tokens.txt
-*tokens*.txt
-api_smoke.ps1
-api_audit_*.ps1
-verify_*.ps1
-check_*.ps1
-final_*.ps1
-smoke_*.ps1
-tmp_*.json
-tmp_*.txt
-tmp_*.sql
-run_*.ps1
-db_*.sql
-create_*.sql
-reset_*.sql
-test_*.ps1
-diag_*.ps1
-compile_*.txt
-compile_*.log
-final_*.txt
-full_*.txt
-test_*.txt
-*_check.txt
-csp_*.txt
-compile_out.txt
-ui_report_utf8.md
+uploads/
 mcp.json
 mcp.json.backup-*
 mcp_config.json
 .agents/mcp_config.json
 skills-lock.json
 
-# ---------- Browser / MCP / Playwright ----------
+# Browser / MCP / audit scratch
 .ua/
 .ua-screens/
 .playwright-mcp/
-frontend/.playwright-mcp/
 .playwright/
 chrome-wrapper.*
-.brave-debug-user-data/
-crawler/output/
-crawler/.cache/
-
-# ---------- Tailscale / Ngrok (never commit node auth + serve/funnel state) ----------
-.tailscale/
-tailscaled.*
-ngrok-stderr.txt
-ngrok-stdout.txt
-ngrok.yml
-home.png
-winget-tailscale*.log
-derpmap.cached.json
-
-# ---------- Misc ----------
-fsmonitor--daemon
-*.tmp-qr*.png
-.tmp-qrtool/
-.rt*.png
-.tmp-order*.txt
-
-# ---------- Generated audio in static dir (keep folder, ignore content) ----------
-src/main/resources/static/audio/*.mp3
-# frontend/public/e2e-tts.wav is tracked (per AGENTS.md)
-
-# ---------- 0-byte accidental file from old shell sessions ----------
-/$null
-
-# ---------- Local probe artifacts (contain live tokens / scratch data) ----------
-login-admin.json
-login-user.json
-e.json
-check1.txt
-wrong.json
-openapi.json
-sweep/*.token
-sweep/*.tmp
-sweep/login.json
-sweep/order.json
-sweep/body-r3.json
-.p0-backend-test.log
-
-# ---------- Audit artifacts (local only) ----------
 .mimosa/
-audit-v*-*.json
+sweep/
 audit-v*-shots/
+audit-v*-*.json
 *.network-request
 *.network-response
 
-# ---------- Claude Code local settings (personal permissions, never commit) ----------
+# Audit evidence — per-run scratch, never committed (active spec kept tracked)
+.specify/specs/*/evidence/
+
+# Tailscale / Ngrok node auth + serve state
+.tailscale/
+tailscaled.*
+ngrok.yml
+ngrok-stderr.txt
+ngrok-stdout.txt
+derpmap.cached.json
+
+# Claude Code personal permissions
 .claude/settings.local.json
 
-# ---------- Harness-generated scratch (regenerated every run, never commit) ----------
-# sweep/v8/ui/lib.js cleanupAuditPayments() rewrites this on each sweep.
-sweep/v8/_*.sql
-
-# audit-v10: sweep/v10/prove-tts-path.js writes a real 276 KB WAV here as evidence
-# that the TTS sidecar produces a genuine file (RIFF/WAVE, 44.1 kHz mono) rather
-# than placeholder bytes. It is regenerated on every run and must not be committed
-# — the same rule AGENTS.md sets for frontend/public/*.wav fixtures.
-sweep/v10/*.wav
-sweep/v10/*.bak
+# Generated audio (keep folder, ignore content)
+src/main/resources/static/audio/*.mp3
+# frontend/public/e2e-tts.wav is tracked on purpose (per AGENTS.md)

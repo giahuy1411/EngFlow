@@ -1,4 +1,0 @@
-Cloudinary đang dùng thật, không phải demo. `.env` có `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` thật (đã mask-verify 2026-09-15) và container nhận đủ ba biến.
-Với file media THẬT: `POST /api/auth/avatar/upload` -> 200 + URL `.../engflow/avatars/<public_id>.png`; `POST /api/admin/audio-upload` (WAV thật 563 kB) -> 200 + URL `.../engflow/audio/<public_id>.wav` — đây chính là đường MCP sinh listening audio.
-Kết luận "demo creds" ở bản đầu của audit-v8 là SAI: nó sinh ra từ fixture giả (bytes không phải ảnh/âm thanh thật), không phải từ thiếu key. Đã sửa AGENTS.md + REPORT.
-Còn một lệch nhỏ đáng biết: cũng với nội dung giả, audio-upload trả 400 `Unsupported video format or file` (dịch vụ báo lỗi rõ), còn avatar trả 500 vì `AuthController` gom `Exception` chung. Không phải hỏng tính năng upload — chỉ là thông báo không nhất quán khi Cloudinary từ chối.

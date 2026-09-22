@@ -1,8 +1,0 @@
-﻿=== F93 live verification ===
-
-1) 'Gateway Timeout' present in running container class: 1  OK
-2) normal enrich-word: status=200 1021ms  OK (success path intact)
-3) empty word error contract: HTTP 400 -> status=undefined title=undefined detail=  OK
-4) unauth enrich-word: HTTP 401  OK (security intact)
-
-wrote p12.json

@@ -1,5 +1,0 @@
-form state {"valid":true,"disabled":false,"btnText":"Sinh từ vựng"}
-+5.7s REQUEST POST
-+12.6s RESPONSE 200
-resp: 200 elapsed 12.6s
-page result: "travel to Europe next month.\" Lưu DESTINATION dɪˈkʌnsəˈtʃən noun một nơi để đi du lịch \"The destination of our trip was Paris.\" Lưu ACCOMMODATION əkˈsəmˌeɪ.ʃən noun một nơi để nghỉ ngơi khi du lịch \"We need"

@@ -1,4 +1,0 @@
-  /lessons/445 imgs=2 missingAlt=1 decorativeAltEmpty=0 tinyTargets=0 []
-IMG without alt attribute at all: 1 (decorative alt='' ones are valid)
-Targets under 24px (WCAG 2.5.8 floor): 0
-  samples: []

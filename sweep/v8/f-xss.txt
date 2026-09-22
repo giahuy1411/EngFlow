@@ -1,5 +1,0 @@
-upload evil.js   -> 400 {"detail":"Loại tệp không được hỗ trợ: js","instance":"/api/lesson-submissions/upload-audio","status":400,"title":"Bad R
-upload lesson.html -> 400 {"detail":"Loại tệp không được hỗ trợ: html","instance":"/api/lesson-submissions/upload-audio","status":400,"title":"Bad
-render /api/resources/184176ba-00ad-4678-9f58-b013c7a84deb.html => {"pwned":false,"ct":"text/plain"} safe
-render /api/resources/2e71c5b4-e233-4740-9cb1-1224e80c2fdb.js => {"pwned":false,"ct":"text/plain"} safe
-headers of a pre-fix .html on disk: 404 | CT=null | DISP=null
