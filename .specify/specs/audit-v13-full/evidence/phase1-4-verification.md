@@ -125,3 +125,27 @@ section id=5 / 6 / 7  (id thật, khác null)   blocks id=1..9
 ⇒ Nếu render **mọi thứ** endpoint trả về, 445 (và ~1.462 bài tương tự) sẽ hiện nội dung
 bài **HAI LẦN**. Guard `s.id != null` trong `LessonBlocks.vue` chặn đúng ca này — và live
 probe đã xác nhận 445 render **0** section.
+
+## Tự bắt được defect #2 — một test FALSE NEGATIVE (Phase 3)
+
+Khi đối chiếu sanitize config của tôi với `LessonContent.vue`, thấy nó có `FORBID_CONTENTS`
+còn bản của tôi thiếu. Tôi thêm option đó **và** viết test khẳng định nó — rồi **mutation-check
+lại**: gỡ `FORBID_CONTENTS` ra thì test **vẫn pass** ⇒ test là **false negative** (nó xanh vì lý do
+khác, không phải vì option tôi vừa thêm).
+
+Đo trực tiếp DOMPurify với payload `<style>body{color:red}</style>`:
+
+```
+WITHOUT FORBID_CONTENTS: "<p>visible</p>"
+WITH    FORBID_CONTENTS: "<p>visible</p>"   <-- y hệt
+```
+
+⇒ Với input này, DOMPurify bỏ **cả** element lẫn text dù chỉ có `FORBID_TAGS`. Vậy `FORBID_CONTENTS`
+là **defence-in-depth / đồng bộ với component anh em**, không phải thứ làm test xanh.
+
+Xử lý: giữ option (vô hại, khớp sibling) nhưng viết lại test để khẳng định **kết quả quan sát được**
+(`<style>` và text của nó không còn trong output), và **mutation-check lại**: làm rỗng `FORBID_TAGS`
+⇒ test **đỏ** (13 pass / 1 fail) ⇒ test có giá trị thật.
+
+**Bài học ghi lại:** một test mới chỉ đáng tin sau khi chứng minh nó **đỏ khi bỏ fix**. Cả 3 fix
+lớn trong phiên này (Phase 1, Phase 2, Phase 3) đều đã qua bước đó.
