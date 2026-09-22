@@ -73,3 +73,13 @@ thật = **11** `LocalDateTime.now()` (không phải 14). `AGENTS.md:57` đã c�
    DOM là `"Dai tu"`; `innerText` phản ánh `text-transform: uppercase`. Sửa probe so `textContent`.
 2. **`/api/admin/stats` → `currentStreak = None`** — probe đọc key không tồn tại: `AdminStatsDTO`
    **không có** field đó (chỉ `DashboardStatsDTO` mới có). Gọi đúng `/api/dashboard/stats` → `2`.
+
+## Tự bắt được 1 defect trong code của chính tôi (Phase 3)
+
+**`.no-print` là no-op.** Lần đầu tôi đặt `class="... no-print"` lên section biên soạn, nhưng
+`no-print` **chỉ** được định nghĩa trong `<style scoped>` của `LessonContent.vue` → scoped style
+không áp ra ngoài component đó. Hệ quả: bấm "In tài liệu" thì section biên soạn **vẫn in**.
+
+Sửa: `@media print` + selector riêng trong scope của `LessonBlocks.vue`.
+Verify live: `emulateMedia({media:'print'})` → `display = "none"` (đã đo).
+Kiểm luôn: không còn chỗ nào khác dùng `no-print` ngoài `LessonContent.vue`.
