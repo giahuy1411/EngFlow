@@ -20,7 +20,7 @@
         <div v-for="index in pageSize" :key="index" class="h-20 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
       </div>
 
-      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger-ink" role="alert">
         <p class="font-black">Không tải được bảng xếp hạng.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
         <AppButton class="mt-4" variant="secondary" size="sm" @click="loadLeaderboard">Thử lại</AppButton>
@@ -42,7 +42,11 @@
             {{ user.rank }}
           </div>
           <div class="flex min-w-0 items-center gap-3">
-            <img :src="user.avatarUrl || 'https://api.dicebear.com/7.x/thumbs/svg?seed=engflow'" class="h-12 w-12 flex-shrink-0 border-2 border-foreground object-cover" alt="Ảnh đại diện" />
+            <!-- audit-v13 F-13-19: a non-empty but unreachable avatarUrl (real row:
+                 users.avatar_url = 'https://example.com/avatar.png' for user 150011)
+                 meant the dicebear fallback was never used and the image rendered broken.
+                 Fall back on load error too. -->
+            <img :src="user.avatarUrl || AVATAR_FALLBACK" @error="onAvatarError" class="h-12 w-12 flex-shrink-0 border-2 border-foreground object-cover" alt="Ảnh đại diện" />
             <div class="min-w-0">
               <p class="truncate font-black">{{ user.fullName || user.username }}</p>
               <p class="truncate text-sm text-muted-foreground">@{{ user.username }} <span v-if="isCurrentUser(user.userId)" class="font-black text-accent-ink">· Bạn</span></p>
@@ -74,6 +78,12 @@ import { Trophy } from 'lucide-vue-next'
 import Pagination from '@/components/common/Pagination.vue'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+
+// audit-v13 F-13-19: fallback for a broken/unreachable avatar URL.
+const AVATAR_FALLBACK = 'https://api.dicebear.com/7.x/thumbs/svg?seed=engflow'
+function onAvatarError(e) {
+  if (e?.target && e.target.src !== AVATAR_FALLBACK) e.target.src = AVATAR_FALLBACK
+}
 
 const leaderboard = ref([])
 const loading = ref(true)

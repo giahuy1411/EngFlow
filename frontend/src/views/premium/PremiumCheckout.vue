@@ -32,7 +32,7 @@
           </AppButton>
 
           <div v-if="message" class="mt-4 p-3 text-center font-bold rounded-md"
-            :class="messageType === 'success' ? 'bg-quaternary/10 text-foreground border-2 border-quaternary' : 'bg-danger/10 text-danger border-2 border-danger'">
+            :class="messageType === 'success' ? 'bg-quaternary/10 text-foreground border-2 border-quaternary' : 'bg-danger/10 text-danger-ink border-2 border-danger'">
             {{ message }}
           </div>
         </template>
@@ -48,6 +48,7 @@ import { usePremiumStore } from '@/store/modules/premium'
 import { useAuthStore } from '@/store/modules/auth'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { safeRedirect } from '@/utils/safeRedirect'
 
 const route = useRoute()
 const router = useRouter()
@@ -93,7 +94,9 @@ async function pollOnce() {
       messageType.value = 'success'
       authStore.user.isPremium = true
       localStorage.setItem('user', JSON.stringify(authStore.user))
-      setTimeout(() => router.push('/speaking'), 2000)
+      // audit-v13 F-13-20: return to the page the premium guard bounced the user off,
+      // instead of a hardcoded /speaking. safeRedirect rejects external targets.
+      setTimeout(() => router.push(safeRedirect(route.query.redirect)), 2000)
     }
   } catch { /* keep polling silently */ }
 }

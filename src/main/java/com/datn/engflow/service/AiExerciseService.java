@@ -546,10 +546,19 @@ public class AiExerciseService {
                 // letters) and are a measured failure mode of the local model
                 // ("most expensive/more expensive/best/best" was accepted and saved).
                 java.util.Set<String> seenOpts = new java.util.HashSet<>();
+                boolean anyRealContent = false;
                 for (Object o : opts) {
                     String key = String.valueOf(o).trim().toLowerCase();
                     if (!seenOpts.add(key)) return "MULTIPLE_CHOICE options must be distinct";
+                    // audit-v13 F-13-01: the local model can emit bare option letters
+                    // ("a","b","c","d") — distinct and size 4, so they passed every check
+                    // above and were saved, leaving the learner with choices that carry no
+                    // answer text. Require at least one option with real content.
+                    // NB: "A - Salad" is real content (real row 651717), so only a lone
+                    // letter counts as a placeholder.
+                    if (!key.matches("^[a-d]$")) anyRealContent = true;
                 }
+                if (!anyRealContent) return "MULTIPLE_CHOICE options need real answer text, not only letters";
             } catch (Exception e) { return "invalid options JSON"; }
         }
         if (ex.getExerciseType() == ExerciseType.MATCHING) {

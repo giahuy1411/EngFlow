@@ -41,7 +41,7 @@
       </div>
       <div class="bg-card border-2 rounded-md p-4 sm:p-8 shadow-pop-xl mb-8"
         :class="studySnapshot && !studyError && !studyLoading && !studySnapshot.studiedToday ? 'border-tertiary' : 'border-foreground'">
-        <h2 class="font-black text-xl uppercase tracking-tight mb-6 flex items-center gap-3"><Flame class="w-6 h-6 text-tertiary" />Lịch học</h2>
+        <h2 class="font-black text-xl uppercase tracking-tight mb-6 flex items-center gap-3"><Flame class="w-6 h-6 text-tertiary-ink" />Lịch học</h2>
         <p v-if="studyLoading" role="status">Đang tải lịch học…</p>
         <div v-else-if="studyError" role="alert">
           <p>Không tải được lịch học. Chưa thể xác định trạng thái hôm nay.</p>

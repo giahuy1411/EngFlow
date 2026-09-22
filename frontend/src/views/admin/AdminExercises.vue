@@ -604,6 +604,21 @@ const closeModal = () => {
 }
 
 const saveExercise = async () => {
+  // audit-v13 F-13-01: a multiple-choice exercise whose options are only the letters
+  // "a","b","c","d" cannot be rendered as choices — the learner UI fell back to a
+  // fill-in-the-blank box, so the admin's chosen type was not what students saw.
+  // Refuse to save it and say why, instead of persisting an unusable item.
+  if (formData.value.exerciseType === 'MULTIPLE_CHOICE') {
+    const opts = formData.value.options.map(o => String(o).trim()).filter(o => o !== '')
+    if (opts.length < 2) {
+      toast.showError('Trắc nghiệm cần ít nhất 2 lựa chọn có nội dung')
+      return
+    }
+    if (opts.every(o => /^[a-d](\s*-\s*.*)?$/i.test(o))) {
+      toast.showError('Lựa chọn không được chỉ là "a"/"b"/"c"/"d" — hãy nhập nội dung đáp án thật')
+      return
+    }
+  }
   saving.value = true
   try {
     const payload = {

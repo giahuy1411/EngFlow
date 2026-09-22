@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
+import { safeRedirect } from '@/utils/safeRedirect'
 
 const routes = [
   {
@@ -208,12 +209,17 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
-    next('/login')
+    // audit-v13 F-13-20: carry the destination so Login can return the user here.
+    next('/login?redirect=' + encodeURIComponent(to.fullPath))
     return
   }
 
   if (to.meta.guestOnly && auth.isLoggedIn) {
-    next('/lessons')
+    // audit-v13 F-13-20: a logged-in user opening /login?redirect=/profile should still
+    // reach /profile — honour the destination instead of always dropping it. Guard against
+    // a self-referential target (e.g. /login?redirect=/login) so the bounce can never loop.
+    const target = safeRedirect(to.query.redirect)
+    next(target === to.path ? '/lessons' : target)
     return
   }
 

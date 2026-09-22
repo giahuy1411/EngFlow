@@ -56,4 +56,12 @@ public class StreakService {
     public int lastCompletedStreak(Long userId) {
         return studyActivityService.lastCompletedStreak(userId);
     }
+
+    /**
+     * audit-v13 F-13-08: distinct learners active in the last N days, from the real
+     * {@code study_days} calendar (not the stale {@code users.last_study_date} column).
+     */
+    public long countActiveLearnersInLastDays(int days) {
+        return studyActivityService.countActiveLearnersInLastDays(days);
+    }
 }

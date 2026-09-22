@@ -36,7 +36,7 @@
           </p>
 
           <div ref="playerHost" class="mt-6 border-2 border-foreground bg-black rounded-md overflow-hidden shadow-pop-xl aspect-video"></div>
-          <p v-if="playerError && !playerReady" class="mt-3 border-l-4 border-danger bg-danger/10 p-3 text-sm font-bold text-danger" role="alert">
+          <p v-if="playerError && !playerReady" class="mt-3 border-l-4 border-danger bg-danger/10 p-3 text-sm font-bold text-danger-ink" role="alert">
             {{ playerError }}
           </p>
 
@@ -110,7 +110,7 @@
               </template>
               <AppButton v-else-if="rec.isRecording.value" variant="featured" @click="rec.stop()">■ Dừng ({{ rec.elapsedSeconds.value }}s)</AppButton>
             </div>
-            <p v-if="rec.error.value || actionError" class="mt-3 border-l-4 border-danger bg-danger/10 p-3 text-sm font-bold text-danger" role="alert">
+            <p v-if="rec.error.value || actionError" class="mt-3 border-l-4 border-danger bg-danger/10 p-3 text-sm font-bold text-danger-ink" role="alert">
               {{ rec.error.value || actionError }}
             </p>
 
@@ -173,7 +173,7 @@
                   </label>
                 </div>
                 <p v-if="quizAnswered[qi] != null" class="mt-2 text-xs font-black uppercase tracking-wider"
-                  :class="quizAnswered[qi] === q.correct ? 'text-success-ink' : 'text-danger'">
+                  :class="quizAnswered[qi] === q.correct ? 'text-success-ink' : 'text-danger-ink'">
                   {{ quizAnswered[qi] === q.correct ? 'Chính xác!' : 'Chưa đúng — đáp án: ' + q.options[q.correct] }}
                 </p>
               </div>
@@ -202,7 +202,7 @@
                   class="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center hover:bg-tertiary/30" aria-label="Nghe phát âm">🔊</button>
               </div>
               <div v-if="lookupWordLoading" class="py-6 text-center text-sm font-bold text-muted-foreground">Đang tra...</div>
-              <div v-else-if="lookupWordError" class="py-6 text-center text-sm font-bold text-danger">{{ lookupWordError }}</div>
+              <div v-else-if="lookupWordError" class="py-6 text-center text-sm font-bold text-danger-ink">{{ lookupWordError }}</div>
               <div v-else class="mt-4 space-y-4">
                 <div v-for="(m, mi) in lookupWordInfo.meanings.slice(0, 3)" :key="mi">
                   <p class="text-xs font-black uppercase tracking-wider text-muted-foreground">{{ m.partOfSpeech }}</p>
@@ -220,7 +220,7 @@
                       {{ savingWord ? '...' : 'Lưu' }}
                     </AppButton>
                   </div>
-                  <p v-if="saveWordMessage" class="mt-2 text-xs font-bold" :class="saveWordError ? 'text-danger' : 'text-success-ink'">{{ saveWordMessage }}</p>
+                  <p v-if="saveWordMessage" class="mt-2 text-xs font-bold" :class="saveWordError ? 'text-danger-ink' : 'text-success-ink'">{{ saveWordMessage }}</p>
                 </div>
                 <p v-else class="text-xs font-bold text-muted-foreground">
                   <router-link to="/login" class="underline text-accent-ink">Đăng nhập</router-link> để lưu từ vào bộ ôn tập.

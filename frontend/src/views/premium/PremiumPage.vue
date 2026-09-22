@@ -11,7 +11,9 @@
       </UserPageHeader>
 
       <div v-if="!authStore.isLoggedIn" role="note" class="mb-8 border-2 border-foreground bg-white p-4 text-center text-sm font-bold shadow-pop-sm max-w-3xl mx-auto">
-        Bạn cần <router-link to="/login" class="text-accent-ink underline underline-offset-2">đăng nhập</router-link>
+        <!-- audit-v13 F-13-20: carry this page's ?redirect= into login, or the destination
+             the guard captured is lost the moment the user clicks through. -->
+        Bạn cần <router-link :to="loginLink" class="text-accent-ink underline underline-offset-2">đăng nhập</router-link>
         trước khi mua gói Premium để quyền lợi được áp dụng đúng tài khoản.
       </div>
 
@@ -65,20 +67,39 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import UserPageHeader from '@/components/common/UserPageHeader.vue'
 import { useAuthStore } from '@/store/modules/auth'
 import AppButton from '@/components/ui/AppButton.vue'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
+// audit-v13 F-13-20: forward this page's redirect target into the login link.
+const loginLink = computed(() => {
+  const target = route.query.redirect
+  return typeof target === 'string' && target ? `/login?redirect=${encodeURIComponent(target)}` : '/login'
+})
+
 function checkout(planType) {
   if (!authStore.isLoggedIn) {
-    router.push('/login')
+    // audit-v13 F-13-20: keep the destination through the login detour.
+    router.push(loginLink.value)
     return
   }
-  router.push({ path: '/premium/checkout', query: { plan: planType } })
+  // audit-v13 F-13-20: carry the destination into checkout too, so the post-payment
+  // redirect can return the user to the page the premium guard bounced them off
+  // (previously the checkout discarded it and hardcoded /speaking).
+  const target = route.query.redirect
+  router.push({
+    path: '/premium/checkout',
+    query: {
+      plan: planType,
+      ...(typeof target === 'string' && target ? { redirect: target } : {}),
+    },
+  })
 }
 </script>
 

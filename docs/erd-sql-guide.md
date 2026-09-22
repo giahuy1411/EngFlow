@@ -3,25 +3,25 @@
 > Nguồn sự thật: **entity classes** trong `src/main/java/com/datn/engflow/model/entity/`
 > (Hibernate `ddl-auto=update` tự sinh schema từ entity — **Flyway disabled**, không có migration file).
 > Mọi sơ đồ/DDL trong bài luận văn phải khớp tài liệu này.
-> Cập nhật lần cuối: 2026-09-04 — đối chiếu trực tiếp từ SQL Server đang chạy (`english_learning`).
+> Cập nhật lần cuối: **2026-09-22** (audit-v13) — đối chiếu trực tiếp từ SQL Server đang chạy (`english_learning`): 21 bảng thật, 25 FK.
 
 ---
 
-## 1. Tổng quan: 19 bảng, chia 6 nhóm chức năng
+## 1. Tổng quan: 21 bảng, chia 7 nhóm chức năng
 
 | # | Nhóm | Bảng | Ghi chú |
 |---|------|------|---------|
 | 1 | Users & Auth | `users` | 1 bảng duy nhất, mang cả premium/streak counter |
 | 2 | Lessons | `lessons`, `lesson_sections`, `lesson_blocks`, `lesson_snapshots` | Cấu trúc bài học 3 tầng: Lesson → Section → Block |
 | 3 | Vocabulary & Decks | `vocabulary`, `decks`, `deck_words` | `deck_words` là bảng nối nhiều-nhiều |
-| 4 | Progress & SRS | `user_progress`, `user_streaks`, `user_vocabulary_progress` | `user_vocabulary_progress` = engine SM-2 |
-| 5 | Exercises | `exercises`, `exercise_attempts` | Bảng lớn nhất DB (~43k dòng exercises) |
-| 6 | Premium (Speaking + Payments) | `speaking_prompts`, `speaking_submissions`, `payment_transactions` | |
-| 7 | Video Lessons | `video_lessons`, `video_attempts` | Module shadowing theo phụ đề YouTube |
+| 4 | Progress & SRS | `user_progress`, `user_vocabulary_progress` | `user_vocabulary_progress` = engine SM-2 |
+| 5 | Streak & Study Policy | `study_days`, `study_policy` | `study_days` = nguồn sự thật của streak (1 row/ngày/user); `study_policy` = singleton `id=1` |
+| 6 | Exercises | `exercises`, `exercise_attempts` | Bảng lớn nhất DB (~43k dòng exercises) |
+| 7 | Premium (Speaking + Payments + Video) | `speaking_prompts`, `speaking_submissions`, `payment_transactions`, `video_lessons`, `video_attempts` | |
 
-> ⚠️ Trong DB live còn có `exercises_bak_v5*` (4 bảng backup) và `sysdiagrams` — **KHÔNG đưa vào ERD luận văn**, chỉ 19 bảng trên.
+> ⚠️ Trong DB live **còn** `user_streaks` (1 row) — bảng **legacy**: không có entity Java nào map tới, 0 reader trong code. Streak thật nằm ở `study_days`. **Không đưa `user_streaks` vào ERD luận văn.** Cũng không đưa `sysdiagrams`.
 
-## 2. Quan hệ (24 foreign keys — nền tảng của ERD)
+## 2. Quan hệ (25 foreign keys — nền tảng của ERD)
 
 ```
 users (1) ──< decks (owner_id, nullable = system deck)
@@ -31,8 +31,8 @@ users (1) ──< payment_transactions        (nullable — giao dịch chưa g�
 users (1) ──< speaking_submissions        (user_id)
 users (1) ──< speaking_submissions        (graded_by — admin chấm)
 users (1) ──< user_progress
-users (1) ──< user_streaks
 users (1) ──< user_vocabulary_progress
+users (1) ──< study_days                  (fk_study_days_user — nguồn streak thật)
 users (1) ──< video_attempts              (user_id + graded_by)
 
 lessons (1) ──< lesson_sections ──< lesson_blocks
@@ -57,14 +57,17 @@ exercise_attempts: user_id FK + lesson_id là BIGINT thường (không FK)
 
 ### 3.1. Quy trình
 1. Mở [draw.io](https://app.diagrams.net) → tạo file mới, để khổ A4 landscape.
-2. Dùng shape **Entity Relation → Table** (kéo thả 19 bảng). Mỗi bảng: tên in đậm + danh sách cột `tên (KIỂU)`, PK đánh `PK`, FK đánh `FK`, UNIQUE đánh `UQ`.
+2. Dùng shape **Entity Relation → Table** (kéo thả 21 bảng). Mỗi bảng: tên in đậm + danh sách cột `tên (KIỂU)`, PK đánh `PK`, FK đánh `FK`, UNIQUE đánh `UQ`.
 3. Nối đường **crow's foot** theo mục 2 ở trên.
-4. Tô màu theo nhóm chức năng (mục 1) — 6 màu, có legend.
+4. Tô màu theo nhóm chức năng (mục 1) — 7 màu, có legend.
 5. Sắp xếp: `users` + `lessons` ở trung tâm (2 bảng hub), tỏa ra ngoài theo nhóm.
 
 ### 3.2. Checklist đối chiếu sau khi vẽ
-- [ ] Đủ 19 bảng, không thừa `exercises_bak_*` / `sysdiagrams`
+- [ ] Đủ 21 bảng, không thừa `user_streaks` (legacy) / `sysdiagrams`
 - [ ] `video_lessons` + `video_attempts` **có mặt** (lỗi cũ hay thiếu 2 bảng này)
+- [ ] `study_days` + `study_policy` **có mặt** (streak engine hiện tại; lỗi cũ hay thiếu 2 bảng này)
+- [ ] `study_days` có **UNIQUE (`user_id`, `study_date`)** và **FK tới `users`**
+- [ ] `study_policy` là **singleton** — có CHECK `ck_study_policy_singleton` (`id = 1`)
 - [ ] `speaking_submissions` có **2 FK tới users** (`user_id`, `graded_by`)
 - [ ] `video_attempts` có **2 FK tới users** (`user_id`, `graded_by`)
 - [ ] `decks.owner_id` nullable (system deck không có chủ)
@@ -75,7 +78,7 @@ exercise_attempts: user_id FK + lesson_id là BIGINT thường (không FK)
 - Muốn nhanh: import SQL vào draw.io — menu **Extras → Edit Diagram** dán XML, hoặc dùng [drawio-sql-plugin]; hoặc vẽ bằng **dbdiagram.io** rồi export ảnh (xem mục 6).
 - Trong luận văn FPT Polytechnic: ERD nên tách 2 mức — **luận lý** (chỉ tên bảng + quan hệ) và **vật lý** (đủ cột + kiểu).
 
-## 4. Code SQL DDL hiện tại (19 bảng — trích từ DB live)
+## 4. Code SQL DDL hiện tại (21 bảng — trích từ DB live)
 
 > Sinh bởi Hibernate `ddl-auto=update`; tên constraint `UK...` là hash tự động — khi viết lại tay nên đặt tên dễ đọc (`uq_users_email`, ...). Kiểu NVARCHAR độ dài = `length × 2` byte trong `sys.columns`.
 
@@ -205,6 +208,24 @@ CREATE TABLE user_progress (
     CONSTRAINT uq_user_progress UNIQUE (user_id, lesson_id)
 );
 
+-- Streak engine HIỆN TẠI (audit-v13): 1 row / user / ngày học.
+CREATE TABLE study_days (
+    id         BIGINT IDENTITY(1,1) PRIMARY KEY,
+    user_id    BIGINT NOT NULL,
+    study_date DATE NOT NULL,
+    CONSTRAINT fk_study_days_user      FOREIGN KEY (user_id) REFERENCES users(user_id),
+    CONSTRAINT uq_study_days_user_date UNIQUE (user_id, study_date)
+);
+
+-- Singleton cấu hình: chỉ được có đúng 1 row, id = 1.
+CREATE TABLE study_policy (
+    id             INT PRIMARY KEY,
+    effective_from DATE NOT NULL,
+    CONSTRAINT ck_study_policy_singleton CHECK (id = 1)
+);
+
+-- LEGACY — không có entity Java map tới, 0 reader trong code. Streak thật ở study_days.
+-- Giữ lại chỉ để ddl-auto=update không DROP; ĐỪNG vẽ vào ERD luận văn.
 CREATE TABLE user_streaks (
     streak_id    BIGINT IDENTITY(1,1) PRIMARY KEY,
     user_id      BIGINT NOT NULL REFERENCES users(user_id),
@@ -371,8 +392,9 @@ CREATE TABLE video_attempts (
 4. `exercise_attempts.lesson_id` **không phải FK** — vẽ đường nối tới `lessons` là sai, chỉ `user_id` có FK.
 5. `speaking_submissions` và `video_attempts` mỗi bảng có **2 FK tới `users`** (người nộp + người chấm) — ERD phải thể hiện cả 2 đường.
 6. Enum lưu dạng **VARCHAR** (`@Enumerated(STRING)`), không phải số.
-7. `users` mang cả trường premium/streak (`is_premium`, `premium_expiry`, `current_streak`, `last_study_date`) — không có bảng premium riêng.
+7. `users` mang cả trường premium (`is_premium`, `premium_expiry`) — không có bảng premium riêng. Hai cột `current_streak` / `last_study_date` là **legacy**, streak thật ở `study_days`.
 8. Giá Premium thật: **MONTH 10.000đ, YEAR 20.000đ** (`PremiumPage.vue`) — đừng dùng số cũ 99k/890k.
+9. Streak/ngày học **không** đọc từ `users` hay `user_streaks` — đọc `study_days` (UNIQUE `user_id`+`study_date`).
 
 ## 6. Tái tạo tài liệu khi schema đổi (maintenance)
 
@@ -468,6 +490,21 @@ Table user_streaks {
   study_date date [not null]
   words_studied int [default: 0]
   games_played int [default: 0]
+}
+
+Table study_days {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.user_id]
+  study_date date [not null]
+  indexes {
+    (user_id, study_date) [unique]
+  }
+}
+
+Table study_policy {
+  id int [pk]
+  effective_from date [not null]
+  note: 'singleton — CHECK (id = 1)'
 }
 
 Table lesson_sections {
@@ -588,40 +625,43 @@ Table video_attempts {
 }
 ```
 
-## 7. Số liệu thật trong database (trích `english_learning` live, 2026-09-04)
+## 7. Số liệu thật trong database (trích `english_learning` live, **2026-09-22**)
 
 > Dùng cho luận văn (chương "Thực hiện dự án" / demo defense). Số liệu này là **thật từ DB đang chạy**, không phải ví dụ minh họa.
+> ⚠️ Con số đổi theo dữ liệu người dùng tạo khi test — **đo lại trước khi chốt slide**, đừng chép từ trí nhớ.
 
 ### 7.1. Tổng bản ghi theo bảng
 
 | Bảng | Rows | Ghi chú |
 |---|---:|---|
-| `users` | 70 | 5 admin, 6 premium đang active |
-| `lessons` | 1.469 | 4 cấp độ: ELEMENTARY 504, PRE_INTERMEDIATE 378, INTERMEDIATE 316, UPPER_INTERMEDIATE 271 |
-| `lesson_sections` / `lesson_blocks` / `lesson_snapshots` | 11 / 16 / 5 | |
-| `vocabulary` | 127 | |
-| `decks` / `deck_words` | 14 / 100 | |
-| `user_progress` / `user_streaks` / `user_vocabulary_progress` | 14 / 1 / 14 | |
+| `users` | 72 | gồm admin + premium |
+| `lessons` | 1.470 | 4 cấp độ: ELEMENTARY / PRE_INTERMEDIATE / INTERMEDIATE / UPPER_INTERMEDIATE |
+| `lesson_sections` / `lesson_blocks` / `lesson_snapshots` | 10 / 15 / 5 | |
+| `vocabulary` | 118 | |
+| `decks` / `deck_words` | 10 / 100 | |
+| `user_progress` / `user_vocabulary_progress` | 21 / 51 | |
+| `study_days` / `study_policy` | 3 / 1 | streak engine hiện tại; `study_policy` luôn = 1 (singleton) |
+| `user_streaks` | 1 | **legacy** — không vẽ vào ERD |
 | `exercises` | **43.735** | ★ bảng lớn nhất DB |
-| `exercise_attempts` | 32 | |
+| `exercise_attempts` | 46 | |
 | `lesson_submissions` | 4 | |
-| `speaking_prompts` / `speaking_submissions` | 5 / 27 | |
-| `payment_transactions` | 123 | 17 SUCCESS, 106 PENDING |
+| `speaking_prompts` / `speaking_submissions` | 7 / 29 | |
+| `payment_transactions` | 126 | |
 | `video_lessons` / `video_attempts` | 5 / 15 | |
 
 ### 7.2. Phân bố bài tập (43.735 dòng)
 
 | exercise_type | n | | difficulty | n |
 |---|---:|---|---|---:|
-| MULTIPLE_CHOICE | 33.547 | | MEDIUM | 41.789 |
+| MULTIPLE_CHOICE | 33.556 | | MEDIUM | 41.789 |
 | FILL_BLANK | 9.112 | | EASY | 1.622 |
 | TRANSLATION | 377 | | NULL | 312 |
-| LISTENING | 367 | | HARD | 12 |
+| LISTENING | 358 | | HARD | 12 |
 | MATCHING | 332 | | | |
 
 ### 7.3. Bài học theo kỹ năng (SkillType)
 
-GRAMMAR 467 · LISTENING 305 · READING 216 · VOCABULARY 142 · WORD_SKILLS 120 · WRITING 111 · SPEAKING 107 (đủ 7 kỹ năng).
+GRAMMAR 469 · LISTENING 305 · READING 215 · VOCABULARY 142 · WORD_SKILLS 120 · WRITING 111 · SPEAKING 107 (đủ 7 kỹ năng; +1 lesson `skill_type IS NULL` = tổng 1.470).
 
 ### 7.4. Dữ liệu mẫu (dùng cho slide demo)
 
@@ -629,8 +669,10 @@ GRAMMAR 467 · LISTENING 305 · READING 216 · VOCABULARY 142 · WORD_SKILLS 120
 
 | user_id | username | email | is_admin | is_premium | total_points | current_streak |
 |---|---|---|---|---|---|---|
-| 2 | student | user@gmail.com | 0 | 1 | 25 | 6 |
-| 3 | administrator | admin@gmail.com | 1 | 1 | 31 | 4 |
+| 2 | student | user@gmail.com | 0 | 1 | 69 | 1 |
+| 3 | administrator | admin@gmail.com | 1 | 1 | 31 | 1 |
+
+> ⚠️ `users.current_streak` / `users.last_study_date` là **cột legacy** — streak thật tính từ `study_days`. Đừng đọc 2 cột này để demo chuỗi ngày học.
 
 **Vocabulary** (deck hệ thống Oxford 3000, deck_id 10006):
 
@@ -657,12 +699,12 @@ GRAMMAR 467 · LISTENING 305 · READING 216 · VOCABULARY 142 · WORD_SKILLS 120
 
 **Payments** (123 giao dịch): SUCCESS 17 (16× MONTH + 1× MONTHLY, tổng 150.000đ) · PENDING 106. Gateway: MBBank 16, sepay 1, NULL 106 (giao dịch test cũ).
 
-**SRS** (`user_vocabulary_progress` 14 dòng): mastery 0→1, 1→2, 2→8, 3→3 — phân bố đúng 4 trạng thái SM-2.
+**SRS** (`user_vocabulary_progress` 51 dòng): mastery 0→1, 1→22, 2→18, 3→10 — phân bố đúng 4 trạng thái SM-2.
 
-**Exercise attempt mẫu** (attempt 30045): user 2 làm lesson 41881, score 4/5 = 80.00%, completed 2026-09-04 01:36.
+**Exercise attempt mẫu** (attempt_id **40102**): user 3 làm lesson 91920, score 1/1 = 100.00%, completed 2026-09-21 00:44:17.
 
 ### 7.5. Lưu ý khi dùng số liệu vào luận văn
-- Tổng exercise_attempts (32) và lesson_submissions (4) còn ít — nếu cần con số "khuôn mẫu" đẹp hơn cho demo, chạy thêm thao tác trên UI rồi re-query, đừng bịa số.
+- Tổng exercise_attempts (46) và lesson_submissions (4) còn ít — nếu cần con số "khuôn mẫu" đẹp hơn cho demo, chạy thêm thao tác trên UI rồi re-query, đừng bịa số.
 - `speaking_submissions` có 7 FAILED — đây là hành vi thật (Whisper/Ollama lỗi trên máy yếu), nên trình bày là "hệ thống ghi nhận trạng thái FAILED để retry" thay vì che đi.
 
 ## 8. Nguồn tham chiếu trong code

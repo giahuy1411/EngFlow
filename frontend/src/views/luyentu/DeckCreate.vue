@@ -71,7 +71,7 @@ word3"
             <span class="font-bold text-sm uppercase tracking-wider">Công khai</span>
           </label>
 
-          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-danger">{{ error }}</p>
+          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-danger-ink">{{ error }}</p>
 
           <AppButton type="submit" variant="featured" size="lg" class="w-full" :loading="loading">
             Tạo bộ từ

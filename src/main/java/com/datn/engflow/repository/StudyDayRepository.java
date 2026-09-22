@@ -28,4 +28,13 @@ public interface StudyDayRepository extends JpaRepository<StudyDay, Long> {
     List<StudyDayOwner> findDatesForUsers(@Param("userIds") Collection<Long> userIds,
                                           @Param("start") LocalDate start,
                                           @Param("end") LocalDate end);
+
+    /**
+     * audit-v13 F-13-08: number of DISTINCT users who actually studied in a date range.
+     * Replaces the admin dashboard's read of the legacy {@code users.last_study_date}
+     * column, which the streak refactor stopped maintaining (measured 2026-09-22: user 2
+     * had last_study_date=2026-09-19 while really studying on 2026-09-22).
+     */
+    @Query("SELECT COUNT(DISTINCT d.userId) FROM StudyDay d WHERE d.studyDate BETWEEN :start AND :end")
+    long countDistinctUsersBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

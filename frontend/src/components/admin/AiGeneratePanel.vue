@@ -91,7 +91,7 @@
     <div
       v-if="error"
       role="alert"
-      class="bg-danger/10 border border-danger/20 rounded-md p-3 text-sm text-danger"
+      class="bg-danger/10 border border-danger/20 rounded-md p-3 text-sm text-danger-ink"
     >
       {{ error }}
     </div>

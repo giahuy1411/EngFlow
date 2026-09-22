@@ -27,9 +27,26 @@ BEGIN TRANSACTION;
 IF OBJECT_ID(N'dbo.study_policy', N'U') IS NULL
     CREATE TABLE dbo.study_policy (
         id int NOT NULL PRIMARY KEY,
-        effective_from date NOT NULL,
-        CONSTRAINT ck_study_policy_singleton CHECK (id = 1)
+        effective_from date NOT NULL
     );
+
+-- audit-v13 F-13-07: the singleton CHECK used to live INSIDE the table-existence guard
+-- above, so on a real DB (Hibernate ddl-auto=update creates the table first) the guard
+-- was skipped and the constraint was NEVER created — the same bug class as audit-v10
+-- F124 for study_days. Measured live 2026-09-22: sys.check_constraints on study_policy
+-- = 0. Give the constraint its OWN guard, exactly like the study_days constraints below.
+-- Precondition mirrors fix-study-policy-check.sql: a bad row would otherwise abort the
+-- ALTER with a raw constraint error instead of an actionable message.
+IF EXISTS (SELECT 1 FROM dbo.study_policy WHERE id <> 1)
+    THROW 51003, 'study_policy has a row with id <> 1; cannot add the singleton CHECK.', 1;
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = N'ck_study_policy_singleton'
+      AND parent_object_id = OBJECT_ID(N'dbo.study_policy')
+)
+    ALTER TABLE dbo.study_policy
+        ADD CONSTRAINT ck_study_policy_singleton CHECK (id = 1);
 
 IF EXISTS (SELECT 1 FROM dbo.study_policy WHERE id = 1 AND effective_from <> @EffectiveFrom)
     THROW 51002, 'The established study cutover cannot be changed by redeployment.', 1;

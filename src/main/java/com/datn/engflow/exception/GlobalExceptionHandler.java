@@ -227,6 +227,23 @@ public class GlobalExceptionHandler {
      * server fault: map ONLY the TimeoutException cause chain to 504 Gateway
      * Timeout with a retryable message; every other error keeps the 500 path.
      */
+    /**
+     * audit-v13 F-13-11: an unknown {@code ?sort=} property on a paged endpoint used to
+     * surface as an unhandled {@code PropertyReferenceException} inside Spring Data's
+     * pageable resolution and fall through to the catch-all 500.
+     * Measured: {@code GET /api/vocabulary?sort=nonexistentProperty} -> HTTP 500.
+     * A bad client-supplied query parameter is a 400, not a server fault.
+     */
+    @ExceptionHandler(org.springframework.data.core.PropertyReferenceException.class)
+    public ResponseEntity<ProblemDetail> handlePropertyReferenceException(
+            org.springframework.data.core.PropertyReferenceException ex) {
+        String message = "Tham số sắp xếp không hợp lệ.";
+        log.warn("Invalid sort property: {}", ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
+        problem.setTitle("Bad Request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ProblemDetail> handleRuntimeTimeout(RuntimeException ex) {
         if (containsTimeout(ex)) {

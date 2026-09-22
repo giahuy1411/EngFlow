@@ -11,11 +11,14 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **499 tests / 0 fail / 0 error / 11 skipped** (audit-v12 Phase 11, 2026-09-21). Trước đó: 496 (Phase 10) → 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
-- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **127 passed / 1 skipped (25 files)** (audit-v12 Phase 11, 2026-09-21). Trước đó: 128 (Phase 10) → 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
-- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.44 kB** (gzip 67.56).
-- **Parity DB chuẩn (2026-09-21, sau dọn rác Phase 10):** `1470|43734|72|118|28|15|4|126|10|5`
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **523 tests / 0 fail / 0 error / 11 skipped** (audit-v13, 2026-09-22). Trước đó: 517 (audit-v13 giữa kỳ) → 513 → 499 (audit-v12 Phase 11) → 496 (Phase 10) → 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
+- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **175 passed / 1 skipped (30 files)** (audit-v13, 2026-09-22). Trước đó: 172 → 146 → 127 (audit-v12 Phase 11) → 128 (Phase 10) → 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
+- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.76 kB** (gzip 67.67) (audit-v13, đo lại 2026-09-22).
+- **Parity DB chuẩn (2026-09-22, sau audit-v13):** `1470|43735|72|118|29|15|4|126|10|5`
   (`lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks|snapshots`).
+  So với mốc v12 (`1470|43734|…|118|28|…`) thì **exercises +1, speaking +1** — đây là dữ liệu do
+  chính người dùng tạo khi test (exercise 777434 lúc 2026-09-21 22:01 + 1 speaking submission),
+  **không phải drift**. Đo lại mỗi kỳ audit; lệch thì phải giải thích được nguồn.
   Đo bằng `python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql`. Giá trị cũ `…|127|…|14|5` là **trước** khi xoá
   9 row vocab rác + 4 deck test + lesson 61882 — đó là thay đổi **có chủ ý**, không phải drift.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).

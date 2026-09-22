@@ -35,6 +35,8 @@
   --geo-ring: #8B5CF6;
   --geo-danger: #E11D48;
   --geo-danger-fg: #FFFFFF;
+  /* audit-v13 F-13-14: danger as TEXT was 4.00:1 on bg-danger/10 (FAIL). */
+  --geo-danger-ink: #BE123C;
   --geo-warning: #F59E0B;
   --geo-success: #059669;
 

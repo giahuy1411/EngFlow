@@ -2,6 +2,10 @@
   <div class="bg-background min-h-screen">
     <StreakBanner :streak="currentStreak" v-if="isLoggedIn" />
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- audit-v13 F-13-18: this route rendered no h1 at all (headings started at h3),
+           so screen-reader and outline users got no page title. The lesson title is the
+           natural h1. -->
+      <h1 class="mb-4 text-3xl font-black uppercase tracking-tight">{{ lessonTitle || 'Bài học' }}</h1>
       <!-- Tab bar -->
       <div role="tablist" aria-label="Nội dung bài học" class="flex gap-4 border-b-2 border-border mb-6">
         <button v-for="tab in tabs" :key="tab.id" role="tab"
@@ -32,6 +36,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
 import StreakBanner from './StreakBanner.vue'
 import LessonContent from './LessonContent.vue'
@@ -39,12 +44,22 @@ import LessonExerciseTab from './LessonExerciseTab.vue'
 import LessonPreview from './LessonPreview.vue'
 import GuestCtaCard from '@/components/common/GuestCtaCard.vue'
 import streakService from '@/services/streakService'
+import lessonService from '@/services/lessonService'
 
 const auth = useAuthStore()
+const route = useRoute()
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const currentStreak = ref(0)
+// audit-v13 F-13-18: title for the page h1.
+const lessonTitle = ref('')
 
 onMounted(async () => {
+  // Load the title for the h1 regardless of auth (the route is public).
+  try {
+    const lesson = await lessonService.getById(Number(route.params.id))
+    lessonTitle.value = lesson?.title || ''
+  } catch (e) { /* h1 falls back to "Bài học" */ }
+
   if (!isLoggedIn.value) return
   try {
     const streak = await streakService.getCurrentStreak()

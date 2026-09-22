@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,13 +130,23 @@ public class SrsService {
 
         LocalDateTime now = LocalDateTime.now();
 
+        // audit-v13 F-13-15: one batched progress lookup for the whole deck instead of a
+        // query per word. The per-word lookup was a measured N+1 (proven by query-stats
+        // delta, not by reading the code): a 40-word deck issued 40 extra queries.
+        List<Long> vocabIds = deckWords.stream()
+                .map(dw -> dw.getVocabulary().getId())
+                .toList();
+        Map<Long, UserVocabularyProgress> progressByVocab = vocabIds.isEmpty()
+                ? Map.of()
+                : progressRepository.findByUserIdAndVocabularyIdIn(userId, vocabIds).stream()
+                        .collect(Collectors.toMap(p -> p.getVocabulary().getId(), p -> p, (a, b) -> a));
+
         for (DeckWord dw : deckWords) {
             Vocabulary vocab = dw.getVocabulary();
-            Optional<UserVocabularyProgress> progressOpt = progressRepository.findByUserIdAndVocabularyId(userId, vocab.getId());
+            UserVocabularyProgress progress = progressByVocab.get(vocab.getId());
 
             boolean isDue = false;
             int level = 0;
-            UserVocabularyProgress progress = progressOpt.orElse(null);
             if (progress == null) {
                 isDue = true;
             } else {

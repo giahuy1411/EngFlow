@@ -9,6 +9,7 @@ import com.datn.engflow.model.entity.LessonBlock;
 import com.datn.engflow.model.entity.Lesson;
 import com.datn.engflow.model.entity.LessonSection;
 import com.datn.engflow.model.enums.BlockType;
+import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.repository.LessonBlockRepository;
 import com.datn.engflow.repository.LessonRepository;
 import com.datn.engflow.repository.LessonSectionRepository;
@@ -96,13 +97,37 @@ public class LessonStructureService {
         sectionRepository.deleteById(sectionId);
     }
 
+    /**
+     * audit-v13 F-13-02: block types that have NO learner renderer and NO grading path.
+     * The admin UI already hides them; the API must not accept them either, or the
+     * "cannot be created any more" claim would be UI-only. Existing blocks of these types
+     * are still readable/updatable so nothing on disk is orphaned.
+     */
+    private static final java.util.Set<BlockType> UNSUPPORTED_BLOCK_TYPES =
+            java.util.EnumSet.of(BlockType.QUESTION, BlockType.SUBMISSION);
+
+    private BlockType parseBlockType(String raw) {
+        BlockType type;
+        try {
+            type = BlockType.valueOf(raw);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new BadRequestException("Loại block không hợp lệ: " + raw);
+        }
+        if (UNSUPPORTED_BLOCK_TYPES.contains(type)) {
+            throw new BadRequestException(
+                    "Loại block " + type + " chưa được hỗ trợ hiển thị cho học viên. "
+                            + "Dùng mục Quản lý bài tập để tạo câu hỏi.");
+        }
+        return type;
+    }
+
     @Transactional
     public SectionResponse addBlock(Long sectionId, BlockRequest request) {
         LessonSection section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("LessonSection", "id", sectionId));
         LessonBlock block = LessonBlock.builder()
                 .section(section)
-                .blockType(BlockType.valueOf(request.getBlockType()))
+                .blockType(parseBlockType(request.getBlockType()))
                 .data(request.getData())
                 .orderIndex(request.getOrderIndex())
                 .build();
@@ -115,7 +140,11 @@ public class LessonStructureService {
         LessonBlock block = blockRepository.findById(blockId)
                 .orElseThrow(() -> new ResourceNotFoundException("LessonBlock", "id", blockId));
         if (request.getBlockType() != null) {
-            block.setBlockType(BlockType.valueOf(request.getBlockType()));
+            // Changing an EXISTING block to an unsupported type is refused; a block already
+            // of that type may still be edited (its type is unchanged, so this is a no-op).
+            if (!block.getBlockType().name().equals(request.getBlockType())) {
+                block.setBlockType(parseBlockType(request.getBlockType()));
+            }
         }
         if (request.getData() != null) {
             block.setData(request.getData());

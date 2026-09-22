@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 bg-accent border-2 border-foreground flex items-center justify-center rotate-6 rounded-md">
+        <div class="w-10 h-10 bg-accent-strong border-2 border-foreground flex items-center justify-center rotate-6 rounded-md">
           <span class="text-white font-black text-sm">B</span>
         </div>
         <div>
@@ -26,13 +26,32 @@
           </svg>
           Lịch sử
         </AppButton>
-        <AppButton as="a" :href="'/lessons/' + lessonId + '/preview'" target="_blank" variant="pink">
+        <!-- audit-v13 F-13-22: was '/lessons/{id}/preview' — a route that does not exist,
+             so the catch-all sent the admin to the homepage. Use the real lesson route. -->
+        <AppButton as="a" :href="'/lessons/' + lessonId" target="_blank" variant="pink">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
           </svg>
           Xem trước
         </AppButton>
       </div>
+    </div>
+
+    <!-- audit-v13 F-13-02: the blocks authored here are stored in lesson_sections /
+         lesson_blocks, and NO learner view renders them — the learner page shows the
+         scraped lesson.content instead. Say so plainly, so an admin does not save work
+         here and assume students can see it. -->
+    <div class="border-2 border-warning bg-warning/10 rounded-md p-4" role="note">
+      <p class="font-black text-sm uppercase tracking-wider text-warning-ink">Lưu ý về công cụ này</p>
+      <p class="mt-1 text-sm">
+        Khối <strong>Text / Image / Audio / Table</strong> bạn soạn ở đây hiện <strong>chưa được hiển thị</strong>
+        cho học viên — trang bài học đang dùng nội dung gốc. Khối
+        <strong>Câu hỏi (Question)</strong> và <strong>Bài nộp (Submission)</strong> cũng chưa hiển thị và chưa chấm được.
+      </p>
+      <p class="mt-2 text-sm">
+        Muốn tạo câu hỏi cho học viên làm ngay bây giờ, dùng mục
+        <strong>Quản lý bài tập</strong> (Admin → Bài tập).
+      </p>
     </div>
 
     <!-- Save status toast -->
@@ -63,7 +82,7 @@
                class="flex items-center justify-between border-2 border-foreground rounded-md p-3 bg-accent/5">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 bg-foreground/10 flex items-center justify-center rounded-lg">
-                <svg class="w-4 h-4 text-foreground/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="w-4 h-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
               </div>
@@ -117,7 +136,7 @@
               </AppButton>
               <!-- icon-only control: kept raw -->
               <button @click="confirmDeleteSection(section, si)" :aria-label="'Xóa section ' + (si + 1)"
-                      class="px-4 border-l-4 border-foreground text-white/40 hover:text-accent-ink hover:bg-white/10 font-bold text-lg transition-all flex items-center">
+                      class="px-4 border-l-4 border-foreground text-white/60 hover:text-accent-ink hover:bg-white/10 font-bold text-lg transition-all flex items-center">
                 &times;
               </button>
             </div>
@@ -145,14 +164,18 @@
                     <select v-model="block.blockType" @change="onBlockTypeChange(block)"
                             class="ml-2 text-[10px] uppercase font-bold tracking-wider border-2 border-foreground rounded-lg px-2 py-0.5 bg-white
                                    focus:outline-none focus:ring-2 focus:ring-accent transition-all appearance-none cursor-pointer shadow-pop-sm">
-                      <option v-for="opt in blockTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                      <!-- audit-v13 F-13-02: disable types with no learner renderer / grading.
+                           A block already of that type keeps its value (option still present),
+                           so existing content is not silently altered. -->
+                      <option v-for="opt in blockTypeOptions" :key="opt.value" :value="opt.value"
+                              :disabled="opt.disabled && block.blockType !== opt.value">{{ opt.label }}</option>
                     </select>
                     <span v-if="dirtyBlocks.has(block.id)"
                           class="ml-1 w-2 h-2 rounded-full bg-tertiary inline-block"></span>
                   </div>
                   <!-- icon-only control: kept raw -->
                   <button @click="deleteBlock(block.id, section.id, bi)" :aria-label="'Xóa block ' + (bi + 1)"
-                          class="w-7 h-7 flex items-center justify-center border-2 border-foreground rounded-lg bg-white text-foreground/40 hover:text-accent-ink hover:bg-accent/10 font-bold text-sm transition-all shadow-pop-sm">
+                          class="w-7 h-7 flex items-center justify-center border-2 border-foreground rounded-lg bg-white text-muted-foreground hover:text-accent-ink hover:bg-accent/10 font-bold text-sm transition-all shadow-pop-sm">
                     &times;
                   </button>
                 </div>
@@ -324,7 +347,7 @@
     <!-- Delete Section Modal -->
     <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4" @click.self="deleteTarget = null">
       <div class="bg-white border-2 border-foreground w-full max-w-sm shadow-pop-xl rounded-md overflow-hidden">
-        <div class="bg-accent border-b-2 border-foreground p-5 flex items-center gap-3">
+        <div class="bg-accent-strong border-b-2 border-foreground p-5 flex items-center gap-3">
           <div class="w-3 h-3 bg-white rotate-45 rounded"></div>
           <h3 class="font-black text-lg uppercase tracking-tighter text-white">Xóa Section</h3>
         </div>
@@ -385,8 +408,12 @@ const blockTypeOptions = [
   { value: 'IMAGE', label: 'Image' },
   { value: 'AUDIO', label: 'Audio' },
   { value: 'TABLE', label: 'Table' },
-  { value: 'QUESTION', label: 'Question' },
-  { value: 'SUBMISSION', label: 'Submission' }
+  // audit-v13 F-13-02: these two block types are not rendered to learners and have no
+  // grading path, so they cannot be CREATED any more. They stay in the list (disabled)
+  // so an existing block of this type still displays with the right label instead of
+  // falling back to the raw value.
+  { value: 'QUESTION', label: 'Question (chưa hỗ trợ)', disabled: true },
+  { value: 'SUBMISSION', label: 'Submission (chưa hỗ trợ)', disabled: true }
 ]
 
 const blockAccent = {

@@ -16,7 +16,7 @@
         <div v-for="index in pageSize" :key="index" class="h-40 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
       </div>
 
-      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger-ink" role="alert">
         <p class="font-black">Không tải được lịch sử.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
         <AppButton id="retry-speaking-history-button" class="mt-4" variant="secondary" size="sm" @click="loadSubmissions">Thử lại</AppButton>

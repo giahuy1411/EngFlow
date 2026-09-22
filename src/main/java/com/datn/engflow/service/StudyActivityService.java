@@ -139,6 +139,21 @@ public class StudyActivityService {
         return LocalDate.now(clock.withZone(STUDY_ZONE));
     }
 
+    /**
+     * audit-v13 F-13-08: how many distinct users studied in the last {@code windowDays} days.
+     * The admin dashboard used to answer this from the legacy {@code users.last_study_date}
+     * column, which is no longer maintained by the streak refactor (study_days is the
+     * source of truth). This reads the real calendar instead.
+     *
+     * <p>Window semantics match {@link #snapshot(Long, int)}: "last 7 days" means today and
+     * the six days before it (inclusive), i.e. {@code today - (windowDays - 1)} .. today.
+     */
+    @Transactional(readOnly = true)
+    public long countActiveLearnersInLastDays(int windowDays) {
+        LocalDate end = today();
+        return days.countDistinctUsersBetween(end.minusDays(windowDays - 1L), end);
+    }
+
     @Transactional(readOnly = true)
     public List<com.datn.engflow.model.entity.User> reminderCandidates(boolean atRisk) {
         LocalDate today = today();

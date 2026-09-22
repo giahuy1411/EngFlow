@@ -8,7 +8,7 @@ Nền tảng học tiếng Anh toàn diện: bài học tương tác, luyện t�
 
 | Layer | Technology |
 |-------|-----------|
-| **Backend** | Spring Boot 3, Java 17 |
+| **Backend** | Spring Boot 4.0.6, Java 25 |
 | **Database** | Microsoft SQL Server 2019 |
 | **Cache / Queue** | Redis |
 | **Storage** | MinIO (local S3), Cloudinary |
@@ -39,7 +39,6 @@ docker compose up -d
 # Wait ~1–2 min for first-time init, then access:
 #   Frontend:  http://localhost:5173
 #   Backend:   http://localhost:8080
-#   Swagger:   http://localhost:8080/swagger-ui.html
 ```
 
 ### Ports
@@ -62,7 +61,7 @@ docker compose up -d
 # Runs inside Docker container (JDK 25) — no local JDK needed
 docker compose up -d backend
 
-# Or locally (requires JDK 17+):
+# Or locally (requires JDK 25):
 ./mvnw clean install
 ./mvnw spring-boot:run
 ```
@@ -74,7 +73,7 @@ cd frontend
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build
-npm run test         # Vitest (119 tests / 23 files)
+npm run test         # Vitest (175 tests / 30 files)
 ```
 
 ---
@@ -99,7 +98,7 @@ engflow/
 │   ├── model/        # Entities + DTOs
 │   └── config/       # Security, CORS, Redis
 ├── frontend/src/                      # Vue 3 SPA
-│   ├── views/        # 87 .vue files (lessons, games, admin, speaking, videos, premium)
+│   ├── views/        # 47 .vue files (lessons, games, admin, speaking, videos, premium)
 │   ├── components/   # UI primitives + decorators
 │   ├── services/     # API client layer
 │   ├── store/        # Pinia state
@@ -110,14 +109,14 @@ engflow/
 
 ### Key Features
 
-- **Lessons**: Structured lessons with 4 CEFR levels, 7 skills, content HTML + exercises
+- **Lessons**: Structured lessons with 4 levels (Elementary → Upper-Intermediate), 7 skills, content HTML + exercises
 - **Exercises**: Fill-in-blank, multiple-choice, matching (with AI grading)
-- **AI Exercise Generation**: `POST /api/admin/ai/generate-exercise` → Ollama `qwen2.5:1.5b`
+- **AI Exercise Generation**: `POST /api/admin/exercises/ai/generate` → Ollama `qwen2.5:1.5b`
 - **Speaking**: Recording → Whisper transcription → Ollama rubric scoring (`qwen2.5:3b`)
-- **Games**: Quiz, Memory Match, Typing, Flashcard, Mixed — Redis-backed session
+- **Games**: Quiz, Memory Match, Typing, Flashcard, Listening, Mixed — Redis-backed session
 - **Decks**: Public vocabulary decks (Oxford 3000/5000, TOEIC, IELTS, etc.)
 - **SRS**: Spaced repetition with SM-2 algorithm
-- **Payments**: SePay VNPAY gateway with webhook
+- **Payments**: SePay gateway with webhook
 - **Leaderboard + Streaks**: Gamification with daily streak tracking
 
 ---
@@ -125,10 +124,10 @@ engflow/
 ## Commands Reference
 
 ```bash
-# Backend tests (485 tests)
+# Backend tests (523 tests)
 cmd /c "mvnw.cmd test"
 
-# Frontend tests (119 tests, 23 files)
+# Frontend tests (175 tests, 30 files)
 cd frontend && npx vitest run
 
 # Frontend build
@@ -152,19 +151,32 @@ Copy `.env.example` → `.env` and configure:
 ```env
 DB_PASSWORD=...           # SQL Server sa password
 JWT_SECRET=...            # JWT signing key (min 256-bit)
-REDIS_PASSWORD=...        # Redis auth
 MINIO_ROOT_USER=...
 MINIO_ROOT_PASSWORD=...
-CLOUDINARY_URL=...        # Cloudinary CDN
-OLLAMA_BASE_URL=http://localhost:11434
-Z_AI_API_KEY=...          # Google Cloud TTS (optional; supertonic MCP preferred)
+MINIO_ACCESS_KEY=...
+MINIO_SECRET_KEY=...
+CLOUDINARY_CLOUD_NAME=... # Cloudinary CDN (avatar + listening audio)
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+OPENROUTER_BASE_URL=http://localhost:11434/v1   # Ollama OpenAI-compatible endpoint
+OPENROUTER_MODEL=qwen2.5
+OPENROUTER_API_KEY=ollama
+AI_SPEAKING_OLLAMA_BASE_URL=http://localhost:11434
+AI_SPEAKING_OLLAMA_MODEL=qwen2.5:3b
+MAIL_USERNAME=...         # Gmail SMTP (streak reminders)
+MAIL_PASSWORD=...
+SEPAY_BANK_ACCOUNT=...
+SEPAY_WEBHOOK_SECRET=...
+SEPAY_API_TOKEN=...
 ```
 
 ---
 
 ## Database Schema
 
-19 tables: `users`, `lessons`, `exercises`, `lesson_sections`, `lesson_blocks`, `lesson_submissions`, `lesson_snapshots`, `exercise_attempts`, `vocabulary`, `decks`, `deck_words`, `flashcards`, `flashcard_reviews`, `user_vocabulary_progress`, `speaking_prompts`, `speaking_submissions`, `video_lessons`, `video_attempts`, `payment_transactions`, `user_streaks`, `user_progress`, `leaderboard_entries`.
+21 tables: `users`, `lessons`, `lesson_sections`, `lesson_blocks`, `lesson_submissions`, `lesson_snapshots`, `exercises`, `exercise_attempts`, `vocabulary`, `decks`, `deck_words`, `user_vocabulary_progress`, `study_days`, `study_policy`, `speaking_prompts`, `speaking_submissions`, `video_lessons`, `video_attempts`, `payment_transactions`, `user_progress`, `user_streaks`.
+
+> `user_streaks` is a **legacy table** (1 row, no entity, 0 code readers) kept only so `ddl-auto=update` never drops it; streak state now lives in `study_days`. `flashcards` / `flashcard_reviews` / `leaderboard_entries` do **not** exist — flashcards and the leaderboard are computed from `user_vocabulary_progress` and `study_days`.
 
 ---
 

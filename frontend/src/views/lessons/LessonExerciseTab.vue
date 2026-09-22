@@ -65,9 +65,10 @@
               </AppButton>
             </div>
 
-            <!-- Options (multiple choice) -->
+            <!-- Options (multiple choice / listening, and fill-blank with real word options) -->
             <div v-if="hasOptionChoices(ex)" class="space-y-3">
-              <button v-for="(opt, oi) in parsedOptions(ex)" :key="oi"
+              <button v-for="(opt, oi) in choiceOptions(ex)" :key="oi"
+                data-testid="mc-option"
                 @click="selectAnswer(ex.id, opt)"
                 class="w-full text-left p-4 border-2 font-medium transition-all rounded-md"
                 :class="getCardOptionClass(ex.id, opt)">
@@ -75,12 +76,21 @@
               </button>
             </div>
 
-            <!-- Text input (fill blank / translation) -->
-            <input v-else v-model="textAnswers[ex.id]" type="text"
-              :aria-label="'Câu trả lời cho câu ' + (idx + 1)"
-              :placeholder="getInputPlaceholder(ex)"
-              :disabled="cardStates[ex.id]?.revealed"
-              class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
+            <!-- Text input (fill blank / translation, and legacy choice rows with no usable
+                 options — 32,814 MULTIPLE_CHOICE rows and 319 LISTENING rows in the live DB
+                 carry options IS NULL. Those were always answered by typing the answer, which
+                 the server grades against correctAnswer. audit-v13 F-13-01: keep that working;
+                 a content warning must never remove the only control the learner has. -->
+            <div v-else>
+              <p v-if="missingChoiceContent(ex)" class="text-xs font-bold text-warning-ink bg-warning/10 border-2 border-warning rounded-md p-2 mb-3" role="note">
+                Bài tập này đang thiếu dữ liệu lựa chọn — tạm thời trả lời bằng cách nhập đáp án.
+              </p>
+              <input v-model="textAnswers[ex.id]" type="text"
+                :aria-label="'Câu trả lời cho câu ' + (idx + 1)"
+                :placeholder="getInputPlaceholder(ex)"
+                :disabled="cardStates[ex.id]?.revealed"
+                class="w-full border-2 border-foreground p-4 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-tertiary transition-all rounded-md shadow-pop-sm" />
+            </div>
 
             <!-- Result badge (after check) -->
             <div v-if="cardStates[ex.id]?.revealed" class="mt-4 p-4 rounded-md border-2" role="alert" aria-live="assertive"
@@ -155,26 +165,83 @@ function parseMarkdown(md) {
   return DOMPurify.sanitize(marked.parse(md))
 }
 
-function parsedOptions(ex) {
-  if (!ex.options) return null
+// audit-v13 F-13-01: a choice-type exercise must render as choices whenever it HAS
+// usable options. When it has none, the learner keeps the text-answer fallback that
+// has always been used for these legacy rows — the type is never silently changed and
+// the only answerable control is never removed.
+//
+// Measured in the live DB (2026-09-22): 33,556 MULTIPLE_CHOICE rows of which 32,814
+// have options IS NULL (97.8%) and 0 have bare-letter options; 319 LISTENING rows have
+// no options. So "no options" is the common legacy shape and must stay answerable.
+// Two different notions, because the same option text means different things per type:
+//   - For MULTIPLE_CHOICE the options ARE the answer text, so "A - Salad" is real
+//     content (real row exercise_id=651717) and only a lone letter is a placeholder.
+//   - For FILL_BLANK/TRANSLATION the answer lives in correctAnswer, so the seeded
+//     "A - noisy" form is a placeholder and must fall back to the text input.
+const BARE_LETTER_RE = /^[a-d]$/i
+const PLACEHOLDER_OPTION_RE = /^[a-d](\s*-\s*.*)?$/i
+
+function isBareLetterOption(o) {
+  return BARE_LETTER_RE.test(String(o).trim())
+}
+
+function isPlaceholderOption(o) {
+  return PLACEHOLDER_OPTION_RE.test(String(o).trim())
+}
+
+/** Options as stored, blanks dropped. */
+function rawOptions(ex) {
+  if (!ex.options) return []
   let opts = ex.options
   if (typeof opts === 'string') {
-    if (opts === 'null') return null
-    try { opts = JSON.parse(opts) }
-    catch { return null }
+    if (opts === 'null') return []
+    try { opts = JSON.parse(opts) } catch { return [] }
   }
-  if (!Array.isArray(opts) || opts.length === 0) return null
+  return Array.isArray(opts) ? opts.filter(o => o != null && String(o).trim() !== '') : []
+}
+
+/** True when a choice-type exercise has no usable option content at all. */
+function missingChoiceContent(ex) {
+  if (ex.exerciseType !== 'MULTIPLE_CHOICE' && ex.exerciseType !== 'LISTENING') return false
+  return rawOptions(ex).length < 2
+}
+
+/**
+ * Options to render for a choice-type exercise. Bare-letter placeholders are shown
+ * as-is rather than dropped, so the exercise keeps the type the admin selected.
+ */
+function choiceOptions(ex) {
+  const opts = parsedOptions(ex)
+  if (Array.isArray(opts) && opts.length > 0) return opts
+  return rawOptions(ex)
+}
+
+function parsedOptions(ex) {
+  const opts = rawOptions(ex)
+  if (opts.length === 0) return null
   // audit-v5: seeded rows carry placeholder options (["A","B","C","D"] or
   // ["A - noisy", ...]) with the real answer only in correctAnswer — rendering
   // bare letters is worse than the free-text input.
-  const allPlaceholders = opts.every(o => /^[A-D](\s*-\s*.*)?$/i.test(String(o).trim()))
+  // audit-v13 F-13-01: that fallback is only correct for FILL_BLANK/TRANSLATION.
+  // For a choice type we keep the options (see choiceOptions) so the exercise
+  // type never changes underneath the learner.
+  const allPlaceholders = opts.every(isPlaceholderOption)
   return allPlaceholders ? null : opts
 }
 
 function hasOptionChoices(ex) {
-  if (ex.exerciseType === 'MULTIPLE_CHOICE' || ex.exerciseType === 'LISTENING') {
-    const opts = parsedOptions(ex)
-    return Array.isArray(opts) && opts.length > 0
+  if (ex.exerciseType === 'MULTIPLE_CHOICE') {
+    // audit-v13 F-13-01: a MULTIPLE_CHOICE item renders as choices whenever it has
+    // >= 2 options, even if they are bare letters — the learner answers by picking
+    // one, which is what the admin selected. It must never silently become a text box.
+    return rawOptions(ex).length >= 2
+  }
+  if (ex.exerciseType === 'LISTENING') {
+    // A listening item's answer is normally a transcription, so bare letters carry no
+    // meaning. Only offer choices when the options contain real content; otherwise
+    // fall through to the text answer (measured: 39 of 358 LISTENING rows have
+    // letter-only options, and 319 have none).
+    return hasRealOptions(ex)
   }
   // audit-v5: FILL_BLANK/TRANSLATION with REAL word options (e.g.
   // ["not","don't","doesn't"]) render as tappable choices — the answer string
@@ -182,6 +249,12 @@ function hasOptionChoices(ex) {
   // filtered out inside parsedOptions and fall back to the text input.
   const opts = parsedOptions(ex)
   return Array.isArray(opts) && opts.length >= 2
+}
+
+/** True when options exist and at least one carries real answer text. */
+function hasRealOptions(ex) {
+  const opts = rawOptions(ex)
+  return opts.length >= 2 && opts.some(o => !isBareLetterOption(o))
 }
 
 function getInputPlaceholder(ex) {

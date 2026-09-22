@@ -155,7 +155,7 @@
 
     <!-- Error -->
     <div v-else-if="error" class="app-state app-state--error" role="alert">
-      <AlertTriangleIcon class="w-8 h-8 text-danger" aria-hidden="true" />
+      <AlertTriangleIcon class="w-8 h-8 text-danger-ink" aria-hidden="true" />
       <h3 class="app-state__title">Không tải được danh sách đề bài</h3>
       <p class="app-state__desc">{{ error }}</p>
       <div class="app-state__action">
@@ -239,7 +239,7 @@
     <AppModal v-model="confirmDelete" title="Xóa đề bài" size="sm">
       <div class="flex items-start gap-3">
         <div class="w-10 h-10 shrink-0 bg-danger/10 border-2 border-danger rounded-md flex items-center justify-center">
-          <AlertTriangleIcon class="w-5 h-5 text-danger" aria-hidden="true" />
+          <AlertTriangleIcon class="w-5 h-5 text-danger-ink" aria-hidden="true" />
         </div>
         <p class="text-sm font-medium leading-relaxed">
           Bạn có chắc muốn xóa đề bài <strong class="font-black">{{ promptToDelete?.title }}</strong>?

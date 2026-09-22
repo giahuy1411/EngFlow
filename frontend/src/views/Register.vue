@@ -47,7 +47,7 @@
             </template>
           </FormField>
 
-          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-danger text-center" role="alert">{{ error }}</p>
+          <p v-if="error" class="font-bold text-xs uppercase tracking-wider text-danger-ink text-center" role="alert">{{ error }}</p>
 
           <AppButton type="submit" variant="primary" size="lg" class="w-full" :loading="loading">
             Tạo tài khoản
@@ -72,10 +72,12 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { AppButton, AppInput, FormField } from '@/components/ui'
+import { safeRedirect } from '@/utils/safeRedirect'
 
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
 const username = ref('')
 const email = ref('')
@@ -93,7 +95,8 @@ async function handleRegister() {
   loading.value = true
   try {
     await auth.register({ username: username.value, email: email.value, password: password.value })
-    router.push('/lessons')
+    // audit-v13 F-13-20: same redirect handling as Login (safeRedirect rejects external URLs).
+    router.replace(safeRedirect(route.query.redirect))
   } catch (e) {
     error.value = e.response?.data?.message || 'Đăng ký thất bại'
   } finally {

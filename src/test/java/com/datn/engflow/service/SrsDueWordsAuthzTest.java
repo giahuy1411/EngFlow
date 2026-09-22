@@ -4,6 +4,8 @@ import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.exception.ResourceNotFoundException;
 import com.datn.engflow.model.entity.Deck;
 import com.datn.engflow.model.entity.User;
+import com.datn.engflow.model.entity.Vocabulary;
+import com.datn.engflow.model.entity.DeckWord;
 import com.datn.engflow.repository.DeckWordRepository;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.repository.UserVocabularyProgressRepository;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -87,5 +90,36 @@ class SrsDueWordsAuthzTest {
 
         assertThatThrownBy(() -> srsService.getDueWords(2L, 999999L))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    /**
+     * audit-v13 F-13-15 regression: the due-words path must NOT issue one progress query
+     * per deck word. Measured before the fix: a deck of N words produced N calls to
+     * findByUserIdAndVocabularyId (N+1). The fix batches them into a single
+     * findByUserIdAndVocabularyIdIn call.
+     */
+    @Test
+    void dueWordsUsesOneBatchedProgressQueryNotOnePerWord() {
+        when(deckService.getDeckById(10006L, 2L))
+                .thenReturn(Deck.builder().id(10006L).isPublic(true).build());
+
+        Vocabulary v1 = Vocabulary.builder().id(101L).word("alpha").build();
+        Vocabulary v2 = Vocabulary.builder().id(102L).word("beta").build();
+        Vocabulary v3 = Vocabulary.builder().id(103L).word("gamma").build();
+        DeckWord d1 = DeckWord.builder().id(1L).vocabulary(v1).build();
+        DeckWord d2 = DeckWord.builder().id(2L).vocabulary(v2).build();
+        DeckWord d3 = DeckWord.builder().id(3L).vocabulary(v3).build();
+        when(deckWordRepository.findByDeckIdOrderByOrderIndexAsc(10006L)).thenReturn(List.of(d1, d2, d3));
+        when(progressRepository.findByUserIdAndVocabularyIdIn(eq(2L), any()))
+                .thenReturn(List.of());
+
+        List<Map<String, Object>> due = srsService.getDueWords(2L, 10006L);
+
+        // all three words have no progress -> all due
+        assertThat(due).hasSize(3);
+        // the batched call happened exactly once...
+        verify(progressRepository, times(1)).findByUserIdAndVocabularyIdIn(eq(2L), any());
+        // ...and the per-word lookup was never used
+        verify(progressRepository, never()).findByUserIdAndVocabularyId(any(), any());
     }
 }

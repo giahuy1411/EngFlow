@@ -68,6 +68,9 @@ backend.pid
 uploads/
 
 # ---------- Debug / Temp / One-off Scripts ----------
+# tmp/ holds per-audit scratch: ~380 files including live JWTs (admin.token,
+# user.token, *_login.json). Not a secret-free zone — never commit it.
+tmp/
 *.tmp
 *.tmp-*
 *.bak

@@ -14,7 +14,7 @@
       </div>
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 text-center shadow-pop-xl mb-8" role="alert">
-        <p class="font-black text-danger">{{ error }}</p>
+        <p class="font-black text-danger-ink">{{ error }}</p>
         <AppButton class="mt-4" variant="secondary" size="sm" @click="loadDeck">Thử lại</AppButton>
       </div>
 

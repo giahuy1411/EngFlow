@@ -21,7 +21,7 @@
       <div class="animate-spin w-8 h-8 border-2 border-foreground border-t-transparent rounded-full mx-auto"></div>
     </div>
     <div v-else-if="error" class="bg-danger/10 border-2 border-danger p-6 rounded">
-      <p class="font-bold text-danger">{{ error }}</p>
+      <p class="font-bold text-danger-ink">{{ error }}</p>
       <button @click="load" class="mt-2 text-sm font-bold underline">Thử lại</button>
     </div>
     <div v-else-if="attempts.length === 0" class="bg-white border-2 border-foreground p-10 text-center rounded-md shadow-pop">

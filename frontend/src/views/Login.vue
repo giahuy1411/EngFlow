@@ -51,10 +51,12 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { AppButton, AppInput, FormField } from '@/components/ui'
+import { safeRedirect } from '@/utils/safeRedirect'
 
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
 const email = ref('')
 const password = ref('')
@@ -67,7 +69,10 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.login({ email: email.value, password: password.value, remember: remember.value })
-    router.push('/lessons')
+    // audit-v13 F-13-20: return to the page the guard bounced the user off, when there is
+    // one. safeRedirect() rejects anything that is not an internal path, so a hostile
+    // ?redirect=//evil.com cannot turn this into an open redirect.
+    router.replace(safeRedirect(route.query.redirect))
   } catch (e) {
     error.value = e.response?.data?.message || 'Đăng nhập thất bại'
   } finally {

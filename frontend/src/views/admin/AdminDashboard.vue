@@ -6,7 +6,7 @@
       <div v-for="index in 4" :key="index" class="h-32 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
     </div>
 
-    <div v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+    <div v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger-ink" role="alert">
       <p class="font-black">Không tải được dữ liệu dashboard.</p>
       <p class="mt-1 text-sm">{{ error }}</p>
       <AppButton class="mt-4" variant="secondary" size="sm" @click="loadStats">Thử lại</AppButton>
@@ -16,8 +16,8 @@
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Người dùng" :value="stats.totalUsers || 0" :icon="Users" iconBg="bg-accent/10" iconColor="text-accent-ink" />
         <StatCard label="Bài học" :value="stats.totalLessons || 0" :icon="BookOpen" iconBg="bg-secondary/10" iconColor="text-secondary-ink" />
-        <StatCard label="Bài tập" :value="stats.totalExercises || 0" :icon="FileText" iconBg="bg-tertiary/10" iconColor="text-tertiary" />
-        <StatCard label="Bài nộp" :value="stats.totalSubmissions || 0" :icon="Award" iconBg="bg-quaternary/10" iconColor="text-quaternary" />
+        <StatCard label="Bài tập" :value="stats.totalExercises || 0" :icon="FileText" iconBg="bg-tertiary/10" iconColor="text-tertiary-ink" />
+        <StatCard label="Bài nộp" :value="stats.totalSubmissions || 0" :icon="Award" iconBg="bg-quaternary/10" iconColor="text-quaternary-ink" />
       </div>
 
       <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">

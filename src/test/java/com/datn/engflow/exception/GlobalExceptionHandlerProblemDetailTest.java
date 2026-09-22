@@ -84,4 +84,28 @@ class GlobalExceptionHandlerProblemDetailTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody().getTitle()).isEqualTo("Internal Server Error");
     }
+
+    /**
+     * audit-v13 F-13-11 regression: an unknown {@code ?sort=} property on a paged
+     * endpoint threw PropertyReferenceException and fell through to a 500.
+     * Measured live: GET /api/vocabulary?sort=nonexistentProperty -> HTTP 500.
+     * A bad client query parameter must be a 400.
+     */
+    @Test
+    void invalidSortPropertyMapsTo400Not500() {
+        // spring-data-commons 4.x moved this class to org.springframework.data.core and
+        // its only constructor takes (property, TypeInformation, resolvedPath).
+        org.springframework.data.core.PropertyReferenceException ex =
+                new org.springframework.data.core.PropertyReferenceException(
+                        "nonexistentProperty",
+                        org.springframework.data.core.TypeInformation.of(String.class),
+                        java.util.List.of());
+
+        ResponseEntity<ProblemDetail> response = handler.handlePropertyReferenceException(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getBody().getTitle()).isEqualTo("Bad Request");
+    }
 }

@@ -28,7 +28,7 @@
             </div>
             <div>
               <p class="font-black text-sm uppercase">
-                <span :class="a.percentage >= 70 ? 'text-success-ink' : 'text-danger'">
+                <span :class="a.percentage >= 70 ? 'text-success-ink' : 'text-danger-ink'">
                   {{ a.percentage >= 70 ? 'Đạt' : 'Chưa đạt' }}
                 </span>
               </p>

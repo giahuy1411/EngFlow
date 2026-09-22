@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +42,15 @@ public class AdminService {
     private final StreakService streakService;
 
     public AdminStatsDTO getDashboardStats() {
-        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
         long totalUsers = userRepository.count();
         long totalLessons = lessonRepository.count();
         long totalVocabulary = vocabularyRepository.count();
         long activeUsers = userRepository.countByIsActiveTrue();
-        long recentUsers = userRepository.countByLastStudyDateAfter(sevenDaysAgo.toLocalDate());
+        // audit-v13 F-13-08: was userRepository.countByLastStudyDateAfter(...), reading the
+        // legacy users.last_study_date column that the streak refactor stopped maintaining
+        // (measured 2026-09-22: user 2 had last_study_date=2026-09-19 while studying on
+        // 2026-09-22). Count from the real study_days calendar instead.
+        long recentUsers = streakService.countActiveLearnersInLastDays(7);
         long totalExercises = exerciseRepository.count();
         long totalSubmissions = lessonSubmissionRepository.count();
 

@@ -67,7 +67,7 @@
 
     <!-- Error -->
     <div v-else-if="subError" class="app-state app-state--error" role="alert">
-      <AlertTriangleIcon class="w-8 h-8 text-danger" aria-hidden="true" />
+      <AlertTriangleIcon class="w-8 h-8 text-danger-ink" aria-hidden="true" />
       <h3 class="app-state__title">Không tải được danh sách bài nộp</h3>
       <p class="app-state__desc">{{ subError }}</p>
       <div class="app-state__action">
@@ -186,7 +186,7 @@
               ></textarea>
             </div>
 
-            <p v-if="gradeForms[s.id].error" class="text-sm font-bold text-danger bg-danger/10 p-2 border border-danger rounded" role="alert">
+            <p v-if="gradeForms[s.id].error" class="text-sm font-bold text-danger-ink bg-danger/10 p-2 border border-danger rounded" role="alert">
               {{ gradeForms[s.id].error }}
             </p>
 

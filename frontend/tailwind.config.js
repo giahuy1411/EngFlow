@@ -32,6 +32,10 @@ export default {
           'quaternary-ink': '#047857',
           'success-ink': '#047857',
           'warning-ink': '#B45309',
+          // audit-v13 F-13-14: #E11D48 measures 4.00:1 on bg-danger/10 and 3.95:1
+          // on the same tint over cream — below AA. #BE123C is 5.29-6.29:1 on every
+          // surface. Rule unchanged: vivid = fill/border, *-ink = text on light.
+          'danger-ink': '#BE123C',
         },
         // Legacy aliases for backward compatibility during migration
         // audit-v5: playful.* block removed — zero usages across src (grep verified).
@@ -71,6 +75,7 @@ export default {
         'quaternary-ink': '#047857',
         'success-ink': '#047857',
         'warning-ink': '#B45309',
+        'danger-ink': '#BE123C',
       },
       fontFamily: {
         sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],

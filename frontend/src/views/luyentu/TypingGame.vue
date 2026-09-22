@@ -16,7 +16,7 @@
       </div>
 
       <div v-else-if="error" class="bg-danger/10 border-2 border-danger rounded-md p-8 shadow-pop-xl" role="alert">
-        <p class="font-black text-lg text-danger">{{ error }}</p>
+        <p class="font-black text-lg text-danger-ink">{{ error }}</p>
         <AppButton variant="secondary" size="sm" class="mt-4" @click="loadDeck">Thử lại</AppButton>
       </div>
 
@@ -48,7 +48,7 @@
           />
           <AppButton @click="checkAnswer" variant="primary" size="lg" class="mt-4"
           :disabled="!userInput.trim()">Kiểm tra</AppButton>
-          <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-success-ink' : 'text-danger'">
+          <p v-if="feedback" class="mt-4 font-bold text-sm uppercase tracking-wider" :class="lastAnswerCorrect ? 'text-success-ink' : 'text-danger-ink'">
             {{ lastAnswerCorrect ? 'Đúng!' : ('Sai. Đáp án: ' + feedback) }}
           </p>
         </div>

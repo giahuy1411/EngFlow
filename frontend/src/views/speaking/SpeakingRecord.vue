@@ -4,7 +4,7 @@
       <router-link :to="`/speaking/${promptId}`" class="inline-flex items-center border-b-2 border-foreground pb-1 text-xs font-black uppercase tracking-wider transition hover:text-accent-ink">&larr; Quay lại đề bài</router-link>
 
       <div v-if="loading" class="h-80 animate-pulse border-2 border-foreground/10 bg-card/60" role="status" aria-label="Đang tải phòng luyện nói"></div>
-      <div v-else-if="loadError" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+      <div v-else-if="loadError" class="border-2 border-danger bg-danger/10 p-6 text-danger-ink" role="alert">
         <p class="font-black">Không tải được phòng luyện nói.</p>
         <p class="mt-1 text-sm">{{ loadError }}</p>
         <AppButton id="retry-prompt-button" class="mt-4" variant="secondary" size="sm" @click="loadPrompt">Thử lại</AppButton>
@@ -40,7 +40,7 @@
             <div v-if="!previewUrl" class="mt-6 border-2 border-dashed border-foreground bg-muted/60 p-8 text-center">
               <template v-if="isRecording">
                 <div class="mx-auto mb-5 h-16 w-16 rounded-full border-8 border-danger/20 bg-danger animate-pulse"></div>
-                <p class="text-xs font-black uppercase tracking-[0.2em] text-danger">Đang ghi âm</p>
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-danger-ink">Đang ghi âm</p>
                 <p class="my-4 text-6xl font-black tabular-nums">{{ formatTime(elapsedSeconds) }}</p>
                 <AppButton id="stop-recording-button" variant="tertiary" @click="stop">Dừng ghi</AppButton>
               </template>
@@ -64,7 +64,7 @@
               </div>
             </div>
 
-            <p v-if="recorderError || submitError" class="mt-4 border-l-4 border-danger bg-danger/10 p-3 text-sm font-bold text-danger" role="alert">{{ recorderError || submitError }}</p>
+            <p v-if="recorderError || submitError" class="mt-4 border-l-4 border-danger bg-danger/10 p-3 text-sm font-bold text-danger-ink" role="alert">{{ recorderError || submitError }}</p>
           </section>
 
           <aside class="space-y-4">
@@ -103,7 +103,7 @@
             <p v-if="result.transcript" class="sm:col-span-3 text-xs leading-relaxed text-muted-foreground"><strong class="text-foreground">Transcript:</strong> {{ result.transcript }}</p>
           </div>
 
-          <div v-else-if="result.status === 'FAILED'" class="mt-5 border-l-4 border-danger bg-danger/10 p-4 text-sm font-bold text-danger" role="alert">
+          <div v-else-if="result.status === 'FAILED'" class="mt-5 border-l-4 border-danger bg-danger/10 p-4 text-sm font-bold text-danger-ink" role="alert">
             AI chưa chấm được bài này ({{ result.assessmentError || 'thiếu transcript' }}). Bài vẫn được gửi và sẽ có giáo viên chấm tay.
           </div>
 

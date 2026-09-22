@@ -37,7 +37,7 @@
         <div v-for="index in 6" :key="index" class="h-64 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
       </section>
 
-      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+      <section v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger-ink" role="alert">
         <p class="font-black">Không tải được đề luyện nói.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
         <AppButton id="retry-speaking-list-button" class="mt-4" variant="secondary" size="sm" @click="loadPrompts">Thử lại</AppButton>

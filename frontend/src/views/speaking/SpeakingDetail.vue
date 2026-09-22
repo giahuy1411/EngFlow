@@ -7,7 +7,7 @@
         <div class="h-[28rem] animate-pulse border-2 border-foreground/10 bg-card/60"></div>
         <div class="h-[28rem] animate-pulse border-2 border-foreground/10 bg-card/60"></div>
       </div>
-      <div v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger" role="alert">
+      <div v-else-if="error" class="border-2 border-danger bg-danger/10 p-6 text-danger-ink" role="alert">
         <p class="font-black">Không tải được đề luyện nói.</p>
         <p class="mt-1 text-sm">{{ error }}</p>
         <AppButton id="retry-detail-button" class="mt-4" variant="secondary" size="sm" @click="loadPage">Thử lại</AppButton>
@@ -161,7 +161,7 @@ function statusMeta(status) {
   if (status === 'UNDER_REVIEW') return { label: 'Đang chấm', className: 'text-warning-ink', description: 'Giáo viên đang xem bài của bạn.' }
   if (status === 'COMPLETED') return { label: 'AI đã chấm', className: 'text-accent-ink', description: 'AI đã chấm xong bài của bạn.' }
   if (status === 'PROCESSING') return { label: 'AI đang chấm', className: 'text-warning-ink', description: 'Hệ thống đang phân tích bản ghi của bạn.' }
-  if (status === 'FAILED') return { label: 'AI chưa chấm được', className: 'text-danger', description: 'AI chưa chấm được bài này, giáo viên sẽ chấm tay.' }
+  if (status === 'FAILED') return { label: 'AI chưa chấm được', className: 'text-danger-ink', description: 'AI chưa chấm được bài này, giáo viên sẽ chấm tay.' }
   return { label: 'Chờ chấm', className: 'text-muted-foreground', description: 'Bài đã được gửi và đang chờ giáo viên chấm.' }
 }
 

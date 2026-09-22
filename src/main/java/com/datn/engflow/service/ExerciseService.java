@@ -1,5 +1,6 @@
 package com.datn.engflow.service;
 
+import com.datn.engflow.exception.BadRequestException;
 import com.datn.engflow.model.dto.request.ExerciseRequest;
 import com.datn.engflow.model.dto.request.GradeRequest;
 import com.datn.engflow.model.dto.response.*;
@@ -100,6 +101,8 @@ public class ExerciseService {
         Lesson lesson = lessonRepository.findById(request.getLessonId())
                 .orElseThrow(() -> new EntityNotFoundException("Lesson not found: " + request.getLessonId()));
 
+        assertNewChoiceOptionsUsable(request.getExerciseType(), request.getOptions());
+
         Exercise exercise = Exercise.builder()
                 .lesson(lesson)
                 .question(request.getQuestion())
@@ -124,6 +127,18 @@ public class ExerciseService {
         Exercise exercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Exercise not found: " + id));
 
+        // audit-v13 F-13-01: validate ONLY when this update supplies options, and judge
+        // the type the row will END UP with. Deliberately NOT validating the stored row
+        // when the request omits options: 32,814 legacy MULTIPLE_CHOICE rows have
+        // options IS NULL, and validating them here would block every legitimate edit
+        // (question/explanation/difficulty) of those rows.
+        if (request.getOptions() != null) {
+            String effectiveType = request.getExerciseType() != null
+                    ? request.getExerciseType()
+                    : (exercise.getExerciseType() != null ? exercise.getExerciseType().name() : null);
+            assertNewChoiceOptionsUsable(effectiveType, request.getOptions());
+        }
+
         if (request.getQuestion() != null) exercise.setQuestion(request.getQuestion());
         if (request.getOptions() != null) exercise.setOptions(request.getOptions());
         if (request.getCorrectAnswer() != null) exercise.setCorrectAnswer(request.getCorrectAnswer());
@@ -145,6 +160,70 @@ public class ExerciseService {
             throw new EntityNotFoundException("Exercise not found: " + id);
         }
         exerciseRepository.deleteById(id);
+    }
+
+    /**
+     * audit-v13 F-13-01: a NEW choice-type exercise must carry usable answer text.
+     *
+     * <p>Context measured in the live DB (2026-09-22): of 33,556 MULTIPLE_CHOICE rows,
+     * 32,814 have {@code options IS NULL} and 0 have bare-letter options. Those legacy
+     * NULL rows are answered by typing the answer and are graded server-side, so this
+     * guard deliberately validates only what an admin is CREATING — never the stored
+     * shape of an existing row, or every legacy edit would start failing.
+     *
+     * @throws BadRequestException when a new choice item would be persisted unusable
+     */
+    private void assertNewChoiceOptionsUsable(String exerciseType, String options) {
+        if (exerciseType == null
+                || !ExerciseType.MULTIPLE_CHOICE.name().equalsIgnoreCase(exerciseType.trim())) {
+            return;
+        }
+        List<String> opts = parseOptionsList(options);
+        if (opts.size() < 2) {
+            throw new BadRequestException(
+                    "MULTIPLE_CHOICE cần ít nhất 2 lựa chọn có nội dung thật");
+        }
+        // Reject when the options carry no answer text at all: every entry is either a
+        // bare letter ("a") or blank. Mixed input like ["a","b","c","Hanoi"] is allowed
+        // because it does contain usable content.
+        boolean noRealContent = opts.stream().allMatch(this::isBareLetterOption);
+        if (noRealContent) {
+            throw new BadRequestException(
+                    "MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \"a\"/\"b\"/\"c\"/\"d\"");
+        }
+    }
+
+    /**
+     * True when an option is only a bare option letter placeholder — "a", "B", or a
+     * letter with nothing after it.
+     *
+     * <p>Deliberately does NOT treat {@code "A - Salad"} as a placeholder: that form
+     * carries real answer content (real row {@code exercise_id=651717}, options
+     * {@code ["A - Salad","B - Cheeseburger",...]}). The old regex
+     * {@code ^[A-D](\s*-\s*.*)?$} matched it, which would have wrongly rejected a
+     * legitimate exercise.
+     */
+    private boolean isBareLetterOption(String option) {
+        return option != null && option.trim().matches("(?i)^[a-d]$");
+    }
+
+    /** Parses a JSON options array, returning an empty list for null/blank/invalid input. */
+    private List<String> parseOptionsList(String options) {
+        if (options == null || options.isBlank()) {
+            return List.of();
+        }
+        try {
+            // Fall back to a local mapper when none is injected (unit-test construction).
+            // A missing dependency must never turn into a false rejection of valid input.
+            com.fasterxml.jackson.databind.ObjectMapper mapper =
+                    objectMapper != null ? objectMapper : new com.fasterxml.jackson.databind.ObjectMapper();
+            List<String> parsed = mapper.readValue(options, new TypeReference<List<String>>() {});
+            return parsed.stream()
+                    .filter(o -> o != null && !o.trim().isEmpty())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 
     // --- Grading ---
