@@ -15,7 +15,7 @@
 | **Đã fix trong phiên** | **19** — F-13-01, 02, 03/04/05, 06, 07, 08, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 |
 | **OPEN có lý do** | **1** — F-13-09 (đã biết từ v7, không migrate) |
 | **CLOSED (kết luận probe SAI)** | **1** — F-13-10 (đo lại: không index nào là prefix của index khác; tất cả đang dùng) |
-| **Test hồi quy thêm** | **+84** — backend **523** (từ 499), frontend **193** (từ 127) — **0 regression** |
+| **Test hồi quy thêm** | **+90** — backend **523** (từ 499, +24), frontend **193** (từ 127, +66) — **0 regression** |
 | **Backend suite** | **523 / 0 fail / 0 error / 11 skipped, BUILD SUCCESS** |
 | **Frontend suite** | **193 passed / 1 skipped (31 file)** |
 | **Build entry** | **177.98 kB** (gzip 67.76) |
