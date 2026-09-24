@@ -73,7 +73,7 @@ cd frontend
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build
-npm run test         # Vitest (193 tests / 31 files)
+npm run test         # Vitest (194 tests / 31 files)
 ```
 
 ---
@@ -98,7 +98,7 @@ engflow/
 │   ├── model/        # Entities + DTOs
 │   └── config/       # Security, CORS, Redis
 ├── frontend/src/                      # Vue 3 SPA
-│   ├── views/        # 47 .vue files (lessons, games, admin, speaking, videos, premium)
+│   ├── views/        # 48 .vue files (lessons, games, admin, speaking, videos, premium)
 │   ├── components/   # UI primitives + decorators
 │   ├── services/     # API client layer
 │   ├── store/        # Pinia state
@@ -127,7 +127,7 @@ engflow/
 # Backend tests (523 tests)
 cmd /c "mvnw.cmd test"
 
-# Frontend tests (193 tests, 31 files)
+# Frontend tests (194 tests, 31 files)
 cd frontend && npx vitest run
 
 # Frontend build

@@ -46,6 +46,10 @@ logs/
 # audit-v13-full evidence is committed (findings.md/tasks.md link it by name);
 # secret-scanned 2026-09-22 — only the known AGENTS.md seed-password WARN.
 !.specify/specs/audit-v13-full/evidence/*.log
+# audit-v14-full evidence is committed too (secret-scanned 2026-09-25, 0 secrets).
+# The directory is not itself ignored (only v8-v12 are), so no whitelist rule is needed
+# beyond un-ignoring the .log files that the *.log rule above would otherwise drop.
+!.specify/specs/audit-v14-full/evidence/*.log
 
 # Runtime / scratch
 *.pid
