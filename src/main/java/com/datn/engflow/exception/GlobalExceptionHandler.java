@@ -250,7 +250,26 @@ public class GlobalExceptionHandler {
             log.warn("AI upstream timeout: {}", ex.getMessage());
             return timeoutProblem();
         }
+        // audit-v14 F-14-02: an unreachable upstream (connection refused) surfaces through
+        // .block() as a wrapped IOException. It is not a server bug — map it to 503.
+        if (containsConnectionRefused(ex)) {
+            log.warn("AI upstream unreachable: {}", ex.getMessage());
+            return serviceUnavailableProblem();
+        }
         return problem500(ex);
+    }
+
+    /**
+     * audit-v14 F-14-02: the AI upstream (Ollama) being down is an upstream availability
+     * problem, not an internal error. Spring's WebClient raises WebClientRequestException when
+     * the connect fails; measured live this session with Ollama stopped:
+     * {@code POST /api/ai/generate-vocab -> HTTP 500}. This handler returns 503 instead.
+     */
+    @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientRequestException.class)
+    public ResponseEntity<ProblemDetail> handleWebClientRequestException(
+            org.springframework.web.reactive.function.client.WebClientRequestException ex) {
+        log.warn("AI upstream request failed: {}", ex.getMessage());
+        return serviceUnavailableProblem();
     }
 
     @ExceptionHandler(java.util.concurrent.TimeoutException.class)
@@ -268,6 +287,35 @@ public class GlobalExceptionHandler {
             cur = cur.getCause();
         }
         return false;
+    }
+
+    /**
+     * True when the cause chain carries a connection-level failure (refused / unreachable /
+     * unknown host). Used to distinguish "upstream is down" (503) from a generic 500.
+     */
+    private static boolean containsConnectionRefused(Throwable t) {
+        Throwable cur = t;
+        while (cur != null) {
+            if (cur instanceof java.net.ConnectException
+                    || cur instanceof java.net.UnknownHostException
+                    || cur instanceof java.net.NoRouteToHostException
+                    || cur instanceof java.net.SocketTimeoutException) {
+                return true;
+            }
+            String msg = cur.getMessage();
+            if (msg != null && msg.toLowerCase().contains("connection refused")) {
+                return true;
+            }
+            cur = cur.getCause();
+        }
+        return false;
+    }
+
+    private ResponseEntity<ProblemDetail> serviceUnavailableProblem() {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
+                "Dịch vụ AI tạm thời không sẵn sàng. Vui lòng thử lại sau ít phút.");
+        problem.setTitle("Service Unavailable");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(problem);
     }
 
     private ResponseEntity<ProblemDetail> timeoutProblem() {

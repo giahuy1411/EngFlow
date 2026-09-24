@@ -76,9 +76,11 @@ class GlobalExceptionHandlerProblemDetailTest {
 
     @Test
     void otherReactiveErrorsStayOn500Not504() {
-        // connection refused is NOT a timeout -> must keep the existing 500 path
+        // audit-v14 F-14-02 SUPERSEDES this expectation for connection errors: a non-timeout
+        // reactive error that is NOT an upstream-connect failure still stays on 500. We use a
+        // generic IOException that is not a connect-refused, so it must NOT become 503/504.
         RuntimeException wrapped = (RuntimeException) reactor.core.Exceptions.propagate(
-                new java.io.IOException("Connection refused"));
+                new java.io.IOException("stream closed unexpectedly"));
         ResponseEntity<ProblemDetail> response = handler.handleRuntimeTimeout(wrapped);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -107,5 +109,46 @@ class GlobalExceptionHandlerProblemDetailTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.getBody().getTitle()).isEqualTo("Bad Request");
+    }
+
+    /**
+     * audit-v14 F-14-02 regression: when the AI upstream (Ollama at :11434) is DOWN, the
+     * WebClient connect fails with WebClientRequestException and the app answered a generic
+     * 500 "Đã xảy ra lỗi hệ thống". Measured live this session: with Ollama stopped,
+     * POST /api/ai/generate-vocab -> HTTP 500. An unreachable UPSTREAM is not a server bug —
+     * it is 503 Service Unavailable with a retryable message. This test fails on the old
+     * code (which routed it to the 500 catch-all).
+     */
+    @Test
+    void aiUpstreamUnreachableMapsTo503Not500() {
+        org.springframework.web.reactive.function.client.WebClientRequestException ex =
+                new org.springframework.web.reactive.function.client.WebClientRequestException(
+                        new java.io.IOException("Connection refused: host.docker.internal/127.0.0.1:11434"),
+                        org.springframework.http.HttpMethod.POST,
+                        java.net.URI.create("http://host.docker.internal:11434/v1/chat/completions"),
+                        org.springframework.http.HttpHeaders.EMPTY);
+
+        ResponseEntity<ProblemDetail> response = handler.handleWebClientRequestException(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE.value());
+        assertThat(response.getBody().getTitle()).isEqualTo("Service Unavailable");
+        assertThat(response.getBody().getDetail()).contains("AI");
+    }
+
+    /**
+     * F-14-02 guard: a connection-refused wrapped in the reactor RuntimeException (the shape
+     * .block() actually leaks) must ALSO map to 503, not the 500 catch-all — the previous
+     * test asserted 500 here and that expectation is now superseded.
+     */
+    @Test
+    void reactiveConnectionRefusedMapsTo503() {
+        RuntimeException wrapped = (RuntimeException) reactor.core.Exceptions.propagate(
+                new java.io.IOException("Connection refused"));
+        ResponseEntity<ProblemDetail> response = handler.handleRuntimeTimeout(wrapped);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getBody().getTitle()).isEqualTo("Service Unavailable");
     }
 }
