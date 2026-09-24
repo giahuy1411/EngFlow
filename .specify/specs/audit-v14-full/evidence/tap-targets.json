@@ -1,0 +1,10 @@
+{
+  "measuredAt": "2026-09-24T18:03:36.007Z",
+  "routes": 114,
+  "total": 118,
+  "tally": {
+    "SPACING-EXCEPT": 50,
+    "INLINE-EXCEPT": 68
+  },
+  "real": []
+}

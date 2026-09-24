@@ -1,0 +1,209 @@
+=== audit-v14-full API sweep ===
+target: http://localhost:8080 | flushed: 0
+user token: OK | admin token: OK
+
+--- C1 AUTH ---
+  PASS  GET /api/auth/me (student) 200
+  PASS    /me contract {email,isAdmin}
+  PASS  GET /api/auth/me (admin) isAdmin=true
+  PASS  GET /api/auth/me anon 401
+  PASS  login wrong password 401
+  PASS  login short password 400 (validation)
+  PASS  login malformed email 400
+  PASS  GET /me garbage JWT 401
+  PASS  register duplicate email 400/409
+  PASS  POST /api/auth/forgot-password 200
+  PASS  POST /api/auth/reset-password malformed 400
+  PASS  POST /api/auth/change-password wrong current 400/401
+  PASS  PUT /api/auth/avatar empty body 400
+  N/A   POST /api/auth/avatar/upload  -> multipart with real media — covered by F145/AGENTS.md evidence; not re-run here
+
+--- C2 LESSONS / EXERCISES ---
+  PASS  GET /api/lessons 200
+  PASS    lesson list contract {content[]}
+  PASS    list does NOT leak lesson content LOB
+  PASS  GET /api/lessons/{id} 200
+  PASS  GET /api/lessons/{id}/exercises 200
+  PASS    includeAnswers=false strips correctAnswer
+  PASS    includeAnswers=true as ANON does not leak answers
+  PASS    includeAnswers=true as ADMIN 200
+  PASS  GET /api/lessons/{id}/structure (auth) 200
+  PASS  GET /api/lessons/{id}/exercises/content 200
+  PASS  POST /api/lessons/{id}/exercises/grade anon 401/403
+  PASS  GET /api/lessons/{id}/exercises/attempts (auth) 200
+  PASS  GET /api/lessons/{id}/exercises/attempts anon 401
+  PASS  F88 draft lesson anon -> 404
+  PASS  F89 draft lesson student -> 404
+  PASS  F126 draft structure student -> 404
+  PASS  F115 draft exercises student blocked
+  PASS  draft lesson admin -> 200
+
+--- C3 STREAK ---
+  PASS  GET /api/streak/snapshot 200
+  PASS    snapshot has all 7 declared fields, typed
+  PASS  GET /api/streak/current 200
+  PASS  GET /api/streak/history?days=30 200
+  PASS  streak snapshot anon 401
+
+--- C4 SEARCH / SORT ---
+  PASS  GET /api/vocabulary/search?keyword=ab 200 (permitAll)
+  PASS    keyword=1 char -> 200 + [] (designed)
+  PASS  GET /api/vocabulary/dictionary/hello reachable
+  PASS  GET /api/vocabulary anon 401
+  PASS  GET /api/vocabulary (auth) 200
+  PASS  GET /api/admin/exercises?q=the (admin) 200
+  PASS  GET /api/admin/exercises anon 401/403
+  PASS    ?sort= re-measured (v11 said IGNORED)
+  INFO  ?sort= asc=[41881,81895,91900,91919,91920] desc=[41881,81895,91900,91919,91920] same=true
+
+--- C5 CRUD (with in-run cleanup) ---
+  PASS  POST /api/decks create 200/201
+  PASS    read deck round-trips name
+  PASS    update deck 200
+  PASS    edit persisted
+  PASS    PRIVATE deck hidden from anon (400/403/404)
+  PASS    delete deck 200/204
+  PASS    re-GET deleted deck 404
+  PASS  POST /api/lessons create (admin) 200/201
+  PASS    read lesson 200
+  PASS    update lesson 200
+  PASS    delete lesson 200/204
+  PASS    re-GET deleted lesson 404
+  PASS  POST /api/lessons anon 401/403
+  PASS  POST /api/lessons student 403
+  PASS  F147 student WITHOUT deckId is rejected (400)
+  PASS  F147 student WITH own deckId is accepted
+  PASS  F147   word is LINKED to the deck in the same transaction
+  PASS  F147   attaching to ANOTHER user's deck is blocked
+  PASS  F147   a word saved this way is still a shared dictionary entry (by design)
+  PASS  F152 student + lessonId (new word) rejected 400
+  PASS  F152 student + lessonId (existing word, dedupe branch) rejected 400
+  PASS  F152 admin + lessonId still accepted (not over-blocked)
+  PASS  F152 no injected word in the public lesson payload
+
+--- C6 GAME (v11 zero-coverage) ---
+  PASS  GET /api/games/quiz/{deckId} 200
+  PASS    quiz returns sessionId
+  PASS  GET /api/games/memory/{deckId} 200
+  PASS    memory returns sessionId
+  PASS  GET /api/games/typing/{deckId} 200
+  PASS    typing returns sessionId
+  PASS  GET /api/games/listening/{deckId} 200
+  PASS    listening returns sessionId
+  PASS  GET /api/games/mixed/{deckId} 200
+  PASS    mixed returns sessionId
+  PASS  POST /api/games/submit blank sessionId 400
+  PASS    submit real session 200
+  PASS  GET /api/games/quiz/{deck} anon 401
+
+--- C7 FLASHCARD (v11 zero-coverage) ---
+  PASS  GET /api/flashcards/status/{vocabId} 200
+  PASS  POST /api/flashcards/review quality=4 200
+  PASS    quality out of range (9) -> 400
+  PASS    legacy isKnown body is rejected (shape changed)
+  PASS  flashcards anon 401
+  PASS  POST /api/flashcards/study 200
+  PASS    flashcards/study anon 401
+
+--- C8 SRS (v11 zero-coverage) ---
+  PASS  GET /api/srs/due/{deckId} 200
+  PASS  GET /api/srs/stats 200
+  PASS  POST /api/srs/review quality=3 200
+  PASS    quality=9 out of range 400
+  PASS    missing vocabId 400
+  PASS  srs anon 401
+
+--- C9 LEADERBOARD / PROGRESS / DASHBOARD ---
+  PASS  GET /api/leaderboard anon 200 (permitAll)
+  PASS    leaderboard contract {content[]}
+  PASS  GET /api/users/progress (auth) 200
+  PASS  GET /api/users/progress anon 401
+  PASS  GET /api/dashboard/stats (auth) 200
+  PASS  GET /api/dashboard/stats anon 401
+
+--- C10 LESSON SUBMISSION / SNAPSHOT ---
+  PASS  POST /api/lesson-submissions/submit draft guard blocked
+  PASS  GET /api/lesson-submissions/my/lesson/{id}/skill/{type} 200
+  PASS  lesson-submissions anon 401
+  PASS  GET /api/admin/lessons/{id}/snapshots (admin) 200
+  PASS    snapshots student 403
+  PASS    snapshots anon 401
+  N/A   POST /api/admin/lessons/{id}/snapshots + /restore  -> writes a real snapshot/restores content — probe only if an audit-namespaced lesson exists; not run to avoid content mutation
+
+--- C11 SPEAKING PROMPTS / SUBMISSIONS ---
+  PASS  GET /api/v1/speaking-prompts anon 200
+  PASS  GET /api/v1/speaking-prompts?q=... 200
+  PASS  GET /api/v1/video-prompts alias 200
+  PASS  GET /api/v1/admin/speaking-prompts (admin) 200
+  PASS    admin speaking-prompts student 403
+  PASS    admin speaking-prompts anon 401
+  PASS  GET /api/v1/speaking-submissions (auth) 200
+  PASS  GET /api/v1/admin/speaking-submissions (admin) 200
+  PASS    admin speaking-submissions student 403
+  N/A   POST /api/v1/speaking-submissions/upload + /assess  -> needs real media (MinIO object); covered by v11 speaking-record-test.js — not re-run here
+
+--- C12 VIDEO LESSONS / ATTEMPTS ---
+  PASS  GET /api/v1/video-lessons anon 200
+  PASS  GET /api/v1/video-lessons/{id} 200
+  PASS  GET /api/v1/video-attempts (auth) 200
+  PASS  GET /api/v1/admin/video-attempts (admin) 200
+  PASS    admin video-attempts student 403
+  PASS  GET /api/v1/admin/video-lessons (admin) 200
+  PASS    admin video-lessons anon 401
+
+--- C13 ADMIN CORE ---
+  PASS  ROLE GET /api/admin/stats  anon=401 student=403 admin=200
+  PASS  ROLE GET /api/admin/users  anon=401 student=403 admin=200
+  PASS  ROLE GET /api/admin/lessons  anon=401 student=403 admin=200
+  PASS  ROLE GET /api/admin/vocabulary  anon=401 student=403 admin=200
+  PASS  ROLE GET /api/v1/admin/speaking-prompts  anon=401 student=403 admin=200
+  PASS  ROLE GET /api/v1/admin/video-lessons  anon=401 student=403 admin=200
+  PASS  ROLE GET /api/v1/admin/video-attempts  anon=401 student=403 admin=200
+  PASS  GET /api/admin/exercises/ai/status (admin) 200
+  PASS    ai/status anon 401/403
+  PASS  GET /api/admin/exercises/ai/backfill-answers/status (admin) 200
+
+--- C14 AI ---
+  PASS  POST /api/ai/generate-vocab anon 401/403
+  PASS  POST /api/ai/generate-vocab (auth) 200 or quota 429
+  PASS  POST /api/ai/enrich-word (auth) 200/429
+  PASS  POST /api/ai/save-vocab 200
+  PASS    F145 header present (X-AI-Linked-To-Deck)
+  INFO  TTS /synthesize -> 401
+
+--- C15 PAYMENT ---
+  PASS  GET /api/v1/payment/status 200
+  PASS  POST /api/v1/payment/create-order 200
+  PASS    orderCode starts ENG
+  PASS  POST /api/webhook/sepay invalid signature rejected (body success=false)
+  PASS    stale timestamp also refused
+  BLOCK webhook with VALID HMAC signature  -> mutates a real payment_transactions row — real-money boundary (v11 proved it with cleanup; not repeated)
+
+--- CLEANUP + PARITY ---
+marker
+------
+AUDIT_PAY_CANDIDATES=1
+marker
+------
+AUDIT_DECKS=0 AUDIT_VOCAB=0 AUDIT_LESSONS=0 AUDIT_PAY=0
+  PASS  cleanup produced 0 SQL errors (Msg scan)
+  PASS  cleanup left 0 residue
+
+=== SUMMARY ===
+pass=143 fail=0 blocked=1 n_a=3
+  auth         pass=13 fail=0 blocked=0
+  lessons      pass=18 fail=0 blocked=0
+  streak       pass=5 fail=0 blocked=0
+  search       pass=8 fail=0 blocked=0
+  crud         pass=23 fail=0 blocked=0
+  game         pass=13 fail=0 blocked=0
+  flashcard    pass=7 fail=0 blocked=0
+  srs          pass=6 fail=0 blocked=0
+  misc         pass=6 fail=0 blocked=0
+  submission   pass=6 fail=0 blocked=0
+  speaking     pass=9 fail=0 blocked=0
+  video        pass=7 fail=0 blocked=0
+  admin        pass=10 fail=0 blocked=0
+  ai           pass=5 fail=0 blocked=0
+  payment      pass=7 fail=0 blocked=1
+written: .specify\specs\audit-v14-full\evidence\api-sweep.json

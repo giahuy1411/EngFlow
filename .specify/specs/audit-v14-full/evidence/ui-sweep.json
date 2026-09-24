@@ -1,0 +1,4729 @@
+{
+  "driver": "playwright (chromium)",
+  "app": "http://localhost:5173",
+  "startedAt": "2026-09-24T17:41:04.024Z",
+  "routes": [
+    {
+      "route": "/",
+      "role": "anon",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1709,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/",
+      "role": "admin",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1720,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/login",
+      "role": "anon",
+      "landed": "/login",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/login",
+      "role": "student",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1827,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/login",
+      "role": "admin",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1842,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/register",
+      "role": "anon",
+      "landed": "/register",
+      "expected": "/register",
+      "guardOk": true,
+      "textLen": 158,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "Đăng nhập",
+          "w": 77,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/register",
+      "role": "student",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1827,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/register",
+      "role": "admin",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1842,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/forgot-password",
+      "role": "anon",
+      "landed": "/forgot-password",
+      "expected": "/forgot-password",
+      "guardOk": true,
+      "textLen": 248,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "Quay lại đăng nhập",
+          "w": 136,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/forgot-password",
+      "role": "student",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1827,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/forgot-password",
+      "role": "admin",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1842,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/reset-password",
+      "role": "anon",
+      "landed": "/reset-password",
+      "expected": "/reset-password",
+      "guardOk": true,
+      "textLen": 280,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "Quay lại đăng nhập",
+          "w": 136,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/reset-password",
+      "role": "student",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1827,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/reset-password",
+      "role": "admin",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1842,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/lessons",
+      "role": "anon",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1813,
+      "missingAlt": 0,
+      "imgs": 12,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/lessons",
+      "role": "student",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1827,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/lessons",
+      "role": "admin",
+      "landed": "/lessons",
+      "expected": "/lessons",
+      "guardOk": true,
+      "textLen": 1842,
+      "missingAlt": 0,
+      "imgs": 13,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/lessons/445",
+      "role": "anon",
+      "landed": "/lessons/445",
+      "expected": "/lessons/445",
+      "guardOk": true,
+      "textLen": 2784,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": "1->3",
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/lessons/445",
+      "role": "student",
+      "landed": "/lessons/445",
+      "expected": "/lessons/445",
+      "guardOk": true,
+      "textLen": 2812,
+      "missingAlt": 0,
+      "imgs": 2,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": "1->3",
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/lessons/445",
+      "role": "admin",
+      "landed": "/lessons/445",
+      "expected": "/lessons/445",
+      "guardOk": true,
+      "textLen": 2827,
+      "missingAlt": 0,
+      "imgs": 2,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": "1->3",
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/videos",
+      "role": "anon",
+      "landed": "/premium?redirect=/videos",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/videos",
+      "role": "student",
+      "landed": "/videos",
+      "expected": "/videos",
+      "guardOk": true,
+      "textLen": 963,
+      "missingAlt": 0,
+      "imgs": 6,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": "1->3",
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/videos",
+      "role": "admin",
+      "landed": "/videos",
+      "expected": "/videos",
+      "guardOk": true,
+      "textLen": 978,
+      "missingAlt": 0,
+      "imgs": 6,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": "1->3",
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/videos/1",
+      "role": "anon",
+      "landed": "/premium?redirect=/videos/1",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/videos/1",
+      "role": "student",
+      "landed": "/videos/1",
+      "expected": "/videos/1",
+      "guardOk": true,
+      "textLen": 1822,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 15,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "BUTTON",
+          "label": "to",
+          "w": 22,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 9,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 8,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "a",
+          "w": 14,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "or",
+          "w": 21,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 8,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "of",
+          "w": 21,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 8,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "by",
+          "w": 24,
+          "h": 26
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/videos/1",
+      "role": "admin",
+      "landed": "/videos/1",
+      "expected": "/videos/1",
+      "guardOk": true,
+      "textLen": 1837,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 15,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "BUTTON",
+          "label": "to",
+          "w": 22,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 9,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 8,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "a",
+          "w": 14,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "or",
+          "w": 21,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 8,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "of",
+          "w": 21,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "I",
+          "w": 8,
+          "h": 26
+        },
+        {
+          "t": "BUTTON",
+          "label": "by",
+          "w": 24,
+          "h": 26
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/profile",
+      "role": "anon",
+      "landed": "/login?redirect=/profile",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/profile",
+      "role": "student",
+      "landed": "/profile",
+      "expected": "/profile",
+      "guardOk": true,
+      "textLen": 563,
+      "missingAlt": 0,
+      "imgs": 2,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/profile",
+      "role": "admin",
+      "landed": "/profile",
+      "expected": "/profile",
+      "guardOk": true,
+      "textLen": 591,
+      "missingAlt": 0,
+      "imgs": 2,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/search",
+      "role": "anon",
+      "landed": "/search",
+      "expected": "/search",
+      "guardOk": true,
+      "textLen": 234,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/search",
+      "role": "student",
+      "landed": "/search",
+      "expected": "/search",
+      "guardOk": true,
+      "textLen": 230,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/search",
+      "role": "admin",
+      "landed": "/search",
+      "expected": "/search",
+      "guardOk": true,
+      "textLen": 245,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/leaderboard",
+      "role": "anon",
+      "landed": "/leaderboard",
+      "expected": "/leaderboard",
+      "guardOk": true,
+      "textLen": 1502,
+      "missingAlt": 0,
+      "imgs": 20,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/leaderboard",
+      "role": "student",
+      "landed": "/leaderboard",
+      "expected": "/leaderboard",
+      "guardOk": true,
+      "textLen": 1504,
+      "missingAlt": 0,
+      "imgs": 21,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/leaderboard",
+      "role": "admin",
+      "landed": "/leaderboard",
+      "expected": "/leaderboard",
+      "guardOk": true,
+      "textLen": 1519,
+      "missingAlt": 0,
+      "imgs": 21,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks",
+      "role": "anon",
+      "landed": "/decks",
+      "expected": "/decks",
+      "guardOk": true,
+      "textLen": 1308,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks",
+      "role": "student",
+      "landed": "/decks",
+      "expected": "/decks",
+      "guardOk": true,
+      "textLen": 1304,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks",
+      "role": "admin",
+      "landed": "/decks",
+      "expected": "/decks",
+      "guardOk": true,
+      "textLen": 1319,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006",
+      "role": "student",
+      "landed": "/decks/10006",
+      "expected": "/decks/10006",
+      "guardOk": true,
+      "textLen": 512,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "QUAY LẠI",
+          "w": 98,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006",
+      "role": "admin",
+      "landed": "/decks/10006",
+      "expected": "/decks/10006",
+      "guardOk": true,
+      "textLen": 527,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "QUAY LẠI",
+          "w": 98,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/flashcard",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006/play/flashcard",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/flashcard",
+      "role": "student",
+      "landed": "/decks/10006/play/flashcard",
+      "expected": "/decks/10006/play/flashcard",
+      "guardOk": true,
+      "textLen": 278,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "QUAY LẠI",
+          "w": 98,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/flashcard",
+      "role": "admin",
+      "landed": "/decks/10006/play/flashcard",
+      "expected": "/decks/10006/play/flashcard",
+      "guardOk": true,
+      "textLen": 293,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "QUAY LẠI",
+          "w": 98,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/quiz",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006/play/quiz",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/quiz",
+      "role": "student",
+      "landed": "/decks/10006/play/quiz",
+      "expected": "/decks/10006/play/quiz",
+      "guardOk": true,
+      "textLen": 264,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/quiz",
+      "role": "admin",
+      "landed": "/decks/10006/play/quiz",
+      "expected": "/decks/10006/play/quiz",
+      "guardOk": true,
+      "textLen": 288,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/memory",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006/play/memory",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/memory",
+      "role": "student",
+      "landed": "/decks/10006/play/memory",
+      "expected": "/decks/10006/play/memory",
+      "guardOk": true,
+      "textLen": 282,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/memory",
+      "role": "admin",
+      "landed": "/decks/10006/play/memory",
+      "expected": "/decks/10006/play/memory",
+      "guardOk": true,
+      "textLen": 297,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/typing",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006/play/typing",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/typing",
+      "role": "student",
+      "landed": "/decks/10006/play/typing",
+      "expected": "/decks/10006/play/typing",
+      "guardOk": true,
+      "textLen": 261,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/typing",
+      "role": "admin",
+      "landed": "/decks/10006/play/typing",
+      "expected": "/decks/10006/play/typing",
+      "guardOk": true,
+      "textLen": 276,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/listening",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006/play/listening",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/listening",
+      "role": "student",
+      "landed": "/decks/10006/play/listening",
+      "expected": "/decks/10006/play/listening",
+      "guardOk": true,
+      "textLen": 247,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/listening",
+      "role": "admin",
+      "landed": "/decks/10006/play/listening",
+      "expected": "/decks/10006/play/listening",
+      "guardOk": true,
+      "textLen": 262,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/mixed",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/10006/play/mixed",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/mixed",
+      "role": "student",
+      "landed": "/decks/10006/play/mixed",
+      "expected": "/decks/10006/play/mixed",
+      "guardOk": true,
+      "textLen": 325,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "←\nQUAY LẠI",
+          "w": 94,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/10006/play/mixed",
+      "role": "admin",
+      "landed": "/decks/10006/play/mixed",
+      "expected": "/decks/10006/play/mixed",
+      "guardOk": true,
+      "textLen": 342,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "←\nQUAY LẠI",
+          "w": 94,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/ai-vocab-generator",
+      "role": "anon",
+      "landed": "/login?redirect=/ai-vocab-generator",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/ai-vocab-generator",
+      "role": "student",
+      "landed": "/ai-vocab-generator",
+      "expected": "/ai-vocab-generator",
+      "guardOk": true,
+      "textLen": 370,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/ai-vocab-generator",
+      "role": "admin",
+      "landed": "/ai-vocab-generator",
+      "expected": "/ai-vocab-generator",
+      "guardOk": true,
+      "textLen": 385,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/create",
+      "role": "anon",
+      "landed": "/login?redirect=/decks/create",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/create",
+      "role": "student",
+      "landed": "/decks/create",
+      "expected": "/decks/create",
+      "guardOk": true,
+      "textLen": 328,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 20,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/decks/create",
+      "role": "admin",
+      "landed": "/decks/create",
+      "expected": "/decks/create",
+      "guardOk": true,
+      "textLen": 343,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 20,
+          "h": 20
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking",
+      "role": "anon",
+      "landed": "/premium?redirect=/speaking",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking",
+      "role": "student",
+      "landed": "/speaking",
+      "expected": "/speaking",
+      "guardOk": true,
+      "textLen": 1118,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking",
+      "role": "admin",
+      "landed": "/speaking",
+      "expected": "/speaking",
+      "guardOk": true,
+      "textLen": 1133,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/history",
+      "role": "anon",
+      "landed": "/premium?redirect=/speaking/history",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/history",
+      "role": "student",
+      "landed": "/speaking/history",
+      "expected": "/speaking/history",
+      "guardOk": true,
+      "textLen": 1429,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/history",
+      "role": "admin",
+      "landed": "/speaking/history",
+      "expected": "/speaking/history",
+      "guardOk": true,
+      "textLen": 1951,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/3",
+      "role": "anon",
+      "landed": "/premium?redirect=/speaking/3",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/3",
+      "role": "student",
+      "landed": "/speaking/3",
+      "expected": "/speaking/3",
+      "guardOk": true,
+      "textLen": 1177,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "← DANH SÁCH LUYỆN NÓI",
+          "w": 171,
+          "h": 22
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/3",
+      "role": "admin",
+      "landed": "/speaking/3",
+      "expected": "/speaking/3",
+      "guardOk": true,
+      "textLen": 1178,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "← DANH SÁCH LUYỆN NÓI",
+          "w": 171,
+          "h": 22
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/3/record",
+      "role": "anon",
+      "landed": "/premium?redirect=/speaking/3/record",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/3/record",
+      "role": "student",
+      "landed": "/speaking/3/record",
+      "expected": "/speaking/3/record",
+      "guardOk": true,
+      "textLen": 532,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "← QUAY LẠI ĐỀ BÀI",
+          "w": 128,
+          "h": 22
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/speaking/3/record",
+      "role": "admin",
+      "landed": "/speaking/3/record",
+      "expected": "/speaking/3/record",
+      "guardOk": true,
+      "textLen": 547,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "← QUAY LẠI ĐỀ BÀI",
+          "w": 128,
+          "h": 22
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/premium",
+      "role": "anon",
+      "landed": "/premium",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 657,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/premium",
+      "role": "student",
+      "landed": "/premium",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 567,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/premium",
+      "role": "admin",
+      "landed": "/premium",
+      "expected": "/premium",
+      "guardOk": true,
+      "textLen": 582,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/premium/checkout",
+      "role": "anon",
+      "landed": "/login?redirect=/premium/checkout",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/premium/checkout",
+      "role": "student",
+      "landed": "/premium/checkout",
+      "expected": "/premium/checkout",
+      "guardOk": true,
+      "textLen": 307,
+      "missingAlt": 0,
+      "imgs": 2,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/premium/checkout",
+      "role": "admin",
+      "landed": "/premium/checkout",
+      "expected": "/premium/checkout",
+      "guardOk": true,
+      "textLen": 322,
+      "missingAlt": 0,
+      "imgs": 2,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/dashboard",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin",
+      "role": "admin",
+      "landed": "/admin/dashboard",
+      "expected": "/admin/dashboard",
+      "guardOk": true,
+      "textLen": 721,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/dashboard",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "admin",
+      "landed": "/admin/dashboard",
+      "expected": "/admin/dashboard",
+      "guardOk": true,
+      "textLen": 721,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/lessons",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/lessons",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/lessons",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/lessons",
+      "role": "admin",
+      "landed": "/admin/lessons",
+      "expected": "/admin/lessons",
+      "guardOk": true,
+      "textLen": 2884,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/exercises",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/exercises",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/exercises",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/exercises",
+      "role": "admin",
+      "landed": "/admin/exercises",
+      "expected": "/admin/exercises",
+      "guardOk": true,
+      "textLen": 2437,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/users",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/users",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/users",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/users",
+      "role": "admin",
+      "landed": "/admin/users",
+      "expected": "/admin/users",
+      "guardOk": true,
+      "textLen": 1218,
+      "missingAlt": 0,
+      "imgs": 11,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/speaking-prompts",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/speaking-prompts",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/speaking-prompts",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/speaking-prompts",
+      "role": "admin",
+      "landed": "/admin/speaking-prompts",
+      "expected": "/admin/speaking-prompts",
+      "guardOk": true,
+      "textLen": 1026,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/speaking-submissions",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/speaking-submissions",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/speaking-submissions",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/speaking-submissions",
+      "role": "admin",
+      "landed": "/admin/speaking-submissions",
+      "expected": "/admin/speaking-submissions",
+      "guardOk": true,
+      "textLen": 4306,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/videos",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/videos",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/videos",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/videos",
+      "role": "admin",
+      "landed": "/admin/videos",
+      "expected": "/admin/videos",
+      "guardOk": true,
+      "textLen": 588,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/video-attempts",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/video-attempts",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/video-attempts",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/video-attempts",
+      "role": "admin",
+      "landed": "/admin/video-attempts",
+      "expected": "/admin/video-attempts",
+      "guardOk": true,
+      "textLen": 772,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/445/build",
+      "role": "anon",
+      "landed": "/login?redirect=/admin/445/build",
+      "expected": "/login",
+      "guardOk": true,
+      "textLen": 137,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/445/build",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/admin/445/build",
+      "role": "admin",
+      "landed": "/admin/445/build",
+      "expected": "/admin/445/build",
+      "guardOk": true,
+      "textLen": 750,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/definitely-not-a-route",
+      "role": "anon",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1709,
+      "missingAlt": 0,
+      "imgs": 0,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/definitely-not-a-route",
+      "role": "student",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1705,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    },
+    {
+      "route": "/definitely-not-a-route",
+      "role": "admin",
+      "landed": "/",
+      "expected": "/",
+      "guardOk": true,
+      "textLen": 1720,
+      "missingAlt": 0,
+      "imgs": 1,
+      "smallTargets": 0,
+      "smallList": [],
+      "noName": 0,
+      "h1": 1,
+      "headingSkip": null,
+      "lang": "vi",
+      "skipLink": true,
+      "contrastFails": 0,
+      "contrastList": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "api4xx": [],
+      "overflow": -15
+    }
+  ],
+  "responsive": [
+    {
+      "route": "/",
+      "role": "anon",
+      "width": 360,
+      "overflow": -15,
+      "widest": {
+        "over": 3383,
+        "tag": "DIV",
+        "cls": "app-marquee__track"
+      }
+    },
+    {
+      "route": "/",
+      "role": "anon",
+      "width": 768,
+      "overflow": -15,
+      "widest": {
+        "over": 2975,
+        "tag": "DIV",
+        "cls": "app-marquee__track"
+      }
+    },
+    {
+      "route": "/",
+      "role": "anon",
+      "width": 1280,
+      "overflow": -15,
+      "widest": {
+        "over": 2463,
+        "tag": "DIV",
+        "cls": "app-marquee__track"
+      }
+    },
+    {
+      "route": "/",
+      "role": "anon",
+      "width": 1440,
+      "overflow": -15,
+      "widest": {
+        "over": 2303,
+        "tag": "DIV",
+        "cls": "app-marquee__track"
+      }
+    },
+    {
+      "route": "/",
+      "role": "anon",
+      "width": 1920,
+      "overflow": -15,
+      "widest": {
+        "over": 1823,
+        "tag": "DIV",
+        "cls": "app-marquee__track"
+      }
+    },
+    {
+      "route": "/lessons",
+      "role": "anon",
+      "width": 360,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/lessons",
+      "role": "anon",
+      "width": 768,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/lessons",
+      "role": "anon",
+      "width": 1280,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/lessons",
+      "role": "anon",
+      "width": 1440,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/lessons",
+      "role": "anon",
+      "width": 1920,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/premium",
+      "role": "anon",
+      "width": 360,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/premium",
+      "role": "anon",
+      "width": 768,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/premium",
+      "role": "anon",
+      "width": 1280,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/premium",
+      "role": "anon",
+      "width": 1440,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/premium",
+      "role": "anon",
+      "width": 1920,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/decks",
+      "role": "student",
+      "width": 360,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/decks",
+      "role": "student",
+      "width": 768,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/decks",
+      "role": "student",
+      "width": 1280,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/decks",
+      "role": "student",
+      "width": 1440,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/decks",
+      "role": "student",
+      "width": 1920,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/profile",
+      "role": "student",
+      "width": 360,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/profile",
+      "role": "student",
+      "width": 768,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/profile",
+      "role": "student",
+      "width": 1280,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/profile",
+      "role": "student",
+      "width": 1440,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/profile",
+      "role": "student",
+      "width": 1920,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "admin",
+      "width": 360,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "admin",
+      "width": 768,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "admin",
+      "width": 1280,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "admin",
+      "width": 1440,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/dashboard",
+      "role": "admin",
+      "width": 1920,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/users",
+      "role": "admin",
+      "width": 360,
+      "overflow": -15,
+      "widest": {
+        "over": 653,
+        "tag": "TABLE",
+        "cls": "w-full text-left border-collapse"
+      }
+    },
+    {
+      "route": "/admin/users",
+      "role": "admin",
+      "width": 768,
+      "overflow": -15,
+      "widest": {
+        "over": 245,
+        "tag": "TABLE",
+        "cls": "w-full text-left border-collapse"
+      }
+    },
+    {
+      "route": "/admin/users",
+      "role": "admin",
+      "width": 1280,
+      "overflow": -15,
+      "widest": {
+        "over": 45,
+        "tag": "TABLE",
+        "cls": "w-full text-left border-collapse"
+      }
+    },
+    {
+      "route": "/admin/users",
+      "role": "admin",
+      "width": 1440,
+      "overflow": -15,
+      "widest": null
+    },
+    {
+      "route": "/admin/users",
+      "role": "admin",
+      "width": 1920,
+      "overflow": -15,
+      "widest": null
+    }
+  ],
+  "totals": {
+    "contrastFails": 0,
+    "missingAlt": 0,
+    "smallTargets": 118,
+    "noName": 0,
+    "consoleErrors": 0,
+    "apiErrors": 0,
+    "pageErrors": 0,
+    "guardFails": 0,
+    "overflowRoutes": 0
+  },
+  "shots": [
+    ".specify/specs/audit-v14-full/evidence/shots/v13-home-1440.png",
+    ".specify/specs/audit-v14-full/evidence/shots/v13-lessons-360.png",
+    ".specify/specs/audit-v14-full/evidence/shots/v13-admin-dashboard-1440.png",
+    ".specify/specs/audit-v14-full/evidence/shots/v13-profile-1280.png",
+    ".specify/specs/audit-v14-full/evidence/shots/v13-premium-768.png",
+    ".specify/specs/audit-v14-full/evidence/shots/v13-lessons-1920.png"
+  ],
+  "design": {
+    "routes": [
+      {
+        "route": "/",
+        "role": "anon",
+        "font": {
+          "bodyFamily": "\"Be Vietnam Pro\", system-ui, sans-serif",
+          "checkBeVietnam": true,
+          "loadedFamilies": [
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded"
+          ],
+          "fontCount": 18
+        },
+        "tokens": {
+          "geoBg": "#FFFDF5",
+          "geoFg": "#1E293B",
+          "geoMuted": "#F1F5F9",
+          "geoMutedFg": "#556070",
+          "geoAccent": "#8B5CF6",
+          "geoAccentStrong": "#7C3AED",
+          "geoAccentInk": "#6D28D9",
+          "geoSecondaryStrong": "#DB2777",
+          "geoTertiaryInk": "#B45309",
+          "geoQuaternaryInk": "#047857",
+          "geoRadius": "16px",
+          "geoBorderWidth": "2px",
+          "bodyBg": "rgb(255, 253, 245)",
+          "bodyFont": "\"Be Vietnam Pro\", system-ui, sans-serif",
+          "hasLucide": true,
+          "lucideStroke": "2.5px",
+          "skipLink": true,
+          "scrollGutter": "stable"
+        }
+      },
+      {
+        "route": "/lessons",
+        "role": "anon",
+        "font": {
+          "bodyFamily": "\"Be Vietnam Pro\", system-ui, sans-serif",
+          "checkBeVietnam": true,
+          "loadedFamilies": [
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded"
+          ],
+          "fontCount": 18
+        },
+        "tokens": {
+          "geoBg": "#FFFDF5",
+          "geoFg": "#1E293B",
+          "geoMuted": "#F1F5F9",
+          "geoMutedFg": "#556070",
+          "geoAccent": "#8B5CF6",
+          "geoAccentStrong": "#7C3AED",
+          "geoAccentInk": "#6D28D9",
+          "geoSecondaryStrong": "#DB2777",
+          "geoTertiaryInk": "#B45309",
+          "geoQuaternaryInk": "#047857",
+          "geoRadius": "16px",
+          "geoBorderWidth": "2px",
+          "bodyBg": "rgb(255, 253, 245)",
+          "bodyFont": "\"Be Vietnam Pro\", system-ui, sans-serif",
+          "hasLucide": false,
+          "lucideStroke": null,
+          "skipLink": true,
+          "scrollGutter": "stable"
+        }
+      },
+      {
+        "route": "/admin/dashboard",
+        "role": "admin",
+        "font": {
+          "bodyFamily": "\"Be Vietnam Pro\", system-ui, sans-serif",
+          "checkBeVietnam": true,
+          "loadedFamilies": [
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro unloaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded",
+            "Be Vietnam Pro loaded"
+          ],
+          "fontCount": 18
+        },
+        "tokens": {
+          "geoBg": "#FFFDF5",
+          "geoFg": "#1E293B",
+          "geoMuted": "#F1F5F9",
+          "geoMutedFg": "#556070",
+          "geoAccent": "#8B5CF6",
+          "geoAccentStrong": "#7C3AED",
+          "geoAccentInk": "#6D28D9",
+          "geoSecondaryStrong": "#DB2777",
+          "geoTertiaryInk": "#B45309",
+          "geoQuaternaryInk": "#047857",
+          "geoRadius": "16px",
+          "geoBorderWidth": "2px",
+          "bodyBg": "rgb(255, 253, 245)",
+          "bodyFont": "\"Be Vietnam Pro\", system-ui, sans-serif",
+          "hasLucide": true,
+          "lucideStroke": "2.5px",
+          "skipLink": true,
+          "scrollGutter": "stable"
+        }
+      }
+    ]
+  },
+  "paymentCleanup": {
+    "ok": true,
+    "candidates": 4,
+    "remaining": 0,
+    "after": 126
+  },
+  "parityAfter": "1470|43735|72|118|29|15|4|126|10|5",
+  "contrastByRoute": [],
+  "a11yByRoute": {
+    "/": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/login": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/register": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "Đăng nhập",
+          "w": 77,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/forgot-password": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "Quay lại đăng nhập",
+          "w": 136,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/reset-password": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "Quay lại đăng nhập",
+          "w": 136,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/lessons": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/lessons/445": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": "1->3",
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/videos": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/videos/1": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/profile": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/search": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/leaderboard": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006/play/flashcard": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006/play/quiz": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006/play/memory": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006/play/typing": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006/play/listening": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/10006/play/mixed": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/ai-vocab-generator": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/decks/create": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/speaking": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/speaking/history": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/speaking/3": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/speaking/3/record": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/premium": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 1,
+      "smallList": [
+        {
+          "t": "A",
+          "label": "đăng nhập",
+          "w": 75,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/premium/checkout": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/dashboard": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/lessons": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/exercises": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/users": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/speaking-prompts": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/speaking-submissions": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/videos": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/video-attempts": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/admin/445/build": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 3,
+      "smallList": [
+        {
+          "t": "INPUT",
+          "label": "",
+          "w": 16,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "QUÊN MẬT KHẨU?",
+          "w": 120,
+          "h": 16
+        },
+        {
+          "t": "A",
+          "label": "Đăng ký",
+          "w": 58,
+          "h": 18
+        }
+      ],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    },
+    "/definitely-not-a-route": {
+      "missingAlt": 0,
+      "noName": 0,
+      "smallCount": 0,
+      "smallList": [],
+      "headingSkip": null,
+      "h1": 1,
+      "lang": "vi",
+      "skipLink": true
+    }
+  }
+}

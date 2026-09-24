@@ -1,0 +1,78 @@
+{
+  "startedAt": "2026-09-24T18:05:13.332Z",
+  "flows": {
+    "T4_register": {
+      "api": 201,
+      "userId": 211929,
+      "dbRow": "1",
+      "pass": true,
+      "cleaned": true
+    },
+    "T4_streak": {
+      "api": 200,
+      "currentStreak": 0,
+      "today": "2026-09-25",
+      "studiedDays": [
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "computedStreak": 0,
+      "studyDaysRows": 2,
+      "fields": [
+        "currentStreak",
+        "effectiveFrom",
+        "legacyAccessDays",
+        "legacyHistoryAvailable",
+        "studiedDays",
+        "studiedToday",
+        "today"
+      ],
+      "pass": true
+    },
+    "T4_search": {
+      "api": 200,
+      "resultId": 10051,
+      "word": "habitat",
+      "dbMatch": "1",
+      "pass": true
+    },
+    "T4_crud": {
+      "create": 200,
+      "readRow": "1",
+      "update": 200,
+      "updateRow": "1",
+      "delete": 204,
+      "afterDelete": "0",
+      "pass": true
+    },
+    "T4_mc_closure": {
+      "create": 200,
+      "exerciseId": 787848,
+      "listHasExercise": true,
+      "listOptions": "[\"go\",\"goes\",\"going\",\"went\"]",
+      "grade": 200,
+      "percentage": 100,
+      "pass": true
+    },
+    "T4_ai": {
+      "status": 200,
+      "q1Valid": false,
+      "q2Valid": true,
+      "pass": true
+    },
+    "T4_payment": {
+      "createOrder": 200,
+      "orderCode": "ENG40F0E85BD9C6",
+      "webhookWrongSigStatus": 200,
+      "webhookRejected": true,
+      "pass": true
+    }
+  },
+  "tokens": {
+    "user": true,
+    "admin": true
+  },
+  "parityAfter": "1470|43735|72|118|29|15|4|126|10|5",
+  "studyDaysAfter": 4,
+  "parityOk": true
+}

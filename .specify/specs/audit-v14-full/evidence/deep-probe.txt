@@ -1,0 +1,99 @@
+=== audit-v14-full DEEP probe ===
+target: http://localhost:8080 | flushed: 0
+user token: OK | admin token: OK
+
+--- A. MULTIPLE_CHOICE guard (F-13-01) ---
+  PASS  setup: create audit lesson (admin)
+  PASS  MC options ["a","b","c","d"] -> 400 (the F-13-01 payload)
+  INFO    rejection body -> {"detail":"MULTIPLE_CHOICE cần nội dung lựa chọn thật, không chỉ \"a\"/\"b\"/\"c\"/\"d\"","instance":"/api/admin/exercises","status":400,"title":"Bad Request"}
+  PASS  MC options ["Apple","Banana","Cherry","Date"] -> 200 (legit not over-blocked)
+  PASS  MC options ["A - Salad","B - Cheeseburger",...] -> 200 (real 651717 style)
+  INFO    dash-style response -> status=200 body={"audioUrl":null,"correctAnswer":"A - Salad","difficulty":"EASY","exerciseType":"MULTIPLE_CHOICE","explanation":null,"id
+  PASS  MC options with 1 entry -> 400
+  PASS  MC options [] -> 400
+  PASS  MC options omitted (null) -> 400
+  PASS  MC options ["a","b"] (2 bare letters) -> 400
+  PASS  MC options ["Yes","No"] (exactly 2 real) -> 200 (boundary)
+  PASS  MC options ["a","Watermelon"] (mixed) -> 200
+  PASS  FILL_BLANK with options ["a","b","c","d"] -> 200 (guard is MC-scoped)
+  PASS  LISTENING with bare-letter options ["A","B","C","D"] -> 200 (guard is MC-scoped by design; render path handles it)
+  PASS  PUT legit MC -> options ["a","b","c","d"] -> 400 (update path)
+  PASS  PUT legit MC -> real options -> 200
+  PASS  real MC row 651717 still readable (admin)
+  INFO    real row options -> ["A - Salad", "B - Cheeseburger", "C - Pizza", "D - Bread"]
+  PASS  POST a copy of real row 651717's exact options -> 200 (legit content, accepted per F-13-12)
+  INFO    real-row copy response -> {"audioUrl":null,"correctAnswer":"A - Salad","difficulty":"EASY","exerciseType":"MULTIPLE_CHOICE","explanation":null,"id":787846,"imageUrl":
+  PASS  POST /api/admin/exercises anon 401/403
+  PASS  POST /api/admin/exercises student 403
+
+--- B. ?sort= measured (not assumed) ---
+  INFO  ?sort= lessons (title) -> asc=["test","Admin Created Lesson","English Grammar Exercises for A1 – be, possessives and pronouns","test","thầy bình ","be, possessives and pronouns - GRAMMAR","English Grammar Exercises for A1 – have got and articles","English Grammar Exercises for A1 – have got and articles - GRAMMAR"] desc=["test","Admin Created Lesson","English Grammar Exercises for A1 – be, possessives and pronouns","test","thầy bình ","be, possessives and pronouns - GRAMMAR","English Grammar Exercises for A1 – have got and articles","English Grammar Exercises for A1 – have got and articles - GRAMMAR"] same=true
+  INFO  ?sort= admin/exercises (question) -> asc=["câu 1","câu 1","câu2","You can describe your daily routine by focusing on:","What is the correct structure to form the past simple tense of the verb 'to have'?","I can understand instructions.","I can understand a text about a social media campaign.","Which of the following is a correct plural form of the noun 'book'?"] desc=["câu 1","câu 1","câu2","You can describe your daily routine by focusing on:","What is the correct structure to form the past simple tense of the verb 'to have'?","I can understand instructions.","I can understand a text about a social media campaign.","Which of the following is a correct plural form of the noun 'book'?"] same=true
+  INFO  ?sort= vocabulary (word) -> asc=["agenda","airport","algorithm","ambiguous","ambitious","analyze","apartment","articulate"] desc=["volunteer","virtual","urbanization","under the weather","turn down","thermal","terminal","technology"] same=false
+  PASS    vocabulary (word) ?sort= honoured (asc ordered + desc reversed)
+  INFO  ?sort= decks (name) -> asc=["Academic Word List","Common English Idioms","Essential Phrasal Verbs","Everyday English","IELTS Academic: Environment","Oxford 3000 (A1-B2)","Oxford 5000 (C1-C2)","THPT Quốc Gia: Lớp 12"] desc=["Academic Word List","Common English Idioms","Essential Phrasal Verbs","Everyday English","IELTS Academic: Environment","Oxford 3000 (A1-B2)","Oxford 5000 (C1-C2)","THPT Quốc Gia: Lớp 12"] same=true
+  PASS  lessons ?sort= is IGNORED (asc payload == desc payload)
+
+--- C. RESPONSE CONTRACT (field names + types) ---
+  PASS  (1) lesson list item {id:number, title:string}
+  INFO    lesson list item keys -> audioUrl,category,completionPercentage,description,durationMinutes,id,isCompleted,level,orderIndex,skillType,thumbnailUrl,title
+  PASS  (1) lesson detail {id:number, title:string}
+  INFO    lesson detail keys -> id,title,description,content,level,category,durationMinutes,thumbnailUrl,audioUrl,orderIndex,isCompleted,completionPercentage,vocabularies
+  PASS  (1) exercise item {id,lessonId:number, question:string, exerciseType:string}
+  INFO    exercise keys -> audioUrl,correctAnswer,difficulty,exerciseType,explanation,id,imageUrl,lessonId,lessonTitle,options,orderIndex,question
+  PASS  (2) streak snapshot {currentStreak:number, studiedToday:boolean, studiedDays:array}
+  INFO  (2) streak/current payload -> {"today":"2026-09-25","currentStreak":0}
+  PASS  (3) login {token:string}
+  INFO    login keys -> id,username,email,fullName,avatarUrl,isAdmin,currentLevel,totalPoints,currentStreak,isPremium,premiumExpiry,aiGenerationCount,hasPremiumAccess,aiGenerationsRemainingToday,token
+  PASS  (3) /me {email:string, isAdmin:boolean}
+  PASS  (4) search returns a JSON array
+  INFO    search 'hello' returned empty -> len=0
+  PASS  (5) POST /api/decks -> 200/201 with id
+  PASS  (5) deck read {id:number, name:string}
+  INFO    deck keys -> id,owner,name,description,source,cefrLevel,isPublic,thumbnailUrl,words,createdAt,updatedAt
+  PASS  (5) DELETE deck -> 200/204
+  PASS  (5) re-GET deleted deck 404
+  INFO  (6) ai/generate-vocab -> status=200 body=[{"id":null,"word":"travel","pronunciation":"træˈliː","meaning":"du lịch","exampleSentence":"I like to travel to different countries.","audioUrl":null,"imageUrl
+  PASS  (6) ai/generate-vocab reachable (200/429/504 latency)
+  PASS  (6) generate-vocab item {word:string, meaning:string}
+  INFO    ai item keys -> id,word,pronunciation,meaning,exampleSentence,audioUrl,imageUrl,wordType,definitionEn,cefrLevel,source,createdAt
+
+--- D. ROLE AUTH (both directions) ---
+  PASS  DENY GET /api/admin/stats student=403 anon=401
+  PASS  DENY GET /api/admin/users student=403 anon=401
+  PASS  DENY GET /api/admin/exercises student=403 anon=401
+  PASS  DENY GET /api/admin/exercises/ai/status student=403 anon=401
+  PASS  DENY GET /api/v1/admin/speaking-prompts student=403 anon=401
+  PASS  DENY GET /api/v1/admin/video-lessons student=403 anon=401
+  PASS  DENY GET /api/admin/lessons student=403 anon=401
+  PASS  DENY POST /api/admin/lessons student 403
+  PASS  DENY POST /api/lessons student 403
+  PASS  DENY PUT /api/vocabulary/1 student 403
+  PASS  DENY DELETE /api/vocabulary/1 student 403
+  PASS  ALLOW GET /api/admin/stats admin 200
+  PASS  ALLOW GET /api/admin/exercises admin 200
+  PASS  DENY GET /api/streak/snapshot anon 401
+  PASS  DENY GET /api/dashboard/stats anon 401
+  PASS  DENY GET /api/users/progress anon 401
+  PASS  DENY POST /api/games/submit anon 401
+  PASS  ALLOW GET /api/lessons anon 200
+  PASS  ALLOW GET /api/leaderboard anon 200
+  PASS  ALLOW GET /api/vocabulary/search?keyword=ab anon 200
+
+--- CLEANUP ---
+  PASS  cleanup: delete audit lesson (cascades its exercises)
+  PASS  cleanup: audit lesson has no exercises left
+  PASS  cleanup: audit lesson re-GET 404
+marker
+------
+DEEP_LESSONS=0 DEEP_DECKS=0 DEEP_EX=0
+  PASS  cleanup SQL produced 0 errors (Msg scan)
+  PASS  cleanup left 0 audit residue
+
+=== DEEP SUMMARY ===
+pass=58 fail=0 blocked=0 n_a=0
+  mc-guard   pass=18 fail=0 blocked=0
+  sort       pass=2 fail=0 blocked=0
+  contract   pass=13 fail=0 blocked=0
+  roles      pass=25 fail=0 blocked=0
+written: .specify\specs\audit-v14-full\evidence\deep-probe.json

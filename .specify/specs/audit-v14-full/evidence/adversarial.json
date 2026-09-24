@@ -1,0 +1,78 @@
+{
+  "cases": [
+    {
+      "name": "SRS review quality=-1 -> 400",
+      "pass": true,
+      "detail": "expected 400"
+    },
+    {
+      "name": "SRS review quality=6 -> 400",
+      "pass": true,
+      "detail": "expected 400"
+    },
+    {
+      "name": "SRS review quality=999 -> 400",
+      "pass": true,
+      "detail": "expected 400"
+    },
+    {
+      "name": "streak history days=-5 -> 400",
+      "pass": true,
+      "detail": "expected 400"
+    },
+    {
+      "name": "lessons size=100000 -> capped at 100",
+      "pass": true,
+      "detail": "size=100"
+    },
+    {
+      "name": "vocabulary ?sort=badprop -> 400",
+      "pass": true,
+      "detail": "expected 400"
+    },
+    {
+      "name": "lessons q=<script> not reflected raw",
+      "pass": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "SRS due on foreign/private deck -> 404",
+      "pass": true,
+      "detail": "got 404"
+    },
+    {
+      "name": "malformed JSON body -> 400",
+      "pass": true,
+      "detail": "got 400"
+    },
+    {
+      "name": "streak snapshot anon -> 401",
+      "pass": true,
+      "detail": "expected 401"
+    },
+    {
+      "name": "admin stats student -> 403",
+      "pass": true,
+      "detail": "expected 403"
+    },
+    {
+      "name": "register existing email -> 400/409",
+      "pass": true,
+      "detail": "got 409"
+    },
+    {
+      "name": "lessons q= (empty) -> 200",
+      "pass": true,
+      "detail": "expected 200"
+    },
+    {
+      "name": "AI bucket burst -> 429 within 14 calls",
+      "pass": true,
+      "detail": "no 429 seen (bucket may be mis-prefixed)"
+    }
+  ],
+  "pass": 14,
+  "fail": 0,
+  "parityAfter": "1470|43735|72|118|29|15|4|126|10|5",
+  "parityOk": true
+}

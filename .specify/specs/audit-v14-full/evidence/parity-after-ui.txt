@@ -1,0 +1,3 @@
+lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks|snapshots
+-------|---------|-----|----------|--------|-----|----------|--------|-----|---------
+1470|43735|72|118|29|15|4|128|10|5

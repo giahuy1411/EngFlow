@@ -1,0 +1,607 @@
+{
+  "label": "before",
+  "runs": 5,
+  "at": "2026-09-24T18:06:12.180Z",
+  "api": "http://localhost:8080",
+  "endpointCount": 35,
+  "backendStartedAtBefore": "2026-09-24T16:25:54.752224533Z",
+  "backendStartedAtAfter": "2026-09-24T16:25:54.752224533Z",
+  "stackStable": true,
+  "results": [
+    {
+      "name": "lesson list (page 0)",
+      "path": "/api/lessons?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3210,
+      "medianMs": 17.5,
+      "min": 14.8,
+      "max": 73.8,
+      "samples": [
+        73.8,
+        16.3,
+        20.2,
+        17.5,
+        14.8
+      ]
+    },
+    {
+      "name": "lesson list (page 5)",
+      "path": "/api/lessons?page=5&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3884,
+      "medianMs": 23.1,
+      "min": 18.8,
+      "max": 127.4,
+      "samples": [
+        127.4,
+        21.5,
+        18.8,
+        23.1,
+        27.4
+      ]
+    },
+    {
+      "name": "lesson detail",
+      "path": "/api/lessons/41881",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3173,
+      "medianMs": 11.3,
+      "min": 10.2,
+      "max": 21.2,
+      "samples": [
+        21.2,
+        11,
+        13.5,
+        10.2,
+        11.3
+      ]
+    },
+    {
+      "name": "exercise list (lesson)",
+      "path": "/api/lessons/41881/exercises",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 1766,
+      "medianMs": 15.9,
+      "min": 10.9,
+      "max": 22.2,
+      "samples": [
+        22.2,
+        13.3,
+        15.9,
+        10.9,
+        18.9
+      ]
+    },
+    {
+      "name": "lesson structure",
+      "path": "/api/lessons/41881/structure",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3065,
+      "medianMs": 15.1,
+      "min": 12,
+      "max": 43,
+      "samples": [
+        43,
+        12,
+        15.1,
+        12.7,
+        15.4
+      ]
+    },
+    {
+      "name": "lesson exercise content",
+      "path": "/api/lessons/41881/exercises/content",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 2967,
+      "medianMs": 17.9,
+      "min": 16,
+      "max": 68.9,
+      "samples": [
+        68.9,
+        20,
+        16,
+        17,
+        17.9
+      ]
+    },
+    {
+      "name": "vocabulary search",
+      "path": "/api/vocabulary/search?keyword=the",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3372,
+      "medianMs": 9.6,
+      "min": 8.2,
+      "max": 10.8,
+      "samples": [
+        10.8,
+        9.5,
+        9.6,
+        8.2,
+        10.6
+      ]
+    },
+    {
+      "name": "vocabulary list (auth)",
+      "path": "/api/vocabulary?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 4337,
+      "medianMs": 22,
+      "min": 19.1,
+      "max": 55.4,
+      "samples": [
+        42.9,
+        20.4,
+        19.1,
+        22,
+        55.4
+      ]
+    },
+    {
+      "name": "leaderboard",
+      "path": "/api/leaderboard?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 2453,
+      "medianMs": 25.1,
+      "min": 21.1,
+      "max": 57.2,
+      "samples": [
+        57.2,
+        22.5,
+        21.1,
+        25.1,
+        26.9
+      ]
+    },
+    {
+      "name": "decks (public)",
+      "path": "/api/decks?page=0&size=10",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 3161,
+      "medianMs": 17.6,
+      "min": 13.2,
+      "max": 45.5,
+      "samples": [
+        45.5,
+        19.4,
+        13.2,
+        17.6,
+        14.8
+      ]
+    },
+    {
+      "name": "decks (my)",
+      "path": "/api/decks/my",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 315,
+      "medianMs": 11.1,
+      "min": 8.4,
+      "max": 14.2,
+      "samples": [
+        14.2,
+        9.4,
+        11.1,
+        8.4,
+        11.7
+      ]
+    },
+    {
+      "name": "streak snapshot",
+      "path": "/api/streak/snapshot",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 391,
+      "medianMs": 13.2,
+      "min": 11.4,
+      "max": 16.6,
+      "samples": [
+        14.9,
+        11.4,
+        13.2,
+        16.6,
+        12
+      ]
+    },
+    {
+      "name": "streak current",
+      "path": "/api/streak/current",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 40,
+      "medianMs": 14.6,
+      "min": 11.7,
+      "max": 18.4,
+      "samples": [
+        18.4,
+        15.5,
+        14.6,
+        11.7,
+        11.8
+      ]
+    },
+    {
+      "name": "streak history",
+      "path": "/api/streak/history",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 27,
+      "medianMs": 16.2,
+      "min": 11.5,
+      "max": 30.9,
+      "samples": [
+        11.5,
+        16.2,
+        15.9,
+        30.9,
+        17.2
+      ]
+    },
+    {
+      "name": "auth me",
+      "path": "/api/auth/me",
+      "tag": "learner",
+      "status": 200,
+      "bytes": 421,
+      "medianMs": 13,
+      "min": 12.2,
+      "max": 19.2,
+      "samples": [
+        12.2,
+        13,
+        12.8,
+        19.2,
+        13
+      ]
+    },
+    {
+      "name": "user progress",
+      "path": "/api/users/progress",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 59,
+      "medianMs": 21.8,
+      "min": 13.8,
+      "max": 55.7,
+      "samples": [
+        55.7,
+        16.3,
+        13.8,
+        21.8,
+        23.3
+      ]
+    },
+    {
+      "name": "dashboard stats",
+      "path": "/api/dashboard/stats",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 156,
+      "medianMs": 15.7,
+      "min": 14.5,
+      "max": 25,
+      "samples": [
+        25,
+        14.7,
+        14.5,
+        15.7,
+        18.2
+      ]
+    },
+    {
+      "name": "game session (quiz)",
+      "path": "/api/games/quiz/10006",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 1506,
+      "medianMs": 22.8,
+      "min": 14.3,
+      "max": 55.8,
+      "samples": [
+        55.8,
+        14.3,
+        20.6,
+        22.8,
+        29.5
+      ]
+    },
+    {
+      "name": "srs stats",
+      "path": "/api/srs/stats",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 83,
+      "medianMs": 9.5,
+      "min": 8.1,
+      "max": 22.8,
+      "samples": [
+        22.8,
+        8.1,
+        9.5,
+        9.6,
+        8.7
+      ]
+    },
+    {
+      "name": "srs due (deck)",
+      "path": "/api/srs/due/10006",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 2405,
+      "medianMs": 17.8,
+      "min": 16.4,
+      "max": 41,
+      "samples": [
+        41,
+        16.9,
+        16.4,
+        17.8,
+        26
+      ]
+    },
+    {
+      "name": "flashcard status",
+      "path": "/api/flashcards/status/10017",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 1,
+      "medianMs": 22.5,
+      "min": 15.6,
+      "max": 37.8,
+      "samples": [
+        20.5,
+        15.6,
+        37.8,
+        23.2,
+        22.5
+      ]
+    },
+    {
+      "name": "speaking prompts (public)",
+      "path": "/api/v1/speaking-prompts?page=0&size=10",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 4565,
+      "medianMs": 15.3,
+      "min": 9.4,
+      "max": 23.3,
+      "samples": [
+        23.3,
+        15,
+        15.3,
+        9.4,
+        19.9
+      ]
+    },
+    {
+      "name": "video lessons (public)",
+      "path": "/api/v1/video-lessons?page=0&size=10",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 1801,
+      "medianMs": 16.1,
+      "min": 12.2,
+      "max": 36.2,
+      "samples": [
+        36.2,
+        14.8,
+        12.2,
+        16.1,
+        18.9
+      ]
+    },
+    {
+      "name": "payment status",
+      "path": "/api/v1/payment/status",
+      "tag": "v12-new",
+      "status": 200,
+      "bytes": 69,
+      "medianMs": 15.2,
+      "min": 12.9,
+      "max": 17,
+      "samples": [
+        16.4,
+        17,
+        12.9,
+        13.5,
+        15.2
+      ]
+    },
+    {
+      "name": "game session (memory)",
+      "path": "/api/games/memory/10006",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1259,
+      "medianMs": 27.6,
+      "min": 17.8,
+      "max": 29.1,
+      "samples": [
+        29.1,
+        27.6,
+        28,
+        18.8,
+        17.8
+      ]
+    },
+    {
+      "name": "game session (mixed)",
+      "path": "/api/games/mixed/10006",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1241,
+      "medianMs": 17.3,
+      "min": 13,
+      "max": 21.3,
+      "samples": [
+        13,
+        21.3,
+        16.5,
+        17.3,
+        18.3
+      ]
+    },
+    {
+      "name": "speaking prompts (admin)",
+      "path": "/api/v1/admin/speaking-prompts?page=0&size=10",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 4565,
+      "medianMs": 15.5,
+      "min": 14.1,
+      "max": 22.7,
+      "samples": [
+        22.7,
+        15,
+        16.3,
+        15.5,
+        14.1
+      ]
+    },
+    {
+      "name": "video attempts (my)",
+      "path": "/api/v1/video-attempts",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1426,
+      "medianMs": 11.6,
+      "min": 11.4,
+      "max": 18.7,
+      "samples": [
+        18.7,
+        11.4,
+        14.8,
+        11.6,
+        11.6
+      ]
+    },
+    {
+      "name": "lesson submissions (my)",
+      "path": "/api/lesson-submissions/my/lesson/41881/skill/SPEAKING",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 0,
+      "medianMs": 22,
+      "min": 14.8,
+      "max": 42.5,
+      "samples": [
+        42.5,
+        14.8,
+        22.4,
+        16.4,
+        22
+      ]
+    },
+    {
+      "name": "video lessons (admin)",
+      "path": "/api/v1/admin/video-lessons?page=0&size=10",
+      "tag": "v13-new",
+      "status": 200,
+      "bytes": 1801,
+      "medianMs": 18.7,
+      "min": 17.3,
+      "max": 26.2,
+      "samples": [
+        26.2,
+        17.3,
+        18.7,
+        22.9,
+        18
+      ]
+    },
+    {
+      "name": "admin stats",
+      "path": "/api/admin/stats",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 136,
+      "medianMs": 28.7,
+      "min": 21.4,
+      "max": 48.3,
+      "samples": [
+        32.9,
+        21.4,
+        21.9,
+        48.3,
+        28.7
+      ]
+    },
+    {
+      "name": "admin lessons",
+      "path": "/api/admin/lessons?page=0&size=10",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 2966,
+      "medianMs": 24.7,
+      "min": 23.7,
+      "max": 55.1,
+      "samples": [
+        55.1,
+        28.1,
+        23.7,
+        23.9,
+        24.7
+      ]
+    },
+    {
+      "name": "admin users",
+      "path": "/api/admin/users?page=0&size=10",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 2976,
+      "medianMs": 17.5,
+      "min": 17.1,
+      "max": 24,
+      "samples": [
+        24,
+        17.1,
+        17.5,
+        17.1,
+        21.9
+      ]
+    },
+    {
+      "name": "admin exercise list (no q)",
+      "path": "/api/admin/exercises?page=0&size=10",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 4961,
+      "medianMs": 90.9,
+      "min": 65.8,
+      "max": 166.5,
+      "samples": [
+        166.5,
+        122,
+        65.8,
+        90.9,
+        73.6
+      ]
+    },
+    {
+      "name": "admin exercise search q=the",
+      "path": "/api/admin/exercises?page=0&size=10&q=the",
+      "tag": "admin",
+      "status": 200,
+      "bytes": 6410,
+      "medianMs": 200.9,
+      "min": 171.5,
+      "max": 230.4,
+      "samples": [
+        204.2,
+        230.4,
+        195.4,
+        200.9,
+        171.5
+      ]
+    }
+  ]
+}

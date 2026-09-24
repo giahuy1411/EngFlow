@@ -1,0 +1,1186 @@
+{
+  "startedAt": "2026-09-24T17:25:31.400Z",
+  "user": true,
+  "admin": true,
+  "rows": [
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises/ai/status",
+      "filled": "/api/admin/exercises/ai/status",
+      "destructive": false,
+      "role": "admin",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate-async",
+      "filled": "/api/admin/exercises/ai/generate-async",
+      "status": "BLOCKED",
+      "why": "async variant of the above"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate",
+      "filled": "/api/admin/exercises/ai/generate",
+      "status": "BLOCKED",
+      "why": "writes generated exercises into a real lesson via Ollama"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate-all",
+      "filled": "/api/admin/exercises/ai/generate-all",
+      "status": "BLOCKED",
+      "why": "bulk variant — would mass-generate exercises"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate-batch",
+      "filled": "/api/admin/exercises/ai/generate-batch",
+      "status": "BLOCKED",
+      "why": "batch variant — would mass-generate exercises"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/validate",
+      "filled": "/api/admin/exercises/ai/validate",
+      "destructive": false,
+      "role": "admin",
+      "status": 400
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises/ai/backfill-answers/status",
+      "filled": "/api/admin/exercises/ai/backfill-answers/status",
+      "destructive": false,
+      "role": "admin",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/backfill-answers",
+      "filled": "/api/admin/exercises/ai/backfill-answers",
+      "status": "BLOCKED",
+      "why": "bulk-updates correct_answer across exercises"
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/stats",
+      "filled": "/api/admin/stats",
+      "destructive": false,
+      "role": "admin",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/users",
+      "filled": "/api/admin/users",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/lessons",
+      "filled": "/api/admin/lessons",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/lessons/{id}",
+      "filled": "/api/admin/lessons/445",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/vocabulary",
+      "filled": "/api/admin/vocabulary",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/lessons",
+      "filled": "/api/admin/lessons",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/vocabulary",
+      "filled": "/api/admin/vocabulary",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/toggle-active",
+      "filled": "/api/admin/users/999999999/toggle-active",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/toggle-admin",
+      "filled": "/api/admin/users/999999999/toggle-admin",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/toggle-premium",
+      "filled": "/api/admin/users/999999999/toggle-premium",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/revoke-premium",
+      "filled": "/api/admin/users/999999999/revoke-premium",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/lessons/{id}",
+      "filled": "/api/admin/lessons/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/lessons/{id}/toggle-publish",
+      "filled": "/api/admin/lessons/999999999/toggle-publish",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/vocabulary/{id}",
+      "filled": "/api/admin/vocabulary/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/lessons/{id}",
+      "filled": "/api/admin/lessons/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/vocabulary/{id}",
+      "filled": "/api/admin/vocabulary/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises",
+      "filled": "/api/admin/exercises",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises/{id}",
+      "filled": "/api/admin/exercises/445",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises",
+      "filled": "/api/admin/exercises",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/exercises/{id}",
+      "filled": "/api/admin/exercises/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/exercises/{id}",
+      "filled": "/api/admin/exercises/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/seed",
+      "filled": "/api/admin/exercises/seed",
+      "status": "BLOCKED",
+      "why": "seeds exercises into a lesson"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/ai/generate-vocab",
+      "filled": "/api/ai/generate-vocab",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/ai/enrich-word",
+      "filled": "/api/ai/enrich-word",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/ai/save-vocab",
+      "filled": "/api/ai/save-vocab",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/auth/me",
+      "filled": "/api/auth/me",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/register",
+      "filled": "/api/auth/register",
+      "destructive": false,
+      "role": "anon",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/login",
+      "filled": "/api/auth/login",
+      "destructive": false,
+      "role": "anon",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/forgot-password",
+      "filled": "/api/auth/forgot-password",
+      "destructive": false,
+      "role": "anon",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/reset-password",
+      "filled": "/api/auth/reset-password",
+      "destructive": false,
+      "role": "anon",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/change-password",
+      "filled": "/api/auth/change-password",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/avatar/upload",
+      "filled": "/api/auth/avatar/upload",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/auth/avatar",
+      "filled": "/api/auth/avatar",
+      "destructive": true,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/dashboard/stats",
+      "filled": "/api/dashboard/stats",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/decks",
+      "filled": "/api/decks",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/decks/my",
+      "filled": "/api/decks/my",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/decks/{id}",
+      "filled": "/api/decks/445",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/decks",
+      "filled": "/api/decks",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/decks/{id}/words",
+      "filled": "/api/decks/445/words",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/decks/{id}",
+      "filled": "/api/decks/999999999",
+      "destructive": true,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/decks/{id}",
+      "filled": "/api/decks/999999999",
+      "destructive": true,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/flashcards/status/{vocabularyId}",
+      "filled": "/api/flashcards/status/{vocabularyId}",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/flashcards/review",
+      "filled": "/api/flashcards/review",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/flashcards/study",
+      "filled": "/api/flashcards/study",
+      "status": "BLOCKED",
+      "why": "records real study activity → inserts a study_days row (proven: it added study_days id=30067 for user 2 today, which had to be deleted)"
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/quiz/{deckId}",
+      "filled": "/api/games/quiz/10006",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/memory/{deckId}",
+      "filled": "/api/games/memory/10006",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/typing/{deckId}",
+      "filled": "/api/games/typing/10006",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/listening/{deckId}",
+      "filled": "/api/games/listening/10006",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/mixed/{deckId}",
+      "filled": "/api/games/mixed/10006",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/games/submit",
+      "filled": "/api/games/submit",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/leaderboard",
+      "filled": "/api/leaderboard",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons",
+      "filled": "/api/lessons",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{id}",
+      "filled": "/api/lessons/445",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lessons",
+      "filled": "/api/lessons",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/lessons/{id}",
+      "filled": "/api/lessons/999999999",
+      "destructive": true,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/lessons/{id}",
+      "filled": "/api/lessons/999999999",
+      "destructive": true,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises",
+      "filled": "/api/lessons/445/exercises",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises/attempts",
+      "filled": "/api/lessons/445/exercises/attempts",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises/attempts/{attemptId}",
+      "filled": "/api/lessons/445/exercises/attempts/6",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises/content",
+      "filled": "/api/lessons/445/exercises/content",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lessons/{lessonId}/exercises/grade",
+      "filled": "/api/lessons/445/exercises/grade",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lessons/{lessonId}/exercises/submit",
+      "filled": "/api/lessons/445/exercises/submit",
+      "status": "BLOCKED",
+      "why": "persists a real exercise_attempt + study_days row"
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/lessons/{lessonId}/snapshots",
+      "filled": "/api/admin/lessons/445/snapshots",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/lessons/{lessonId}/snapshots",
+      "filled": "/api/admin/lessons/445/snapshots",
+      "status": "BLOCKED",
+      "why": "creates a real lesson_snapshot row"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/lessons/{lessonId}/snapshots/{snapshotId}/restore",
+      "filled": "/api/admin/lessons/445/snapshots/1/restore",
+      "status": "BLOCKED",
+      "why": "overwrites lesson content from a snapshot"
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/lessons/{lessonId}/structure",
+      "filled": "/api/admin/lessons/445/structure",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/resources/{filename:.+}",
+      "filled": "/api/resources/x",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/structure",
+      "filled": "/api/lessons/445/structure",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/lessons/{lessonId}/sections",
+      "filled": "/api/admin/lessons/445/sections",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/sections/{sectionId}/blocks",
+      "filled": "/api/admin/sections/6/blocks",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/upload",
+      "filled": "/api/admin/upload",
+      "status": "BLOCKED",
+      "why": "writes a real file to the media store"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/audio-upload",
+      "filled": "/api/admin/audio-upload",
+      "status": "BLOCKED",
+      "why": "uploads audio to Cloudinary"
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/sections/{sectionId}",
+      "filled": "/api/admin/sections/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/blocks/{blockId}",
+      "filled": "/api/admin/blocks/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/sections/{sectionId}",
+      "filled": "/api/admin/sections/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/blocks/{blockId}",
+      "filled": "/api/admin/blocks/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lesson-submissions/my/lesson/{lessonId}/skill/{skillType}",
+      "filled": "/api/lesson-submissions/my/lesson/445/skill/{skillType}",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lesson-submissions/submit",
+      "filled": "/api/lesson-submissions/submit",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lesson-submissions/upload-audio",
+      "filled": "/api/lesson-submissions/upload-audio",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/media/**",
+      "filled": "/api/v1/media/x",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/users/progress",
+      "filled": "/api/users/progress",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/srs/due/{deckId}",
+      "filled": "/api/srs/due/10006",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/srs/stats",
+      "filled": "/api/srs/stats",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/srs/review",
+      "filled": "/api/srs/review",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/streak/snapshot",
+      "filled": "/api/streak/snapshot",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/streak/history",
+      "filled": "/api/streak/history",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/streak/current",
+      "filled": "/api/streak/current",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/vocabulary",
+      "filled": "/api/vocabulary",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/vocabulary/search",
+      "filled": "/api/vocabulary/search",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/vocabulary/dictionary/{word}",
+      "filled": "/api/vocabulary/dictionary/{word}",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/vocabulary",
+      "filled": "/api/vocabulary",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/payment/status",
+      "filled": "/api/v1/payment/status",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/webhook/sepay",
+      "filled": "/api/webhook/sepay",
+      "status": "BLOCKED",
+      "why": "valid-signature webhook mutates a real payment row — real-money boundary"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/payment/create-order",
+      "filled": "/api/v1/payment/create-order",
+      "destructive": false,
+      "role": "anon",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/speaking-prompts",
+      "filled": "/api/v1/admin/speaking-prompts",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-prompts",
+      "filled": "/api/v1/admin/video-prompts",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts",
+      "filled": "/api/v1/speaking-prompts",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts",
+      "filled": "/api/v1/video-prompts",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts",
+      "filled": "/api/v1/speaking-prompts",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts",
+      "filled": "/api/v1/video-prompts",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts/{id}",
+      "filled": "/api/v1/speaking-prompts/445",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts/{id}",
+      "filled": "/api/v1/video-prompts/445",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/speaking-prompts",
+      "filled": "/api/v1/admin/speaking-prompts",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-prompts",
+      "filled": "/api/v1/admin/video-prompts",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/speaking-prompts/ai-generate",
+      "filled": "/api/v1/admin/speaking-prompts/ai-generate",
+      "destructive": false,
+      "role": "admin",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-prompts/ai-generate",
+      "filled": "/api/v1/admin/video-prompts/ai-generate",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/speaking-prompts/ai-generate-full",
+      "filled": "/api/v1/admin/speaking-prompts/ai-generate-full",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-prompts/ai-generate-full",
+      "filled": "/api/v1/admin/video-prompts/ai-generate-full",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/v1/admin/speaking-prompts/{id}",
+      "filled": "/api/v1/admin/speaking-prompts/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/v1/admin/video-prompts/{id}",
+      "filled": "/api/v1/admin/video-prompts/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/v1/admin/speaking-prompts/{id}",
+      "filled": "/api/v1/admin/speaking-prompts/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/v1/admin/video-prompts/{id}",
+      "filled": "/api/v1/admin/video-prompts/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/speaking-submissions",
+      "filled": "/api/v1/admin/speaking-submissions",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-submissions",
+      "filled": "/api/v1/admin/video-submissions",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-submissions",
+      "filled": "/api/v1/speaking-submissions",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-submissions",
+      "filled": "/api/v1/video-submissions",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts/{promptId}/submissions",
+      "filled": "/api/v1/speaking-prompts/3/submissions",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts/{promptId}/submissions",
+      "filled": "/api/v1/video-prompts/3/submissions",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-submissions/{id}",
+      "filled": "/api/v1/speaking-submissions/445",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-submissions/{id}",
+      "filled": "/api/v1/video-submissions/445",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/speaking-submissions/upload",
+      "filled": "/api/v1/speaking-submissions/upload",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/video-submissions/upload",
+      "filled": "/api/v1/video-submissions/upload",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/speaking-submissions/{id}/assess",
+      "filled": "/api/v1/speaking-submissions/445/assess",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/video-submissions/{id}/assess",
+      "filled": "/api/v1/video-submissions/445/assess",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "PATCH",
+      "raw": "/api/v1/admin/speaking-submissions/{id}/grade",
+      "filled": "/api/v1/admin/speaking-submissions/999999999/grade",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PATCH",
+      "raw": "/api/v1/admin/video-submissions/{id}/grade",
+      "filled": "/api/v1/admin/video-submissions/999999999/grade",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-lessons",
+      "filled": "/api/v1/video-lessons",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-lessons/{id}",
+      "filled": "/api/v1/video-lessons/445",
+      "destructive": false,
+      "role": "anon",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-attempts",
+      "filled": "/api/v1/video-attempts",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-lessons",
+      "filled": "/api/v1/admin/video-lessons",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-attempts",
+      "filled": "/api/v1/admin/video-attempts",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/video-lessons/{id}/attempts",
+      "filled": "/api/v1/video-lessons/445/attempts",
+      "destructive": false,
+      "role": "student",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons",
+      "filled": "/api/v1/admin/video-lessons",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons/upload",
+      "filled": "/api/v1/admin/video-lessons/upload",
+      "destructive": false,
+      "role": "admin",
+      "status": 415
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-attempts/{id}/ai-grade",
+      "filled": "/api/v1/admin/video-attempts/445/ai-grade",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons/translate-transcript",
+      "filled": "/api/v1/admin/video-lessons/translate-transcript",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons/fetch-youtube",
+      "filled": "/api/v1/admin/video-lessons/fetch-youtube",
+      "destructive": false,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/v1/admin/video-lessons/{id}",
+      "filled": "/api/v1/admin/video-lessons/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "PATCH",
+      "raw": "/api/v1/admin/video-attempts/{id}/grade",
+      "filled": "/api/v1/admin/video-attempts/999999999/grade",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/v1/admin/video-lessons/{id}",
+      "filled": "/api/v1/admin/video-lessons/999999999",
+      "destructive": true,
+      "role": "admin",
+      "status": 429
+    }
+  ],
+  "tally": {
+    "2xx": 3,
+    "BLOCKED": 13,
+    "4xx": 132
+  },
+  "parityAfter": "1470|43735|72|118|29|15|4|126|10|5",
+  "studyDaysAfter": 4,
+  "parityOk": true
+}

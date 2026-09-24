@@ -1,0 +1,15 @@
+Changed database context to 'english_learning_v14probe'.
+=== T1.2 CONSTRAINT EFFECTIVENESS ===
+FK_BLOCKED msg=547
+CHECK_BLOCKED msg=547
+UNIQUE_BLOCKED msg=2627
+FILTERED_BLOCKED msg=2601
+NULLS_ALLOWED ok (2 NULL tags inserted)
+=== rows after probe (child) ===
+child_rows
+----------
+3
+Changed database context to 'master'.
+marker
+------
+SCRATCH_DB_LEFT=0
