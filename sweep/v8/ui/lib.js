@@ -77,6 +77,11 @@ const VN_RUN_DATE = vnDate();
 const PARITY_BASELINE = "1470|43738|5|118|29|4|3|12|10";
 const PAYMENTS_BASELINE = 12;
 const STUDY_DAYS_BASELINE = 4;
+// audit-v17 F-17-07 (round 2, F-17-21): PROBE-ACCOUNT rows only — the same two emails
+// cleanupExerciseAttempts deletes for. The first version counted the whole table, so a REAL
+// learner submitting (there is a third user with real rows) would trip a false DIRTY even when
+// the harness left nothing behind. Measured 2026-09-26: 33 probe-account rows.
+const EXERCISE_ATTEMPTS_BASELINE = 33;
 
 /**
  * Remove the `payment_transactions` rows a UI sweep creates, and PROVE parity.
@@ -270,6 +275,61 @@ function parityMarker(name) {
 }
 
 /**
+ * audit-v17 F-17-07 — delete `exercise_attempts` rows this run could have written.
+ *
+ * WHY: `ExerciseService.submitExercises` (POST /api/lessons/{id}/exercises/submit) persists an
+ * `ExerciseAttempt` on every submit. The MCP UI walkthrough submits through the real UI, so it
+ * leaves a row — measured in v17 (`attempt_id=70147`, cleaned by hand). No committed harness
+ * creates these (grep `exercises/submit` across sweep/ = 0), but a human/MCP-driven run does,
+ * and nothing cleaned or counted it. Same residue channel as `study_days` (F-16-01).
+ *
+ * SAFETY: scoped to the two probe accounts AND a completed_at window, so a real learner's row
+ * can never be touched. `completed_at` is the timestamp column (there is no created_at, no
+ * status, no soft-delete on this table). Structure mirrors `cleanupAuditPayments` — notably a
+ * count taken AFTER the delete for the assertion, and the correct `rk[1]` parse.
+ *
+ * @param {string} [from] ISO date (VN) lower bound. Defaults to this run's start date.
+ */
+function cleanupExerciseAttempts(from) {
+  const { execFileSync } = require("child_process");
+  const fs = require("fs");
+  const path = require("path");
+  const ROOT = path.join(__dirname, "..", "..", "..");
+  const lower = from || VN_RUN_DATE;
+  const upper = vnDate();
+  const where = "WHERE completed_at >= '" + lower + " 00:00:00'"
+    + " AND completed_at <= '" + upper + " 23:59:59'"
+    + " AND user_id IN (SELECT user_id FROM users WHERE email IN ('user@gmail.com','admin@gmail.com'))";
+  const sql = [
+    "SET QUOTED_IDENTIFIER ON;",
+    "SELECT 'AUDIT_EA_CANDIDATES=' + CAST(COUNT(*) AS varchar(20)) FROM exercise_attempts " + where + ";",
+    "DELETE FROM exercise_attempts " + where + ";",
+    // Measured AFTER the delete: requiring 0 proves the window is empty regardless of baseline.
+    "SELECT 'AUDIT_EA_REMAINING=' + CAST(COUNT(*) AS varchar(20)) FROM exercise_attempts " + where + ";",
+  ].join("\n");
+  const file = path.join(__dirname, "..", "_cleanup_exercise_attempts.sql");
+  fs.writeFileSync(file, sql + "\n", "utf8");
+
+  let out = "";
+  try {
+    out = execFileSync("python", ["sweep/v8/sqlrun.py", "sweep/v8/_cleanup_exercise_attempts.sql"],
+      { cwd: ROOT, encoding: "utf8" });
+  } catch (e) { out = String(e.stdout || "") + String(e.stderr || "") + String(e.message); }
+
+  const ck = out.match(/AUDIT_EA_CANDIDATES=(\d+)/);
+  const rk = out.match(/AUDIT_EA_REMAINING=(\d+)/);
+  const candidates = ck ? parseInt(ck[1], 10) : NaN;
+  const remaining = rk ? parseInt(rk[1], 10) : NaN;
+  const hadError = /Msg \d+/.test(out);
+  const ok = !hadError && !isNaN(remaining) && remaining === 0;
+  console.log("cleanupExerciseAttempts: window=[" + lower + ".." + upper + "]"
+    + " candidates=" + (isNaN(candidates) ? "?" : candidates)
+    + " remaining=" + (isNaN(remaining) ? "?" : remaining)
+    + " sqlError=" + hadError + " -> " + (ok ? "SELF-CLEAN OK" : "SELF-CLEAN FAILED"));
+  return { ok, candidates, remaining, output: out };
+}
+
+/**
  * Assert the DB is back to its expected state after a harness run, and THROW if not.
  *
  * WHY THIS EXISTS (audit-v15 hardening, weakness L1)
@@ -297,6 +357,8 @@ function assertClean(expect) {
     parity: dbParity(),
     studyDays: parityMarker("STUDY_DAYS"),
     pendingPayments: parityMarker("PENDING_PAYMENTS"),
+    // audit-v17 F-17-07: exercise_attempts is a residue channel (a UI/MCP submit writes one).
+    exerciseAttempts: parityMarker("EXERCISE_ATTEMPTS"),
   };
   const problems = [];
   if (expect.parity !== undefined && observed.parity !== expect.parity) {
@@ -308,10 +370,14 @@ function assertClean(expect) {
   if (expect.pendingPayments !== undefined && observed.pendingPayments !== expect.pendingPayments) {
     problems.push("pending payments " + observed.pendingPayments + " != expected " + expect.pendingPayments);
   }
+  if (expect.exerciseAttempts !== undefined && observed.exerciseAttempts !== expect.exerciseAttempts) {
+    problems.push("exercise_attempts " + observed.exerciseAttempts + " != expected " + expect.exerciseAttempts);
+  }
   const ok = problems.length === 0;
   console.log("assertClean: parity=" + observed.parity
     + " study_days=" + observed.studyDays
     + " pending_payments=" + observed.pendingPayments
+    + " exercise_attempts=" + observed.exerciseAttempts
     + " -> " + (ok ? "CLEAN" : "DIRTY: " + problems.join("; ")));
   if (!ok) throw new Error("assertClean failed — residue left by this run: " + problems.join("; "));
   return observed;
@@ -407,13 +473,40 @@ async function seedAuth(page, session) {
   }, { token: session.token, user: mapUser(session.user) });
 }
 
+// audit-v17 F-17-06: Chromium classifies a cross-origin failure from the embedded YouTube
+// player (postMessage / referrer block / Permissions-Policy notices) as console type
+// "error", so a naive `m.type() === "error"` counter flags /videos/{id} on every run.
+//
+// audit-v17 round 2 (F-17-18, cross-review): the first version was a bare `/youtube/i` SUBSTRING
+// match, which also suppressed REAL app errors whose text merely mentioned youtube — e.g.
+// `TypeError: Cannot read properties of null (reading 'youtubeVideoId')`. Each pattern is now
+// ANCHORED to the actual third-party signature (a resource-load failure for a third-party origin,
+// or the iframe's own postMessage/notice), so a genuine JS error is never hidden.
+const THIRD_PARTY_CONSOLE_NOISE = [
+  // Resource-load failures for third-party origins (favicon, the YouTube embed + its media CDN).
+  /Failed to load resource:.*(favicon|youtube|googlevideo|ERR_BLOCKED_BY_RESPONSE|ERR_UNSAFE_REDIRECT)/i,
+  // The YouTube iframe's cross-origin postMessage warning.
+  /postMessage.*(youtube|DOMWindow)/i,
+  // Permissions-Policy informational notice the browser emits for the embedded iframe.
+  /Unrecognized feature:.*(compute-pressure|web-share)/i,
+];
+
+/** True when a console error string is known third-party/iframe noise, not an app defect. */
+function isThirdPartyConsoleNoise(text) {
+  const t = String(text);
+  return THIRD_PARTY_CONSOLE_NOISE.some(re => re.test(t));
+}
+
 // Collect console errors + failed requests while visiting one route.
 async function visit(page, route, label, opts) {
   opts = opts || {};
   const errors = [], warns = [], failed = [];
   const onConsole = m => {
-    if (m.type() === "error") errors.push(m.text().slice(0, 200));
-    else if (m.type() === "warning") warns.push(m.text().slice(0, 160));
+    if (m.type() === "error") {
+      const t = m.text();
+      if (isThirdPartyConsoleNoise(t)) return;
+      errors.push(t.slice(0, 200));
+    } else if (m.type() === "warning") warns.push(m.text().slice(0, 160));
   };
   const onReq = r => { if (!r.url().startsWith(API)) return; };
   const onResp = r => {
@@ -470,4 +563,4 @@ function summarize(title) {
   console.log("  horizontal overflow: " + (overflow.length ? overflow.map(r => r.route + "(" + r.info.scrollW + ">" + r.info.clientW + ")").join(" ; ") : "none"));
 }
 
-module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, cleanupStudyDays, dbParity, parityMarker, assertClean, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE };
+module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, cleanupStudyDays, cleanupExerciseAttempts, dbParity, parityMarker, assertClean, isThirdPartyConsoleNoise, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE, EXERCISE_ATTEMPTS_BASELINE };

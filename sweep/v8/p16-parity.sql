@@ -28,3 +28,14 @@ GO
 SELECT 'PENDING_PAYMENTS=' + CAST((SELECT COUNT(*) FROM payment_transactions
        WHERE transaction_id IS NULL AND status <> 'SUCCESS') AS varchar(10)) AS pending_payments_marker;
 GO
+-- audit-v17 F-17-07: `exercise_attempts` is a residue channel too. A submit through the real UI
+-- (POST /api/lessons/{id}/exercises/submit -> ExerciseService.submitExercises) persists one, and
+-- the MCP walkthrough does exactly that; nothing counted or cleaned it before.
+-- audit-v17 round 2 (F-17-21, cross-review): counted for the TWO PROBE ACCOUNTS ONLY. The first
+-- version counted the whole table, which would report DIRTY the moment a REAL learner submitted
+-- (there is a third user with real rows) even though the harness left nothing behind. Scoping the
+-- marker to the same two emails the cleanup uses makes the assertion exact.
+SELECT 'EXERCISE_ATTEMPTS=' + CAST((SELECT COUNT(*) FROM exercise_attempts ea
+       WHERE ea.user_id IN (SELECT user_id FROM users
+                            WHERE email IN ('user@gmail.com','admin@gmail.com'))) AS varchar(10)) AS exercise_attempts_marker;
+GO

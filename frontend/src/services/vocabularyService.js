@@ -1,6 +1,39 @@
 import api from './api'
 
 /**
+ * Normalise the backend's vocabulary rows into the shape this service returns.
+ * Shared by the local exact fast path and the proxy's DB fallback so both stay in sync.
+ */
+function mapBackendRows(data) {
+  const rows = Array.isArray(data) ? data : []
+  return rows.map((row, idx) => ({
+    id: row.id || (idx + 1),
+    word: row.word,
+    phonetic: row.pronunciation || '',
+    audioUrl: row.audioUrl || '',
+    meanings: [{
+      partOfSpeech: row.wordType || '',
+      definitions: [{
+        definition: row.definitionEn || row.meaning || '',
+        example: row.exampleSentence || '',
+        synonyms: [],
+        antonyms: []
+      }],
+      synonyms: [],
+      antonyms: []
+    }],
+    partOfSpeech: row.wordType || '',
+    definition: row.definitionEn || row.meaning || '',
+    example: row.exampleSentence || '',
+    syllables: undefined,
+    pronunciation: row.pronunciation,
+    origin: undefined,
+    cefrLevel: row.cefrLevel,
+    source: row.source
+  }))
+}
+
+/**
  * Tra từ - Dictionary lookup with rich metadata.
  * Uses free dictionaryapi.dev (no API key required).
  *
@@ -115,60 +148,77 @@ export default {
       } catch (proxyErr) { /* tiếp tục DB fallback */ }
       // 2) DB Oxford3000 trong backend (shape khác — normalize)
       const backend = await api.get(`/api/vocabulary/search?keyword=${encodeURIComponent(trimmed)}`)
-      const rows = Array.isArray(backend.data) ? backend.data : []
-      if (rows.length === 0) return []
-      return rows.map((row, idx) => ({
-        id: row.id || (idx + 1),
-        word: row.word,
-        phonetic: row.pronunciation || '',
-        audioUrl: row.audioUrl || '',
-        meanings: [{
-          partOfSpeech: row.wordType || '',
-          definitions: [{
-            definition: row.definitionEn || row.meaning || '',
-            example: row.exampleSentence || '',
-            synonyms: [],
-            antonyms: []
-          }],
-          synonyms: [],
-          antonyms: []
-        }],
-        partOfSpeech: row.wordType || '',
-        definition: row.definitionEn || row.meaning || '',
-        example: row.exampleSentence || '',
-        syllables: undefined,
-        pronunciation: row.pronunciation,
-        origin: undefined,
-        cefrLevel: row.cefrLevel,
-        source: row.source
-      }))
+      return mapBackendRows(backend.data)
     }
 
-    let response
-    try {
-      // Proxy backend là đường chính: Redis cache 1h dùng chung mọi user +
-      // timeout 3s/30s phía server. Chỉ khi proxy lỗi mới thử direct từ
-      // browser (4s×2). Tiết kiệm ~8s chờ vô ích cho mỗi từ mới.
+    // audit-v17 F-17-05 — resolve order, with a fast local fallback:
+    //   The dictionary gives the RICH entry (phonetics, audio, several meanings, synonyms); the
+    //   local table (118 rows) has no audio and one meaning, so it must NOT win by default.
+    //   But the dictionary can take ~20 s on a cold upstream and its failure is not cached.
+    //   So: start the dictionary immediately, and if the word is in the local table and the
+    //   dictionary has not answered within LOCAL_GRACE_MS, return the local row NOW (the
+    //   dictionary request keeps going and will populate the cache for the next lookup).
+    //   -> rich entry when the dictionary is fast (warm cache); instant answer when it is cold.
+    // NOTE: the proxy is called ONCE. It used to be reachable from two places, so a slow upstream
+    // could be hit twice (~40 s worst case).
+    const LOCAL_GRACE_MS = 1500;
+
+    async function localExact() {
+      const res = await api.get(`/api/vocabulary/search?keyword=${encodeURIComponent(trimmed)}&exact=true`)
+      const rows = mapBackendRows(res.data)
+      return rows.length === 0 ? null : rows
+    }
+
+    // Kick off the dictionary path immediately (not awaited yet).
+    const dictPromise = (async () => {
+      let response
       try {
         return await backendFallback()
       } catch (proxyErr) {
+        // The proxy is unreachable — fall back to a direct browser call (retried once, since a
+        // transient DNS/TCP failure often succeeds on the second attempt).
+        let directErr = null
         try {
           response = await directFetch(4000)
         } catch (firstErr) {
-          response = await directFetch(4000)
+          try {
+            response = await directFetch(4000)
+          } catch (secondErr) {
+            directErr = secondErr
+          }
         }
-        return await mapDirectResponse(response)
-      }
-    } catch (e) {
-      // mapDirectResponse lỗi HTTP (404 trả [] nên không tới đây) — thử backend lần cuối
-      try {
-        return await backendFallback()
-      } catch (backendErr) {
-        if (e && e.name === 'AbortError') {
-          throw new Error('TIMEOUT')
+        if (directErr) {
+          // audit-v17 round 2 (F-17-19, cross-review): an AbortError means the 4s timeout fired
+          // (slow upstream); anything else (e.g. `TypeError: Failed to fetch` when the browser is
+          // OFFLINE) is a network failure. The UI shows different guidance for each
+          // (SearchVocabulary.vue:136-139), so collapsing both to TIMEOUT would tell an offline
+          // user "the dictionary is slow" — wrong advice.
+          throw new Error(directErr.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR')
         }
-        throw new Error('NETWORK_ERROR')
+        try {
+          return await mapDirectResponse(response)
+        } catch (mapErr) {
+          // Direct returned a non-ok, non-404 status. Preserve the UI's error contract.
+          throw new Error('NETWORK_ERROR')
+        }
       }
+    })();
+
+    let local = null
+    try { local = await localExact() } catch (localErr) { /* best-effort — never block the dictionary */ }
+
+    if (local) {
+      // Race the dictionary against a short grace period. Never leave dictPromise unhandled.
+      const raced = await Promise.race([
+        dictPromise.then(r => ({ kind: 'dict', r }), e => ({ kind: 'err', e })),
+        new Promise(res => setTimeout(() => res({ kind: 'slow' }), LOCAL_GRACE_MS)),
+      ]);
+      if (raced.kind === 'dict') return raced.r;
+      if (raced.kind === 'err') return local;      // dictionary failed -> local is the best answer
+      dictPromise.catch(() => {});                 // dictionary still in flight -> let it warm the cache
+      return local;                                // slow upstream -> answer instantly from local
     }
+
+    return await dictPromise;
   }
 }

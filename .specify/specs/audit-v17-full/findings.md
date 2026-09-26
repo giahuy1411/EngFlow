@@ -226,3 +226,94 @@ là **tên file**, không phải đường dẫn/marker nên `assert-harness.js`
 
 **Đề xuất:** đổi sang `AUDIT`-derived prefix (như `MARKER` trong `_config.js`). **Chưa sửa** — ngoài phạm vi "fix lỗi
 thật của app"; ghi để vòng sau.
+
+---
+
+# PHẦN RERUN (vòng nối tiếp) — cập nhật trạng thái + finding mới
+
+Chạy lại **toàn bộ** chuỗi v17 + mở rộng (đóng các mục "Chưa làm") + **thêm 1 vòng review chéo**.
+
+## Đổi trạng thái (từ "Chưa làm" → đã xử lý)
+
+| ID | Trạng thái v17 | Trạng thái rerun | Bằng chứng |
+|---|---|---|---|
+| **F-17-05** (từ điển ~20 s) | `OPEN` (đặc tính) | **FIXED (phần local) + ghi rõ phần còn lại** | local exact fast path: **11–54 ms** thay vì ~20 000 ms cho từ có trong DB; bỏ gọi proxy 2 lần; đo before/after + verify UI thật → `g5-f17-05.md` |
+| **F-17-06** (ui-sweep console error) | `OPEN` — *kết luận SAI* (tưởng warn YouTube) | **CLOSED (probe SAI)** + harness chống tái diễn | text thật là `ERR_UNSAFE_REDIRECT` (không phải `postMessage`); 4 lần tái hiện → **0** ⇒ thoáng qua. Thêm `isThirdPartyConsoleNoise` dùng chung → `ui-sweep` 0 |
+| **F-17-07** (`exercise_attempts` residue) | `OPEN` | **FIXED** | `cleanupExerciseAttempts` + marker `EXERCISE_ATTEMPTS=` + `assertClean`; guard **tự bắt** residue thật (candidates=1) rồi CLEAN |
+| **F-17-13** (ảnh `v13-*`) | `OPEN` | **FIXED** | tên suy từ `VER` → `v17-home-1440.png` … |
+| **SePay webhook chữ ký thật** | `BLOCKED` (real-money) | **VERIFIED** | `g6-sepay-signed.py`: valid sig → `{"success":true}` + DB `SUCCESS`; bad sig → `Invalid signature`; tự dọn → `g6-sepay.md` |
+| **Speaking media thật** | `BLOCKED` (cần mic) | **VERIFIED** | `g7-speaking-real-audio.py`: TTS WAV thật → upload → assess → **`COMPLETED`, transcript 181 ký tự, score 9.7**; tự dọn row+MinIO+study_days → `g7-speaking.md` |
+| **Playwright MCP** | `BLOCKED` (thiếu Chrome channel) | **UNBLOCKED** (đã chứng minh) | `--executable-path` → Brave; probe `browser_navigate` → `/lessons` OK → `g1-playwright-mcp.md` |
+| Perf | "không win" | **giữ nguyên** | median 19.8 ms (v17: 19.5) — tái xác nhận, không tối ưu (P5) |
+
+## Finding MỚI trong rerun
+
+### F-17-14 — `assess()` ghi `study_days` nhưng probe/harness không dọn — **LOW (harness)** — `FIXED`
+**Nguồn:** assert parity bắt được (`STUDY_DAYS=5` sau G7) — không phải suy đoán.
+**Bằng chứng:** `SpeakingSubmissionService:134` gọi `recordStudy()` ⇒ mỗi lần **assess** ghi 1 hàng `study_days`
+(user 2, 2026-09-26, id 40091). Probe G7 ban đầu chỉ dọn `speaking_submissions` + MinIO ⇒ **sót study day**.
+**Fix:** probe G7 dọn thêm `study_days` (scoped 2 tài khoản probe + hôm nay); ghi vào `AGENTS.md`.
+**Probe 2:** chạy lại → `study_days rows removed=1`, parity về `STUDY_DAYS=4`.
+
+### F-17-15 — Probe G7 bỏ lại object MinIO (đọc sai field) — **LOW (harness)** — `FIXED`
+**Bằng chứng:** lần chạy đầu `G7 PASS` nhưng `mediaKey=None` (response trả `mediaUrl`, **không** trả
+`media_object_key`) ⇒ object 1020 KiB **bị bỏ lại** trong bucket. Phát hiện bằng cách **liệt kê object hôm nay**.
+**Fix:** đọc `media_object_key` **từ DB trước khi** xoá row; đã **xoá object orphan**; chạy lại → `Removed …`,
+`minio object gone: True`.
+
+### F-17-16 — `_config.js` mặc định còn trỏ `audit-v15-full` — **LOW (harness)** — `OPEN` (ghi nhận)
+**Bằng chứng:** `sweep/harness/_config.js:34` `arg("audit", "audit-v15-full")` — lệch 2 vòng so với thực tế.
+Chưa sửa vì mọi lệnh đều truyền `--audit` tường minh; ghi để vòng sau (tránh ghi nhầm evidence dir khi quên cờ).
+
+### F-17-17 — `focused-probe.js:188` hardcode `audit-v15-full` — **LOW (harness)** — `OPEN` (ghi nhận)
+Cùng lớp F-17-13 nhưng ở file khác (`path.join(..., "audit-v15-full", "evidence", "focused-probe.json")`);
+không dùng `_config.js.OUT`. Ghi nhận.
+
+---
+
+## VÒNG REVIEW CHÉO THỨ 2 — defect do reviewer bắt trong chính fix của rerun
+
+Subagent `general-purpose` (refute-first) — 6/6 vùng đều có kết luận. Tác giả **đối chiếu lại từng claim**
+bằng SQL/test trước khi sửa (reviewer cũng có thể sai — nhưng lần này **đúng cả 7**).
+
+### F-17-18 — Regex noise là substring thô, GIẤU lỗi thật — **MEDIUM (harness)** — `FIXED`
+**Bằng chứng (tự verify):** `isThirdPartyConsoleNoise("TypeError: Cannot read properties of null (reading 'youtubeVideoId')")`
+→ **true** ⇒ một lỗi app THẬT bị nuốt ⇒ `ui-sweep` báo 0 console error dù có bug.
+**Fix:** neo regex vào **chữ ký third-party thật** (`Failed to load resource:.*(youtube|favicon|…)`, `postMessage.*youtube`,
+`Unrecognized feature:.*(compute-pressure|web-share)`) — 10 ca test: lọc đúng noise, **KHÔNG** lọc `TypeError`/500/ERR_CONNECTION_REFUSED.
+
+### F-17-19 — Error contract: offline bị báo TIMEOUT thay vì NETWORK_ERROR — **LOW (UX)** — `FIXED`
+**Bằng chứng:** `vocabularyService.js` nhánh 2 lần `directFetch` thất bại → `throw new Error('TIMEOUT')` **vô điều kiện**;
+offline là `TypeError: Failed to fetch` (không phải `AbortError`) ⇒ UI hiện "từ điển chậm" thay vì "lỗi mạng".
+**Fix:** `directErr.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR'`; test `vocabulary-search-errors.test.js` **4/4**.
+
+### F-17-20 — Local-first là REGRESSION chất lượng kết quả — **MEDIUM (UX)** — `FIXED`
+**Bằng chứng (tự verify):** `SELECT … FROM vocabulary` → **118/118 hàng `audio_url IS NULL`**; `mapBackendRows` cho
+1 meaning/0 synonym. Từ điển cho audio + nhiều nghĩa + synonym. Local-first ⇒ **mất nút phát âm + nghĩa** cho mọi từ
+Oxford3000.
+**Fix:** **đảo thiết kế** — từ điển **ưu tiên**; local chỉ là **fast fallback** khi từ điển chậm (>1.5 s) hoặc lỗi.
+Test `vocabulary-search-order.test.js` **4/4** (ưu tiên rich entry; fallback khi chậm; fallback khi lỗi; ≤1 proxy call).
+
+### F-17-21 — Baseline global vs cleanup scoped → DIRTY giả — **LOW (harness)** — `FIXED`
+**Bằng chứng:** marker đếm **cả bảng** trong khi cleanup chỉ xoá **2 tài khoản probe**; user thật 150040 có 3 hàng ⇒
+học viên thật nộp 1 bài là `assertClean` báo DIRTY oan.
+**Fix:** marker **chỉ đếm 2 tài khoản probe** (33 hàng); **đã chứng minh**: INSERT hàng user 150040 → marker **vẫn 33**.
+
+### F-17-22 — G6 không hoàn nguyên premium — **LOW (probe)** — `FIXED`
+**Bằng chứng:** settle gọi `PaymentService.processSePayTransaction:193-195` → `setIsPremium(true)` + `setPremiumExpiry(...)`;
+mỗi lần chạy **đẩy expiry thêm 1 tháng**, parity không thấy. (Đã xác nhận user 2 bị đẩy `2026-10-03`→`2026-10-26`.)
+**Fix:** đọc premium **trước** khi settle, **hoàn nguyên** trong `finally`; đã trả user 2 về `2026-10-03`.
+
+### F-17-23 — Negative control của G6 chỉ in, không assert — **LOW (probe)** — `FIXED`
+**Fix:** assert `Invalid signature`/`success:false` và đưa vào `ok`.
+
+### F-17-24 — G7 dùng `GETDATE()` (UTC) cho `study_date` (VN) → false pass theo giờ — **LOW (probe)** — `FIXED`
+**Bằng chứng:** SQL Server UTC, `study_date` ghi theo VN ⇒ 17:00–24:00 UTC (= 00:00–07:00 VN hôm sau) DELETE khớp **0 hàng**.
+**Fix:** tính ngày VN bằng `time.gmtime(now + 7h)`; in `cleanup window (VN date): 2026-09-26`.
+
+### F-17-25 — Cả 2 probe thiếu try/finally + verdict bỏ qua cleanup — **LOW (probe)** — `FIXED`
+**Fix:** bọc try/finally (dọn cả khi bước giữa lỗi — đã gặp thật khi `time` chưa import: row 40050 bị bỏ lại, **đã dọn tay**);
+verdict G7 nay gồm `gone` + `sd_deleted`; verdict G6 gồm `bad_rejected` + `restored`.
+
+### F-17-26 — `ui-sweep.js:374` log `s.name` (đã bỏ khỏi SHOTS) — **LOW (cosmetic)** — `FIXED`
+**Fix:** dùng `shotName(s)`.

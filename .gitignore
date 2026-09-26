@@ -97,6 +97,10 @@ sweep/*
 !sweep/backfill-export.ps1
 !sweep/harness/**
 # Generated at runtime by the harness (never commit): per-run SQL + result JSON.
+# audit-v17: `_*.sql` is the general form — probes write per-run SQL next to themselves
+# (e.g. _g6-sepay.sql, _g7-speaking.sql, _cleanup_exercise_attempts.sql); those are scratch,
+# only the probe .js/.py source is tracked.
+sweep/harness/_*.sql
 sweep/harness/_cleanup.sql
 sweep/harness/_deep-cleanup.sql
 sweep/harness/_ui-cleanup.sql

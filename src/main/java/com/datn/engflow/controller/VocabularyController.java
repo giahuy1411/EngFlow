@@ -41,12 +41,18 @@ public class VocabularyController {
     @GetMapping("/search")
     public ResponseEntity<List<Vocabulary>> search(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "") String q) {
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "false") boolean exact) {
         String query = keyword.isBlank() ? q : keyword;
         if (query.isBlank() || query.length() < 2) {
             return ResponseEntity.ok(List.of());
         }
-        List<Vocabulary> results = vocabularyRepository.findByWordContainingIgnoreCase(query);
+        // audit-v17 F-17-05: `exact=true` is the local FAST PATH — an exact word match used by the
+        // frontend before it calls the ~20 s dictionary proxy. It answers from the local table in
+        // milliseconds. Default (false) keeps the existing substring behaviour untouched.
+        List<Vocabulary> results = exact
+                ? vocabularyRepository.findByWordIgnoreCase(query)
+                : vocabularyRepository.findByWordContainingIgnoreCase(query);
         return ResponseEntity.ok(results);
     }
 

@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report
 Version change: 1.0.1 → 1.0.2
-Modified principles: P1 (backend baseline 221 → 520 tests, frontend 73 → 183 — đo lại audit-v17 2026-09-26;
+Modified principles: P1 (backend baseline 221 → 520 tests, frontend 73 → 191 — đo lại audit-v17 2026-09-26;
   số phải được đo lại mỗi kỳ audit)
 Added sections: none
 Removed sections: none
@@ -23,7 +23,7 @@ qua Ollama/Whisper/MCP). Mọi agent hoặc người đóng góp PHẢI tuân th
 
 ### P1. Baseline xanh là tiền đề
 Trước và sau mọi thay đổi: backend `mvnw.cmd test` = 520 tests / 0 fail / 0 error / 11 skipped, frontend
-`npx vitest run` = 183 tests / 1 skipped / 30 files (con số này là mốc **audit-v17**, đo 2026-09-26; mỗi kỳ
+`npx vitest run` = 191 tests / 1 skipped / 32 files (con số này là mốc **audit-v17**, đo 2026-09-26; mỗi kỳ
 audit PHẢI đo lại và ghi giá trị thực tế). Mọi PR/commit không giữ baseline xanh bị từ chối.
 
 ### P2. Kiến trúc phân lớp bất biến

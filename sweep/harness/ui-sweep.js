@@ -19,7 +19,7 @@
 const path = require("path");
 const fs = require("fs");
 const H = require(path.join(__dirname, "..", "v8", "ui", "lib.js"));
-const { OUT: OUTDIR } = require("./_config.js");
+const { OUT: OUTDIR, VER } = require("./_config.js");
 
 const APP = H.APP;
 const SHOTDIR = path.join(OUTDIR, "shots");
@@ -225,7 +225,16 @@ const FONT_FN = `() => {
       const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
       const page = await ctx.newPage();
       const errors = [], pageErrs = [], api4xx = [];
-      page.on("console", m => { if (m.type() === "error") errors.push(m.text().slice(0, 200)); });
+      // audit-v17 F-17-06: Chromium classifies the embedded YouTube player's cross-origin
+      // failures as console type "error", so a bare type check flags /videos/{id} every run.
+      // Those are third-party/iframe noise, not app defects — the shared rule lives in lib.js
+      // (promoted from the copy that already existed in routes-all.js) so all collectors agree.
+      page.on("console", m => {
+        if (m.type() !== "error") return;
+        const t = m.text();
+        if (H.isThirdPartyConsoleNoise(t)) return;
+        errors.push(t.slice(0, 200));
+      });
       page.on("pageerror", e => pageErrs.push(String(e).slice(0, 200)));
       page.on("response", r => {
         if (!r.url().includes(":8080")) return;
@@ -336,14 +345,20 @@ const FONT_FN = `() => {
   }
 
   // ── Screenshots (evidence) ──────────────────────────────────────────────────
+  // audit-v17 F-17-13: the `name` field used to be a hardcoded `v13-*` literal, so every round's
+  // screenshots were mislabelled (the same namespace-drift class _config.js exists to prevent —
+  // it escaped the drift guard because these are filenames, not paths/markers). The name is now
+  // DERIVED from the audit via VER (e.g. "V17" -> "v17-home-1440.png").
   const SHOTS = [
-    { p: "/", role: "anon", w: 1440, h: 900, name: "v13-home-1440" },
-    { p: "/lessons", role: "anon", w: 360, h: 800, name: "v13-lessons-360" },
-    { p: "/admin/dashboard", role: "admin", w: 1440, h: 900, name: "v13-admin-dashboard-1440" },
-    { p: "/profile", role: "student", w: 1280, h: 900, name: "v13-profile-1280" },
-    { p: "/premium", role: "anon", w: 768, h: 900, name: "v13-premium-768" },
-    { p: "/lessons", role: "anon", w: 1920, h: 1000, name: "v13-lessons-1920" },
+    { p: "/", role: "anon", w: 1440, h: 900 },
+    { p: "/lessons", role: "anon", w: 360, h: 800 },
+    { p: "/admin/dashboard", role: "admin", w: 1440, h: 900 },
+    { p: "/profile", role: "student", w: 1280, h: 900 },
+    { p: "/premium", role: "anon", w: 768, h: 900 },
+    { p: "/lessons", role: "anon", w: 1920, h: 1000 },
   ];
+  const shotName = s => VER.toLowerCase() + "-"
+    + (s.p.replace(/^\//, "").replace(/\//g, "-") || "home") + "-" + s.w;
   for (const s of SHOTS) {
     const ctx = await browser.newContext({ viewport: { width: s.w, height: s.h } });
     const page = await ctx.newPage();
@@ -352,11 +367,11 @@ const FONT_FN = `() => {
     try {
       await page.goto(APP + s.p, { waitUntil: "domcontentloaded", timeout: 30000 });
       await page.waitForTimeout(2500);
-      const f = path.join(SHOTDIR, s.name + ".png");
+      const f = path.join(SHOTDIR, shotName(s) + ".png");
       await page.screenshot({ path: f });
       out.shots.push(path.relative(path.join(__dirname, "..", ".."), f).replace(/\\/g, "/"));
       console.log("shot:", f);
-    } catch (e) { console.log("shot FAILED", s.name, e.message.slice(0,80)); }
+    } catch (e) { console.log("shot FAILED", shotName(s), e.message.slice(0,80)); }
     await ctx.close();
   }
 
@@ -381,13 +396,26 @@ const FONT_FN = `() => {
     // read-only, so candidates=0 normally; the helper is here so a future action added to
     // this walk self-cleans instead of leaking a row into the parity guard.
     const cleanSd = H.cleanupStudyDays();
+    // audit-v17 F-17-07: exercise_attempts is the same residue class (a UI submit persists one).
+    // This sweep does not submit, so candidates=0 normally; the helper is here so any future
+    // action added to the walk self-cleans instead of leaking a row past the guard.
+    const cleanEa = H.cleanupExerciseAttempts();
     console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline " + H.PARITY_BASELINE + ")");
-    try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
+    try {
+      H.assertClean({
+        parity: H.PARITY_BASELINE,
+        studyDays: H.STUDY_DAYS_BASELINE,
+        pendingPayments: 0,
+        exerciseAttempts: H.EXERCISE_ATTEMPTS_BASELINE,
+      });
+    }
     catch (e) { console.error("RESIDUE: " + e.message); residue = true; }
     // audit-v16: fold the study_days cleanup result into `clean.ok` so the exit code below
     // (which reads `clean.ok`) also fails on a study_days cleanup failure — the exact
     // "result computed then dropped from the exit code" defect v15 L1-c fixed for payments.
+    // audit-v17: exercise_attempts folded in the same way.
     if (!cleanSd.ok) clean.ok = false;
+    if (!cleanEa.ok) clean.ok = false;
     out.cleanup = { ok: clean.ok, residue, fatal: !!fatal };
   }
 
