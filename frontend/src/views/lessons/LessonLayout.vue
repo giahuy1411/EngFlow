@@ -21,9 +21,6 @@
       <!-- Tab panels -->
       <div v-if="activeTab === 'content'" :id="'tabpanel-content'" role="tabpanel" aria-label="Nội dung">
         <LessonContent />
-        <!-- audit-v13 F-13-02 A1: authored blocks render after the scraped content and only
-             when the lesson actually has materialized sections (see LessonBlocks.vue). -->
-        <LessonBlocks />
       </div>
       <div v-else-if="activeTab === 'exercises'" :id="'tabpanel-exercises'" role="tabpanel" aria-label="Bài tập">
         <LessonExerciseTab v-if="isLoggedIn" />
@@ -43,7 +40,6 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/modules/auth'
 import StreakBanner from './StreakBanner.vue'
 import LessonContent from './LessonContent.vue'
-import LessonBlocks from './LessonBlocks.vue'
 import LessonExerciseTab from './LessonExerciseTab.vue'
 import LessonPreview from './LessonPreview.vue'
 import GuestCtaCard from '@/components/common/GuestCtaCard.vue'

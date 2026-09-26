@@ -353,7 +353,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { adminService } from '@/services/adminService'
-import lessonStructureService from '@/services/lessonStructureService'
+import uploadService from '@/services/uploadService'
 import Pagination from '@/components/common/Pagination.vue'
 import AiGeneratePanel from '@/components/admin/AiGeneratePanel.vue'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -480,7 +480,7 @@ async function uploadFile(event, field) {
   const file = event.target.files[0]
   if (!file) return
   try {
-    const result = await lessonStructureService.uploadFile(file)
+    const result = await uploadService.uploadFile(file)
     formData.value[field] = result.url
     if (field === 'imageUrl') imageError.value = false
   } catch {

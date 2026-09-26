@@ -149,7 +149,6 @@ const pageTitles = {
   AdminSpeakingPrompts: 'Đề luyện nói',
   AdminVideoLessons: 'Video học tập',
   AdminVideoAttempts: 'Chấm shadowing',
-  AdminLessonBuilder: 'Xây dựng bài học',
   AdminUsers: 'Người dùng',
 }
 

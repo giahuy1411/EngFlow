@@ -3,16 +3,12 @@ package com.datn.engflow.service;
 import com.datn.engflow.model.dto.projection.LessonListProjection;
 import com.datn.engflow.model.dto.response.LessonListItemResponse;
 import com.datn.engflow.model.entity.Lesson;
-import com.datn.engflow.model.entity.LessonSection;
 import com.datn.engflow.model.entity.Progress;
 import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.enums.LessonLevel;
 import com.datn.engflow.repository.ExerciseAttemptRepository;
 import com.datn.engflow.repository.ExerciseRepository;
-import com.datn.engflow.repository.LessonBlockRepository;
 import com.datn.engflow.repository.LessonRepository;
-import com.datn.engflow.repository.LessonSectionRepository;
-import com.datn.engflow.repository.LessonSnapshotRepository;
 import com.datn.engflow.repository.LessonSubmissionRepository;
 import com.datn.engflow.repository.ProgressRepository;
 import com.datn.engflow.repository.SpeakingPromptRepository;
@@ -55,15 +51,6 @@ class LessonServicePaginationTest {
 
     @Mock
     private ExerciseRepository exerciseRepository;
-
-    @Mock
-    private LessonSnapshotRepository lessonSnapshotRepository;
-
-    @Mock
-    private LessonSectionRepository lessonSectionRepository;
-
-    @Mock
-    private LessonBlockRepository lessonBlockRepository;
 
     @Mock
     private LessonSubmissionRepository lessonSubmissionRepository;
@@ -175,16 +162,14 @@ class LessonServicePaginationTest {
     @Test
     void deleteLesson_deletesAllChildTablesBeforeLesson() {
         Lesson lesson = lesson(1L, "Delete Me");
-        LessonSection section = LessonSection.builder().id(10L).build();
 
         when(lessonRepository.findById(1L)).thenReturn(Optional.of(lesson));
-        when(lessonSectionRepository.findByLessonIdOrderByOrderIndexAsc(1L)).thenReturn(List.of(section));
 
         lessonService.deleteLesson(1L);
 
-        verify(lessonBlockRepository).deleteBySectionId(10L);
-        verify(lessonSectionRepository).deleteByLessonId(1L);
-        verify(lessonSnapshotRepository).deleteByLessonId(1L);
+        // audit-v15: the Lesson Builder "Đường B" children (lesson_sections,
+        // lesson_blocks, lesson_snapshots) no longer exist, so their cascade
+        // verifications were removed with the feature.
         verify(lessonSubmissionRepository).deleteByLessonId(1L);
         verify(progressRepository).deleteByLessonId(1L);
         verify(vocabularyRepository).deleteByLessonId(1L);

@@ -74,8 +74,8 @@ describe('api response interceptor — ProblemDetail normalization', () => {
 
   /**
    * audit-v8 Round 1 — F94. 20 endpoint (6 controller: AiVocabController,
-   * GameController, DeckController, SrsController, LessonStructureController,
-   * SpeakingPromptController) trả lỗi theo shape CŨ `{"error": "..."}` chứ không
+   * GameController, DeckController, SrsController, SpeakingPromptController;
+   * LessonStructureController đã gỡ ở audit-v15) trả lỗi theo shape CŨ `{"error": "..."}` chứ không
    * phải ProblemDetail. Đo sống bằng sweep/v8/p13_error_contract.js: 3/10 response
    * lỗi là LEGACY{error}. Interceptor chỉ sao `detail` → `message`, nên call-site
    * đọc `.detail`/`.message` (vd AiVocabGenerator.generate) hiện chuỗi generic

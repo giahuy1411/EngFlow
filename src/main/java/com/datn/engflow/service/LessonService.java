@@ -7,16 +7,12 @@ import com.datn.engflow.model.dto.response.LessonListItemResponse;
 import com.datn.engflow.model.dto.response.LessonResponse;
 import com.datn.engflow.model.dto.response.VocabularyDTO;
 import com.datn.engflow.model.entity.Lesson;
-import com.datn.engflow.model.entity.LessonSection;
 import com.datn.engflow.model.entity.Progress;
 import com.datn.engflow.model.entity.User;
 import com.datn.engflow.model.enums.LessonLevel;
 import com.datn.engflow.repository.ExerciseAttemptRepository;
 import com.datn.engflow.repository.ExerciseRepository;
-import com.datn.engflow.repository.LessonBlockRepository;
 import com.datn.engflow.repository.LessonRepository;
-import com.datn.engflow.repository.LessonSectionRepository;
-import com.datn.engflow.repository.LessonSnapshotRepository;
 import com.datn.engflow.repository.LessonSubmissionRepository;
 import com.datn.engflow.repository.ProgressRepository;
 import com.datn.engflow.repository.SpeakingPromptRepository;
@@ -46,9 +42,6 @@ public class LessonService {
     private final ExerciseAttemptRepository exerciseAttemptRepository;
     private final ExerciseRepository exerciseRepository;
     private final ProgressRepository progressRepository;
-    private final LessonSnapshotRepository lessonSnapshotRepository;
-    private final LessonSectionRepository lessonSectionRepository;
-    private final LessonBlockRepository lessonBlockRepository;
     private final LessonSubmissionRepository lessonSubmissionRepository;
     private final VocabularyRepository vocabularyRepository;
     private final SpeakingPromptRepository speakingPromptRepository;
@@ -311,14 +304,11 @@ public class LessonService {
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", id));
         // Cascade child rows manually — DB FK has no ON DELETE CASCADE for all
         // child tables (ddl-auto=update won't retro-apply DDL cascade), so deleting
-        // the lesson with attached child rows throws FK 547. Order matters:
-        // blocks reference sections, sections reference lessons.
-        List<LessonSection> sections = lessonSectionRepository.findByLessonIdOrderByOrderIndexAsc(id);
-        for (LessonSection section : sections) {
-            lessonBlockRepository.deleteBySectionId(section.getId());
-        }
-        lessonSectionRepository.deleteByLessonId(id);
-        lessonSnapshotRepository.deleteByLessonId(id);
+        // the lesson with attached child rows throws FK 547.
+        //
+        // audit-v15: the Lesson Builder "Đường B" tables (lesson_sections,
+        // lesson_blocks, lesson_snapshots) were removed, so their cascade steps are
+        // gone too. The remaining children still reference lessons with NO_ACTION.
         lessonSubmissionRepository.deleteByLessonId(id);
         progressRepository.deleteByLessonId(id);
         vocabularyRepository.deleteByLessonId(id);

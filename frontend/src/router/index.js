@@ -184,8 +184,7 @@ const routes = [
       { path: 'speaking-prompts', name: 'AdminSpeakingPrompts', component: () => import('@/views/admin/AdminSpeakingPrompts.vue') },
       { path: 'speaking-submissions', name: 'AdminSpeakingSubmissions', component: () => import('@/views/admin/AdminSpeakingSubmissions.vue') },
       { path: 'videos', name: 'AdminVideoLessons', component: () => import('@/views/admin/AdminVideoLessons.vue') },
-      { path: 'video-attempts', name: 'AdminVideoAttempts', component: () => import('@/views/admin/AdminVideoAttempts.vue') },
-      { path: ':id/build', name: 'AdminLessonBuilder', component: () => import('@/views/admin/AdminLessonBuilder.vue'), props: true }
+      { path: 'video-attempts', name: 'AdminVideoAttempts', component: () => import('@/views/admin/AdminVideoAttempts.vue') }
     ]
   },
   // Redirect any other path to home

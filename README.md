@@ -73,7 +73,7 @@ cd frontend
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build
-npm run test         # Vitest (194 tests / 31 files)
+npm run test         # Vitest (178 tests / 29 files)
 ```
 
 ---
@@ -98,7 +98,7 @@ engflow/
 │   ├── model/        # Entities + DTOs
 │   └── config/       # Security, CORS, Redis
 ├── frontend/src/                      # Vue 3 SPA
-│   ├── views/        # 48 .vue files (lessons, games, admin, speaking, videos, premium)
+│   ├── views/        # 46 .vue files (lessons, games, admin, speaking, videos, premium)
 │   ├── components/   # UI primitives + decorators
 │   ├── services/     # API client layer
 │   ├── store/        # Pinia state
@@ -124,10 +124,10 @@ engflow/
 ## Commands Reference
 
 ```bash
-# Backend tests (523 tests)
+# Backend tests (512 tests)
 cmd /c "mvnw.cmd test"
 
-# Frontend tests (194 tests, 31 files)
+# Frontend tests (178 tests, 29 files)
 cd frontend && npx vitest run
 
 # Frontend build
@@ -174,7 +174,7 @@ SEPAY_API_TOKEN=...
 
 ## Database Schema
 
-21 tables: `users`, `lessons`, `lesson_sections`, `lesson_blocks`, `lesson_submissions`, `lesson_snapshots`, `exercises`, `exercise_attempts`, `vocabulary`, `decks`, `deck_words`, `user_vocabulary_progress`, `study_days`, `study_policy`, `speaking_prompts`, `speaking_submissions`, `video_lessons`, `video_attempts`, `payment_transactions`, `user_progress`, `user_streaks`.
+18 tables: `users`, `lessons`, `lesson_submissions`, `exercises`, `exercise_attempts`, `vocabulary`, `decks`, `deck_words`, `user_vocabulary_progress`, `study_days`, `study_policy`, `speaking_prompts`, `speaking_submissions`, `video_lessons`, `video_attempts`, `payment_transactions`, `user_progress`, `user_streaks`.
 
 > `user_streaks` is a **legacy table** (1 row, no entity, 0 code readers) kept only so `ddl-auto=update` never drops it; streak state now lives in `study_days`. `flashcards` / `flashcard_reviews` / `leaderboard_entries` do **not** exist — flashcards and the leaderboard are computed from `user_vocabulary_progress` and `study_days`.
 

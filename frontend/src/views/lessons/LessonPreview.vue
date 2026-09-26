@@ -10,7 +10,7 @@
     <!-- Empty -->
     <div v-else-if="attempts.length === 0" class="text-center py-16 bg-card border-2 border-foreground shadow-pop-lg rounded-md">
       <p class="font-black text-xl uppercase mb-2">Chưa có lịch sử</p>
-      <p class="text-muted-foreground font-medium">Làm bài tập ở tab Nội dung để theo dõi tiến độ.</p>
+      <p class="text-muted-foreground font-medium">Làm bài tập ở tab Bài tập để theo dõi tiến độ.</p>
     </div>
 
     <!-- Attempt list -->

@@ -1,8 +1,6 @@
 package com.datn.engflow.controller;
 
 import com.datn.engflow.model.entity.User;
-import com.datn.engflow.repository.LessonBlockRepository;
-import com.datn.engflow.repository.LessonSectionRepository;
 import com.datn.engflow.repository.UserRepository;
 import com.datn.engflow.security.MediaSigner;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,11 +13,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -28,8 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *    old NPE-500, and never PUBLIC via the shadowing permitAll rule.
  *  - F55: media proxy refuses unsigned/expired/bad-ticket keys with 403 even
  *    when the object exists server-side; a valid HMAC ticket passes the gate.
- *  - F56: the public structure GET is read-only — no auto-materialization of
- *    section/block rows any more.
+ *  - F56: (retired in audit-v15) the public structure GET is gone with the
+ *    Lesson Builder "Đường B" removal — see the F56 block below.
  *  - F62: a bogus enum query value is 400, not 500.
  */
 @SpringBootTest
@@ -38,8 +34,6 @@ class AuditV7SecurityWaveTest {
 
     @Autowired private WebApplicationContext wac;
     @Autowired private UserRepository userRepository;
-    @Autowired private LessonSectionRepository sectionRepository;
-    @Autowired private LessonBlockRepository blockRepository;
     @Autowired private com.datn.engflow.repository.LessonRepository lessonRepository;
     @Autowired private MediaSigner mediaSigner;
     @Value("${jwt.secret}") private String jwtSecret;
@@ -48,10 +42,6 @@ class AuditV7SecurityWaveTest {
 
     @BeforeEach void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
-    }
-
-    private Long lessonWithExercises() {
-        return sectionRepository.findByLessonIdOrderByOrderIndexAsc(445L).isEmpty() ? 445L : 1L;
     }
 
     // ---- F54 ----
@@ -124,35 +114,16 @@ class AuditV7SecurityWaveTest {
     // ---- F56 ----
 
     @Test
-    void publicStructureGetDoesNotMaterializeRows() throws Exception {
+    void publicStructureEndpointIsGone() throws Exception {
+        // audit-v15: the Lesson Builder "Đường B" was removed. F56 used to assert
+        // that GET /api/lessons/{id}/structure was read-only; with the feature gone
+        // the endpoint no longer exists at all, which is the stronger guarantee.
+        // The lesson used here is a published seeded lesson.
         Long lessonId = 445L;
         if (lessonRepository.findById(lessonId).isEmpty()) return; // env without seed
-        // start from unmaterialized state (tx rolls back)
-        sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId)
-                .forEach(s -> blockRepository.findBySectionIdOrderByOrderIndexAsc(s.getId())
-                        .forEach(blockRepository::delete));
-        sectionRepository.deleteAll(sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId));
 
         mockMvc.perform(get("/api/lessons/{id}/structure", lessonId))
-                .andExpect(status().isOk());
-
-        assertThat(sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId))
-                .as("GET structure must not INSERT sections (audit-v7 F56)")
-                .isEmpty();
-    }
-
-    @Test
-    void virtualStructureStillServesContentToReaders() throws Exception {
-        Long lessonId = 445L;
-        if (lessonRepository.findById(lessonId).isEmpty()) return;
-        sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId)
-                .forEach(s -> blockRepository.findBySectionIdOrderByOrderIndexAsc(s.getId())
-                        .forEach(blockRepository::delete));
-        sectionRepository.deleteAll(sectionRepository.findByLessonIdOrderByOrderIndexAsc(lessonId));
-
-        mockMvc.perform(get("/api/lessons/{id}/structure", lessonId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Nội dung bài học"));
+                .andExpect(status().isNotFound());
     }
 
     // ---- F62 ----

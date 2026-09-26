@@ -62,8 +62,8 @@ class AiVocabSaveVocabValidationTest {
     /**
      * The controller reads the caller's id from {@code @AuthenticationPrincipal UserPrincipal}.
      * {@code @WithMockUser} supplies a plain Spring user, which is not a UserPrincipal, so the
-     * deck-linking branch would be skipped. This mirrors the pattern already used by
-     * AuditV10DraftLessonStructureGuardTest.
+     * deck-linking branch would be skipped. This mirrors the pattern used by the other
+     * audit security tests (e.g. AuditV9DraftLessonGradeGuardTest).
      */
     private org.springframework.test.web.servlet.request.RequestPostProcessor asRealUser() {
         var user = userRepository.findByEmail("user@gmail.com").orElseThrow();

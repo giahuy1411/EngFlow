@@ -81,14 +81,6 @@
             </td>
              <td class="p-4 text-center">
                 <div class="flex items-center justify-center gap-2">
-                   <!-- icon-only control: kept raw -->
-                   <button @click="$router.push('/admin/' + lesson.id + '/build')" aria-label="Xây dựng bài học"
-                           class="w-9 h-9 flex items-center justify-center bg-tertiary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
-                                  hover:-translate-y-0.5 hover:shadow-pop transition-all duration-200
-                                  active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                           title="Xây dựng nội dung">
-                     <LayersIcon class="w-4 h-4" />
-                  </button>
                   <!-- icon-only control: kept raw -->
                   <button @click="openModal(lesson)" aria-label="Sửa bài học"
                            class="w-9 h-9 flex items-center justify-center bg-secondary text-foreground border-2 border-foreground rounded-md shadow-pop-sm
@@ -209,7 +201,7 @@ import Pagination from '@/components/common/Pagination.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useToast } from '@/composables/useToast'
 import { sanitizeText } from '@/utils/markdown'
-import { BookOpen as BookOpenIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon, Layers as LayersIcon, Search as SearchIcon } from 'lucide-vue-next'
+import { BookOpen as BookOpenIcon, Plus as PlusIcon, Edit2 as EditIcon, Trash2 as TrashIcon, Search as SearchIcon } from 'lucide-vue-next'
 
 const lessons = ref([])
 const loading = ref(true)
