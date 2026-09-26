@@ -374,9 +374,20 @@ const FONT_FN = `() => {
     // Clean in-run and assert; the exit code reflects the result. In `finally` so it runs
     // even when the walk above throws.
     clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+    // audit-v16 F-16-01 (corrected after adversarial review): the residue class is real
+    // (v15 L1-a added study_days to parity), but a browser harness's LOGIN does not write
+    // it — the writers are the harness's actions via StudyActivityService.recordStudy()
+    // (exercises/submit, flashcards/study, srs/review, games/submit). This sweep is
+    // read-only, so candidates=0 normally; the helper is here so a future action added to
+    // this walk self-cleans instead of leaking a row into the parity guard.
+    const cleanSd = H.cleanupStudyDays();
     console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline " + H.PARITY_BASELINE + ")");
     try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
     catch (e) { console.error("RESIDUE: " + e.message); residue = true; }
+    // audit-v16: fold the study_days cleanup result into `clean.ok` so the exit code below
+    // (which reads `clean.ok`) also fails on a study_days cleanup failure — the exact
+    // "result computed then dropped from the exit code" defect v15 L1-c fixed for payments.
+    if (!cleanSd.ok) clean.ok = false;
     out.cleanup = { ok: clean.ok, residue, fatal: !!fatal };
   }
 
@@ -388,5 +399,7 @@ const FONT_FN = `() => {
   fs.writeFileSync(path.join(OUTDIR, "ui-sweep.json"), JSON.stringify(out, null, 2));
   console.log("written:", path.join(OUTDIR, "ui-sweep.json"));
   if (fatal) process.exit(2);
+  // audit-v16: `clean` now folds in cleanSd.ok (out.cleanup above), so a failed
+  // study_days cleanup also fails the run — previously only payments/parity did.
   process.exit((clean.ok && !residue) ? 0 : 1);
 })();

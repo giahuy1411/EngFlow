@@ -173,6 +173,71 @@ function cleanupAuditPayments(expected, day) {
   return { ok, after: isNaN(after) ? null : after, candidates, remaining, expected, matchesBaseline, output: out };
 }
 
+/**
+ * Remove the `study_days` row(s) a UI sweep's own ACTIONS write, in the same run.
+ *
+ * WHY THIS EXISTS (audit-v16 F-16-01, corrected after adversarial review)
+ * ----------------------------------------------------------------------
+ * A browser harness that LOGS IN does NOT write study_days — `UserService.login()`
+ * only READS the streak (`getCurrentStreak` → `StudyActivityService.currentStreak`,
+ * readOnly). The real writers are the harness's *actions*, all via
+ * `StudyActivityService.recordStudy()`:
+ *   - `ExerciseService.submitExercises` (POST .../exercises/submit)   ← ui-sweep + the MCP run
+ *   - `FlashcardService.recordStudyDay` (POST /api/flashcards/study)
+ *   - `SrsService` (POST /api/srs/review)
+ *   - `StreakService.checkin` (game submit)
+ * So the residue class is real (v15 L1-a added it to parity and to api-sweep), but the
+ * attribution in the first draft of F-16-01 ("login writes it") was WRONG — fixed here.
+ *
+ * The window is a HALF-OPEN RANGE from the run's OWN start date (`VN_RUN_DATE`, captured
+ * once at module load), NOT equality on one date: a run that starts before midnight and
+ * ends after it writes rows under two dates, and equality would silently orphan the first
+ * batch (the exact false-pass `cleanupAuditPayments` was fixed for — see lib.js:113-115).
+ *
+ * Scoped to the two probe accounts only, so a real learner's day is never touched.
+ *
+ * @param {string} [from] ISO date (VN) lower bound. Defaults to this run's start date.
+ */
+function cleanupStudyDays(from) {
+  const { execFileSync } = require("child_process");
+  const fs = require("fs");
+  const path = require("path");
+  const ROOT = path.join(__dirname, "..", "..", ".."); // sweep/v8/ui -> repo root
+  const lower = from || VN_RUN_DATE;
+  const upper = vnDate(); // the run's current VN date (>= lower; equal unless it straddled midnight)
+  // Half-open window [lower, upper] — study_date is a DATE column.
+  const where = "WHERE study_date >= '" + lower + "' AND study_date <= '" + upper + "' AND user_id IN "
+    + "(SELECT user_id FROM users WHERE email IN ('user@gmail.com','admin@gmail.com'))";
+  const sql = [
+    "SET QUOTED_IDENTIFIER ON;",
+    "SELECT 'AUDIT_SD_CANDIDATES=' + CAST(COUNT(*) AS varchar(20)) FROM study_days " + where + ";",
+    "DELETE FROM study_days " + where + ";",
+    "SELECT 'AUDIT_SD_REMAINING=' + CAST(COUNT(*) AS varchar(20)) FROM study_days " + where + ";",
+  ].join("\n");
+  const file = path.join(__dirname, "..", "_cleanup_study_days.sql");
+  fs.writeFileSync(file, sql + "\n", "utf8");
+
+  let out = "";
+  try {
+    out = execFileSync("python", ["sweep/v8/sqlrun.py", "sweep/v8/_cleanup_study_days.sql"],
+      { cwd: ROOT, encoding: "utf8" });
+  } catch (e) { out = String(e.stdout || "") + String(e.stderr || "") + String(e.message); }
+
+  const ck = out.match(/AUDIT_SD_CANDIDATES=(\d+)/);
+  const rk = out.match(/AUDIT_SD_REMAINING=(\d+)/);
+  const candidates = ck ? parseInt(ck[1], 10) : NaN;
+  const remaining = rk ? parseInt(rk[1], 10) : NaN;
+  const hadError = /Msg \d+/.test(out);
+  // AUDIT_SD_REMAINING is measured AFTER the delete, so requiring 0 proves the window is
+  // empty afterwards regardless of how many rows were there before.
+  const ok = !hadError && !isNaN(remaining) && remaining === 0;
+  console.log("cleanupStudyDays: window=[" + lower + ".." + upper + "]"
+    + " candidates=" + (isNaN(candidates) ? "?" : candidates)
+    + " remaining=" + (isNaN(remaining) ? "?" : remaining)
+    + " sqlError=" + hadError + " -> " + (ok ? "SELF-CLEAN OK" : "SELF-CLEAN FAILED"));
+  return { ok, candidates, remaining, output: out };
+}
+
 /** Row-count parity for the whole DB, as a comparable string. */
 function dbParity() {
   const { execFileSync } = require("child_process");
@@ -405,4 +470,4 @@ function summarize(title) {
   console.log("  horizontal overflow: " + (overflow.length ? overflow.map(r => r.route + "(" + r.info.scrollW + ">" + r.info.clientW + ")").join(" ; ") : "none"));
 }
 
-module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, dbParity, parityMarker, assertClean, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE };
+module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, cleanupStudyDays, dbParity, parityMarker, assertClean, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE };

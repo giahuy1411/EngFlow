@@ -90,4 +90,4 @@ All sensitive config is via env vars (or `.env` file via `spring.config.import`)
 
 ## Database Migrations
 
-Flyway is disabled — schema managed by Hibernate `ddl-auto=update`. Manual SQL migrations in `src/main/resources/db/migration/` (V1-V8) for reference only.
+Flyway is disabled — schema managed by Hibernate `ddl-auto=update`. Manual SQL migrations in `src/main/resources/db/migration/` (V1-V10) for reference only.

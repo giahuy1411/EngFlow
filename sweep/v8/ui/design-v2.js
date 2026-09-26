@@ -35,6 +35,12 @@ const TOKEN_NAMES_LEN = 11; // keep in sync with TOKEN_NAMES inside the page eva
   const mobileShadowFail = [];
   let fontLoaded = null;
   const wrongPage = [];
+  // audit-v16 F-16-01b: cleanup must run even if the walk throws (a goto timeout / evaluate
+  // reject between login and browser.close used to skip it — the exact v15 L1-b class the
+  // other four harnesses already guard with try/finally). Declared here, asserted in finally.
+  let clean = { ok: true }, cleanSd = { ok: true }, residue = false;
+
+  try {
 
   for (const w of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
@@ -204,7 +210,7 @@ const TOKEN_NAMES_LEN = 11; // keep in sync with TOKEN_NAMES inside the page eva
     await ctx.close();
   }
   await browser.close();
-
+  } finally {
   // Self-clean. ROUTES above includes "/premium"; the ROW-minting view is
   // "/premium/checkout" (PremiumCheckout.vue -> POST create-order), which this
   // walk does not currently visit. Cleaning is still unconditional because the
@@ -212,12 +218,18 @@ const TOKEN_NAMES_LEN = 11; // keep in sync with TOKEN_NAMES inside the page eva
   // silently dirty payment_transactions table — exactly the trap AGENTS.md
   // documents for every sweep that touches /premium*.
   // audit-v15 L3-c/e: baselines from lib.js (single source of truth), not literals.
-  const clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+  clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+  // audit-v16 F-16-01: clean the study_days rows this run's actions could write (the
+  // admin login only READS streak; the writers are exercises/submit, flashcards/study,
+  // srs/review, games/submit — see cleanupStudyDays() in lib.js). Unconditional + in
+  // `finally` so a throw above still cleans.
+  cleanSd = H.cleanupStudyDays();
   console.log("DB parity after cleanup: " + H.dbParity()
     + "   (baseline " + H.PARITY_BASELINE + ")");
-  let residue = false;
+  residue = !clean.ok || !cleanSd.ok;
   try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
   catch (e) { console.error("RESIDUE: " + e.message); residue = true; }
+  }
 
   console.log("\n=== PLAN B SUMMARY ===");
   console.log("font loaded (400/700/900): " + JSON.stringify(fontLoaded && { loaded: fontLoaded.loaded, bold: fontLoaded.bold, black: fontLoaded.black, faces: fontLoaded.count }));

@@ -497,7 +497,10 @@ input[type="radio"].geo-radio:checked {
   transition: box-shadow 0.2s ease;
 }
 .lesson-html details[open] {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* audit-v16 F-16-02: was `0 2px 8px rgba(0,0,0,0.08)` — a BLURRED shadow, the only
+     one in an otherwise all-hard-shadow system (design system: "No blur. Solid offset").
+     A hard accent offset keeps the Playful Geometric rule. */
+  box-shadow: 3px 3px 0px 0px var(--geo-accent);
 }
 .lesson-html details summary {
   display: flex;
@@ -1023,7 +1026,9 @@ input[type="radio"].geo-radio:checked {
 
 /* --- AppSkeleton --- */
 .app-skeleton {
-  background: linear-gradient(90deg, var(--geo-muted) 25%, #EAE4D6 37%, var(--geo-muted) 63%);
+  /* audit-v16 F-16-03: the shimmer mid-stop was the off-palette #EAE4D6 (a warm cream that
+     exists nowhere in the token set). #E2E8F0 is the real --geo-border value. */
+  background: linear-gradient(90deg, var(--geo-muted) 25%, var(--geo-border) 37%, var(--geo-muted) 63%);
   background-size: 400% 100%;
   animation: app-shimmer 1.4s ease infinite;
 }

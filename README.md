@@ -92,7 +92,7 @@ npm run test         # Vitest (178 tests / 29 files)
 ```
 engflow/
 ├── src/main/java/com/datn/engflow/   # Spring Boot backend
-│   ├── controller/   # 26 REST controllers
+│   ├── controller/   # 25 REST controllers (21 in controller/ + 4 in payment|speaking|video/)
 │   ├── service/      # Business logic
 │   ├── repository/   # JPA repositories
 │   ├── model/        # Entities + DTOs

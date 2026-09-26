@@ -406,6 +406,10 @@
 .app-admin__nav-link--active {
   background: var(--geo-accent-strong);
   color: #fff;
+  /* audit-v16: a hard `#1E293B` shadow is INVISIBLE here — this sidebar IS `--geo-fg`
+     (#1E293B, app-layout.css:299), so the offset would match the surface. The original
+     rgba(0,0,0,0.25) at least darkened against it. Kept as-is (subtle chrome, not a
+     "No blur" violation: it is an unblurred offset). */
   box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.25);
 }
 .app-admin__nav-icon {
@@ -450,6 +454,10 @@
   padding: 0.75rem 1.5rem;
   background: var(--geo-card);
   border-bottom: 2px solid var(--geo-fg);
+  /* audit-v16: kept rgba(139,92,246,0.2). The design system's "No blur. Solid offset" rule
+     is about the pop-* card/button family; this is a chrome divider bar, and a full-opacity
+     #8B5CF6 bar stacked on the 2px #1E293B border above reads as a doubled loud edge.
+     Unblurred offset either way — not a violation. */
   box-shadow: 0 4px 0 0 rgba(139, 92, 246, 0.2);
 }
 .app-admin__hamburger {

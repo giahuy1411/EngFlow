@@ -242,7 +242,10 @@ const badLanding = [];
     // audit-v15 L1-b: ALWAYS clean up + close the browser, even if the walk threw.
     await browser.close();
     clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+    // audit-v16 F-16-01: also clean the study_days rows the logins wrote.
+    const cleanSd = H.cleanupStudyDays();
     console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline " + H.PARITY_BASELINE + ")");
+    if (!cleanSd.ok) clean.ok = false;
     try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
     catch (e) { console.error("RESIDUE: " + e.message); clean.ok = false; }
   }

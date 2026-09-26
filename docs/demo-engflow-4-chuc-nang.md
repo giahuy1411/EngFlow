@@ -1,311 +1,381 @@
-# EngFlow — Học thuộc demo tốt nghiệp: 4 chức năng (bản kiểm chứng từ code)
+# EngFlow — Cẩm nang demo đồ án tốt nghiệp (4 chức năng)
 
-> Mỗi chức năng: ý tưởng 1 câu → luồng end-to-end → code thật → file liên quan → câu trả lời 30 giây.
-> Mọi khẳng định dưới đây đã đối chiếu source ngày 16/09/2026. Đoạn code trích nguyên văn, chỉ cắt bớt phần không liên quan.
-> Tài khoản demo: `user@gmail.com` / `admin@gmail.com`, mật khẩu `123456`.
+> **Ai đọc cũng hiểu.** Tài liệu này viết cho **cả người không biết lập trình**: mỗi chức năng được giải thích
+> bằng lời thường trước, rồi mới tới phần kỹ thuật (có **file + đoạn code thật** để đối chiếu khi bị hỏi sâu).
+>
+> **Đã kiểm chứng lại toàn bộ ngày 26/09/2026** bằng cách đọc trực tiếp source và chạy thử API/UI — không chép
+> lại mô tả cũ. Tài khoản demo: `user@gmail.com` / `admin@gmail.com`, mật khẩu `123456`.
+
+**Cách dùng tài liệu:** khi demo, chỉ cần thuộc mục **"Kịch bản bấm"** và **"Trả lời 30 giây"**. Phần
+**"Kỹ thuật"** chỉ mở ra khi hội đồng hỏi sâu.
+
+---
+
+## 0. Chuẩn bị trước khi demo (làm trước 10 phút)
+
+| Việc | Lệnh / cách làm |
+|---|---|
+| Bật hệ thống | Mở Docker Desktop, chờ tới khi 8 dịch vụ "Up": `docker ps` |
+| Kiểm tra web sống | Mở `http://localhost:5173` — thấy trang chủ EngFlow |
+| Kiểm tra máy chủ sống | `Invoke-RestMethod "http://localhost:8080/api/lessons?size=1"` → phải trả dữ liệu |
+| Tài khoản | Học viên `user@gmail.com`, quản trị `admin@gmail.com` — mật khẩu `123456` |
+
+> Nếu vừa sửa code backend: chạy `docker compose up -d --build backend` (code trong hộp Docker chỉ đổi khi dựng lại).
 
 ---
 
 ## 1. Đăng nhập / Đăng ký
 
-**Thuộc 1 câu:** Register kiểm tra trùng email + username, mã hoá BCrypt, tự trả JWT; login chuẩn hoá email, khoá tạm sau 5 lần sai (Redis), JWT HS256 TTL 900s; frontend lưu `token` + `user`, router guard 4 loại meta.
+### 1.1. Nó là gì (lời thường)
 
-### 1.1. Đăng ký — `UserService.register()` (`src/main/java/com/datn/engflow/service/UserService.java`)
+Giống như **làm thẻ ra vào một toà nhà**:
+- **Đăng ký** = làm thẻ mới. Hệ thống kiểm tra email/tên đăng nhập chưa ai dùng, rồi cất mật khẩu đã **mã hoá**
+  (không ai đọc được, kể cả người quản trị cơ sở dữ liệu).
+- **Đăng nhập** = quẹt thẻ. Nếu đúng, hệ thống phát một **vé điện tử (JWT)** có hạn **15 phút** để bạn đi lại
+  trong toà nhà mà không phải quẹt lại mỗi bước.
+- **Chống dò mã** = gõ sai 5 lần thì cửa **tạm khoá 15 phút**.
+
+### 1.2. Kịch bản bấm (trên UI)
+
+1. Mở `/register` → nhập email, tên đăng nhập, mật khẩu → bấm **Đăng ký**. Hệ thống **tự đăng nhập luôn**.
+2. Mở `/login` → nhập `user@gmail.com` / `123456` → bấm **Đăng nhập**.
+3. Mở DevTools (F12) → tab **Application → Local Storage** → chỉ cho hội đồng thấy 2 mục `token` và `user` vừa xuất hiện.
+4. (Điểm nhấn guard) Đang đăng nhập bằng tài khoản học viên, gõ thẳng `/admin/users` → **bị đá về trang chủ**
+   (vì đây là khu vực quản trị).
+5. (Điểm nhấn bảo mật) Đăng xuất, thử đăng nhập sai mật khẩu **5 lần** → **ngay lần thứ 5** báo **"tài khoản tạm khoá … phút"**.
+
+### 1.3. Trả lời 30 giây
+
+> "Đăng ký chặn trùng email và tên đăng nhập, mật khẩu mã hoá bằng BCrypt nên không đọc được. Đăng nhập sai 5 lần
+> thì khoá 15 phút (lưu trong Redis). Khi đăng nhập thành công, hệ thống phát token JWT hết hạn sau 15 phút;
+> giao diện lưu token đó và mỗi trang được bảo vệ bằng 4 lớp kiểm tra quyền."
+
+### 1.4. Kỹ thuật — file + đoạn code thật
+
+**a) Đăng ký chặn trùng + mã hoá mật khẩu** — `src/main/java/com/datn/engflow/service/UserService.java:141`
 
 ```java
-if (userRepository.existsByEmail(request.getEmail())) {
-    throw new ConflictException("Email đã tồn tại");          // → HTTP 409
+public UserResponse register(RegisterRequest request) {
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new ConflictException("Email đã tồn tại");          // → HTTP 409
+    }
+    if (userRepository.existsByUsername(request.getUsername())) {
+        throw new ConflictException("Tên đăng nhập đã tồn tại");  // → HTTP 409
+    }
+    User user = User.builder()
+            .passwordHash(passwordEncoder.encode(request.getPassword())) // BCrypt
+            .currentLevel(LessonLevel.ELEMENTARY)
+            .build();
+    User savedUser = userRepository.save(user);
+    String jwt = tokenProvider.generateToken(savedUser.getEmail(),
+            Boolean.TRUE.equals(savedUser.getIsAdmin()) ? "ADMIN" : "USER", savedUser.getIsPremium());
+    return mapToUserResponse(savedUser, jwt);                      // tự đăng nhập luôn
 }
-if (userRepository.existsByUsername(request.getUsername())) {
-    throw new ConflictException("Tên đăng nhập đã tồn tại");  // → HTTP 409
-}
-User user = User.builder()
-        .passwordHash(passwordEncoder.encode(request.getPassword())) // BCrypt
-        .currentLevel(LessonLevel.ELEMENTARY)                        // mặc định
-        .avatarUrl("https://api.dicebear.com/7.x/adventurer/svg?seed=" + request.getUsername())
-        .isActive(true)
-        .build();
-// ... save rồi generateToken(...) → tự đăng nhập luôn, không bắt login lại
 ```
 
-### 1.2. Đăng nhập — `UserService.login()` (cùng file, dòng 165+)
+**b) Đăng nhập có khoá tạm 5 lần sai** — `UserService.java:165`
 
 ```java
-String normalizedEmail = request.getEmail() == null ? "" : request.getEmail().trim().toLowerCase();
-String lockKey = RedisConstants.LOGIN_LOCK_PREFIX + normalizedEmail; // "login_lock:"
-String failKey = RedisConstants.LOGIN_FAIL_PREFIX + normalizedEmail; // "login_fail:"
-// 1. Còn lock → báo thời gian chờ (đọc TTL của key), không thèm xác thực
-// 2. authenticationManager.authenticate(...) sai → fails++, đủ 5 lần → set lock 15 phút
-// 3. Đúng → xoá fail counter → generateToken(...) → streakService.recordAccess(userId)
+String normalizedEmail = request.getEmail().trim().toLowerCase();
+String lockKey = RedisConstants.LOGIN_LOCK_PREFIX + normalizedEmail;
+try {
+    String locked = redisTemplate.opsForValue().get(lockKey);
+    if (locked != null) {
+        long ttl = redisTemplate.getExpire(lockKey);
+        throw new BadRequestException("Tài khoản tạm khóa do đăng nhập sai nhiều lần. Thử lại sau "
+                + Math.max(1, (ttl + 59) / 60) + " phút.");
+    }
+} catch (BadRequestException e) { throw e; }
+  catch (Exception e) { log.warn("Redis unavailable ... fail-open"); }   // Redis chết → login vẫn chạy
 ```
 
-Số liệu thật trong `config/RedisConstants.java`: `MAX_LOGIN_FAILS = 5`, `LOGIN_FAIL_TTL = 15 phút`, `LOGIN_LOCKOUT_MINUTES = 15`. Mọi thao tác Redis đều try/catch **fail-open**: Redis chết thì login vẫn chạy (chỉ mất chống brute-force), không sập app.
-
-### 1.3. JWT — `security/JwtTokenProvider.java`, `application.properties`
+**c) Vé JWT (15 phút, có vai trò)** — `src/main/java/com/datn/engflow/security/JwtTokenProvider.java:31`
 
 ```java
 return Jwts.builder()
-        .subject(email)                       // sub = email
+        .subject(email)                       // danh tính
         .claim("role", role)                  // "ADMIN" | "USER"
-        .claim("isPremium", isPremium)
-        .expiration(new Date(now.getTime() + jwtExpirationInMs))
-        .signWith(getSigningKey())            // HS256, secret từ JWT_SECRET
+        .claim("isPremium", isPremium != null && isPremium)
+        .expiration(new Date(now.getTime() + jwtExpirationInMs))  // jwt.expiration = 900000 ms = 15 phút
+        .signWith(getSigningKey())            // ký HS256
         .compact();
 ```
 
-`jwt.expiration=900000` (900 giây = 15 phút). Frontend `services/api.js` tự decode `payload.exp` **trước khi gửi request**: hết hạn thì `logout()` + đẩy về `/login`, không đợi server trả 401. Timeout axios: 10s mặc định, 60s cho `/api/admin`.
+**d) Phân quyền 3 lớp** — `src/main/java/com/datn/engflow/config/SecurityConfig.java:76`
 
-### 1.4. Phân quyền — `config/SecurityConfig.java` (stateless, tắt CSRF)
-
-| Nhóm | Rule |
-|---|---|
-| permitAll | `POST /api/auth/register\|login\|forgot-password\|reset-password`, `GET /api/lessons/**`, `GET /api/vocabulary/search`, `/dictionary/*`, leaderboard, video-lessons/video-prompts/decks public, `/api/resources/**`, webhook SEPay |
-| authenticated | `POST /api/lessons/*/exercises/submit\|grade`, `/attempts/**`, `POST /api/vocabulary`, `POST /api/auth/**` |
-| `hasRole('ADMIN')` | `POST/PUT/DELETE /api/lessons/**`, `/api/admin/**`, `/api/v1/admin/**`, `/api/exercises/**` |
-
-⚠️ Bẫy từng sập thật (F54): Spring lấy **rule khớp đầu tiên**, nên rule hẹp `GET /api/lessons/*/exercises/attempts/** authenticated` phải đặt **trước** rule rộng `GET /api/lessons/** permitAll`, nếu không lịch sử làm bài thành public.
-
-### 1.5. Router guard — `frontend/src/router/index.js`
-
-```js
-if (to.meta.requiresPremium && !auth.isAdmin && !auth.isPremium) // đá /premium
-if (to.meta.requiresAuth && !auth.isLoggedIn)                    // đá /login
-if (to.meta.guestOnly && auth.isLoggedIn)                        // /login khi đã login → đá /lessons
-if (to.meta.requiresAdmin && !auth.isAdmin)                      // đá /
+```java
+.requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
+.requestMatchers(HttpMethod.GET, "/api/lessons/*/exercises/attempts/**").authenticated()  // ← phải đặt TRƯỚC…
+.requestMatchers(HttpMethod.GET, "/api/lessons/**").permitAll()                          // ← …rule rộng này
+.requestMatchers("/api/admin/**").hasRole("ADMIN")
 ```
 
-`isAdmin` đọc từ `localStorage.user` (do `store/modules/auth.js` `mapUser()` chuẩn hoá từ `UserResponse`), **không** decode từ token. Quên mật khẩu: OTP 6 số (`SecureRandom`), TTL 10 phút (`otp:reset:`), giới hạn 3 OTP/15 phút (`OTP_MAX_PER_WINDOW`).
+> ⚠️ **Bẫy thật đã từng sập (F54):** Spring chọn **rule khớp đầu tiên**. Rule hẹp "lịch sử làm bài cần đăng nhập"
+> **phải đứng trước** rule rộng "bài học ai cũng xem được", nếu không lịch sử làm bài bị lộ ra công khai.
 
-**Trả lời 30 giây:** "Đăng ký chặn trùng email và username, mật khẩu BCrypt. Đăng nhập chuẩn hoá email, sai 5 lần khoá 15 phút bằng Redis. Token JWT 15 phút, phân quyền 3 lớp ở SecurityConfig, router Vue guard 4 loại meta."
+**e) Chuyển trang an toàn sau khi login** — `frontend/src/views/Login.vue:71`
+
+```js
+await auth.login({ email: email.value, password: password.value, remember: remember.value })
+// audit-v13 F-13-20: quay lại đúng trang bị chặn trước đó, nhưng safeRedirect() từ chối mọi URL ngoài hệ thống
+router.replace(safeRedirect(route.query.redirect))   // ?redirect=//evil.com KHÔNG thể lừa được
+```
+
+**Bảng endpoint thuộc lòng:** `POST /api/auth/register` · `POST /api/auth/login` · `GET /api/auth/me` ·
+`POST /api/auth/forgot-password` · `POST /api/auth/reset-password` · `POST /api/auth/change-password` ·
+`PUT /api/auth/avatar` · `POST /api/auth/avatar/upload`.
 
 ---
 
 ## 2. Bài học / Bài tập
 
-**Thuộc 1 câu:** Lesson là lộ trình (`orderIndex`), Exercise thuộc lesson (`orderIndex`); học: xem danh sách → chi tiết → làm bài → `grade` chấm thử / `submit` chấm + lưu `ExerciseAttempt` (details JSON) → xem lịch sử attempts.
+### 2.1. Nó là gì (lời thường)
 
-### 2.1. Danh sách — `LessonController.getAllLessons()` + `LessonService.getPublishedLessonPage()`
+Giống như một **cuốn giáo trình có bài tập kèm theo**:
+- **Bài học** = một chương (đọc lý thuyết). Nội dung bài học lấy từ nguồn có sẵn, hiển thị ở tab **"Nội dung"**.
+- **Bài tập** = phiếu câu hỏi của chương đó, ở tab **"Bài tập"**. Hai phần này **tách hẳn** nhau.
+- Khi làm bài, có 2 nút khác nhau:
+  - **Chấm thử** = làm nháp, xem điểm ngay nhưng **không lưu**.
+  - **Nộp bài** = chấm **và lưu vào sổ lịch sử**, để xem lại sau.
+- **Chấm điểm do máy chủ làm**, không phải trình duyệt — nên không thể gian lận bằng cách sửa code trên máy khách.
+  Đáp án chỉ **quản trị viên** mới xem được.
+
+### 2.2. Kịch bản bấm (trên UI)
+
+1. Mở `/lessons` → thấy danh sách chương, có ô tìm kiếm + nút chọn trình độ + phân trang.
+2. Mở một bài (ví dụ `/lessons/445`) → thấy 3 tab: **Nội dung** · **Bài tập** · **Lịch sử**.
+3. Tab **Nội dung**: chỉ có nội dung bài học (đã tách khỏi bài tập).
+4. Tab **Bài tập**: làm vài câu → bấm **Chấm thử** → hiện đúng/sai ngay.
+5. **Điểm nhấn:** bấm F5 tải lại → mở tab **Lịch sử** → **không thấy** lần chấm thử vừa rồi (chứng minh "chấm thử không lưu").
+6. Bấm **Nộp bài** → mở tab **Lịch sử** → **thấy đúng lần nộp** kèm chi tiết từng câu.
+7. (Điểm nhấn chống lộ đáp án) Mở DevTools → Network → xem response của `/exercises` khi đăng nhập bằng học viên
+   → **không có** trường `correctAnswer`.
+
+### 2.3. Trả lời 30 giây
+
+> "Bài học và bài tập đều sắp theo thứ tự trong lộ trình. Máy chủ chấm điểm: chuẩn hoá chữ thường và khoảng trắng,
+> bài nào thiếu đáp án thì bị loại khỏi điểm thay vì chấm oan. Nút 'chấm thử' không lưu, nút 'nộp bài' lưu lại
+> lịch sử. Đáp án chỉ quản trị viên lấy được."
+
+### 2.4. Kỹ thuật — file + đoạn code thật
+
+**a) Chấm điểm + loại bài thiếu đáp án** — `src/main/java/com/datn/engflow/service/ExerciseService.java:232`
 
 ```java
-// Controller: sort CỐ ĐỊNH, client không được truyền sort (giữ lộ trình học)
-PageRequest.of(Math.max(page, 0), size /* kẹp 1–100 */,
-    Sort.by("orderIndex").ascending().and(Sort.by("id")))
-```
-
-```java
-// Service: projection nhẹ, không hydrate cột content NVARCHAR(MAX)
-Page<LessonListProjection> page = lessonRepository.findPublishedPageProjection(
-        keyword != null && !keyword.isBlank() ? keyword.trim() : null, level, pageable);
-// ... rồi join Progress của ĐÚNG các lesson trong trang (findByUserIdAndLessonIdIn)
-// → isCompleted, completionPercentage. Ẩn danh: toàn false / 0.
-```
-
-Bài học nháp (`is_published=false`) bị chặn ở `assertLessonVisible()` — ném **404 chứ không phải 403** để không tiết lộ sự tồn tại của bản nháp; admin được preview (F88). Áp dụng cho cả `GET /lessons/{id}` lẫn `GET /lessons/{id}/exercises`.
-
-### 2.2. Chấm bài — `ExerciseService.gradeExercises()` + `normalizeAnswer()`
-
-```java
-boolean ungradeable = ex.getCorrectAnswer() == null || ex.getCorrectAnswer().isBlank();
-if (ungradeable) { /* loại khỏi tử/mẫu, gắn cờ ungradeable=true */ continue; }
-// So sánh "" với "" mà tính đúng thì oan → vì vậy bài không key KHÔNG được tính điểm
-correct = normalizeAnswer(item.getUserAnswer()).equals(normalizeAnswer(ex.getCorrectAnswer()));
-
-private String normalizeAnswer(String s) {
-    if (s == null) return "";
-    return s.trim().toLowerCase().replaceAll("\\s+", " ");
+// Bài thiếu đáp án: so "" với "" sẽ thành ĐÚNG (oan) → loại khỏi tử/mẫu, gắn cờ ungradeable
+boolean ungradeable = (ex.getCorrectAnswer() == null || ex.getCorrectAnswer().isBlank())
+        || isMatchingUngradeable(ex);
+if (ungradeable) {
+    results.add(ExerciseGradeItem.builder().exerciseId(ex.getId())
+            .correct(false).ungradeable(true).build());
+    continue;                                  // không tính vào score/total
 }
+correct = isCorrectAnswer(ex, item.getUserAnswer());
+if (correct) score++;
+total++;
 ```
 
-`POST /grade` chấm thử **không lưu**; `POST /submit` (cần login) chấm + lưu. `GET .../exercises?includeAnswers=true` đòi `ROLE_ADMIN`, user thường nhận 403 — chống lộ đáp án.
+**b) Chấm thử (không lưu) vs Nộp bài (lưu)** — cùng file, `gradeExercises()` (dòng 232) và `submitExercises()` (dòng 473).
+`submitExercises` gọi lại `gradeExercises` để **chấm lại ở máy chủ** (không tin số điểm do trình duyệt gửi lên),
+rồi lưu một bản ghi `ExerciseAttempt` kèm chi tiết từng câu.
 
-### 2.3. Nộp bài — `ExerciseService.submitExercises()` (dòng 256+)
+**c) Tìm kiếm + chọn trình độ (có chờ gõ xong mới gọi)** — `frontend/src/views/Lessons.vue:180`
 
-```java
-GradeResponse grade = gradeExercises(lessonId, request);   // chấm lại ở server, không tin client
-// batch load exercises (tránh N+1) → dựng detailsJson từng câu:
-"{\"exerciseId\":...,\"question\":...,\"userAnswer\":...,\"correctAnswer\":...,\"isCorrect\":...,\"explanation\":...}"
-ExerciseAttempt attempt = ExerciseAttempt.builder()
-        .user(user).lessonId(lessonId)
-        .score(...).total(...).percentage(...)   // BigDecimal, HALF_UP
-        .details(detailsJson).completedAt(LocalDateTime.now())
-        .build();
-attemptRepository.save(attempt);
+```js
+const searchQuery = ref('')
+if (selectedLevel.value !== 'ALL') params.level = selectedLevel.value
+if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
+// gõ xong ~0.3s mới gọi API (debounce) — tránh bắn 1 request mỗi ký tự
+let searchTimer = null
+watch(searchQuery, () => { clearTimeout(searchTimer); searchTimer = setTimeout(/* gọi lại danh sách */) })
 ```
 
-Xem lại: `GET /attempts` (mới nhất trước) + `GET /attempts/{id}` (chi tiết từng câu, parse details JSON). Guard principal lạ → 401 chứ không NPE 500 (F54). Tổng quan: `ProgressService.getProgressSummary()` = `countByIsPublishedTrue` + đếm `Progress.isCompleted` + `totalPoints`.
+**d) Tab bài tập gọi API chấm** — `frontend/src/views/lessons/LessonExerciseTab.vue:295`
 
-### 2.4. Nộp writing/audio — `LessonSubmissionService.submitLessonSkill()`
+```js
+const res = await lessonService.gradeExercises(lessonId, [ /* câu trả lời người dùng */ ])
+// correctAnswer CHỈ xuất hiện sau khi chấm (với học viên), không có sẵn trong dữ liệu tải về
+```
 
-Upsert theo bộ ba (user, lesson, skillType): có rồi thì ghi đè + reset `score/feedback` + status `PENDING` (chờ chấm). Upload audio qua `SafeUploadNames.extensionOf()` — allowlist `BINARY` (png/jpg/mp3/wav/webm/...) và `OPAQUE` (txt/srt/vtt/...); `.html/.svg/.js` bị từ chối vì route `/api/resources/**` là permitAll same-origin với SPA (stored-XSS đọc JWT — đã verify end-to-end bằng Chromium thật, F81). File lưu tên UUID trong `uploads/`.
-
-**Trả lời 30 giây:** "Bài học và bài tập đều sắp xếp bằng orderIndex. Chấm ở server: chuẩn hoá chữ thường và khoảng trắng, bài không có đáp án thì loại khỏi điểm. Nút chấm thử không lưu, nút nộp bài lưu ExerciseAttempt để xem lại. Đáp án chỉ admin được lấy."
+**Bảng endpoint thuộc lòng:** `GET /api/lessons?q=&level=&page=&size=` · `GET /api/lessons/{id}` ·
+`GET /api/lessons/{id}/exercises` · `POST /api/lessons/{id}/exercises/grade` · `POST /api/lessons/{id}/exercises/submit` ·
+`GET /api/lessons/{id}/exercises/attempts`.
 
 ---
 
-## 3. Cơ chế streak
+## 3. Cơ chế Streak (chuỗi ngày học)
 
-**Thuộc 1 câu:** Mỗi user có `currentStreak + lastStudyDate` (ngày VN) + tập Redis `user:login_days:<id>` (TTL 90 ngày); `recordAccess` lũy đẳng trong ngày: lần đầu = 1, liền kề +1, nghỉ ≥ 2 ngày reset 1; hiển thị dùng `effectiveStreak` (gap > 1 → 0).
+### 3.1. Nó là gì (lời thường)
 
-### 3.1. Thuật toán — `StreakService.recordAccess()` (nguyên văn, chỉ giữ logic)
+Giống như **chuỗi ngày đi tập gym**:
+- Học mỗi ngày → chuỗi tăng 1.
+- Nghỉ 2 ngày liền → chuỗi **gãy về 0**, học lại tính từ 1.
+- **Điểm mấu chốt:** "ngày hôm nay" do **máy chủ** quyết định (theo giờ Việt Nam), **không** theo đồng hồ máy bạn
+  → không thể gian lận bằng cách đổi giờ máy.
+- Mỗi tối 8 giờ, hệ thống **gửi email nhắc** cho nhóm sắp gãy chuỗi.
 
-```java
-LocalDate today = LocalDate.now(clock);              // Clock múi VN, test được
-LocalDate lastStudyDate = user.getLastStudyDate();
-boolean firstActivityToday = lastStudyDate == null || !lastStudyDate.equals(today);
-if (!firstActivityToday) {
-    return; // đã tính hôm nay rồi — không đổi streak, không đụng Redis
-}
-if (lastStudyDate == null) {
-    user.setCurrentStreak(1);                        // hoạt động đầu đời
-} else if (ChronoUnit.DAYS.between(lastStudyDate, today) == 1) {
-    user.setCurrentStreak(streakOrZero(user) + 1);    // học liên tục → +1
-} else {
-    user.setCurrentStreak(1);                        // bỏ ≥ 2 ngày → reset
-}
-user.setLastStudyDate(today);
-userRepository.save(user);
-recordLoginDateInRedis(userId, today);               // Set add + expire, fail-soft
-```
+### 3.2. Kịch bản bấm (trên UI)
 
-### 3.2. Ba điểm kích hoạt (đã grep toàn source, chỉ 3 chỗ gọi)
+1. Đăng nhập → mở `/profile`.
+2. Xem ô **Streak** (số chuỗi hiện tại) và **lịch học 30 ngày** bên dưới.
+3. Nói với hội đồng: "số ở ô Streak và số trên lịch luôn khớp nhau — cả hai đọc từ cùng một nguồn".
+4. (Nếu muốn minh hoạ) Làm 1 bài tập hoặc chơi 1 lượt game → tải lại `/profile` → ngày hôm nay được đánh dấu.
 
-| # | File | Dòng | Ngữ cảnh |
-|---|---|---|---|
-| 1 | `service/UserService.java` | 199 | `login()` — đăng nhập |
-| 2 | `service/UserService.java` | 231 | `getProfile()` (`GET /api/auth/me`) — App mount là tính |
-| 3 | `service/GameService.java` | 258 | nộp game → `streakService.checkin(...)` → `recordAccess()` |
+### 3.3. Trả lời 30 giây
 
-⚠️ Nộp bài tập lesson (`submitExercises`) **không** gọi streak — streak tính theo “ngày mở app/chơi game”, không phải mỗi lần nộp bài. Đừng trả lời sai điểm này.
+> "Chuỗi ngày học được lưu trong một bảng điểm danh, mỗi ngày học ghi một dòng. Máy chủ đếm ngược từ hôm nay:
+> liên tục thì cộng, nghỉ hai ngày thì chuỗi về 0. 'Hôm nay' lấy theo giờ máy chủ nên không gian lận được bằng
+> cách đổi giờ máy. Tối 8 giờ có email nhắc nhóm sắp gãy chuỗi."
 
-### 3.3. Đọc / hiển thị — `StreakService`
+### 3.4. Kỹ thuật — file + đoạn code thật
+
+**a) Ba endpoint** — `src/main/java/com/datn/engflow/controller/StreakController.java`
 
 ```java
-private Integer effectiveStreak(User user, LocalDate today) {
-    if (lastStudyDate == null || ChronoUnit.DAYS.between(lastStudyDate, today) > 1) return 0;
-    return streakOrZero(user);
+@GetMapping("/snapshot")   // ảnh chụp đầy đủ cho lịch 30 ngày
+    return ResponseEntity.ok(studyActivityService.snapshot(userPrincipal.getId(), 30));
+@GetMapping("/history")    // danh sách ngày đã học (ISO)
+    return ResponseEntity.ok(streakService.getLoginDays(userPrincipal.getId(), days));
+@GetMapping("/current")    // { currentStreak, today } — "today" do MÁY CHỦ trả, không tin đồng hồ máy khách
+    var snapshot = studyActivityService.snapshot(userPrincipal.getId(), 30);
+    return ResponseEntity.ok(Map.of("currentStreak", snapshot.currentStreak(), "today", snapshot.today()));
+```
+
+**b) Nguồn sự thật = bảng `study_days` (không phải cột cũ)** — `StreakService.java` ghi chú rõ:
+`nguồn sự thật là bảng SQL study_days`, và `StudyActivityService` mới là nơi tính.
+
+**c) Thuật toán đếm chuỗi** — `src/main/java/com/datn/engflow/service/StudyActivityService.java:200`
+
+```java
+private int currentStreak(List<LocalDate> dates, LocalDate today) {
+    var uniqueDates = new java.util.HashSet<>(dates);
+    LocalDate cursor = uniqueDates.contains(today) ? today : today.minusDays(1);
+    int streak = 0;
+    while (uniqueDates.contains(cursor)) {   // đếm ngược từng ngày liền nhau
+        streak++;
+        cursor = cursor.minusDays(1);
+    }
+    return streak;
 }
 ```
 
-Số thô trong DB có thể “treo” (user bỏ học cả tuần mà `currentStreak` vẫn 5) — `effectiveStreak` mới là nguồn sự thật cho UI/mail. Từ 16/09 header Profile cũng dùng số hiệu lực (`Profile.vue` đọc ref từ `/api/streak/current`, không đọc `localStorage.user` nữa). `GET /api/streak/current` → `{currentStreak, today}` (ngày ISO từ **server** để Profile đóng khung đúng ngày, không tin đồng hồ máy khách). `GET /api/streak/history?days=30` → ngày ISO tăng dần; Redis chết → `[]`, chuỗi rác parse-fail bị lọc + warn log.
+**d) "Hôm nay" theo giờ Việt Nam** — cùng file, `STUDY_ZONE` dòng 34, `today()` dòng 138
 
-### 3.4. Nhắc mail — `StreakReminderScheduler` + `RedisConstants`
+```java
+private static final ZoneId STUDY_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+public LocalDate today() { return LocalDate.now(clock.withZone(STUDY_ZONE)); }  // clock inject được → test được
+```
 
-- Cron `0 0 20 * * *`, zone `Asia/Ho_Chi_Minh` (20:00 mỗi ngày) + cơ chế catch-up khi app boot muộn (marker Redis `streak:reminder:<ngày>`, TTL 2 ngày — chạy rồi thì skip).
-- `getUsersWithStreakAtRisk()`: active + học hôm qua, chưa học hôm nay → mail “cứu streak”.
-- `getUsersWithBrokenStreak()`: active + nghỉ ≥ 2 ngày (không gồm người chưa từng học) → mail mời quay lại, chống spam bằng `streak:comeback:` 30 ngày.
+**e) Chống N+1 khi hiển thị nhiều người (leaderboard)** — cùng file, dòng 122
 
-**Trả lời 30 giây:** "Streak lưu 2 chỗ: số chuỗi và ngày học cuối trong DB, tập ngày trong Redis để vẽ lịch. Mỗi ngày tính một lần, học liên tục cộng một, nghỉ hai ngày gãy về không và học lại từ một. Tối 8 giờ có mail nhắc nhóm sắp gãy."
+```java
+/** Streak của nhiều user trong MỘT query, dùng cho các trang danh sách.
+ *  Gọi currentStreak theo từng row là N+1: trang 20 dòng tốn 21 query. */
+public Map<Long, Integer> currentStreaks(Collection<Long> userIds) { /* 1 query rồi tính trong bộ nhớ */ }
+```
+
+**f) Giao diện Profile đọc snapshot** — `frontend/src/views/Profile.vue:84`
+
+```js
+const snapshot = await streakService.getSnapshot()
+// kiểm tra hợp lệ trước khi dùng (studiedDays là mảng, currentStreak là số nguyên, today có giá trị)
+if (!Array.isArray(snapshot.studiedDays) || !Number.isInteger(snapshot.currentStreak)) throw new Error('Invalid study snapshot')
+```
+
+> ⚠️ **Điểm dễ trả lời sai:** streak tính theo **"ngày có hoạt động học"**, ghi vào bảng `study_days`. Có
+> **5 đường** ghi ngày học (đều gọi `StudyActivityService.recordStudy`): **nộp bài tập lesson**
+> (`ExerciseService.submitExercises` — có ít nhất 1 câu trả lời khác rỗng), **ôn flashcard**
+> (`FlashcardService`), **ôn SRS** (`SrsService`), **nộp game** (`StreakService.checkin`), **nộp speaking**
+> (`SpeakingSubmissionService`). Riêng **đăng nhập** (`UserService.login`) **chỉ ĐỌC** streak, **không** ghi.
+> Đáp án đúng: **nộp bài tập CÓ tính streak** — nói "không tính" là SAI.
 
 ---
 
 ## 4. Tìm kiếm / Sắp xếp
 
-**Thuộc 1 câu:** Lessons tìm bằng `q + level + page/size`, sort cố định `orderIndex`; Vocabulary 3 tầng (list cần login + search public LIKE + proxy từ điển có cache); Admin exercises lọc `lessonId/type/difficulty/q` đẩy hết xuống SQL.
+### 4.1. Nó là gì (lời thường)
 
-### 4.1. Lessons — `GET /api/lessons?q=&level=&page=0&size=12`
+Giống như **mục lục của thư viện**:
+- **Tìm bài học** = gõ từ khoá + chọn trình độ; thứ tự luôn theo **lộ trình học** (không đổi lung tung).
+- **Tra từ vựng** = hệ thống thử **3 tầng** theo thứ tự:
+  1. **Kho đệm của máy chủ** (nhanh nhất, nhớ sẵn 1 giờ).
+  2. **Từ điển online** (khi kho đệm chưa có).
+  3. **Kho từ vựng local** (khi mạng lỗi) — nên app **không bao giờ vỡ** vì mất mạng.
+- Gõ **dưới 2 ký tự thì không tìm** (để đỡ nặng máy chủ).
 
-`q` trim rồi LIKE tiêu đề/mô tả qua `findPublishedPageProjection` (chỉ bài published). Sort server fix cứng — không cho client truyền sort. Frontend `views/Lessons.vue`: ô search + nút chọn level + phân trang, gọi `lessonService.getPage()`.
+### 4.2. Kịch bản bấm (trên UI)
 
-### 4.2. Vocabulary — `controller/VocabularyController.java`
+1. Mở `/lessons` → gõ vào ô tìm kiếm (ví dụ `present`) → danh sách lọc lại; đổi nút trình độ → lọc tiếp; bấm phân trang.
+2. Mở `/search` (tra từ) → gõ `hello` → hiện phiên âm, nghĩa, ví dụ.
+3. Gõ **1 ký tự** (ví dụ `h`) → **không ra gì** (chứng minh guard "dưới 2 ký tự").
+4. (Nếu muốn) Vào `/admin/exercises` bằng tài khoản admin → lọc theo bài học / loại / độ khó / từ khoá.
+
+### 4.3. Trả lời 30 giây
+
+> "Tìm bài học theo từ khoá và trình độ, thứ tự cố định theo lộ trình. Tra từ đi 3 tầng: kho đệm máy chủ trước,
+> rồi từ điển online, cuối cùng là kho local — nên mất mạng vẫn tra được. Từ dưới 2 ký tự không tìm để đỡ nặng."
+
+### 4.4. Kỹ thuật — file + đoạn code thật
+
+**a) Tra từ 3 tầng + guard 2 ký tự** — `src/main/java/com/datn/engflow/controller/VocabularyController.java`
 
 ```java
-@GetMapping                                   // CẦN LOGIN, Pageable mặc định size=20, sort=word
+@GetMapping                                   // CẦN ĐĂNG NHẬP, mặc định 20 dòng, sắp theo "word"
 public ResponseEntity<Page<Vocabulary>> list(@PageableDefault(size = 20, sort = "word") Pageable pageable)
 
-@GetMapping("/search")                        // PUBLIC
+@GetMapping("/search")                        // CÔNG KHAI
 public ResponseEntity<List<Vocabulary>> search(@RequestParam(defaultValue = "") String keyword,
                                                @RequestParam(defaultValue = "") String q) {
-    String query = keyword.isBlank() ? q : keyword;   // keyword ưu tiên
+    String query = keyword.isBlank() ? q : keyword;   // "keyword" ưu tiên
     if (query.isBlank() || query.length() < 2) return ResponseEntity.ok(List.of()); // < 2 ký tự → rỗng
     return ResponseEntity.ok(vocabularyRepository.findByWordContainingIgnoreCase(query)); // LIKE %kw%
 }
-
-@GetMapping("/dictionary/{word}")              // PUBLIC: proxy dictionaryapi.dev
-    String clean = word.replaceAll("[^a-zA-Z'-]", "").toLowerCase(); // lọc ký tự lạ
 ```
 
-⚠️ Đính chính quan trọng: thứ tự fallback trong `vocabularyService.search()` là **proxy backend trước** (comment trong code: “Proxy backend là đường chính: Redis cache 1h dùng chung mọi user… Tiết kiệm ~8s chờ vô ích cho mỗi từ mới”), browser gọi thẳng `dictionaryapi.dev` (timeout 4s × 2 lần) chỉ khi proxy lỗi, cuối cùng mới tới DB Oxford3000 qua `/search`. Đừng nói ngược.
+> **Thứ tự fallback (đừng nói ngược):** `vocabularyService.search()` thử **proxy máy chủ trước** (có cache Redis 1 giờ),
+> rồi mới tới từ điển online, cuối cùng là DB Oxford3000. `DictionaryService` tách riêng để cache hoạt động đúng.
 
-`DictionaryService.lookup()` tách riêng class để `@Cacheable("dictionary")` đi qua Spring proxy (self-invocation không kích hoạt cache); upstream từ mạng VN đo thực tế ~20s khi cache lạnh; 404 → `"[]"`; lỗi khác → warn log + `"[]"` (fail-soft, app không vỡ). `POST /api/vocabulary` cần login; `PUT/DELETE` cần ADMIN.
+**b) Tìm + sắp xếp bài học (server quyết định thứ tự)** — `LessonService` cố định `Sort.by("orderIndex")`;
+`Lessons.vue` chỉ gửi `q` + `level` + trang.
 
-### 4.3. Admin exercises — `GET /api/admin/exercises?lessonId=&type=&difficulty=&q=` (ADMIN)
+**c) Admin lọc bài tập (đẩy hết xuống SQL)** — `ExerciseService`, endpoint `GET /api/admin/exercises?lessonId=&type=&difficulty=&q=`
 
 ```java
 Page<Exercise> page = exerciseRepository.findAdminPage(lessonId, exerciseType, exerciseDifficulty,
         search != null && !search.isBlank() ? search.trim() : null, pageable);
+// KHÔNG load 43.7k dòng lên bộ nhớ; tìm %kw% đo ~185ms → KHÔNG thêm index (vô ích với leading wildcard)
 ```
 
-Filter đẩy hết xuống SQL (không load 43.7k rows lên memory — đường `findAll()` cũ 308ms đã bị xoá, C-03a). `q` LIKE leading-wildcard đo ~185ms: không thêm index vì vô ích với `%kw%`. `toAdminRow()` đọc tiêu đề lesson bằng 1 query batch (`findTitlesById`) thay vì hydrate entity `Lesson` — từng tốn 95k logical reads/trang vì kéo theo 2 cột NVARCHAR(MAX).
+**d) Sắp xếp ở đâu (thuộc lòng):**
+- Máy chủ: bài học → `orderIndex`; danh sách từ → `word`; lịch sử làm bài → mới nhất trước; lịch streak → tăng dần.
+- Trình duyệt **không** tự sắp lại danh sách đã phân trang (chỉ sắp mảng nhỏ như danh sách nghĩa của một từ).
 
-### Sắp xếp ở đâu (thuộc lòng)
-
-- Server: lessons → `orderIndex`; vocab list → `word`; attempts → mới nhất trước; streak-history → tăng dần.
-- Client không tự sort lại danh sách phân trang (chỉ sort mảng nhỏ đã load như meanings).
-
-**Trả lời 30 giây:** "Tìm bài học theo từ khoá và trình độ, phân trang, thứ tự cố định theo lộ trình. Tra từ đi 3 tầng: proxy backend có cache trước, gọi thẳng từ điển nếu proxy lỗi, cuối cùng là kho từ local. Từ dưới 2 ký tự không tìm để đỡ nặng DB."
+**Bảng endpoint thuộc lòng:** `GET /api/lessons?q=&level=&page=&size=` ·
+`GET /api/vocabulary` (cần login) · `GET /api/vocabulary/search?keyword=` (công khai) ·
+`GET /api/vocabulary/dictionary/{word}` (công khai) · `GET /api/admin/exercises?lessonId=&type=&difficulty=&q=`.
 
 ---
 
-## Phụ lục thực hành — Chỉ dẫn demo từng bước
+## Phụ lục A — Kịch bản demo 5 phút (thứ tự đề xuất)
 
-### A. Chuẩn bị môi trường (chạy trước giờ demo 10 phút)
+| Phút | Việc làm | Câu nói kèm |
+|---|---|---|
+| 1' | Login `user@gmail.com`, mở DevTools chỉ 2 key `token`+`user`; thử `/admin/users` → bị đá về `/` | "Đăng nhập phát vé 15 phút, khu quản trị chặn học viên." |
+| 1' | `/lessons` gõ tìm kiếm + đổi trình độ + phân trang; mở 1 bài | "Tìm theo từ khoá và trình độ, thứ tự theo lộ trình." |
+| 1.5' | Tab **Bài tập** → **Chấm thử** → F5 → **Lịch sử** (trống) → **Nộp bài** → **Lịch sử** (có) | "Chấm thử không lưu, nộp bài mới lưu. Máy chủ chấm." |
+| 1' | `/search` gõ `hello` → có kết quả; gõ `h` → trống | "Tra từ 3 tầng, dưới 2 ký tự không tìm." |
+| 0.5' | `/profile` → ô Streak + lịch 30 ngày | "Chuỗi ngày học, tối 8 giờ gửi mail nhắc." |
 
-```powershell
-docker ps --format "{{.Names}} {{.Status}}"   # cần: engflow-backend (Up), engflow-sqlserver, engflow-minio
-# Backend: http://localhost:8080 | Frontend: http://localhost:5173
-Invoke-RestMethod http://localhost:8080/api/lessons?size=1 | ConvertTo-Json -Depth 3  # public, phải ra 200
-```
+---
 
-Nếu backend vừa đổi code: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
+## Phụ lục B — Câu hỏi hội đồng hay gài (thuộc để trả lời)
 
-### B. Kiểm tra nhanh 4 chức năng bằng API (PowerShell)
-
-```powershell
-$base = 'http://localhost:8080'
-# 1. Login → lấy token (token nằm ở .token hoặc .data.token)
-$login = Invoke-RestMethod -Method Post -Uri "$base/api/auth/login" `
-  -ContentType 'application/json' -Body '{"email":"user@gmail.com","password":"123456"}'
-$token = $login.token; if (-not $token) { $token = $login.data.token }
-$H = @{ Authorization = "Bearer $token" }
-# 2. Tìm + sắp xếp lessons
-Invoke-RestMethod "$base/api/lessons?q=hello&size=3"
-# 3. Streak hiện tại + lịch 7 ngày
-Invoke-RestMethod -Headers $H "$base/api/streak/current"
-Invoke-RestMethod -Headers $H "$base/api/streak/history?days=7"
-# 4. Tra từ (public, không cần token)
-Invoke-RestMethod "$base/api/vocabulary/search?keyword=hello"
-Invoke-RestMethod "$base/api/vocabulary/dictionary/hello"
-```
-
-⚠️ PowerShell + curl JSON dễ vỡ quoting — dùng `Invoke-RestMethod` như trên, đừng `curl -d '...'` (ghi trong AGENTS.md).
-
-### C. Kịch bản demo 5 phút trên UI
-
-1. **(1') Đăng nhập:** mở DevTools → Application → Local Storage. Login `user@gmail.com` / `123456`, chỉ cho giám khảo thấy 2 key `token` + `user` xuất hiện. Mở `/admin/users` bằng tài khoản user → bị đá về `/` (guard `requiresAdmin`).
-2. **(1') Bài học:** `/lessons` → gõ ô search + đổi level → list đổi + phân trang. Mở 1 bài → tab bài tập.
-3. **(1.5') Bài tập:** bấm chấm thử → điểm hiện nhưng F5 + mở lịch sử thì **chưa có** (chứng minh `grade` không lưu). Bấm nộp bài → mở lịch sử attempts → thấy đúng lần nộp vừa rồi kèm chi tiết từng câu (chứng minh `submit` lưu `detailsJson`).
-4. **(1') Tra từ:** `/search` gõ `hello` → phiên âm/audio/nghĩa/hyphen; gõ 1 ký tự → rỗng (chứng minh guard `< 2 ký tự`).
-5. **(0.5') Streak:** `/profile` → số streak + lịch 30 ngày (số header = số lịch, đã thống nhất 16/09); nói: “tối 8 giờ hệ thống gửi mail cho nhóm sắp gãy”.
-
-### D. Lỗi hay gặp khi demo (thuộc để đỡ bị hỏi gài)
-
-| Câu hỏi / sự cố | Trả lời |
+| Câu hỏi | Trả lời |
 |---|---|
-| JWT hết hạn giữa demo? | 15 phút; `api.js` tự bắt `exp` và đá về `/login`. Login lại là xong. |
-| Sao sort lessons không đổi được? | Cố tình fix `orderIndex` để giữ lộ trình + query có index. |
-| Bài không đáp án chấm sao? | Loại khỏi tử/mẫu, gắn `ungradeable=true`, không cho đúng oan. |
-| Đổi giờ máy có gian lận streak? | Ngày lấy từ clock server (múi VN), không tin client. |
-| Mất mạng tới dictionaryapi.dev? | Proxy fail-soft `[]` + fallback DB local, app không vỡ; cache Redis 1h. |
-| Mic không chạy khi demo speaking? | Chuẩn bị quyền mic trước; mic giả headless trả im lặng → Whisper text rỗng → status FAILED là đúng thiết kế. |
-| Sweep UI làm bẩn `payment_transactions`? | Mount `/premium/checkout` sinh row thật — dọn bằng `DELETE ... WHERE created_at >= '<ngày chạy>'` + `SET QUOTED_IDENTIFIER ON` đầu batch. |
-
-## Bảng endpoint thuộc lòng
-
-| Chức năng | Method + path |
-|---|---|
-| Register / Login / Me | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |
-| Lessons | `GET /api/lessons?q=&level=&page=&size=`, `GET /api/lessons/{id}` |
-| Exercises | `GET /api/lessons/{id}/exercises`, `POST /grade`, `POST /submit`, `GET /attempts`, `GET /attempts/{id}` |
-| Streak | `GET /api/streak/current`, `GET /api/streak/history?days=30` |
-| Vocab | `GET /api/vocabulary`, `GET /api/vocabulary/search?keyword=`, `GET /api/vocabulary/dictionary/{word}` |
-| Admin | `GET /api/admin/exercises?lessonId=&type=&difficulty=&q=` |
+| Vé (JWT) hết hạn giữa demo thì sao? | 15 phút; giao diện tự phát hiện hết hạn và đưa về trang đăng nhập, đăng nhập lại là xong. |
+| Sao không cho sắp xếp bài học tự do? | Cố định theo lộ trình (`orderIndex`) để giữ đúng thứ tự học. |
+| Bài tập không có đáp án thì chấm thế nào? | Loại khỏi điểm (không cho "đúng oan"), gắn nhãn "không chấm được". |
+| Đổi giờ máy có gian lận được streak không? | Không — "hôm nay" do máy chủ tính theo giờ Việt Nam. |
+| Mất mạng tới từ điển online thì sao? | Hệ thống tự chuyển sang kho từ local, app không vỡ. |
+| Vì sao gõ 1 ký tự không ra kết quả? | Cố ý — dưới 2 ký tự sẽ quét quá nhiều, nên chặn để đỡ nặng. |
+| Tài khoản/mật khẩu demo? | `user@gmail.com` và `admin@gmail.com`, mật khẩu `123456`. |

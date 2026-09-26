@@ -374,10 +374,21 @@ const login = async ({ email, password }) => {
       check("cleanup: audit lesson re-GET 404", (await req("GET", `/api/lessons/${lessonId}`, { token: adminToken })).status === 404, "expected 404");
     }
     // SQL-level verification that no <MARKER>-MC lesson / <MARKER>-DEEP deck survived
+    // audit-v16 F-16-01: this probe POSTs /api/games/submit, which calls
+    // StreakService.checkin → StudyActivityService.recordStudy → a real study_days row.
+    // v15 added study_days to the parity guard but only api-sweep was taught to clean it.
+    // This probe is HTTP-only (no playwright-core), so it inlines the same half-open-window
+    // delete the shared helper does, rather than requiring sweep/v8/ui/lib.js (which pulls
+    // playwright-core at load). Probe accounts + the run's own VN date window only.
+    const runDate = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
     const sql = `
 SET QUOTED_IDENTIFIER ON;
 SET NOCOUNT ON;
-SELECT 'DEEP_LESSONS=' + CAST((SELECT COUNT(*) FROM lessons WHERE title LIKE '${MARKER}-MC-%') AS varchar(10))
+DELETE FROM study_days WHERE study_date = '${runDate}' AND user_id IN
+  (SELECT user_id FROM users WHERE email IN ('user@gmail.com','admin@gmail.com'));
+SELECT 'DEEP_SD_REMAINING=' + CAST((SELECT COUNT(*) FROM study_days WHERE study_date = '${runDate}' AND user_id IN
+  (SELECT user_id FROM users WHERE email IN ('user@gmail.com','admin@gmail.com'))) AS varchar(10))
+     + ' DEEP_LESSONS=' + CAST((SELECT COUNT(*) FROM lessons WHERE title LIKE '${MARKER}-MC-%') AS varchar(10))
      + ' DEEP_DECKS=' + CAST((SELECT COUNT(*) FROM decks WHERE name LIKE '${MARKER}-DEEP-%') AS varchar(10))
      + ' DEEP_EX=' + CAST((SELECT COUNT(*) FROM exercises WHERE lesson_id IN (SELECT lesson_id FROM lessons WHERE title LIKE '${MARKER}-MC-%')) AS varchar(10)) AS marker;
 `;
@@ -388,9 +399,9 @@ SELECT 'DEEP_LESSONS=' + CAST((SELECT COUNT(*) FROM lessons WHERE title LIKE '${
     console.log(out.trim());
     const msgErrors = (out.match(/Msg \d+/g) || []).length;
     check("cleanup SQL produced 0 errors (Msg scan)", msgErrors === 0, `Msg count=${msgErrors}`);
-    const m = /DEEP_LESSONS=(\d+) DEEP_DECKS=(\d+) DEEP_EX=(\d+)/.exec(out);
-    check("cleanup left 0 audit residue", m && m.slice(1).every((x) => x === "0"), m ? m[0] : "marker not found");
-    R.cleanup = m ? { lessons: +m[1], decks: +m[2], exercises: +m[3] } : null;
+    const m = /DEEP_SD_REMAINING=(\d+) DEEP_LESSONS=(\d+) DEEP_DECKS=(\d+) DEEP_EX=(\d+)/.exec(out);
+    check("cleanup left 0 audit residue (incl. study_days F-16-01)", m && m.slice(1).every((x) => x === "0"), m ? m[0] : "marker not found");
+    R.cleanup = m ? { studyDays: +m[1], lessons: +m[2], decks: +m[3], exercises: +m[4] } : null;
   }
 
   console.log("\n=== DEEP SUMMARY ===");

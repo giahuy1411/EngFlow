@@ -92,7 +92,10 @@ const PAGES = ["/", "/lessons", "/lessons/445", "/decks", "/decks/10006", "/spea
   } finally {
     await browser.close();
     clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+    // audit-v16 F-16-01: also clean the study_days row the login wrote.
+    const cleanSd = H.cleanupStudyDays();
     console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline " + H.PARITY_BASELINE + ")");
+    if (!cleanSd.ok) clean.ok = false;
     try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
     catch (e) { console.error("RESIDUE: " + e.message); process.exitCode = 1; }
   }

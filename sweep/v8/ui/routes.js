@@ -85,9 +85,11 @@ async function formLogin(page, email, pass) {
     if (tag !== "guest") {
       // audit-v15: baselines come from lib.js (single source of truth), not literals.
       const clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+      // audit-v16 F-16-01: also clean the study_days row the login wrote (same class as v15 L1-a).
+      const cleanSd = H.cleanupStudyDays();
       console.log("DB parity after cleanup: " + H.dbParity()
         + "   (baseline " + H.PARITY_BASELINE + ")");
-      if (!clean.ok) process.exitCode = 1;
+      if (!clean.ok || !cleanSd.ok) process.exitCode = 1;
       try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
       catch (e) { console.error("RESIDUE: " + e.message); process.exitCode = 1; }
     }

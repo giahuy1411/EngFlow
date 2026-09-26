@@ -63,7 +63,9 @@
 
             <div class="text-center">
               <p class="text-xs font-bold uppercase tracking-widest opacity-70 mb-2">{{ isFlipped ? 'Nghĩa' : 'Từ' }}</p>
-              <h2 class="font-black text-4xl md:text-5xl uppercase tracking-tight drop-shadow-sm" v-html="sanitizeText(isFlipped ? currentWord.meaning : currentWord.word)"></h2>
+              <!-- audit-v16 F-16-06: was drop-shadow-sm (a BLURRED shadow — the design system
+                   mandates hard offset, no blur). A hard text-shadow keeps the sticker feel. -->
+              <h2 class="font-black text-4xl md:text-5xl uppercase tracking-tight [text-shadow:3px_3px_0_var(--geo-border)]" v-html="sanitizeText(isFlipped ? currentWord.meaning : currentWord.word)"></h2>
               <p v-if="!isFlipped && currentWord.phonetic" class="font-bold text-lg opacity-80 mt-2">{{ currentWord.phonetic }}</p>
               <p v-if="isFlipped && currentWord.example" class="font-medium opacity-80 mt-4 max-w-lg mx-auto italic">"<span v-html="sanitizeText(currentWord.example)"></span>"</p>
             </div>
