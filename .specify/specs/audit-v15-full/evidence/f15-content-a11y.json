@@ -1,0 +1,30 @@
+{
+  "ranAt": "2026-09-25T12:47:50.442Z",
+  "results": [
+    {
+      "name": "content panel found on 447",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exactly one h1 on the page",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "no <img> missing alt in content",
+      "ok": true,
+      "detail": "missing=0"
+    },
+    {
+      "name": "no duplicate ids in content panel",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "contrast AA for all 63 text nodes in the content panel",
+      "ok": true,
+      "detail": "min ratio=NaN"
+    }
+  ]
+}

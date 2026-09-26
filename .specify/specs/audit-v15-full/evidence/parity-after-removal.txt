@@ -1,0 +1,6 @@
+lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks
+-------|---------|-----|----------|--------|-----|----------|--------|-----
+1470|43738|5|118|29|4|3|12|10
+route_b_tables_remaining
+------------------------
+0

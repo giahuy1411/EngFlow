@@ -1,0 +1,12 @@
+inserted exercises: 3
+COMMITTED
+exercise_id|exercise_type|order_index|question|options|correct_answer
+-----------|-------------|-----------|--------|-------|--------------
+650630|MULTIPLE_CHOICE|1|3rd Rock from the Sun is a sitcom about a family living on a space station orbiting Earth.|[]|Friends
+650631|FILL_BLANK|2|Dick Solomon and his family are not really humans: they ……………………. (are) from another part of the universe.|[]|are
+650632|MATCHING|3|Describe the main character of 'Friends' without using their name.|["A|C", "B|B", "C|A", "D|D"]|A=C,B=B,C=A,D=D
+650633|TRANSLATION|4|Describe the TV show where Dick Solomon's family is from other parts of the universe.|[]|3rd Rock from the Sun
+650634|LISTENING|5|The Simpsons is about a group of characters who live in Springfield.|[]|It's about a family that has moved to Springfield and owns a yellow car with two doors, which are the type of cars they all drive.
+787912|MULTIPLE_CHOICE|6|She ___ to school every day.|["go","goes","going","went"]|goes
+787913|FILL_BLANK|7|They ___ (play) football on Sundays.|[]|play
+787914|MULTIPLE_CHOICE|8|The writer wakes up at 6 AM.|["True","False"]|True

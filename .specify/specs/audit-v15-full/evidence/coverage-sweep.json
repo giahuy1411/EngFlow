@@ -1,0 +1,834 @@
+{
+  "rows": [
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises/ai/status",
+      "filled": "/api/admin/exercises/ai/status",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate-async",
+      "filled": "/api/admin/exercises/ai/generate-async",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate",
+      "status": "BLOCKED",
+      "why": "writes exercises via Ollama"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate-all",
+      "filled": "/api/admin/exercises/ai/generate-all",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/generate-batch",
+      "filled": "/api/admin/exercises/ai/generate-batch",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/validate",
+      "filled": "/api/admin/exercises/ai/validate",
+      "status": 400
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises/ai/backfill-answers/status",
+      "filled": "/api/admin/exercises/ai/backfill-answers/status",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/ai/backfill-answers",
+      "filled": "/api/admin/exercises/ai/backfill-answers",
+      "status": 202
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/stats",
+      "filled": "/api/admin/stats",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/users",
+      "filled": "/api/admin/users",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/lessons",
+      "filled": "/api/admin/lessons",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/lessons/{id}",
+      "filled": "/api/admin/lessons/445",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/vocabulary",
+      "filled": "/api/admin/vocabulary",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/lessons",
+      "filled": "/api/admin/lessons",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/vocabulary",
+      "filled": "/api/admin/vocabulary",
+      "status": 400
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/toggle-active",
+      "filled": "/api/admin/users/999999999/toggle-active",
+      "status": 404
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/toggle-admin",
+      "filled": "/api/admin/users/999999999/toggle-admin",
+      "status": 404
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/toggle-premium",
+      "filled": "/api/admin/users/999999999/toggle-premium",
+      "status": 404
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/users/{id}/revoke-premium",
+      "filled": "/api/admin/users/999999999/revoke-premium",
+      "status": 404
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/lessons/{id}",
+      "filled": "/api/admin/lessons/999999999",
+      "status": 400
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/lessons/{id}/toggle-publish",
+      "filled": "/api/admin/lessons/999999999/toggle-publish",
+      "status": 404
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/vocabulary/{id}",
+      "filled": "/api/admin/vocabulary/999999999",
+      "status": 400
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/lessons/{id}",
+      "filled": "/api/admin/lessons/999999999",
+      "status": 404
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/vocabulary/{id}",
+      "filled": "/api/admin/vocabulary/999999999",
+      "status": 404
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises",
+      "filled": "/api/admin/exercises",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/admin/exercises/{id}",
+      "filled": "/api/admin/exercises/445",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises",
+      "filled": "/api/admin/exercises",
+      "status": 400
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/admin/exercises/{id}",
+      "filled": "/api/admin/exercises/999999999",
+      "status": 404
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/admin/exercises/{id}",
+      "filled": "/api/admin/exercises/999999999",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/exercises/seed",
+      "status": "BLOCKED",
+      "why": "seeds exercises"
+    },
+    {
+      "m": "GET",
+      "raw": "/api/resources/{filename:.+}",
+      "filled": "/api/resources/x",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/upload",
+      "filled": "/api/admin/upload",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/admin/audio-upload",
+      "filled": "/api/admin/audio-upload",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/ai/generate-vocab",
+      "filled": "/api/ai/generate-vocab",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/ai/enrich-word",
+      "filled": "/api/ai/enrich-word",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/ai/save-vocab",
+      "filled": "/api/ai/save-vocab",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/auth/me",
+      "filled": "/api/auth/me",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/register",
+      "filled": "/api/auth/register",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/login",
+      "filled": "/api/auth/login",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/forgot-password",
+      "filled": "/api/auth/forgot-password",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/reset-password",
+      "filled": "/api/auth/reset-password",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/change-password",
+      "filled": "/api/auth/change-password",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/auth/avatar/upload",
+      "filled": "/api/auth/avatar/upload",
+      "status": 401
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/auth/avatar",
+      "filled": "/api/auth/avatar",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/dashboard/stats",
+      "filled": "/api/dashboard/stats",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/decks",
+      "filled": "/api/decks",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/decks/my",
+      "filled": "/api/decks/my",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/decks/{id}",
+      "filled": "/api/decks/445",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/decks",
+      "filled": "/api/decks",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/decks/{id}/words",
+      "filled": "/api/decks/445/words",
+      "status": 401
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/decks/{id}",
+      "filled": "/api/decks/999999999",
+      "status": 401
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/decks/{id}",
+      "filled": "/api/decks/999999999",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/flashcards/status/{vocabularyId}",
+      "filled": "/api/flashcards/status/{vocabularyId}",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/flashcards/review",
+      "filled": "/api/flashcards/review",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/flashcards/study",
+      "status": "BLOCKED",
+      "why": "inserts a study_days row"
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/quiz/{deckId}",
+      "filled": "/api/games/quiz/10006",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/memory/{deckId}",
+      "filled": "/api/games/memory/10006",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/typing/{deckId}",
+      "filled": "/api/games/typing/10006",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/listening/{deckId}",
+      "filled": "/api/games/listening/10006",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/games/mixed/{deckId}",
+      "filled": "/api/games/mixed/10006",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/games/submit",
+      "filled": "/api/games/submit",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/leaderboard",
+      "filled": "/api/leaderboard",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons",
+      "filled": "/api/lessons",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{id}",
+      "filled": "/api/lessons/445",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lessons",
+      "filled": "/api/lessons",
+      "status": 401
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/lessons/{id}",
+      "filled": "/api/lessons/999999999",
+      "status": 401
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/lessons/{id}",
+      "filled": "/api/lessons/999999999",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises",
+      "filled": "/api/lessons/445/exercises",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises/attempts",
+      "filled": "/api/lessons/445/exercises/attempts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises/attempts/{attemptId}",
+      "filled": "/api/lessons/445/exercises/attempts/6",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lessons/{lessonId}/exercises/content",
+      "filled": "/api/lessons/445/exercises/content",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lessons/{lessonId}/exercises/grade",
+      "filled": "/api/lessons/445/exercises/grade",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lessons/{lessonId}/exercises/submit",
+      "filled": "/api/lessons/445/exercises/submit",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/lesson-submissions/my/lesson/{lessonId}/skill/{skillType}",
+      "filled": "/api/lesson-submissions/my/lesson/445/skill/{skillType}",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lesson-submissions/submit",
+      "filled": "/api/lesson-submissions/submit",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/lesson-submissions/upload-audio",
+      "filled": "/api/lesson-submissions/upload-audio",
+      "status": 400
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/media/**",
+      "filled": "/api/v1/media/x",
+      "status": 403
+    },
+    {
+      "m": "GET",
+      "raw": "/api/users/progress",
+      "filled": "/api/users/progress",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/srs/due/{deckId}",
+      "filled": "/api/srs/due/10006",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/srs/stats",
+      "filled": "/api/srs/stats",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/srs/review",
+      "filled": "/api/srs/review",
+      "status": 400
+    },
+    {
+      "m": "GET",
+      "raw": "/api/streak/snapshot",
+      "filled": "/api/streak/snapshot",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/streak/history",
+      "filled": "/api/streak/history",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/streak/current",
+      "filled": "/api/streak/current",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/vocabulary",
+      "filled": "/api/vocabulary",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/vocabulary/search",
+      "filled": "/api/vocabulary/search",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/vocabulary/dictionary/{word}",
+      "filled": "/api/vocabulary/dictionary/{word}",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/vocabulary",
+      "filled": "/api/vocabulary",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/payment/status",
+      "filled": "/api/v1/payment/status",
+      "status": 401
+    },
+    {
+      "m": "POST",
+      "raw": "/api/webhook/sepay",
+      "status": "BLOCKED",
+      "why": "real-money boundary"
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/payment/create-order",
+      "filled": "/api/v1/payment/create-order",
+      "status": 401
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/speaking-prompts",
+      "filled": "/api/v1/admin/speaking-prompts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-prompts",
+      "filled": "/api/v1/admin/video-prompts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts",
+      "filled": "/api/v1/speaking-prompts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts",
+      "filled": "/api/v1/video-prompts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts",
+      "filled": "/api/v1/speaking-prompts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts",
+      "filled": "/api/v1/video-prompts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts/{id}",
+      "filled": "/api/v1/speaking-prompts/445",
+      "status": 404
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts/{id}",
+      "filled": "/api/v1/video-prompts/445",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/speaking-prompts",
+      "filled": "/api/v1/admin/speaking-prompts",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-prompts",
+      "filled": "/api/v1/admin/video-prompts",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/speaking-prompts/ai-generate",
+      "filled": "/api/v1/admin/speaking-prompts/ai-generate",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-prompts/ai-generate",
+      "filled": "/api/v1/admin/video-prompts/ai-generate",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/speaking-prompts/ai-generate-full",
+      "filled": "/api/v1/admin/speaking-prompts/ai-generate-full",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-prompts/ai-generate-full",
+      "filled": "/api/v1/admin/video-prompts/ai-generate-full",
+      "status": 400
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/v1/admin/speaking-prompts/{id}",
+      "filled": "/api/v1/admin/speaking-prompts/999999999",
+      "status": 400
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/v1/admin/video-prompts/{id}",
+      "filled": "/api/v1/admin/video-prompts/999999999",
+      "status": 400
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/v1/admin/speaking-prompts/{id}",
+      "filled": "/api/v1/admin/speaking-prompts/999999999",
+      "status": 404
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/v1/admin/video-prompts/{id}",
+      "filled": "/api/v1/admin/video-prompts/999999999",
+      "status": 404
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/speaking-submissions",
+      "filled": "/api/v1/admin/speaking-submissions",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-submissions",
+      "filled": "/api/v1/admin/video-submissions",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-submissions",
+      "filled": "/api/v1/speaking-submissions",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-submissions",
+      "filled": "/api/v1/video-submissions",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-prompts/{promptId}/submissions",
+      "filled": "/api/v1/speaking-prompts/3/submissions",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-prompts/{promptId}/submissions",
+      "filled": "/api/v1/video-prompts/3/submissions",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/speaking-submissions/{id}",
+      "filled": "/api/v1/speaking-submissions/445",
+      "status": 404
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-submissions/{id}",
+      "filled": "/api/v1/video-submissions/445",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/speaking-submissions/upload",
+      "filled": "/api/v1/speaking-submissions/upload",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/video-submissions/upload",
+      "filled": "/api/v1/video-submissions/upload",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/speaking-submissions/{id}/assess",
+      "filled": "/api/v1/speaking-submissions/445/assess",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/video-submissions/{id}/assess",
+      "filled": "/api/v1/video-submissions/445/assess",
+      "status": 404
+    },
+    {
+      "m": "PATCH",
+      "raw": "/api/v1/admin/speaking-submissions/{id}/grade",
+      "filled": "/api/v1/admin/speaking-submissions/999999999/grade",
+      "status": 400
+    },
+    {
+      "m": "PATCH",
+      "raw": "/api/v1/admin/video-submissions/{id}/grade",
+      "filled": "/api/v1/admin/video-submissions/999999999/grade",
+      "status": 400
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-lessons",
+      "filled": "/api/v1/video-lessons",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-lessons/{id}",
+      "filled": "/api/v1/video-lessons/445",
+      "status": 404
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/video-attempts",
+      "filled": "/api/v1/video-attempts",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-lessons",
+      "filled": "/api/v1/admin/video-lessons",
+      "status": 200
+    },
+    {
+      "m": "GET",
+      "raw": "/api/v1/admin/video-attempts",
+      "filled": "/api/v1/admin/video-attempts",
+      "status": 200
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/video-lessons/{id}/attempts",
+      "filled": "/api/v1/video-lessons/445/attempts",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons",
+      "filled": "/api/v1/admin/video-lessons",
+      "status": 400
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons/upload",
+      "filled": "/api/v1/admin/video-lessons/upload",
+      "status": 415
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-attempts/{id}/ai-grade",
+      "filled": "/api/v1/admin/video-attempts/445/ai-grade",
+      "status": 404
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons/translate-transcript",
+      "filled": "/api/v1/admin/video-lessons/translate-transcript",
+      "status": 429
+    },
+    {
+      "m": "POST",
+      "raw": "/api/v1/admin/video-lessons/fetch-youtube",
+      "filled": "/api/v1/admin/video-lessons/fetch-youtube",
+      "status": 429
+    },
+    {
+      "m": "PUT",
+      "raw": "/api/v1/admin/video-lessons/{id}",
+      "filled": "/api/v1/admin/video-lessons/999999999",
+      "status": 400
+    },
+    {
+      "m": "PATCH",
+      "raw": "/api/v1/admin/video-attempts/{id}/grade",
+      "filled": "/api/v1/admin/video-attempts/999999999/grade",
+      "status": 400
+    },
+    {
+      "m": "DELETE",
+      "raw": "/api/v1/admin/video-lessons/{id}",
+      "filled": "/api/v1/admin/video-lessons/999999999",
+      "status": 404
+    }
+  ],
+  "tally": {
+    "2xx": 44,
+    "4xx": 89,
+    "BLOCKED": 4
+  },
+  "parityAfter": "1470|43738|5|118|29|4|3|12|10",
+  "studyDaysAfter": 5,
+  "parityOk": true
+}

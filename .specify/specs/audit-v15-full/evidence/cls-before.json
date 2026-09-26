@@ -1,0 +1,248 @@
+{
+  "at": "2026-09-25T12:49:18.594Z",
+  "app": "http://localhost:5173",
+  "runs": 3,
+  "playwrightFrom": "C:\\Users\\ASUS\\documents\\laptrinh\\engflow\\scripts\\figma-export\\node_modules\\playwright-core",
+  "routes": [
+    {
+      "route": "/",
+      "clsMedian": 0.00069,
+      "clsRuns": [
+        0.00069,
+        0.00069,
+        0.00069
+      ],
+      "armedAllRuns": true,
+      "supported": true,
+      "landedOn": [
+        "/"
+      ],
+      "worstEntry": {
+        "t": 775,
+        "v": 0.0005,
+        "sources": [
+          "A.app-btn.app-btn--secondary.app-btn--lg",
+          "DIV.app-hero__stat",
+          "A.app-navbar__link.inline-flex.items-center",
+          "A.app-navbar__link.inline-flex.items-center",
+          "A.app-navbar__link.inline-flex.items-center"
+        ],
+        "prev": [
+          [
+            491,
+            52
+          ],
+          [
+            554,
+            58
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ]
+        ],
+        "cur": [
+          [
+            491,
+            52
+          ],
+          [
+            554,
+            58
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ]
+        ]
+      },
+      "perRun": [
+        {
+          "cls": 0.00069,
+          "armed": true,
+          "entries": 4,
+          "url": "/"
+        },
+        {
+          "cls": 0.00069,
+          "armed": true,
+          "entries": 4,
+          "url": "/"
+        },
+        {
+          "cls": 0.00069,
+          "armed": true,
+          "entries": 4,
+          "url": "/"
+        }
+      ]
+    },
+    {
+      "route": "/lessons",
+      "clsMedian": 0.00095,
+      "clsRuns": [
+        0.00094,
+        0.00095,
+        0.00095
+      ],
+      "armedAllRuns": true,
+      "supported": true,
+      "landedOn": [
+        "/lessons"
+      ],
+      "worstEntry": {
+        "t": 657,
+        "v": 0.00071,
+        "sources": [
+          "DIV.flex.flex-wrap.gap-2",
+          "A.app-navbar__link.inline-flex.items-center",
+          "A.app-navbar__link.inline-flex.items-center",
+          "A.app-navbar__link.inline-flex.items-center",
+          "A.app-navbar__link.inline-flex.items-center"
+        ],
+        "prev": [
+          [
+            244,
+            48
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ]
+        ],
+        "cur": [
+          [
+            244,
+            48
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ],
+          [
+            12,
+            42
+          ]
+        ]
+      },
+      "perRun": [
+        {
+          "cls": 0.00095,
+          "armed": true,
+          "entries": 3,
+          "url": "/lessons"
+        },
+        {
+          "cls": 0.00095,
+          "armed": true,
+          "entries": 3,
+          "url": "/lessons"
+        },
+        {
+          "cls": 0.00094,
+          "armed": true,
+          "entries": 3,
+          "url": "/lessons"
+        }
+      ]
+    },
+    {
+      "route": "/login",
+      "clsMedian": 0.00003,
+      "clsRuns": [
+        0.00003,
+        0.00003,
+        0.00005
+      ],
+      "armedAllRuns": true,
+      "supported": true,
+      "landedOn": [
+        "/login"
+      ],
+      "worstEntry": {
+        "t": 644,
+        "v": 0.00003,
+        "sources": [
+          "#text",
+          "A.font-bold.text-xs.uppercase"
+        ],
+        "prev": [
+          [
+            702,
+            18
+          ],
+          [
+            558,
+            17
+          ]
+        ],
+        "cur": [
+          [
+            703,
+            18
+          ],
+          [
+            557,
+            17
+          ]
+        ]
+      },
+      "perRun": [
+        {
+          "cls": 0.00003,
+          "armed": true,
+          "entries": 1,
+          "url": "/login"
+        },
+        {
+          "cls": 0.00005,
+          "armed": true,
+          "entries": 2,
+          "url": "/login"
+        },
+        {
+          "cls": 0.00003,
+          "armed": true,
+          "entries": 1,
+          "url": "/login"
+        }
+      ]
+    }
+  ]
+}

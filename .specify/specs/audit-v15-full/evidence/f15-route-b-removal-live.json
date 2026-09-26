@@ -1,0 +1,95 @@
+{
+  "ranAt": "2026-09-25T12:46:40.533Z",
+  "results": [
+    {
+      "name": "lesson 446: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 446: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 447: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 447: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 567: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 567: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 10889: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 10889: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 11300: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 11300: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 11301: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 11301: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 41881: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 41881: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 91900: authored section ABSENT",
+      "ok": true,
+      "detail": "heading=false kicker=false n=0"
+    },
+    {
+      "name": "lesson 91900: old authored table header absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lesson 446: scraped content still renders",
+      "ok": true,
+      "detail": "chars=2391"
+    },
+    {
+      "name": "lesson 447: scraped content still renders",
+      "ok": true,
+      "detail": "chars=3955"
+    }
+  ]
+}
