@@ -31,7 +31,11 @@ export function useToast() {
 
   function toastBackground(type) {
     switch (type) {
-      case 'success': return 'bg-accent text-white'
+      // audit-v17 F-17-01: 'bg-accent text-white' measured 4.23:1 — below the 4.5:1
+      // WCAG 1.4.3 floor for body text, and it bypassed the audit-v11 F132 ink/strong
+      // layer that every other call site goes through. --geo-accent-strong (#7C3AED) is
+      // 5.70:1 under white text and keeps the same violet identity.
+      case 'success': return 'bg-accent-strong text-white'
       case 'error': return 'bg-danger text-danger-fg'
       case 'info': return 'bg-card text-foreground'
       default: return 'bg-card text-foreground'

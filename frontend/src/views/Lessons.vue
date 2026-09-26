@@ -89,7 +89,7 @@
 
               <div class="absolute bottom-2 right-2 flex items-center gap-2 bg-card border-2 border-foreground px-2 py-1 shadow-pop-sm rounded-sm">
                 <svg class="w-6 h-6 -rotate-90" viewBox="0 0 32 32">
-                  <circle cx="16" cy="16" r="14" fill="none" stroke="var(--geo-border, #E5DECF)" stroke-width="3" />
+                  <circle cx="16" cy="16" r="14" fill="none" stroke="var(--geo-border, #E2E8F0)" stroke-width="3" />
                   <circle cx="16" cy="16" r="14" fill="none" stroke-width="3"
                     :stroke="levelColor(lesson.level)"
                     :stroke-dasharray="88"

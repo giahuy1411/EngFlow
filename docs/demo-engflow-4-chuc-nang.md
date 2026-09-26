@@ -135,7 +135,7 @@ Giống như một **cuốn giáo trình có bài tập kèm theo**:
 - **Bài học** = một chương (đọc lý thuyết). Nội dung bài học lấy từ nguồn có sẵn, hiển thị ở tab **"Nội dung"**.
 - **Bài tập** = phiếu câu hỏi của chương đó, ở tab **"Bài tập"**. Hai phần này **tách hẳn** nhau.
 - Khi làm bài, có 2 nút khác nhau:
-  - **Chấm thử** = làm nháp, xem điểm ngay nhưng **không lưu**.
+  - **Kiểm tra** = làm nháp, xem điểm ngay nhưng **không lưu**.
   - **Nộp bài** = chấm **và lưu vào sổ lịch sử**, để xem lại sau.
 - **Chấm điểm do máy chủ làm**, không phải trình duyệt — nên không thể gian lận bằng cách sửa code trên máy khách.
   Đáp án chỉ **quản trị viên** mới xem được.
@@ -145,16 +145,16 @@ Giống như một **cuốn giáo trình có bài tập kèm theo**:
 1. Mở `/lessons` → thấy danh sách chương, có ô tìm kiếm + nút chọn trình độ + phân trang.
 2. Mở một bài (ví dụ `/lessons/445`) → thấy 3 tab: **Nội dung** · **Bài tập** · **Lịch sử**.
 3. Tab **Nội dung**: chỉ có nội dung bài học (đã tách khỏi bài tập).
-4. Tab **Bài tập**: làm vài câu → bấm **Chấm thử** → hiện đúng/sai ngay.
-5. **Điểm nhấn:** bấm F5 tải lại → mở tab **Lịch sử** → **không thấy** lần chấm thử vừa rồi (chứng minh "chấm thử không lưu").
+4. Tab **Bài tập**: làm vài câu → bấm **Kiểm tra** (từng câu) → hiện đúng/sai ngay.
+5. **Điểm nhấn:** bấm F5 tải lại → mở tab **Lịch sử** → **không thấy** lần kiểm tra vừa rồi (chứng minh "kiểm tra không lưu").
 6. Bấm **Nộp bài** → mở tab **Lịch sử** → **thấy đúng lần nộp** kèm chi tiết từng câu.
 7. (Điểm nhấn chống lộ đáp án) Mở DevTools → Network → xem response của `/exercises` khi đăng nhập bằng học viên
-   → **không có** trường `correctAnswer`.
+   → trường `correctAnswer` **có mặt nhưng luôn `null`** (không lộ giá trị đáp án).
 
 ### 2.3. Trả lời 30 giây
 
 > "Bài học và bài tập đều sắp theo thứ tự trong lộ trình. Máy chủ chấm điểm: chuẩn hoá chữ thường và khoảng trắng,
-> bài nào thiếu đáp án thì bị loại khỏi điểm thay vì chấm oan. Nút 'chấm thử' không lưu, nút 'nộp bài' lưu lại
+> bài nào thiếu đáp án thì bị loại khỏi điểm thay vì chấm oan. Nút 'Kiểm tra' không lưu, nút 'Nộp bài' lưu lại
 > lịch sử. Đáp án chỉ quản trị viên lấy được."
 
 ### 2.4. Kỹ thuật — file + đoạn code thật
@@ -175,7 +175,7 @@ if (correct) score++;
 total++;
 ```
 
-**b) Chấm thử (không lưu) vs Nộp bài (lưu)** — cùng file, `gradeExercises()` (dòng 232) và `submitExercises()` (dòng 473).
+**b) Kiểm tra (không lưu) vs Nộp bài (lưu)** — cùng file, `gradeExercises()` (dòng 232) và `submitExercises()` (dòng 473).
 `submitExercises` gọi lại `gradeExercises` để **chấm lại ở máy chủ** (không tin số điểm do trình duyệt gửi lên),
 rồi lưu một bản ghi `ExerciseAttempt` kèm chi tiết từng câu.
 
@@ -297,11 +297,14 @@ if (!Array.isArray(snapshot.studiedDays) || !Number.isInteger(snapshot.currentSt
 
 Giống như **mục lục của thư viện**:
 - **Tìm bài học** = gõ từ khoá + chọn trình độ; thứ tự luôn theo **lộ trình học** (không đổi lung tung).
-- **Tra từ vựng** = hệ thống thử **3 tầng** theo thứ tự:
-  1. **Kho đệm của máy chủ** (nhanh nhất, nhớ sẵn 1 giờ).
-  2. **Từ điển online** (khi kho đệm chưa có).
-  3. **Kho từ vựng local** (khi mạng lỗi) — nên app **không bao giờ vỡ** vì mất mạng.
+- **Tra từ vựng** = hệ thống thử theo thứ tự:
+  1. **Kho đệm của máy chủ** (nhanh nhất, nhớ sẵn 1 giờ) — proxy qua backend tới từ điển online.
+  2. **Kho từ vựng local** (Oxford3000 trong máy chủ) — khi kho đệm/từ điển chưa có.
+  3. **Từ điển online gọi thẳng từ trình duyệt** — lớp cuối, khi proxy lỗi. Nên app **không bao giờ vỡ** vì mất mạng.
 - Gõ **dưới 2 ký tự thì không tìm** (để đỡ nặng máy chủ).
+- ⚠️ **Lưu ý khi demo:** lần tra **đầu tiên** cho một từ mới có thể chậm **~20 giây** (từ điển ngoài phản hồi chậm
+  từ mạng VN; các lần sau lấy từ kho đệm 1 giờ nên tức thì). Nên **tra trước vài từ quen** (ví dụ `hello`) một lần
+  ngay trước khi demo để kho đệm đã ấm.
 
 ### 4.2. Kịch bản bấm (trên UI)
 
@@ -312,8 +315,9 @@ Giống như **mục lục của thư viện**:
 
 ### 4.3. Trả lời 30 giây
 
-> "Tìm bài học theo từ khoá và trình độ, thứ tự cố định theo lộ trình. Tra từ đi 3 tầng: kho đệm máy chủ trước,
-> rồi từ điển online, cuối cùng là kho local — nên mất mạng vẫn tra được. Từ dưới 2 ký tự không tìm để đỡ nặng."
+> "Tìm bài học theo từ khoá và trình độ, thứ tự cố định theo lộ trình. Tra từ theo thứ tự: kho đệm máy chủ (proxy
+> từ điển, nhớ 1 giờ) → kho từ local → từ điển gọi thẳng — nên mất mạng vẫn tra được. Từ dưới 2 ký tự không tìm
+> để đỡ nặng. Lần tra đầu một từ mới có thể chậm ~20 giây, các lần sau lấy từ kho đệm nên tức thì."
 
 ### 4.4. Kỹ thuật — file + đoạn code thật
 
@@ -332,8 +336,11 @@ public ResponseEntity<List<Vocabulary>> search(@RequestParam(defaultValue = "") 
 }
 ```
 
-> **Thứ tự fallback (đừng nói ngược):** `vocabularyService.search()` thử **proxy máy chủ trước** (có cache Redis 1 giờ),
-> rồi mới tới từ điển online, cuối cùng là DB Oxford3000. `DictionaryService` tách riêng để cache hoạt động đúng.
+> **Thứ tự fallback (đo lại audit-v17, `frontend/src/services/vocabularyService.js`):** `search()` thử
+> **proxy máy chủ** (`backendFallback()` — dòng 152-153, gọi `/api/vocabulary/dictionary/{word}`, có cache Redis 1 giờ)
+> **trước**; nếu proxy lỗi mới gọi **từ điển online thẳng từ trình duyệt** (dòng 155-160); và trong `backendFallback`,
+> sau khi proxy rỗng/lỗi thì rơi về **DB Oxford3000** (`/api/vocabulary/search`, dòng 117).
+> `DictionaryService` tách riêng để `@Cacheable` hoạt động đúng.
 
 **b) Tìm + sắp xếp bài học (server quyết định thứ tự)** — `LessonService` cố định `Sort.by("orderIndex")`;
 `Lessons.vue` chỉ gửi `q` + `level` + trang.
@@ -362,7 +369,7 @@ Page<Exercise> page = exerciseRepository.findAdminPage(lessonId, exerciseType, e
 |---|---|---|
 | 1' | Login `user@gmail.com`, mở DevTools chỉ 2 key `token`+`user`; thử `/admin/users` → bị đá về `/` | "Đăng nhập phát vé 15 phút, khu quản trị chặn học viên." |
 | 1' | `/lessons` gõ tìm kiếm + đổi trình độ + phân trang; mở 1 bài | "Tìm theo từ khoá và trình độ, thứ tự theo lộ trình." |
-| 1.5' | Tab **Bài tập** → **Chấm thử** → F5 → **Lịch sử** (trống) → **Nộp bài** → **Lịch sử** (có) | "Chấm thử không lưu, nộp bài mới lưu. Máy chủ chấm." |
+| 1.5' | Tab **Bài tập** → **Kiểm tra** → F5 → **Lịch sử** (trống) → **Nộp bài** → **Lịch sử** (có) | "Kiểm tra không lưu, nộp bài mới lưu. Máy chủ chấm." |
 | 1' | `/search` gõ `hello` → có kết quả; gõ `h` → trống | "Tra từ 3 tầng, dưới 2 ký tự không tìm." |
 | 0.5' | `/profile` → ô Streak + lịch 30 ngày | "Chuỗi ngày học, tối 8 giờ gửi mail nhắc." |
 

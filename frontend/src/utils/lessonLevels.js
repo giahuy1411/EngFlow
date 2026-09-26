@@ -17,7 +17,7 @@ export function levelColor(level) {
     PRE_INTERMEDIATE: 'var(--geo-tertiary, #FBBF24)',
     INTERMEDIATE: 'var(--geo-secondary, #F472B6)',
     UPPER_INTERMEDIATE: 'var(--geo-quaternary, #34D399)',
-  })[level] || 'var(--geo-muted-fg, #64748B)'
+  })[level] || 'var(--geo-muted-fg, #556070)'
 }
 
 /** Text-safe variant of {@link levelColor} — use wherever the hue carries text. */
@@ -27,7 +27,7 @@ export function levelInkColor(level) {
     PRE_INTERMEDIATE: 'var(--geo-tertiary-ink, #B45309)',
     INTERMEDIATE: 'var(--geo-secondary-ink, #BE185D)',
     UPPER_INTERMEDIATE: 'var(--geo-quaternary-ink, #047857)',
-  })[level] || 'var(--geo-muted-fg, #64748B)'
+  })[level] || 'var(--geo-muted-fg, #556070)'
 }
 
 export function levelLabel(level) {

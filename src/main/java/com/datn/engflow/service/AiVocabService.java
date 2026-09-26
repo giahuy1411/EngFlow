@@ -4,6 +4,7 @@ import com.datn.engflow.model.entity.Vocabulary;
 import com.datn.engflow.model.dto.VocabularyRequest;
 import com.datn.engflow.repository.VocabularyRepository;
 import com.datn.engflow.model.enums.DeckSource;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,16 +33,38 @@ public class AiVocabService {
     private final VocabularyRepository vocabularyRepository;
     private final ObjectMapper objectMapper;
     private final String model;
+    private final long timeoutSeconds;
+
+    /**
+     * audit-v17 F-17-11: a lenient reader for model output.
+     *
+     * <p>The local model (qwen2.5:1.5b) intermittently emits a raw control character — in
+     * particular a literal newline — inside a JSON string value (e.g. a multi-line
+     * {@code exampleSentence}). Strict JSON forbids unescaped control characters, so
+     * {@code ObjectMapper.readValue} throws
+     * {@code Illegal unquoted character ((CTRL-CHAR, code 10))} and the endpoint returned
+     * HTTP 500 — measured live 2026-09-26 (round 2 of audit-v17). It is intermittent:
+     * 3 subsequent calls returned 200, so a single strict parse is not safe.
+     *
+     * <p>ALLOW_UNESCAPED_CONTROL_CHARS accepts exactly that class of malformed-but-recoverable
+     * output, which is the same failure family the exercise pipeline already salvages in
+     * {@code AiExerciseService}. The strict {@link #objectMapper} is kept for the first
+     * attempt so genuinely invalid JSON still fails loudly.
+     */
+    private static final ObjectMapper LENIENT_MAPPER = new ObjectMapper()
+            .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
 
     public AiVocabService(
             @Value("${openrouter.api-key}") String apiKey,
             @Value("${openrouter.base-url}") String baseUrl,
             @Value("${openrouter.model}") String model,
+            @Value("${ai.vocab.timeout-seconds:120}") long timeoutSeconds,
             ObjectMapper objectMapper,
             VocabularyRepository vocabularyRepository) {
         this.objectMapper = objectMapper;
         this.vocabularyRepository = vocabularyRepository;
         this.model = model;
+        this.timeoutSeconds = timeoutSeconds;
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
@@ -67,7 +90,7 @@ public class AiVocabService {
                     cleanJson = cleanJson.replace("```", "").trim();
                 }
 
-                List<Map<String, String>> list = objectMapper.readValue(cleanJson, new TypeReference<List<Map<String, String>>>(){});
+                List<Map<String, String>> list = readVocabListLenient(cleanJson);
                 List<Vocabulary> vocabs = new ArrayList<>();
                 for (Map<String, String> map : list) {
                     Vocabulary v = Vocabulary.builder()
@@ -90,6 +113,30 @@ public class AiVocabService {
         });
     }
 
+    /**
+     * Parse a JSON array of vocab objects, tolerating unescaped control characters in
+     * string values (audit-v17 F-17-11). Strict first, lenient second — so a genuinely
+     * broken payload still surfaces, but the common local-model newline-inside-string
+     * case is recovered instead of throwing 500.
+     */
+    // package-private (not private) so AiVocabServiceLenientParseTest can exercise them directly.
+    static List<Map<String, String>> readVocabListLenient(String json) throws Exception {
+        try {
+            return new ObjectMapper().readValue(json, new TypeReference<List<Map<String, String>>>(){});
+        } catch (com.fasterxml.jackson.core.JsonProcessingException strict) {
+            return LENIENT_MAPPER.readValue(json, new TypeReference<List<Map<String, String>>>(){});
+        }
+    }
+
+    /** Object variant of {@link #readVocabListLenient} for {@code enrichWord}. */
+    static Map<String, String> readVocabMapLenient(String json) throws Exception {
+        try {
+            return new ObjectMapper().readValue(json, new TypeReference<Map<String, String>>(){});
+        } catch (com.fasterxml.jackson.core.JsonProcessingException strict) {
+            return LENIENT_MAPPER.readValue(json, new TypeReference<Map<String, String>>(){});
+        }
+    }
+
     public Mono<Vocabulary> enrichWord(String word) {
         String prompt = String.format(
             "Provide detailed vocabulary information for the English word: \"%s\". " +
@@ -108,7 +155,7 @@ public class AiVocabService {
                     cleanJson = cleanJson.replace("```", "").trim();
                 }
 
-                Map<String, String> map = objectMapper.readValue(cleanJson, new TypeReference<Map<String, String>>(){});
+                Map<String, String> map = readVocabMapLenient(cleanJson);
                 return Vocabulary.builder()
                         .word(map.get("word"))
                         .pronunciation(map.get("pronunciation"))
@@ -156,7 +203,10 @@ public class AiVocabService {
                             return Mono.error(new RuntimeException(message));
                         }))
                 .bodyToMono(String.class)
-                .timeout(Duration.ofSeconds(30))
+                // audit-v17 F-17-12: was a hardcoded 30s while every other AI path is
+                // configurable (speaking 120s, exercise configurable). A cold local model
+                // swap measured >30s, so this returned 504 on a normal cold start.
+                .timeout(Duration.ofSeconds(timeoutSeconds))
                 .map(responseBody -> {
                     try {
                         JsonNode node = objectMapper.readTree(responseBody);

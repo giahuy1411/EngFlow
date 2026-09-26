@@ -113,13 +113,24 @@ const error = ref('')
 const searched = ref(false)
 
 async function search() {
-  if (!query.value.trim()) return
+  const term = query.value.trim()
+  // audit-v17 F-17-02: the documented rule (demo doc §4.2 — "gõ dưới 2 ký tự thì không tìm")
+  // was only enforced on the backend `/api/vocabulary/search` path (VocabularyController:46),
+  // not here and not on the primary `/api/vocabulary/dictionary/{word}` path this view uses.
+  // A 1-char query therefore fired a real lookup that can take ~20 s when the upstream
+  // dictionary is cold. Guard the UI too so the documented behaviour is what actually happens.
+  if (term.length < 2) {
+    results.value = []
+    searched.value = false
+    error.value = ''
+    return
+  }
   loading.value = true
   error.value = ''
   results.value = []
   searched.value = false
   try {
-    results.value = await vocabularyService.search(query.value.trim())
+    results.value = await vocabularyService.search(term)
     searched.value = true
   } catch (e) {
     if (e && e.message === 'TIMEOUT') {
