@@ -1,11 +1,13 @@
 /**
- * routes-all.js — Task 10 evidence: EVERY route in evidence/route-inventory.json
- * exercised in real Chromium at desktop + mobile, with console/API capture.
+ * routes-all.js — EVERY route in the router exercised in real Chromium at desktop +
+ * mobile, with console/API capture. The route list is derived from
+ * frontend/src/router/index.js via sweep/harness/routes-from-router.js.
  *
  * The previous ui/routes.js only covered a hand-picked subset, which is how a
- * route can be "in the inventory" yet never actually opened. This script reads
- * the generated inventory so the two can never drift apart: if a route is added
- * to the router, it appears here automatically.
+ * route can be "in the inventory" yet never actually opened. This script reads the
+ * router itself so the two can never drift apart: if a route is added to the router,
+ * it appears here automatically. (audit-v15: it used to read an untracked, gitignored
+ * JSON in an old audit's evidence dir — broken on a fresh clone, silently.)
  *
  * Per route it records: mount status, console errors, unhandled rejections,
  * API responses >= 400, horizontal overflow (raw numbers), text length, and the
@@ -17,9 +19,11 @@ const H = require("./lib.js");
 const fs = require("fs");
 const path = require("path");
 
-const INV = JSON.parse(fs.readFileSync(
-  path.join(__dirname, "..", "..", "..", ".specify", "specs", "audit-v8-full",
-    "evidence", "route-inventory.json"), "utf8"));
+// audit-v15 L3-f: this used to read an UNTRACKED, gitignored JSON in an old
+// audit's evidence dir — so the "sweep every route" command could not run on a
+// fresh clone, and nothing said so. Derive the inventory from the router itself.
+const { routes: routerRoutes } = require("../../harness/routes-from-router.js");
+const INV = { routes: routerRoutes(), totalRoutes: routerRoutes().length };
 
 const VIEWPORTS = [
   { name: "desktop-1440", w: 1440, h: 900 },
@@ -62,6 +66,12 @@ const badLanding = [];
   let userS = await H.loginFull("user@gmail.com", "123456");
   const browser = await H.pw.chromium.launch({ headless: true });
 
+  // audit-v15 L1-b: the walk is inside `try`, cleanup is in `finally`. Before this,
+  // cleanup sat on the happy path: any throw (e.g. the routes-all.json write) fell
+  // into `.catch` -> exit 1 with the real payment row still in the table. A cleanup
+  // that only runs when nothing goes wrong is not a cleanup.
+  let clean = { ok: false };
+  try {
   for (const vp of VIEWPORTS) {
     for (const asRole of ["admin", "user", "anon"]) {
       const ctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h } });
@@ -80,7 +90,9 @@ const badLanding = [];
 
       let visited = 0;
       for (const r of INV.routes) {
-        if (r.guard === "admin-redirect") continue; // covered by /admin/dashboard
+        // audit-v15: guards now come from the router (routes-from-router.js), so the
+        // admin guard is "admin", not the old inventory's "admin-redirect".
+        if (r.guard === "admin-redirect") continue;
         const url = concrete(r.path);
 
         // AGENTS.md: the JWT TTL is 900s and the global bucket is 100/min/IP.
@@ -191,6 +203,9 @@ const badLanding = [];
         const isCatchAll = r.path.includes(":pathMatch");
         let shouldStay;
         if (isCatchAll) shouldStay = false;
+        // A route with its own `redirect:` (e.g. /admin -> /admin/dashboard) is SUPPOSED
+        // to land elsewhere for every role; that is not a guard bounce.
+        else if (r.redirects) shouldStay = false;
         else if (r.guard === "public") shouldStay = true;
         else if (r.guard === "guestOnly") shouldStay = asRole === "anon";
         else if (r.guard === "admin") shouldStay = asRole === "admin";
@@ -223,7 +238,14 @@ const badLanding = [];
       await ctx.close();
     }
   }
-  await browser.close();
+  } finally {
+    // audit-v15 L1-b: ALWAYS clean up + close the browser, even if the walk threw.
+    await browser.close();
+    clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+    console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline " + H.PARITY_BASELINE + ")");
+    try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
+    catch (e) { console.error("RESIDUE: " + e.message); clean.ok = false; }
+  }
 
   console.log("\n=== ROUTE SWEEP TOTALS ===");
   console.log("visits            : " + results.length + " (" + INV.totalRoutes + " routes x " + VIEWPORTS.length + " viewports x 3 roles)");
@@ -250,13 +272,17 @@ const badLanding = [];
   const adminReal = adminRows.filter(r => !r.landedElsewhere && r.mounted && r.textLen > 100);
   console.log("admin visits rendering a real admin page: " + adminReal.length + "/" + adminRows.length);
 
-  // Self-clean. This sweep walks /premium/checkout, whose component mints a real
-  // payment_transactions row on mount, so the sweep MUST undo its own writes in
-  // the same run. Measured 2026-09-16: three runs took parity 126 -> 134.
-  const clean = H.cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
-  console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
-
-  fs.writeFileSync("routes-all.json", JSON.stringify({ inventory: INV.totalRoutes, results, badLanding, cleanup: clean, totals: { totalErr, totalApi400, totalOverflow, totalNotMounted, badLanding: badLanding.length } }, null, 1));
+  // Self-clean, and PROVE it. This sweep walks /premium/checkout, whose component
+  // mints a real payment_transactions row on mount, so the sweep MUST undo its own
+  // writes in the same run. Measured 2026-09-16: three runs took parity 126 -> 134.
+  //
+  // audit-v15 L1-b: this cleanup used to sit on the HAPPY PATH (after the summary
+  // prints). Any throw between the walk and here fell into `.catch` -> exit 1 with
+  // the real payment row still in the table. It now runs in the `finally` below,
+  // like its sibling ui/routes.js. audit-v15 L3-b/e: the baseline comes from lib.js
+  // (single source of truth) instead of a hardcoded stale copy.
+  // Cleanup already ran in the `finally` above (audit-v15 L1-b). Report the result.
+  fs.writeFileSync(path.join(__dirname, "routes-all.json"), JSON.stringify({ inventory: INV.totalRoutes, results, badLanding, cleanup: clean, totals: { totalErr, totalApi400, totalOverflow, totalNotMounted, badLanding: badLanding.length } }, null, 1));
   console.log("wrote routes-all.json");
   process.exit((badLanding.length === 0 && clean.ok) ? 0 : 1);
 })().catch(e => { console.log("ERR", e.message); process.exit(1); });

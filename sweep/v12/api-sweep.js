@@ -12,8 +12,9 @@
  *   - SERIAL execution: only two usable global buckets exist (TRUSTED_PROXY_ENABLED unset),
  *     so a fan-out would be F109 on purpose.
  *
- * Run: node sweep/v12/api-sweep.js
- * Out: .specify/specs/audit-v12-full/evidence/api-sweep.json
+ * Run: node sweep/v12/api-sweep.js [--out <dir>]
+ * Out: <dir>/api-sweep.json   (default: the CURRENT audit's evidence dir, NOT audit-v12's —
+ *      writing into a previous round's evidence silently overwrote a historical artifact)
  */
 const { execFileSync } = require("child_process");
 const fs = require("fs");
@@ -23,6 +24,22 @@ const API = "http://localhost:8080";
 const USER = { email: "user@gmail.com", password: "123456" };
 const ADMIN = { email: "admin@gmail.com", password: "123456" };
 const PUBLIC_DECK = 10006; // Oxford 3000 — real, is_public=1
+
+// The run's own date on the SAME clock the JVM writes with (naive VN, +07). Cleanup windows
+// use this instead of a hardcoded literal — see the CLEANUP block for why (audit-v14 D8).
+function vnDate(when) {
+  return new Date((when === undefined ? Date.now() : when) + 7 * 3600e3)
+    .toISOString().slice(0, 10);
+}
+const VN_RUN_DATE = vnDate();
+
+// audit-v15 L3-h: default the output beside the CURRENT audit, not into audit-v12's dir.
+function arg(name, def) {
+  const i = process.argv.indexOf("--" + name);
+  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
+}
+const AUDIT = arg("audit", "audit-v15-full");
+const OUT_DIR = arg("out", path.join(__dirname, "..", "..", ".specify", "specs", AUDIT, "evidence"));
 
 const R = { pass: 0, fail: 0, blocked: 0, n_a: 0, findings: [], areas: {}, probed: [] };
 let area = "init";
@@ -157,7 +174,7 @@ const login = async ({ email, password }) => {
       check("  includeAnswers=true as ANON does not leak answers", !/"correctAnswer"\s*:\s*"[^"]/.test(JSON.stringify(exAnon.data)), "leaked answers to anon");
       const exAdm = await req("GET", `/api/lessons/${firstId}/exercises?includeAnswers=true`, { token: adminToken });
       check("  includeAnswers=true as ADMIN 200", exAdm.status === 200, `got ${exAdm.status}`);
-      check("GET /api/lessons/{id}/structure (auth) 200", (await req("GET", `/api/lessons/${firstId}/structure`, { token: userToken })).status === 200, "expected 200");
+      check("audit-v15 GET /api/lessons/{id}/structure gone -> 404", (await req("GET", `/api/lessons/${firstId}/structure`, { token: userToken })).status === 404, "expected 404 (Lesson Builder removed)");
       check("GET /api/lessons/{id}/exercises/content 200", (await req("GET", `/api/lessons/${firstId}/exercises/content`)).status === 200, "expected 200");
       check("POST /api/lessons/{id}/exercises/grade anon 401/403", [401, 403].includes((await req("POST", `/api/lessons/${firstId}/exercises/grade`, { body: { answers: [] } })).status), "expected 401/403");
       const att = await req("GET", `/api/lessons/${firstId}/exercises/attempts`, { token: userToken });
@@ -169,7 +186,7 @@ const login = async ({ email, password }) => {
     const draftId = 10888;
     check("F88 draft lesson anon -> 404", (await req("GET", `/api/lessons/${draftId}`)).status === 404, "expected 404");
     check("F89 draft lesson student -> 404", (await req("GET", `/api/lessons/${draftId}`, { token: userToken })).status === 404, "expected 404");
-    check("F126 draft structure student -> 404", (await req("GET", `/api/lessons/${draftId}/structure`, { token: userToken })).status === 404, "expected 404");
+    check("F126 structure endpoint gone -> 404 (audit-v15)", (await req("GET", `/api/lessons/${draftId}/structure`, { token: userToken })).status === 404, "expected 404");
     const dEx = await req("GET", `/api/lessons/${draftId}/exercises`, { token: userToken });
     check("F115 draft exercises student blocked", [403, 404].includes(dEx.status), `got ${dEx.status}`);
     check("draft lesson admin -> 200", (await req("GET", `/api/lessons/${draftId}`, { token: adminToken })).status === 200, "expected 200");
@@ -409,11 +426,12 @@ const login = async ({ email, password }) => {
     check("GET /api/lesson-submissions/my/lesson/{id}/skill/{type} 200", my.status === 200, `got ${my.status}`);
     check("lesson-submissions anon 401", (await req("GET", `/api/lesson-submissions/my/lesson/${firstId}/skill/WRITING`)).status === 401, "expected 401");
 
-    const snapList = await req("GET", `/api/admin/lessons/${firstId}/snapshots`, { token: adminToken });
-    check("GET /api/admin/lessons/{id}/snapshots (admin) 200", snapList.status === 200, `got ${snapList.status}`);
-    check("  snapshots student 403", (await req("GET", `/api/admin/lessons/${firstId}/snapshots`, { token: userToken })).status === 403, "expected 403");
-    check("  snapshots anon 401", (await req("GET", `/api/admin/lessons/${firstId}/snapshots`)).status === 401, "expected 401");
-    na("POST /api/admin/lessons/{id}/snapshots + /restore", "writes a real snapshot/restores content — probe only if an audit-namespaced lesson exists; not run to avoid content mutation");
+    // audit-v15: the Lesson Builder snapshots were removed with Đường B — the whole
+    // /api/admin/lessons/{id}/snapshots family is gone. admin -> 404 (no handler);
+    // student/anon are stopped earlier by SecurityConfig (/api/admin/** needs ROLE_ADMIN).
+    check("audit-v15 GET snapshots gone (admin) -> 404", (await req("GET", `/api/admin/lessons/${firstId}/snapshots`, { token: adminToken })).status === 404, "expected 404");
+    check("audit-v15 snapshots (student) admin-gated -> 403", (await req("GET", `/api/admin/lessons/${firstId}/snapshots`, { token: userToken })).status === 403, "expected 403");
+    check("audit-v15 snapshots (anon) admin-gated -> 401", (await req("GET", `/api/admin/lessons/${firstId}/snapshots`)).status === 401, "expected 401");
   }
 
   // ═══════════════════════════════════════════════════ C11 SPEAKING PROMPTS + SUBMISSIONS
@@ -532,22 +550,37 @@ const login = async ({ email, password }) => {
     // baseline (v11 F130: `after === expected` cannot tell "cleaned up" from "baseline was
     // already wrong"). We remove by order_code AND any PENDING/no-transaction row dated
     // today, then assert ZERO remain.
+    // audit-v15: the window is the RUN'S OWN VN date, not a hardcoded literal. The old
+    // `CONVERT(date,'2026-09-21')` was the audit-v14 D8 bug: it happened to still match via
+    // `>=` on later runs, but the window was not scoped to the run, so it could also DELETE a
+    // genuine unpaid PENDING order created any time since that date. VN_RUN_DATE is the same
+    // clock the JVM writes with (see sweep/v8/ui/lib.js).
     const sql = `
 SET QUOTED_IDENTIFIER ON;
 SET NOCOUNT ON;
 SELECT 'AUDIT_PAY_CANDIDATES=' + CAST(COUNT(*) AS varchar(10)) AS marker FROM payment_transactions
- WHERE transaction_id IS NULL AND status='PENDING' AND created_at >= CONVERT(date, '2026-09-21');
+ WHERE transaction_id IS NULL AND status='PENDING' AND created_at >= '${VN_RUN_DATE} 00:00:00';
 DELETE FROM deck_words WHERE deck_id IN (SELECT deck_id FROM decks WHERE name LIKE 'AUDIT-V12-API-%');
 DELETE FROM decks WHERE name LIKE 'AUDIT-V12-API-%';
 DELETE FROM deck_words WHERE vocab_id IN (SELECT vocab_id FROM vocabulary WHERE word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word = 'zzv12probe');
 DELETE FROM vocabulary WHERE word LIKE 'zzv12authshape%' OR word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word = 'zzv12probe';
 DELETE FROM payment_transactions
  WHERE transaction_id IS NULL AND status = 'PENDING'
-   AND (order_code = '${R.createdOrderCode || "__none__"}' OR created_at >= CONVERT(date, '2026-09-21'));
+   AND (order_code = '${R.createdOrderCode || "__none__"}' OR created_at >= '${VN_RUN_DATE} 00:00:00');
+-- audit-v15 L1-a: this sweep calls /api/flashcards/study and /api/srs/review, both of which
+-- call StudyActivityService.recordStudy() and write a study_days row for the probe user.
+-- Nothing removed it and p16-parity.sql did not count it, so the residue was INVISIBLE:
+-- v14 ended at 4 rows, a probe row made it 5, and v15 recorded "study_days 5" as the
+-- baseline. Delete only the probe accounts' rows for THIS run's date — never a real
+-- learner's day (user 2/3 are the seeded probe accounts).
+DELETE FROM study_days
+ WHERE study_date = '${VN_RUN_DATE}'
+   AND user_id IN (SELECT user_id FROM users WHERE email IN ('user@gmail.com','admin@gmail.com'));
 SELECT 'AUDIT_DECKS=' + CAST((SELECT COUNT(*) FROM decks WHERE name LIKE 'AUDIT-V12-API-%') AS varchar(10))
      + ' AUDIT_VOCAB=' + CAST((SELECT COUNT(*) FROM vocabulary WHERE word LIKE 'zzv12%' OR word LIKE 'zzf147%' OR word='zzv12probe') AS varchar(10))
      + ' AUDIT_LESSONS=' + CAST((SELECT COUNT(*) FROM lessons WHERE title LIKE 'AUDIT-V12-%') AS varchar(10))
-     + ' AUDIT_PAY=' + CAST((SELECT COUNT(*) FROM payment_transactions WHERE transaction_id IS NULL AND status='PENDING' AND created_at >= CONVERT(date, '2026-09-21')) AS varchar(10)) AS marker;
+     + ' AUDIT_PAY=' + CAST((SELECT COUNT(*) FROM payment_transactions WHERE transaction_id IS NULL AND status='PENDING' AND created_at >= '${VN_RUN_DATE} 00:00:00') AS varchar(10))
+     + ' AUDIT_STUDY_DAYS=' + CAST((SELECT COUNT(*) FROM study_days WHERE study_date = '${VN_RUN_DATE}' AND user_id IN (SELECT user_id FROM users WHERE email IN ('user@gmail.com','admin@gmail.com'))) AS varchar(10)) AS marker;
 `;
     fs.writeFileSync(path.join(__dirname, "_cleanup.sql"), sql);
     let out = "";
@@ -556,9 +589,9 @@ SELECT 'AUDIT_DECKS=' + CAST((SELECT COUNT(*) FROM decks WHERE name LIKE 'AUDIT-
     console.log(out.trim());
     const msgErrors = (out.match(/Msg \d+/g) || []).length;
     check("cleanup produced 0 SQL errors (Msg scan)", msgErrors === 0, `Msg count=${msgErrors}`);
-    const m = /AUDIT_DECKS=(\d+) AUDIT_VOCAB=(\d+) AUDIT_LESSONS=(\d+) AUDIT_PAY=(\d+)/.exec(out);
+    const m = /AUDIT_DECKS=(\d+) AUDIT_VOCAB=(\d+) AUDIT_LESSONS=(\d+) AUDIT_PAY=(\d+) AUDIT_STUDY_DAYS=(\d+)/.exec(out);
     check("cleanup left 0 residue", m && m.slice(1).every((x) => x === "0"), m ? m[0] : "marker not found");
-    R.cleanup = m ? { decks: +m[1], vocab: +m[2], lessons: +m[3], payments: +m[4] } : null;
+    R.cleanup = m ? { decks: +m[1], vocab: +m[2], lessons: +m[3], payments: +m[4], studyDays: +m[5] } : null;
   }
 
   // ═══════════════════════════════════════════════════ SUMMARY
@@ -566,8 +599,8 @@ SELECT 'AUDIT_DECKS=' + CAST((SELECT COUNT(*) FROM decks WHERE name LIKE 'AUDIT-
   console.log(`pass=${R.pass} fail=${R.fail} blocked=${R.blocked} n_a=${R.n_a}`);
   for (const [a, v] of Object.entries(R.areas)) console.log(`  ${a.padEnd(12)} pass=${v.pass} fail=${v.fail} blocked=${v.blocked}`);
 
-  const OUT = path.join(__dirname, "..", "..", ".specify", "specs", "audit-v12-full", "evidence", "api-sweep.json");
-  fs.mkdirSync(path.dirname(OUT), { recursive: true });
+  const OUT = path.join(OUT_DIR, "api-sweep.json");
+  fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify(R, null, 2));
   console.log("written:", path.relative(path.join(__dirname, "..", ".."), OUT));
   process.exit(R.fail > 0 ? 1 : 0);

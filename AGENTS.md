@@ -11,21 +11,23 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Commands
 
-- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **525 tests / 0 fail / 0 error / 11 skipped** (audit-v14, 2026-09-25; +2 test F-14-02). Trước đó: 517 (audit-v13 giữa kỳ) → 513 → 499 (audit-v12 Phase 11) → 496 (Phase 10) → 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
-- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **194 passed / 1 skipped (31 files)** (audit-v14, 2026-09-25; +1 so v13). Trước đó: 175 → 172 → 146 → 127 (audit-v12 Phase 11) → 128 (Phase 10) → 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
-- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.98 kB** (gzip 67.76) (audit-v13 + A1, 2026-09-22).
-- **Parity DB chuẩn (2026-09-22, sau audit-v13):** `1470|43735|72|118|29|15|4|126|10|5`
-  (`lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks|snapshots`).
-  So với mốc v12 (`1470|43734|…|118|28|…`) thì **exercises +1, speaking +1** — đây là dữ liệu do
-  chính người dùng tạo khi test (exercise 777434 lúc 2026-09-21 22:01 + 1 speaking submission),
-  **không phải drift**. Đo lại mỗi kỳ audit; lệch thì phải giải thích được nguồn.
-  Đo bằng `python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql`. Giá trị cũ `…|127|…|14|5` là **trước** khi xoá
-  9 row vocab rác + 4 deck test + lesson 61882 — đó là thay đổi **có chủ ý**, không phải drift.
+- Backend tests: `cmd /c "mvnw.cmd test"` (từ repo root) — baseline xanh: **515 tests / 0 fail / 0 error / 11 skipped** (audit-v15, 2026-09-25; −13 do gỡ Đường B, +3 `HarnessDriftTest` — xem `docs/lesson-builder-removal.md`). Trước đó: 525 (audit-v14) → 517 (audit-v13 giữa kỳ) → 513 → 499 (audit-v12 Phase 11) → 496 (Phase 10) → 492 (Phase 9) → 485 (Phase 0) → 378 (audit-v8). Lưu ý: XML stale trong `target/surefire-reports` của class đã xóa (`UserServiceUnlimitedAiGenerationTest`) từng làm aggregate ảo +8 — đếm theo run log, không đếm file XML.
+- Frontend tests: `Set-Location frontend; cmd /c "npx vitest run"` — baseline: **178 passed / 1 skipped (29 files)** (audit-v15, 2026-09-25; −16 do gỡ Đường B). Trước đó: 194 (audit-v14) → 175 → 172 → 146 → 127 (audit-v12 Phase 11) → 128 (Phase 10) → 121 (Phase 9) → 119 (Phase 0) → 89 (audit-v8).
+- Frontend build: `cmd /c "npx vite build"` trong `frontend/` — entry `index-*.js` **177.74 kB** (gzip 67.68) (audit-v15, 2026-09-25 — gỡ chunk Builder).
+- **Parity DB chuẩn (2026-09-25, sau audit-v15):** `1470|43738|5|118|29|4|3|12|10`
+  (`lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks`).
+  audit-v15 đã: dọn 67 user test/audit + 114 payment rác (**users 72→5, payments 126→12**),
+  migrate 3 câu hỏi vào `exercises` (**43735→43738**), và DROP `lesson_snapshots` cùng Đường B
+  (nên **cột `snapshots` không còn** — parity chỉ còn 9 số). Đo lại mỗi kỳ audit; lệch thì phải giải
+  thích được nguồn. Đo bằng `python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql`.
 - Rebuild backend container: `docker compose up -d --build backend` (code trong container chỉ đổi khi rebuild).
 - SQL runner dùng chung: `python sweep/v8/sqlrun.py <file.sql>` (pipe vào `docker exec -i engflow-sqlserver sqlcmd`). DELETE trên bảng có filtered index (`IX_uvp_due`) **bắt buộc** `SET QUOTED_IDENTIFIER ON;` ở đầu batch.
-- Browser harness (headless, không cần MCP): `cmd /c "set NODE_PATH=%APPDATA%\npm\node_modules&& node <file>.js"` — playwright-core toàn cục + Chromium cache, scripts ở `sweep/v8/` (p1–p5 + `ui/`: `routes.js`, `design.js`, `v3.js`).
+- Browser harness (headless, không cần MCP): `cmd /c "set NODE_PATH=%APPDATA%\npm\node_modules&& node <file>.js"` — playwright-core toàn cục + Chromium cache.
+  - **Suite audit được commit ở `sweep/harness/`** (audit-v15 hardening, **14 file source**): `ui-sweep.js`, `deep-probe.js`, `api-inventory.js`, `perf-probe.js`, `cls-probe.js`, `search-sort.js`, `danger-tint.js`, `focused-probe.js`, `f1302-a1-*.js`, `f1320-api-redirect-live.js`, `assert-harness.js`, `routes-from-router.js`, `_config.js`. Namespace/đường dẫn tham số hoá qua `sweep/harness/_config.js`: `node sweep/harness/<probe>.js [--audit <tên>] [--out <thư-mục>]` (mặc định `audit-v15-full`). Vòng sau KHÔNG cần copy sang `sweep/v1N/` — chạy với `--audit audit-v16-full`. Browser harness cần `NODE_PATH`: `cmd /c "set NODE_PATH=%APPDATA%\npm\node_modules&& node sweep/harness/ui-sweep.js"`.
+  - Harness UI dùng chung ở `sweep/v8/ui/`: `routes.js` (route×role subset), `routes-all.js` (đủ mọi route, đọc từ router), `design.js`, `design-v2.js` (5 viewport + font + token). Chạy: `node sweep/v8/ui/routes.js admin`.
+  - **Drift guard**: `HarnessDriftTest` (chạy trong `mvnw test`) + `node sweep/harness/assert-harness.js` — fail nếu harness/docs trỏ endpoint/bảng/route đã gỡ.
   **MCP browser CÓ sẵn** (audit-v12 xác nhận): `chrome-devtools` (`evaluate_script`, `list_network_requests`, `lighthouse_audit`, `emulate`) và `playwright` (`browser_*`). Dùng MCP cho tương tác/đo tương tác; dùng script headless cho sweep hàng loạt.
-- API sweep v12 (phủ hết 131 endpoint): `node sweep/v12/api-sweep.js` — tự cấp phát deck test và tự dọn (`AUDIT-V12-API-%`). **Đừng để harness phụ thuộc dữ liệu ambient** (bài học Phase 10: xoá deck "Test Deck" của student làm assert F147 ngừng chạy mà không báo lỗi).
+- API sweep (phủ hết endpoint, giữ ở `sweep/v12/api-sweep.js`): `node sweep/v12/api-sweep.js [--audit <tên>] [--out <thư-mục>]` — tự cấp phát deck test và tự dọn (`AUDIT-V12-API-%`); dọn cả `study_days` của tài khoản probe trong ngày chạy (audit-v15 L1-a) và ghi kết quả vào audit HIỆN TẠI (không ghi đè `audit-v12-full`). **Đừng để harness phụ thuộc dữ liệu ambient** (bài học Phase 10: xoá deck "Test Deck" của student làm assert F147 ngừng chạy mà không báo lỗi).
 - SQL: `docker exec engflow-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourPassword123' -d english_learning -Q "..." -C`.
 
 ## Code Conventions

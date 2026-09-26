@@ -211,9 +211,13 @@ const TOKEN_NAMES_LEN = 11; // keep in sync with TOKEN_NAMES inside the page eva
   // cost is one SQL batch and the failure mode of a stale assumption here is a
   // silently dirty payment_transactions table — exactly the trap AGENTS.md
   // documents for every sweep that touches /premium*.
-  H.cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
+  // audit-v15 L3-c/e: baselines from lib.js (single source of truth), not literals.
+  const clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
   console.log("DB parity after cleanup: " + H.dbParity()
-    + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
+    + "   (baseline " + H.PARITY_BASELINE + ")");
+  let residue = false;
+  try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
+  catch (e) { console.error("RESIDUE: " + e.message); residue = true; }
 
   console.log("\n=== PLAN B SUMMARY ===");
   console.log("font loaded (400/700/900): " + JSON.stringify(fontLoaded && { loaded: fontLoaded.loaded, bold: fontLoaded.bold, black: fontLoaded.black, faces: fontLoaded.count }));
@@ -236,7 +240,11 @@ const TOKEN_NAMES_LEN = 11; // keep in sync with TOKEN_NAMES inside the page eva
     totalLucide, totalLucideBad, totalMissingTokens, totalTokenMismatch, mobileShadowFail: mobileShadowFail.length };
   require("fs").writeFileSync(__dirname + "/design-v2.json", JSON.stringify({ fontLoaded, report, wrongPage, totals }, null, 1));
   console.log("wrote design-v2.json");
+  // audit-v15 L1-c: `clean.ok` and the residue assertion must gate the exit code.
+  // Before this the cleanup result was computed and then dropped, so a failed
+  // cleanup still exited 0.
   const failed = wrongPage.length || totalBadFont || totalLegacy || totalOverflow
-    || totalLucideBad || totalMissingTokens || totalTokenMismatch || mobileShadowFail.length;
+    || totalLucideBad || totalMissingTokens || totalTokenMismatch || mobileShadowFail.length
+    || !clean.ok || residue;
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.log("ERR", e.message); process.exit(1); });

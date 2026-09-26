@@ -60,6 +60,25 @@ function vnDate(when) {
 const VN_RUN_DATE = vnDate();
 
 /**
+ * The canonical DB parity baseline — SINGLE SOURCE OF TRUTH.
+ *
+ * WHY THIS EXISTS (audit-v15 hardening, weakness L3)
+ * --------------------------------------------------
+ * Three UI harnesses each hardcoded a copy of this string, and a copy of the
+ * payments baseline (a literal `cleanupAuditPayments(<n>)`). When audit-v15 changed the DB
+ * (dropped lesson_snapshots, cleaned 67 users + 114 payments) every copy went
+ * stale at once and printed a 10-number baseline that no longer existed — a
+ * human comparing by eye would conclude the DB had drifted. Keeping one constant
+ * here means a schema/data change updates one line, not three.
+ *
+ * Update this when the DB legitimately changes, and update AGENTS.md in the same
+ * commit (it documents the same baseline).
+ */
+const PARITY_BASELINE = "1470|43738|5|118|29|4|3|12|10";
+const PAYMENTS_BASELINE = 12;
+const STUDY_DAYS_BASELINE = 4;
+
+/**
  * Remove the `payment_transactions` rows a UI sweep creates, and PROVE parity.
  *
  * WHY THIS EXISTS
@@ -156,18 +175,81 @@ function cleanupAuditPayments(expected, day) {
 
 /** Row-count parity for the whole DB, as a comparable string. */
 function dbParity() {
-  const { execSync } = require("child_process");
+  const { execFileSync } = require("child_process");
   const path = require("path");
   const ROOT = path.join(__dirname, "..", "..", "..");
   try {
-    const out = execSync("python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql",
+    // execFileSync + argv array: no shell, so nothing in the path can be interpreted
+    // as shell syntax (same pattern as perf-probe.js / deep-probe.js).
+    const out = execFileSync("python", ["sweep/v8/sqlrun.py", "sweep/v8/p16-parity.sql"],
       { cwd: ROOT, encoding: "utf8" });
     // The data line is the one made only of digits and pipes, e.g.
-    // "1471|43737|76|127|28|15|4|126|14|5". The header and the dashes rule are
+    // "1470|43738|5|118|29|4|3|12|10". The header and the dashes rule are
     // not, so anchor on that instead of guessing a line index.
     const line = out.split(/\r?\n/).find(l => /^\s*\d+(\|\d+)+\s*$/.test(l));
     return line ? line.trim() : "UNPARSED";
   } catch (e) { return "ERR " + e.message.slice(0, 60); }
+}
+
+/** Read a `NAME=<n>` marker from p16-parity.sql output (e.g. STUDY_DAYS=4). */
+function parityMarker(name) {
+  const { execFileSync } = require("child_process");
+  const path = require("path");
+  const ROOT = path.join(__dirname, "..", "..", "..");
+  try {
+    const out = execFileSync("python", ["sweep/v8/sqlrun.py", "sweep/v8/p16-parity.sql"],
+      { cwd: ROOT, encoding: "utf8" });
+    const m = new RegExp(name + "=(\\d+)").exec(out);
+    return m ? parseInt(m[1], 10) : null;
+  } catch (e) { return null; }
+}
+
+/**
+ * Assert the DB is back to its expected state after a harness run, and THROW if not.
+ *
+ * WHY THIS EXISTS (audit-v15 hardening, weakness L1)
+ * -------------------------------------------------
+ * Three separate harnesses in this repo could leave real rows behind, and the
+ * baseline could not see it:
+ *   - `payment_transactions` — a visit to `/premium/checkout` mints a PENDING row.
+ *     `cleanupAuditPayments` handles it, but two callers ran it outside a
+ *     `finally` (a throw skipped cleanup) and one dropped its result from the exit
+ *     code, so cleanup failure still exited 0.
+ *   - `study_days` — written by 5 services via StudyActivityService.recordStudy(),
+ *     reachable from `/flashcards/study`, `/srs/review`, `/exercises/submit`,
+ *     speaking submit, and game/streak paths. NOTHING cleaned it and p16-parity.sql
+ *     did not count it, so the residue was invisible: v14 ended at 4 rows, a probe
+ *     row made it 5, and v15 recorded "study_days 5" as if it were the baseline.
+ *
+ * `expect` is the caller's known-good baseline:
+ *   { parity?: "a|b|c|...", studyDays?: 4, pendingPayments?: 0 }
+ * Every provided field is checked; a mismatch throws (so a `finally` that calls
+ * this can never silently pass). Returns the observed values for logging.
+ */
+function assertClean(expect) {
+  expect = expect || {};
+  const observed = {
+    parity: dbParity(),
+    studyDays: parityMarker("STUDY_DAYS"),
+    pendingPayments: parityMarker("PENDING_PAYMENTS"),
+  };
+  const problems = [];
+  if (expect.parity !== undefined && observed.parity !== expect.parity) {
+    problems.push("parity " + observed.parity + " != expected " + expect.parity);
+  }
+  if (expect.studyDays !== undefined && observed.studyDays !== expect.studyDays) {
+    problems.push("study_days " + observed.studyDays + " != expected " + expect.studyDays);
+  }
+  if (expect.pendingPayments !== undefined && observed.pendingPayments !== expect.pendingPayments) {
+    problems.push("pending payments " + observed.pendingPayments + " != expected " + expect.pendingPayments);
+  }
+  const ok = problems.length === 0;
+  console.log("assertClean: parity=" + observed.parity
+    + " study_days=" + observed.studyDays
+    + " pending_payments=" + observed.pendingPayments
+    + " -> " + (ok ? "CLEAN" : "DIRTY: " + problems.join("; ")));
+  if (!ok) throw new Error("assertClean failed — residue left by this run: " + problems.join("; "));
+  return observed;
 }
 
 async function login(email, pass) {
@@ -323,4 +405,4 @@ function summarize(title) {
   console.log("  horizontal overflow: " + (overflow.length ? overflow.map(r => r.route + "(" + r.info.scrollW + ">" + r.info.clientW + ")").join(" ; ") : "none"));
 }
 
-module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, dbParity };
+module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, dbParity, parityMarker, assertClean, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE };

@@ -7,6 +7,12 @@ const PAGES = ["/", "/lessons", "/lessons/445", "/decks", "/decks/10006", "/spea
 
 (async () => {
   const browser = await H.pw.chromium.launch({ headless: true });
+  // audit-v15 L1-d: PAGES includes "/premium". It does not mint a row TODAY (only
+  // "/premium/checkout" does), but that is an assumption about a view this file does
+  // not own — if PremiumPage ever calls create-order, this sweep would leak a real
+  // payment row with NO cleanup and no assertion. Clean unconditionally in `finally`.
+  let clean = { ok: false };
+  try {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
   await page.goto(H.APP + "/login", { waitUntil: "domcontentloaded" });
@@ -83,5 +89,12 @@ const PAGES = ["/", "/lessons", "/lessons/445", "/decks", "/decks/10006", "/spea
     const b = document.querySelector("button, a.app-btn, .app-btn");
     return b ? { dur: getComputedStyle(b).transitionDuration, transform: getComputedStyle(b).transform } : "none";
   })));
-  await browser.close();
+  } finally {
+    await browser.close();
+    clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
+    console.log("DB parity after cleanup: " + H.dbParity() + "   (baseline " + H.PARITY_BASELINE + ")");
+    try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
+    catch (e) { console.error("RESIDUE: " + e.message); process.exitCode = 1; }
+  }
+  if (!clean.ok) process.exitCode = 1;
 })().catch(e => { console.log("ERR", e.message); process.exit(1); });

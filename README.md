@@ -124,7 +124,7 @@ engflow/
 ## Commands Reference
 
 ```bash
-# Backend tests (512 tests)
+# Backend tests (515 tests)
 cmd /c "mvnw.cmd test"
 
 # Frontend tests (178 tests, 29 files)

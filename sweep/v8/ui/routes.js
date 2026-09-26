@@ -12,7 +12,7 @@ const AUTH = ["/profile", "/search", "/decks/create", "/decks/10006/play/flashca
   "/premium", "/premium/checkout",
   "/admin/dashboard", "/admin/lessons", "/admin/exercises", "/admin/users",
   "/admin/speaking-prompts", "/admin/speaking-submissions", "/admin/videos",
-  "/admin/video-attempts", "/admin/447/build"];
+  "/admin/video-attempts"];
 
 async function formLogin(page, email, pass) {
   await page.goto(H.APP + "/login", { waitUntil: "domcontentloaded" });
@@ -83,9 +83,13 @@ async function formLogin(page, email, pass) {
     // A guest pass never reaches the mount (the guard bounces it to /login), so
     // only the authenticated tags can leak.
     if (tag !== "guest") {
-      H.cleanupAuditPayments(126); // audit-v11 F130: baseline informational; assertion is self-clean
+      // audit-v15: baselines come from lib.js (single source of truth), not literals.
+      const clean = H.cleanupAuditPayments(H.PAYMENTS_BASELINE);
       console.log("DB parity after cleanup: " + H.dbParity()
-        + "   (baseline 1471|43737|76|127|28|15|4|126|14|5)");
+        + "   (baseline " + H.PARITY_BASELINE + ")");
+      if (!clean.ok) process.exitCode = 1;
+      try { H.assertClean({ parity: H.PARITY_BASELINE, studyDays: H.STUDY_DAYS_BASELINE, pendingPayments: 0 }); }
+      catch (e) { console.error("RESIDUE: " + e.message); process.exitCode = 1; }
     }
     await browser.close();
   }

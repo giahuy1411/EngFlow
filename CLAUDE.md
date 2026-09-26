@@ -53,7 +53,7 @@ All sensitive config is via env vars (or `.env` file via `spring.config.import`)
 - `repository/` — Spring Data JPA interfaces
 - `model/entity/` — JPA entities (Lesson, ExerciseAttempt, Vocabulary, Deck, SpeakingPrompt, etc.)
 - `model/dto/` — Request/Response DTOs
-- `model/enums/` — BlockType, ExerciseType, SkillType, etc.
+- `model/enums/` — ExerciseType, SkillType, etc. (`BlockType`/`QuestionType` were removed with the Lesson Builder — see `docs/lesson-builder-removal.md`)
 - `security/` — JWT filter, UserPrincipal, rate limiting (the `PremiumRequired` annotation is defined here but unused — premium is checked via `hasPremiumAccess()`)
 - `config/` — Redis, Jackson, MinIO, data seeders, migrations
 

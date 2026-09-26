@@ -74,7 +74,17 @@ chrome-wrapper.*
 # sweep/ is per-run scratch EXCEPT the tooling AGENTS.md documents as the
 # standard harness (SQL runner, parity query, browser harness, API sweep,
 # backfill export) — those stay tracked and must be usable after a clone.
-sweep/**
+#
+# audit-v15 hardening (weakness L2): the audit suite itself is now TRACKED at
+# sweep/harness/**, so a fix made in one round survives into the next. Before
+# this, each round's harness lived in sweep/v1N/ (gitignored) and was deleted at
+# cleanup — so the next round rebuilt from an older snapshot and re-introduced
+# already-fixed bugs. Namespace/paths are parameterised in sweep/harness/_config.js
+# (`--audit <name> --out <dir>`), so no per-round copies are needed.
+# `sweep/**` would exclude the harness DIR too, and git cannot re-include a file
+# whose parent dir is excluded — so ignore direct children and re-include by dir.
+sweep/*
+!sweep/harness/
 !sweep/v8/sqlrun.py
 !sweep/v8/p16-parity.sql
 !sweep/v8/lib.js
@@ -85,6 +95,15 @@ sweep/**
 !sweep/v8/ui/routes-all.js
 !sweep/v12/api-sweep.js
 !sweep/backfill-export.ps1
+!sweep/harness/**
+# Generated at runtime by the harness (never commit): per-run SQL + result JSON.
+sweep/harness/_cleanup.sql
+sweep/harness/_deep-cleanup.sql
+sweep/harness/_ui-cleanup.sql
+sweep/harness/_coverage-integrity.sql
+sweep/harness/*-before.json
+sweep/harness/*.json
+sweep/harness/shots/
 audit-v*-shots/
 audit-v*-*.json
 *.network-request
