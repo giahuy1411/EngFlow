@@ -40,3 +40,19 @@ không phải defect app/harness. (Bài học: phải đọc **text** lỗi, kh�
 
 - **F-17-16:** `_config.js:34` mặc định còn `audit-v15-full` (mọi lệnh đều truyền `--audit` tường minh).
 - **F-17-17:** `focused-probe.js:188` hardcode `audit-v15-full` (cùng lớp F-17-13).
+
+## Chạy cuối trên build đã commit (xác nhận hội tụ)
+
+`ui-sweep.js --audit audit-v17-full --out …/rerun` trên code sau MỌI fix (kể cả vòng review chéo 2):
+```
+cleanupAuditPayments:    candidates=2 remaining=0 after=12 baseline=12 -> SELF-CLEAN OK
+cleanupStudyDays:        candidates=0 remaining=0                      -> SELF-CLEAN OK
+cleanupExerciseAttempts: candidates=0 remaining=0                      -> SELF-CLEAN OK
+assertClean: parity=1470|43738|5|118|29|4|3|12|10 study_days=4 pending_payments=0 exercise_attempts=33 -> CLEAN
+TOTALS {"contrastFails":0,"missingAlt":0,"smallTargets":115,"noName":0,"consoleErrors":0,
+        "apiErrors":0,"pageErrors":0,"guardFails":0,"overflowRoutes":0}
+shots: v17-home-1440.png … v17-lessons-1920.png   (đúng namespace)
+exit=0
+```
+→ **G2** (`consoleErrors:0`, regex đã siết), **G3** (`exercise_attempts=33 CLEAN`), **G4** (`v17-*`) đều xác nhận
+trên build cuối. `smallTargets=115` là con số đã triage 0 REAL (24–44px = AAA; AA = 24px) — không phải lỗi mới.
