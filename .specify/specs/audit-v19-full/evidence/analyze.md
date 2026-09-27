@@ -13,9 +13,9 @@
 - **Review chéo bắt 3 vấn đề thật** (#1 enrich 500, #2 quota, #6 inline exemption quá rộng) + 1 lỗ hổng test (#7)
   → tôi **đối chiếu code**, xác nhận, **sửa tận gốc** cả 3 + mở rộng mutation-test.
 - **Phase U: luồng trọng yếu × CẢ 2 engine khớp** (gồm Premium lần đầu).
+- **W4 PASS** — người dùng chuyển khoản thật; webhook chữ ký SePay settle (`ENG73E2D3AA2DF6` → SUCCESS, tx `85111759`, MBBank).
 
 **Yếu / giới hạn (ghi rõ):**
-- **W4 đang PENDING** — cần người dùng chuyển khoản thật; đã chuẩn bị order + script verify + fallback Test-mode.
 - Video/Speaking/Leaderboard Phase U chỉ PW (bù ui-sweep/routes-all).
 - CD home screenshot timeout (animation).
 - `containsCjk` chỉ phủ Han (đúng defect đo được).
@@ -32,7 +32,7 @@
 | F-19-05 | MED | admin full scan | **FIXED** (index) |
 | F-19-06 | MED | quota trừ khi guard loại hết (review) | **FIXED** |
 | F-19-07 | MED | inline exemption quá rộng (review) | **FIXED** (height<=line-height) |
-| W4 | — | SePay chữ ký thật | **PENDING** (chờ chuyển khoản) |
+| W4 | — | SePay chữ ký thật | **PASS** (webhook thật settle) |
 
 ## Điểm khác biệt của vòng này
 

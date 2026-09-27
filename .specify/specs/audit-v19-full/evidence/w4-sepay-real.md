@@ -1,56 +1,44 @@
-# audit-v19-full — W4: SePay chữ ký THẬT (chuyển khoản thật) — CHỜ NGƯỜI DÙNG CHUYỂN TIỀN
+# audit-v19-full — W4: SePay chữ ký THẬT (chuyển khoản thật) — **PASS** ✅
 
-**Ngày:** 2026-09-27 · **Quyết định người dùng:** đi đường **chuyển khoản thật** (như v17).
+**Ngày:** 2026-09-27 · **Quyết định người dùng:** đi đường **chuyển khoản thật** (như v17). **Người dùng đã chuyển.**
 
-## Đính chính khung "real-money boundary" của v18
+## KẾT QUẢ: PASS — chữ ký SePay THẬT đã được verify
 
-v18 báo *"Webhook SePay chữ ký THẬT — BLOCKED (biên real-money)"*. Khảo sát phát hiện khung này **không chính xác**:
-SePay có **Test-mode transaction simulator MIỄN PHÍ** (gửi webhook Live-shaped + ký thật tới URL công khai).
-**Nhưng** người dùng chọn **chuyển khoản thật**, nên vẫn cần tiền thật — và điều đó là **lựa chọn của người dùng**,
-không phải "bất khả thi kỹ thuật".
+| | |
+|---|---|
+| `orderCode` | **`ENG73E2D3AA2DF6`** |
+| DB row | **`SUCCESS \| 85111759 \| MBBank \| 10000`** |
+| `transaction_id` | **`85111759`** — do **SePay sinh** (không phải synthetic) |
+| `gateway` | **`MBBank`** — ngân hàng thật |
+| Premium | `user@gmail.com`: `2026-10-03` → **`2026-10-27`** (+1 tháng) |
+| Verify script | `W4 RESULT: PASS` |
 
-## Đã làm (phần tự động)
+## Bằng chứng đường đi = WEBHOOK (không phải polling)
 
-1. **Funnel reachable:** `POST https://engflow-dev.tail7fd1fe.ts.net/api/webhook/sepay` → **200** (đo phiên này).
-2. **Config đủ:** `SEPAY_WEBHOOK_SECRET` (38), `SEPAY_BANK_ACCOUNT` (10), `SEPAY_BANK_NAME` (6), `SEPAY_API_TOKEN` (64) — đều SET.
-3. **g6 plumbing PASS** (secret local): valid HMAC→SUCCESS; bad sig→rejected; **stale/replay→rejected**; tự dọn + hoàn nguyên premium.
-4. **Tạo order THẬT** (`POST /api/v1/payment/create-order`):
+Điểm mấu chốt: settle qua **polling** KHÔNG chứng minh chữ ký. Chứng minh đây là **webhook**:
 
-   | | |
-   |---|---|
-   | `orderCode` | **`ENG2143E44D4DEC`** |
-   | `amount` | **10.000đ** |
-   | `qrUrl` | `https://qr.sepay.vn/img?acc=0706718329&amount=10000&des=ENG2143E44D4DEC&bank=MBBank` |
-   | DB status | **PENDING** (chưa chuyển) |
+1. **Dấu hiệu polling VẮNG MẶT:** `pollAndSettle` log `"SePay API polling detected payment for order"`
+   (`PaymentService.java`) — grep 40' log = **0 lần** → không phải polling.
+2. **Thread = HTTP:** log `Premium activated` ở `[nio-8080-exec-6]` (Tomcat HTTP thread), không phải scheduler.
+3. **Chỉ 2 đường settle:** `processSePayTransaction` gọi từ `processWebhook` (`:108`, đòi HMAC) và `pollAndSettle`
+   (`:293`). Polling bị loại → **webhook**.
+4. Webhook `POST /api/webhook/sepay` bắt buộc **HMAC sha256 trên `"<ts>.<rawBody>"`** bằng `SEPAY_WEBHOOK_SECRET`
+   + replay window ±5'. Chỉ SePay (giữ secret) ký được → **chữ ký THẬT**.
 
-   > ⚠️ **Lưu ý vận hành:** `api-sweep` dọn row PENDING (unpaid) — nó đã xoá order đầu (`ENGF4E8A2FBEA40`).
-   > Nên **KHÔNG chạy api-sweep nữa** cho tới khi chuyển khoản xong (tôi đã dừng sweep).
-
-5. **Script verify:** `sweep/harness/w4-sepay-real-verify.py <orderCode>` — kiểm row `SUCCESS` + `transaction_id`
-   thật + `gateway` không phải `AUDIT-*` (phân biệt với g6 local).
-
-## CẦN NGƯỜI DÙNG LÀM (không thể tự động)
-
-> Quét QR trên (hoặc chuyển tới **MBBank `0706718329`**, nội dung **`ENG2143E44D4DEC`**), số tiền **đúng 10.000đ**.
-> Sau khi chuyển, SePay POST webhook (chữ ký **của SePay**) tới Funnel → app kích premium.
-> Kiểm: `python sweep/harness/w4-sepay-real-verify.py ENG2143E44D4DEC` → kỳ vọng `W4 RESULT: PASS`.
-
-**Bằng chứng khi xong:** log backend `Premium activated`, row `SUCCESS` với `id`/`gateway` **thật do SePay sinh**
-(chỉ SePay ký được bằng secret của họ) → **đây là chữ ký THẬT**.
+**Log:** `2026-09-27T22:06:28.203+07:00 INFO 1 --- [nio-8080-exec-6] c.datn.engflow.service.PaymentService : Premium activated for user 2: MONTH until 2026-10-27`
 
 ## Xử lý row thật (ràng buộc V9)
 
-- **KHÔNG xoá row** (tiền thật) — khác với probe g6 (probe tự xoá).
-- Row này sẽ làm parity lệch (`payments 12→13`, `PENDING→SUCCESS`). Ghi nhận là **giao dịch thật hợp lệ**;
-  cập nhật baseline parity nếu người dùng đồng ý, hoặc giữ và ghi chú.
-- `user@gmail.com` sẽ được gia hạn premium +1 tháng (từ 2026-10-03).
+- **KHÔNG xoá row** (tiền thật) — khác probe g6 (probe tự xoá). Row `id=100411` **giữ lại**.
+- Parity: `payments` 12→13, `PENDING` vẫn 0 — **giao dịch thật hợp lệ**, KHÔNG phải residue.
+- `user@gmail.com` gia hạn premium +1 tháng (2026-10-27).
+- Order cũ `ENG2143E44D4DEC` vẫn PENDING (bỏ dở, không phải tiền thật) — dọn riêng sau.
 
-## Fallback (nếu không chuyển được)
+## Bối cảnh (đính chính v18)
 
-SePay **Test-mode simulator** (miễn phí): tạo Test-mode webhook (HMAC secret riêng) trỏ về Funnel, đổi
-`SEPAY_WEBHOOK_SECRET`, dùng "Mô phỏng giao dịch" → webhook Live-shaped + ký thật, **0 đồng, 0 code**.
-Ghi ở đây để nếu người dùng đổi ý thì biết đường.
+v18 báo *"Webhook SePay chữ ký THẬT — BLOCKED (biên real-money)"*. Khảo sát phát hiện khung này **không chính xác**:
+SePay có **Test-mode simulator MIỄN PHÍ**. Người dùng chọn **chuyển khoản thật** → đã chuyển → **PASS**.
 
-## Trạng thái
+## Fallback (ghi tài liệu)
 
-**PENDING — chờ người dùng chuyển khoản.** Sau khi chuyển, chạy `w4-sepay-real-verify.py ENGF4E8A2FBEA40`.
+Nếu cần lặp lại không tốn tiền: SePay Test-mode simulator (miễn phí, 0 code, đổi `SEPAY_WEBHOOK_SECRET`).

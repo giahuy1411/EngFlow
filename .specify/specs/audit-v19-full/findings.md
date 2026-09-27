@@ -43,8 +43,8 @@ loại item ở generate / từ chối ở enrich.
 **Fix:** thêm `height <= line-height` (đúng định nghĩa WCAG).
 **Pass:** smallTargets vẫn 0; mutation-test ca 2 bắt control cao 30px trong `<p>`.
 
-## W4 — SePay chữ ký THẬT — **PENDING** (chờ người dùng chuyển khoản)
-Order `ENG2143E44D4DEC` (10.000đ) tạo xong; script verify sẵn; fallback Test-mode ghi tài liệu.
+## W4 — SePay chữ ký THẬT — **PASS** ✅
+`ENG73E2D3AA2DF6` → SUCCESS, `transaction_id=85111759`, `gateway=MBBank`; webhook (không polling) settle; premium +1 tháng. Chi tiết `w4-sepay-real.md`.
 
 ## Không phải finding
 | # | Quan sát | Kết luận |
@@ -54,5 +54,5 @@ Order `ENG2143E44D4DEC` (10.000đ) tạo xong; script verify sẵn; fallback Tes
 | N3 | `containsCjk` chưa phủ Hiragana/Hangul | defect đo được là Han (không scope creep) |
 
 ## Tổng kết
-**7 finding FIXED** (2 MED AI/perf + 5 LOW) + **1 PENDING** (W4 chờ chuyển khoản). Vòng 2 = 0 finding mới.
+**7 finding FIXED** (2 MED AI/perf + 5 LOW) + **W4 PASS** (chữ ký thật verify). Vòng 2 = 0 finding mới.
 0 regression (backend 541/0, frontend 194/1).

@@ -13,8 +13,8 @@ Vòng v19 **đóng nốt 5 mục "còn lại"** và **đính chính 3 kết lu�
 guard `containsCjk`) → **0 CJK ×15 call**; **W2** `smallTargets=115` — harness cắt list **giấu 12 button thật**, sửa
 harness theo **WCAG 2.5.8 đầy đủ** → 115→0 (mutation-test chứng minh vẫn bắt vi phạm thật); **W3** admin exercises
 scan cả bảng → **index `IX_exercises_order_id`** → page reads **1341→86**, endpoint **42.8→26.6ms** (đồng thời
-**bác bỏ** giả thuyết projection: 1417 vs 1417); **W4** SePay chữ ký thật — **PENDING** (order + script verify sẵn,
-chờ người dùng chuyển khoản thật); **Premium flow** đi **cả 2 MCP engine**. Review chéo đối kháng bắt **3 vấn đề
+**bác bỏ** giả thuyết projection: 1417 vs 1417); **W4** SePay chữ ký thật — **PASS** (người dùng chuyển khoản thật →
+webhook chữ ký SePay settle `ENG73E2D3AA2DF6` → SUCCESS, tx `85111759`, MBBank); **Premium flow** đi **cả 2 MCP engine**. Review chéo đối kháng bắt **3 vấn đề
 thật + 1 lỗ hổng test** → tôi đối chiếu code, **sửa tận gốc**. Backend **541/0** (+4 test), frontend **194/1** —
 **0 regression**. 2 vòng hội tụ (vòng 2 = 0 finding mới). Rác dọn, docs đồng bộ.
 
@@ -46,7 +46,7 @@ speaking, leaderboard, **Premium + checkout**, home. 2 engine đối chiếu nha
 `demo-claims.md`: mọi `file:line` **sed đối chiếu** tồn tại + đúng; mọi khẳng định CONFIRMED; **W1 defect phát hiện + sửa**.
 
 ### 2.7 Phase W — 4 workstream
-W1 (AI gloss) · W2 (tap-target) · W3 (perf index) · W4 (SePay — PENDING). Chi tiết: `w1-ai-gloss.md`,
+W1 (AI gloss) · W2 (tap-target) · W3 (perf index) · W4 (SePay — **PASS**). Chi tiết: `w1-ai-gloss.md`,
 `w2-tap-targets.md`, `w3-perf-admin.md`, `w4-sepay-real.md`.
 
 ### 2.8 Phase 5/6/7 — perf, fix, review, vòng 2
@@ -61,7 +61,7 @@ README/AGENTS/CLAUDE/.gitignore/constitution v1.0.4/feature.json; demo doc verif
 
 | Hạng mục | Lý do |
 |---|---|
-| **W4 SePay chữ ký THẬT** | Cần **chuyển khoản thật** — không tự động được. Order `ENG2143E44D4DEC` (10.000đ) + script verify sẵn sàng; fallback Test-mode miễn phí ghi tài liệu. **Chờ người dùng.** |
+| ~~W4 SePay chữ ký THẬT~~ | **ĐÃ XONG** — người dùng chuyển khoản thật; webhook chữ ký SePay settle (`ENG73E2D3AA2DF6` → SUCCESS, tx `85111759`). |
 | Video/Speaking/Leaderboard Phase U chỉ PW | tiết kiệm; bù `ui-sweep`/`routes-all` (cả 2 viewport) |
 | CD home screenshot timeout | animation-heavy; PW + ui-sweep bù |
 | `containsCjk` chưa phủ Hiragana/Hangul | defect đo được là **Han**; không mở rộng vô căn cứ |
@@ -109,7 +109,7 @@ Reviewer (subagent độc lập) verdict *"No change is unsafe to keep"* nhưng 
 | W1 | 0 CJK ×15 live; test 4/4 mutation-tested |
 | W2 | 115→0; mutation-test 2 ca PASS |
 | W3 | page reads 1341→86; endpoint 42.8→26.6ms |
-| Parity cuối | `1470\|43738\|5\|118\|29\|4\|3\|12\|10` · PENDING=0 · EX_ATTEMPTS=33 |
+| Parity cuối | `1470\|43738\|5\|118\|29\|4\|3\|13\|10` (payments 12→13 = **giao dịch THẬT** W4) · PENDING=0 · EX_ATTEMPTS=33 |
 
 ---
 
@@ -134,7 +134,7 @@ fixtures, **migration V005** (mới).
 
 ## 8. Kết luận trung thực
 
-- **Hoàn thành:** 4/5 mục "còn lại" **đóng hẳn** (W1/W2/W3 + Premium 2 engine); **W4 chờ chuyển khoản** (cần người dùng).
-- **Không giấu điểm yếu:** W4 PENDING; 3 luồng Phase U chỉ PW; CD screenshot timeout; `containsCjk` phủ Han.
+- **Hoàn thành:** **5/5 mục "còn lại" ĐÓNG HẲN** — W1 (AI gloss) · W2 (tap-target) · W3 (perf index) · **W4 (SePay chữ ký thật — PASS)** · Premium 2 engine.
+- **Không giấu điểm yếu:** 3 luồng Phase U chỉ PW; CD screenshot timeout; `containsCjk` phủ Han.
 - **Điểm mạnh nhất:** **đính chính 3 kết luận cũ** (đo lại) + **review chéo bắt 3 vấn đề thật rồi sửa tận gốc** +
   **bác bỏ giả thuyết perf bằng số** (1417 vs 1417) rồi tìm fix thật (index, 1341→86 reads).

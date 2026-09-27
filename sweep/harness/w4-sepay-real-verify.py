@@ -23,18 +23,28 @@ def sql(q):
         capture_output=True, text=True).stdout
     if re.search(r"Msg \d+", out):
         raise SystemExit("SQL error: " + out)
-    return out.strip()
+    # sqlcmd appends "(N rows affected)"; keep only the data line(s) so parsing is stable.
+    lines = [ln for ln in out.strip().splitlines() if ln.strip() and not re.match(r"^\(\d+ rows? affected\)$", ln.strip())]
+    return "\n".join(lines).strip()
 
 def main():
     if len(sys.argv) < 2:
         raise SystemExit("usage: w4-sepay-real-verify.py <orderCode>")
     code = sys.argv[1]
     print("orderCode:", code)
-    row = sql(f"SELECT status, transaction_id, gateway, amount FROM payment_transactions WHERE order_code='{code}'")
+    # select columns with an explicit pipe separator so parsing is unambiguous regardless of -W
+    row = sql(f"SELECT status + '|' + ISNULL(transaction_id,'NULL') + '|' + ISNULL(gateway,'NULL') "
+              f"+ '|' + CAST(amount AS varchar(20)) FROM payment_transactions WHERE order_code='{code}'")
     print("db row:", row)
-    # A real SePay transaction has a non-null transaction_id and a real gateway; the local g6
-    # probe leaves gateway='AUDIT-V17-GW' and a synthetic id, so this distinguishes them.
-    is_real = ("SUCCESS" in row) and ("NULL" not in row.split("|")[1]) and ("AUDIT" not in row)
+    if not row:
+        print("W4 RESULT: FAIL (no row for that order)")
+        return
+    parts = row.split("|")
+    status, txid, gateway = parts[0], parts[1] if len(parts) > 1 else "", parts[2] if len(parts) > 2 else ""
+    # A real SePay transaction has a real numeric transaction_id and a real bank gateway; the local
+    # g6 probe leaves gateway='AUDIT-V17-GW' and a synthetic id, so this distinguishes them.
+    is_real = status.strip() == "SUCCESS" and txid.strip() not in ("", "NULL") and "AUDIT" not in gateway
+    print(f"status={status.strip()} transaction_id={txid.strip()} gateway={gateway.strip()}")
     print("REAL SIGNATURE SETTLEMENT:", is_real)
     prem = sql("SELECT is_premium, premium_expiry FROM users WHERE email='user@gmail.com'")
     print("premium now:", prem)
