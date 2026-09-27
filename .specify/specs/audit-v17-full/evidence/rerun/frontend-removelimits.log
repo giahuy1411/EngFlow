@@ -1,0 +1,113 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/ASUS/Documents/LAPTRINH/engflow/frontend[39m
+
+ [32m✓[39m src/utils/speech.test.js [2m ([22m[2m13 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m src/utils/webmDuration.test.js [2m ([22m[2m8 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m src/views/__tests__/contrast-ink-tokens.test.js [2m ([22m[2m6 tests[22m[2m)[22m[90m 12[2mms[22m[39m
+ [32m✓[39m src/__tests__/vocabulary-search-order.test.js [2m ([22m[2m7 tests[22m[2m)[22m[90m 90[2mms[22m[39m
+ [32m✓[39m src/services/api.test.js [2m ([22m[2m13 tests[22m[2m)[22m[90m 21[2mms[22m[39m
+ [32m✓[39m src/composables/useSpeakingRecorder.test.js [2m ([22m[2m4 tests[22m[2m)[22m[90m 63[2mms[22m[39m
+ [32m✓[39m src/components/common/StreakCalendar.test.js [2m ([22m[2m8 tests[22m[2m)[22m[33m 571[2mms[22m[39m
+ [32m✓[39m src/__tests__/audit-v17-regressions.test.js [2m ([22m[2m5 tests[22m[2m)[22m[33m 724[2mms[22m[39m
+[90mstderr[2m | src/views/Profile.test.js[2m > [22m[2mProfile streak header[2m > [22m[2mshows retry instead of a false empty calendar after an API failure[22m[39m
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/Profile.test.js[2m > [22m[2mProfile streak header[2m > [22m[2mshows retry instead of a false empty calendar after an API failure[22m[39m
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/Profile.test.js[2m > [22m[2mProfile streak header[2m > [22m[2mrefreshes on focus and stops listening after unmount[22m[39m
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/Profile.test.js[2m > [22m[2mProfile streak header[2m > [22m[2mrefreshes on focus and stops listening after unmount[22m[39m
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/Profile.test.js[2m > [22m[2mProfile streak header[2m > [22m[2mrefreshes at Vietnam midnight even if the browser timezone differs[22m[39m
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/Profile.test.js[2m > [22m[2mProfile streak header[2m > [22m[2mrefreshes at Vietnam midnight even if the browser timezone differs[22m[39m
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ [32m✓[39m src/views/Profile.test.js [2m ([22m[2m4 tests[22m[2m)[22m[90m 269[2mms[22m[39m
+ [32m✓[39m src/views/luyentu/FlashcardGame.test.js [2m ([22m[2m6 tests[22m[2m)[22m[33m 370[2mms[22m[39m
+ [32m✓[39m src/views/lessons/LessonExerciseTab.f13.test.js [2m ([22m[2m11 tests[22m[2m)[22m[33m 338[2mms[22m[39m
+ [32m✓[39m src/__tests__/vocabulary-search-errors.test.js [2m ([22m[2m4 tests[22m[2m)[22m[33m 350[2mms[22m[39m
+ [32m✓[39m src/components/decor/__tests__/decor-props.test.js [2m ([22m[2m10 tests[22m[2m)[22m[90m 148[2mms[22m[39m
+ [32m✓[39m src/components/ui/__tests__/AppButton.test.js [2m ([22m[2m11 tests[22m[2m)[22m[90m 180[2mms[22m[39m
+ [32m✓[39m src/views/luyentu/QuizGame.test.js [2m ([22m[2m4 tests[22m[2m)[22m[90m 108[2mms[22m[39m
+ [32m✓[39m src/components/common/Pagination.test.js [2m ([22m[2m5 tests[22m[2m)[22m[90m 103[2mms[22m[39m
+ [32m✓[39m src/views/admin/AdminVideoLessons.test.js [2m ([22m[2m3 tests[22m[2m)[22m[90m 251[2mms[22m[39m
+ [2m[90m↓[39m[22m src/views/Profile.snapshot.test.js [2m ([22m[2m1 test[22m [2m|[22m [33m1 skipped[39m[2m)[22m
+ [32m✓[39m src/utils/safeRedirect.test.js [2m ([22m[2m27 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+ [32m✓[39m src/components/home/LearningPath.test.js [2m ([22m[2m4 tests[22m[2m)[22m[90m 272[2mms[22m[39m
+ [32m✓[39m src/components/ui/__tests__/Feedback.test.js [2m ([22m[2m8 tests[22m[2m)[22m[90m 119[2mms[22m[39m
+ [32m✓[39m src/views/admin/AdminLessons.placeholder-contrast.test.js [2m ([22m[2m2 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m src/components/ui/__tests__/States.test.js [2m ([22m[2m6 tests[22m[2m)[22m[90m 82[2mms[22m[39m
+ [32m✓[39m src/views/speaking/SpeakingList.test.js [2m ([22m[2m2 tests[22m[2m)[22m[90m 216[2mms[22m[39m
+ [32m✓[39m src/views/lessons/LessonLayout.h1.test.js [2m ([22m[2m2 tests[22m[2m)[22m[90m 65[2mms[22m[39m
+ [32m✓[39m src/components/ui/__tests__/StickerCard.test.js [2m ([22m[2m6 tests[22m[2m)[22m[90m 95[2mms[22m[39m
+ [32m✓[39m src/components/common/UserPageHeader.test.js [2m ([22m[2m1 test[22m[2m)[22m[90m 70[2mms[22m[39m
+ [32m✓[39m src/components/ui/__tests__/FormField.test.js [2m ([22m[2m4 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+ [32m✓[39m src/components/ui/__tests__/AppInput.test.js [2m ([22m[2m4 tests[22m[2m)[22m[90m 46[2mms[22m[39m
+ [32m✓[39m src/views/admin/AdminSpeakingSubmissions.test.js [2m ([22m[2m1 test[22m[2m)[22m[90m 104[2mms[22m[39m
+ [32m✓[39m src/services/dashboardService.test.js [2m ([22m[2m2 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m src/utils/sanitize-a11y.test.js [2m ([22m[2m3 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m31 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (32)[39m
+[2m      Tests [22m [1m[32m194 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (195)[39m
+[2m   Start at [22m 13:25:16
+[2m   Duration [22m 8.13s[2m (transform 3.78s, setup 3ms, collect 17.12s, tests 4.81s, environment 39.31s, prepare 8.00s)[22m
+

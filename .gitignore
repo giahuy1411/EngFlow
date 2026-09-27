@@ -56,6 +56,11 @@ logs/
 !.specify/specs/audit-v17-full/evidence/rerun/backend-closing.log
 !.specify/specs/audit-v17-full/evidence/rerun/frontend-closing.log
 !.specify/specs/audit-v17-full/evidence/rerun/build-closing.log
+# remove-limits round: REMOVE-LIMITS.md cites these three by name as proof the suite numbers
+# describe the CURRENT tree. Secret-scanned 2026-09-27 — only config key names, no values.
+!.specify/specs/audit-v17-full/evidence/rerun/backend-removelimits.log
+!.specify/specs/audit-v17-full/evidence/rerun/frontend-removelimits.log
+!.specify/specs/audit-v17-full/evidence/rerun/build-removelimits.log
 
 # Runtime / scratch
 *.pid
