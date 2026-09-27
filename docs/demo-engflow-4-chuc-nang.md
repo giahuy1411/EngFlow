@@ -297,14 +297,16 @@ if (!Array.isArray(snapshot.studiedDays) || !Number.isInteger(snapshot.currentSt
 
 Giống như **mục lục của thư viện**:
 - **Tìm bài học** = gõ từ khoá + chọn trình độ; thứ tự luôn theo **lộ trình học** (không đổi lung tung).
-- **Tra từ vựng** = hệ thống thử theo thứ tự:
-  1. **Kho đệm của máy chủ** (nhanh nhất, nhớ sẵn 1 giờ) — proxy qua backend tới từ điển online.
-  2. **Từ điển online gọi thẳng từ trình duyệt** — lớp cuối, khi proxy lỗi. Nên app **không bao giờ vỡ** vì mất mạng.
+- **Tra từ vựng** = hệ thống tra qua **máy chủ** (proxy tới từ điển online, có **kho đệm Redis 1 giờ**);
+  nếu máy chủ không tới được thì **trình duyệt gọi thẳng** từ điển online. **Từ điển là NGUỒN DUY NHẤT** — bảng
+  `vocabulary` local không còn trên đường tra (chỉ dùng làm kho bộ từ cho Decks/SRS/flashcard/game/AI). Nên app
+  **không bao giờ vỡ** vì mất mạng.
 - Gõ **dưới 2 ký tự thì không tìm** (để đỡ nặng máy chủ).
 - ⚠️ **Lưu ý khi demo:** lần tra **đầu tiên** cho một từ mới có thể chậm **~20 giây** (từ điển ngoài phản hồi chậm
-  từ mạng VN; các lần sau lấy từ kho đệm 1 giờ nên tức thì). Trong lúc chờ, app chờ tối đa **6 giây** rồi báo
-  "tra cứu quá lâu, thử lại sau" — nhưng **vẫn để request chạy nền** để lần sau tức thì. Nên **tra trước vài từ
-  quen** (ví dụ `hello`) một lần ngay trước khi demo để kho đệm đã ấm.
+  từ mạng VN; các lần sau lấy từ kho đệm 1 giờ nên **~0.1 giây**). Sau **6 giây** app chỉ hiện trạng thái "đang tra"
+  (ngưỡng **mềm**, request **vẫn chạy**) và chỉ bỏ cuộc ở **trần cứng 45 giây** — vì cắt sớm ở 6 giây sẽ báo lỗi
+  sai cho từ thật ra sẽ trả về ở ~20 giây. Nên **tra trước vài từ quen** (ví dụ `hello`) một lần ngay trước khi
+  demo để kho đệm đã ấm.
 
 ### 4.2. Kịch bản bấm (trên UI)
 
@@ -315,10 +317,10 @@ Giống như **mục lục của thư viện**:
 
 ### 4.3. Trả lời 30 giây
 
-> "Tìm bài học theo từ khoá và trình độ, thứ tự cố định theo lộ trình. Tra từ theo thứ tự: kho đệm máy chủ (proxy
-> từ điển, nhớ 1 giờ) → từ điển gọi thẳng từ trình duyệt — nên mất mạng vẫn tra được. Từ dưới 2 ký tự không tìm
-> để đỡ nặng. Lần tra đầu một từ mới có thể chậm ~20 giây (app chờ tối đa 6 giây rồi báo thử lại), các lần sau lấy
-> từ kho đệm nên tức thì."
+> "Tìm bài học theo từ khoá và trình độ, thứ tự cố định theo lộ trình. Tra từ qua máy chủ (proxy tới từ điển
+> online, kho đệm 1 giờ) → nếu máy chủ lỗi thì gọi thẳng từ trình duyệt — nên mất mạng vẫn tra được. Từ dưới 2 ký
+> tự không tìm để đỡ nặng. Lần tra đầu một từ mới có thể chậm ~20 giây (app chỉ hiện 'đang tra' ở 6 giây, vẫn chờ),
+> các lần sau lấy từ kho đệm nên ~0.1 giây."
 
 ### 4.4. Kỹ thuật — file + đoạn code thật
 

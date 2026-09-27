@@ -38,7 +38,7 @@ function arg(name, def) {
   const i = process.argv.indexOf("--" + name);
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
-const AUDIT = arg("audit", "audit-v17-full");
+const AUDIT = arg("audit", "audit-v18-full");
 const OUT_DIR = arg("out", path.join(__dirname, "..", "..", ".specify", "specs", AUDIT, "evidence"));
 
 const R = { pass: 0, fail: 0, blocked: 0, n_a: 0, findings: [], areas: {}, probed: [] };
@@ -556,7 +556,7 @@ const login = async ({ email, password }) => {
     } else {
       const crypto = require("crypto");
       const ghostCode = "ENGZZZZZZZZZZZZ";                 // valid token shape, no PENDING row
-      const rawBody = JSON.stringify({ id: 991700009, transferAmount: 10000, content: "AUDIT-V17-C6 " + ghostCode, gateway: "AUDIT-V17-C6" });
+      const rawBody = JSON.stringify({ id: 991700009, transferAmount: 10000, content: "AUDIT-GHOST " + ghostCode, gateway: "AUDIT-GHOST" });
       const sign = (ts) => "sha256=" + crypto.createHmac("sha256", secret).update(ts + "." + rawBody).digest("hex");
 
       const now = String(Math.floor(Date.now() / 1000));

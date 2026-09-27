@@ -1,0 +1,6 @@
+playwright-core from: C:\Users\ASUS\Documents\LAPTRINH\engflow\scripts\figma-export\node_modules\playwright-core
+/          CLS median 0.00069   armed=true runs=[0.00069,0.00069,0.00069]
+/lessons   CLS median 0.00095   armed=true runs=[0.00095,0.00095,0.00095]
+/login     CLS median 0.00003   armed=true runs=[0.00003,0.00003,0.00003]
+
+wrote C:\Users\ASUS\Documents\LAPTRINH\engflow\.specify\specs\audit-v18-full\evidence\cls-before.json

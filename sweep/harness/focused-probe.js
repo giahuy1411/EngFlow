@@ -60,8 +60,8 @@ const targets = `(sel) => {
 }`;
 
 (async () => {
-  const exe = path.join(require("os").homedir(), "AppData", "Local", "ms-playwright", "chromium-1237", "chrome-win64", "chrome.exe");
-  const browser = await H.pw.chromium.launch({ headless: true, executablePath: exe });
+  const exe = H.resolveChromium();
+  const browser = await H.pw.chromium.launch(exe ? { headless: true, executablePath: exe } : { headless: true });
   const stu = await H.loginFull("user@gmail.com", "123456");
   const adm = await H.loginFull("admin@gmail.com", "123456");
   const out = {};

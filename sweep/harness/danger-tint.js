@@ -44,8 +44,8 @@ const MEASURE_SEL = `(sel) => {
 }`;
 
 (async () => {
-  const exe = "C:/Users/ASUS/AppData/Local/ms-playwright/chromium-1237/chrome-win64/chrome.exe";
-  const b = await H.pw.chromium.launch({ headless: true, executablePath: exe });
+  const exe = H.resolveChromium();
+  const b = await H.pw.chromium.launch(exe ? { headless: true, executablePath: exe } : { headless: true });
   const adm = await H.loginFull("admin@gmail.com", "123456");
   const cases = [
     { p: "/admin/dashboard", api: "**/api/admin/**" },

@@ -28,11 +28,10 @@ function jwtWithExp(expSeconds) {
 }
 
 (async () => {
-  // The globally-installed playwright-core expects a browser build that is not on this
-  // machine (1243); 1237 is. Point at the real binary instead of re-downloading.
-  const CHROME = "C:/Users/ASUS/AppData/Local/ms-playwright/chromium-1237/chrome-win64/chrome.exe";
-  const fs = require("fs");
-  const launchOpts = fs.existsSync(CHROME) ? { headless: true, executablePath: CHROME } : { headless: true };
+  // audit-v18 F-18-01: never hardcode a chromium revision — resolve the installed one
+  // (the hardcoded 1237 was stale; the bundle is 1234). See H.resolveChromium().
+  const CHROME = H.resolveChromium();
+  const launchOpts = CHROME ? { headless: true, executablePath: CHROME } : { headless: true };
   const browser = await pw.chromium.launch(launchOpts);
   try {
     const session = await loginFull("user@gmail.com", "123456");

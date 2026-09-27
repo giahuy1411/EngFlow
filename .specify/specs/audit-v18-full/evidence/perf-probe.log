@@ -1,0 +1,36 @@
+200  median     9.8 ms     3210 B   lesson list (page 0)
+200  median    14.1 ms     3884 B   lesson list (page 5)
+200  median     7.8 ms     3173 B   lesson detail
+200  median     8.5 ms     1766 B   exercise list (lesson)
+200  median     9.8 ms     2967 B   lesson exercise content
+200  median     6.5 ms     3372 B   vocabulary search
+200  median    12.3 ms     4337 B   vocabulary list (auth)
+200  median    12.8 ms     1442 B   leaderboard
+200  median     8.2 ms     3161 B   decks (public)
+200  median     6.8 ms      315 B   decks (my)
+200  median     8.9 ms      391 B   streak snapshot
+200  median     8.5 ms       40 B   streak current
+200  median     9.1 ms       27 B   streak history
+200  median    10.7 ms      421 B   auth me
+200  median     9.2 ms       59 B   user progress
+200  median    10.3 ms      156 B   dashboard stats
+200  median     9.9 ms     1509 B   game session (quiz)
+200  median     5.8 ms       83 B   srs stats
+200  median    10.3 ms     2405 B   srs due (deck)
+200  median     9.2 ms        1 B   flashcard status
+200  median     4.9 ms     4565 B   speaking prompts (public)
+200  median     7.2 ms     1801 B   video lessons (public)
+200  median     7.9 ms       69 B   payment status
+200  median     9.7 ms     1265 B   game session (memory)
+200  median     9.6 ms     1241 B   game session (mixed)
+200  median     9.1 ms     4565 B   speaking prompts (admin)
+200  median     7.3 ms     1426 B   video attempts (my)
+200  median     9.7 ms        0 B   lesson submissions (my)
+200  median    10.8 ms     1801 B   video lessons (admin)
+200  median    17.1 ms      134 B   admin stats
+200  median     9.7 ms     2966 B   admin lessons
+200  median     9.9 ms     1514 B   admin users
+200  median    42.8 ms     4961 B   admin exercise list (no q)
+200  median   157.3 ms     6410 B   admin exercise search q=the
+
+wrote C:\Users\ASUS\Documents\LAPTRINH\engflow\.specify\specs\audit-v18-full\evidence\perf-before.json (34 endpoints)

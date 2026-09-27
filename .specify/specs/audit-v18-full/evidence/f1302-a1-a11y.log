@@ -1,0 +1,7 @@
+PASS  content panel found on 447
+PASS  exactly one h1 on the page  -- n=1
+PASS  no <img> missing alt in content  -- missing=0
+PASS  no duplicate ids in content panel
+PASS  contrast AA for all 63 text nodes in the content panel  -- min ratio=NaN
+
+=== content a11y: 5/5 PASS ===

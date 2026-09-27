@@ -24,9 +24,9 @@ function check(name, ok, detail) {
 const LESSONS = [446, 447, 567, 10889, 11300, 11301, 41881, 91900];
 
 (async () => {
-  const CHROME = "C:/Users/ASUS/AppData/Local/ms-playwright/chromium-1237/chrome-win64/chrome.exe";
+  const CHROME = H.resolveChromium();
   const browser = await pw.chromium.launch(
-    fs.existsSync(CHROME) ? { headless: true, executablePath: CHROME } : { headless: true }
+    CHROME ? { headless: true, executablePath: CHROME } : { headless: true }
   );
   try {
     const session = await loginFull("user@gmail.com", "123456");

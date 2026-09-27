@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report
-Version change: 1.0.1 → 1.0.2
-Modified principles: P1 (backend baseline 221 → 520 tests, frontend 73 → 191 — đo lại audit-v17 2026-09-26;
+Version change: 1.0.2 → 1.0.3
+Modified principles: P1 (backend baseline 520 → 537 tests, frontend 191 → 194 — đo lại audit-v18 2026-09-27;
   số phải được đo lại mỗi kỳ audit)
 Added sections: none
 Removed sections: none
@@ -9,9 +9,9 @@ Templates requiring updates: N/A
 Follow-up TODOs: none
 -->
 
-# EngFlow — Constitution v1.0.2
+# EngFlow — Constitution v1.0.3
 
-**Ratified:** 2026-09-01 | **Last amended:** 2026-09-26
+**Ratified:** 2026-09-01 | **Last amended:** 2026-09-27
 
 ## Preamble
 
@@ -22,8 +22,8 @@ qua Ollama/Whisper/MCP). Mọi agent hoặc người đóng góp PHẢI tuân th
 ## Article I — Nguyên tắc kỹ thuật
 
 ### P1. Baseline xanh là tiền đề
-Trước và sau mọi thay đổi: backend `mvnw.cmd test` = 520 tests / 0 fail / 0 error / 11 skipped, frontend
-`npx vitest run` = 191 tests / 1 skipped / 32 files (con số này là mốc **audit-v17**, đo 2026-09-26; mỗi kỳ
+Trước và sau mọi thay đổi: backend `mvnw.cmd test` = 537 tests / 0 fail / 0 error / 11 skipped, frontend
+`npx vitest run` = 194 tests / 1 skipped / 32 files (con số này là mốc **audit-v18**, đo 2026-09-27; mỗi kỳ
 audit PHẢI đo lại và ghi giá trị thực tế). Mọi PR/commit không giữ baseline xanh bị từ chối.
 
 ### P2. Kiến trúc phân lớp bất biến

@@ -61,6 +61,13 @@ logs/
 !.specify/specs/audit-v17-full/evidence/rerun/backend-removelimits.log
 !.specify/specs/audit-v17-full/evidence/rerun/frontend-removelimits.log
 !.specify/specs/audit-v17-full/evidence/rerun/build-removelimits.log
+# audit-v18-full evidence is committed too (secret-scanned 2026-09-27, 0 secrets).
+# The suite logs cited by REPORT.md/tasks.md are whitelisted by name.
+!.specify/specs/audit-v18-full/evidence/*.log
+!.specify/specs/audit-v18-full/evidence/*.json
+!.specify/specs/audit-v18-full/evidence/*.md
+!.specify/specs/audit-v18-full/evidence/*.txt
+!.specify/specs/audit-v18-full/evidence/shots/**
 
 # Runtime / scratch
 *.pid

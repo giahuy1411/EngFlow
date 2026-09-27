@@ -1,5 +1,6 @@
 const pw = require("playwright-core");
 const fs = require("fs");
+const path = require("path");
 const { execSync } = require("child_process");
 const APP = "http://localhost:5173";
 const API = "http://localhost:8080";
@@ -24,6 +25,38 @@ function flushLimits(force) {
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/**
+ * Resolve a Chromium executable for playwright-core.
+ *
+ * WHY THIS EXISTS (audit-v18 F-18-01): several probes hardcoded a single revision
+ * (`chromium-1237`). The installed bundle is a DIFFERENT revision (1234 this round),
+ * so those probes threw `browserType.launch: executable doesn't exist` — a harness
+ * defect that looked like a tool outage. Playwright's own registry keeps the real
+ * path; read it, then fall back to scanning the ms-playwright cache dirs, then to a
+ * system browser. Returns null when nothing is found (playwright then uses its default).
+ */
+function resolveChromium() {
+  const os = require("os");
+  const candidates = [];
+  try {
+    const reg = require("playwright-core").chromium.executablePath();
+    if (reg) candidates.push(reg);
+  } catch (e) { /* registry path not always available */ }
+  const cache = path.join(os.homedir(), "AppData", "Local", "ms-playwright");
+  try {
+    if (fs.existsSync(cache)) {
+      for (const d of fs.readdirSync(cache)) {
+        if (/^chromium-\d+$/.test(d)) {
+          candidates.push(path.join(cache, d, "chrome-win64", "chrome.exe"));
+          candidates.push(path.join(cache, d, "chrome-win", "chrome.exe"));
+        }
+      }
+    }
+  } catch (e) { /* cache unreadable */ }
+  candidates.push("C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe");
+  return candidates.find((p) => { try { return fs.existsSync(p); } catch { return false; } }) || null;
+}
 
 /**
  * Today's date on the SAME clock the database is written with.
@@ -563,4 +596,4 @@ function summarize(title) {
   console.log("  horizontal overflow: " + (overflow.length ? overflow.map(r => r.route + "(" + r.info.scrollW + ">" + r.info.clientW + ")").join(" ; ") : "none"));
 }
 
-module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, cleanupStudyDays, cleanupExerciseAttempts, dbParity, parityMarker, assertClean, isThirdPartyConsoleNoise, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE, EXERCISE_ATTEMPTS_BASELINE };
+module.exports = { pw, APP, API, BASE, login, loginFull, mapUser, results, visit, summarize, seedToken, seedAuth, mkContext, flushLimits, sleep, vnDate, VN_RUN_DATE, cleanupAuditPayments, cleanupStudyDays, cleanupExerciseAttempts, dbParity, parityMarker, assertClean, isThirdPartyConsoleNoise, resolveChromium, PARITY_BASELINE, PAYMENTS_BASELINE, STUDY_DAYS_BASELINE, EXERCISE_ATTEMPTS_BASELINE };

@@ -73,7 +73,7 @@ cd frontend
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build
-npm run test         # Vitest (178 tests / 29 files)
+npm run test         # Vitest (194 tests / 32 files)
 ```
 
 ---
@@ -124,10 +124,10 @@ engflow/
 ## Commands Reference
 
 ```bash
-# Backend tests (515 tests)
+# Backend tests (537 tests)
 cmd /c "mvnw.cmd test"
 
-# Frontend tests (178 tests, 29 files)
+# Frontend tests (194 tests, 32 files)
 cd frontend && npx vitest run
 
 # Frontend build

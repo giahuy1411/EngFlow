@@ -194,13 +194,7 @@ const FONT_FN = `() => {
   const allContrast = [];
   const allA11y = {};
 
-  const os = require("os");
-  const CANDIDATES = [
-    path.join(os.homedir(), "AppData", "Local", "ms-playwright", "chromium-1237", "chrome-win64", "chrome.exe"),
-    path.join(os.homedir(), "AppData", "Local", "ms-playwright", "chromium-1234", "chrome-win64", "chrome.exe"),
-    "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
-  ];
-  const exe = CANDIDATES.find((p) => fs.existsSync(p));
+  const exe = H.resolveChromium();
   console.log("browser executable:", exe || "(bundled default)");
   const browser = await H.pw.chromium.launch(exe ? { headless: true, executablePath: exe } : { headless: true });
 

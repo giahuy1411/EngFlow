@@ -1,0 +1,360 @@
+{
+  "leaderboardError": {
+    "alertRendered": true,
+    "measurements": [
+      {
+        "ratio": 5.28,
+        "need": 4.5,
+        "color": "rgb(190, 18, 60)",
+        "bg": "rgb(252,231,228)",
+        "size": 16,
+        "weight": 400,
+        "cls": "border-2 border-danger bg-danger/10 p-6 text-danger-ink",
+        "text": "Không tải được bảng xếp hạng.H"
+      },
+      {
+        "ratio": 5.28,
+        "need": 4.5,
+        "color": "rgb(190, 18, 60)",
+        "bg": "rgb(252,231,228)",
+        "size": 16,
+        "weight": 900,
+        "cls": "font-black",
+        "text": "Không tải được bảng xếp hạng."
+      },
+      {
+        "ratio": 5.28,
+        "need": 4.5,
+        "color": "rgb(190, 18, 60)",
+        "bg": "rgb(252,231,228)",
+        "size": 14,
+        "weight": 400,
+        "cls": "mt-1 text-sm",
+        "text": "Hệ thống đang bận. Vui lòng th"
+      }
+    ]
+  },
+  "builder": {
+    "removed": "audit-v15 — Lesson Builder gone"
+  },
+  "videoTranscript": {
+    "totalButtons": 103,
+    "smallCount": 12,
+    "small": [
+      {
+        "tag": "BUTTON",
+        "label": "to",
+        "w": 22,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "I",
+        "w": 9,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "I",
+        "w": 8,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "a",
+        "w": 14,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "or",
+        "w": 21,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "I",
+        "w": 8,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "of",
+        "w": 21,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "I",
+        "w": 8,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "so",
+        "w": 23,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "in",
+        "w": 18,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "a",
+        "w": 14,
+        "h": 26
+      },
+      {
+        "tag": "BUTTON",
+        "label": "a",
+        "w": 14,
+        "h": 26
+      }
+    ]
+  },
+  "adminDashboard": {
+    "tertiaryIcons": [
+      {
+        "ratio": 8.76,
+        "need": 4.5,
+        "color": "rgb(251, 191, 36)",
+        "bg": "rgb(30,41,59)",
+        "size": 12,
+        "weight": 900,
+        "cls": "font-black text-tertiary tracking-widest uppercase text-xs",
+        "text": "Administrator"
+      }
+    ],
+    "quaternaryIcons": [],
+    "tertiaryInk": [
+      {
+        "ratio": 4.76,
+        "need": 4.5,
+        "color": "rgb(180, 83, 9)",
+        "bg": "rgb(255,249,233)",
+        "size": 16,
+        "weight": 400,
+        "cls": "[object SVGAnimatedString]",
+        "text": ""
+      }
+    ],
+    "quaternaryInk": [
+      {
+        "ratio": 5.11,
+        "need": 4.5,
+        "color": "rgb(4, 120, 87)",
+        "bg": "rgb(235,251,245)",
+        "size": 16,
+        "weight": 400,
+        "cls": "[object SVGAnimatedString]",
+        "text": ""
+      }
+    ]
+  },
+  "profile": {
+    "tertiary": [],
+    "tertiaryInk": [
+      {
+        "ratio": 5.02,
+        "need": 3,
+        "color": "rgb(180, 83, 9)",
+        "bg": "rgb(255,255,255)",
+        "size": 20,
+        "weight": 900,
+        "cls": "[object SVGAnimatedString]",
+        "text": ""
+      }
+    ],
+    "secondaryInk": [
+      {
+        "ratio": 6.04,
+        "need": 3,
+        "color": "rgb(190, 24, 93)",
+        "bg": "rgb(255,255,255)",
+        "size": 24,
+        "weight": 900,
+        "cls": "font-black text-2xl text-secondary-ink",
+        "text": "69"
+      },
+      {
+        "ratio": 5.5,
+        "need": 4.5,
+        "color": "rgb(190, 24, 93)",
+        "bg": "rgb(254,241,248)",
+        "size": 16,
+        "weight": 400,
+        "cls": "[object SVGAnimatedString]",
+        "text": ""
+      },
+      {
+        "ratio": 6.04,
+        "need": 3,
+        "color": "rgb(190, 24, 93)",
+        "bg": "rgb(255,255,255)",
+        "size": 30,
+        "weight": 900,
+        "cls": "flex items-center space-x-2 text-3xl font-black text-secondary-ink",
+        "text": "🔥0ngàychuỗi ngày học liên tiế"
+      }
+    ]
+  },
+  "adminSidebar": [
+    {
+      "el": "container",
+      "bg": "rgb(30, 41, 59)"
+    },
+    {
+      "ratio": 14.63,
+      "need": 3,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 30,
+      "weight": 900,
+      "cls": "font-black text-3xl uppercase tracking-tighter group-hover:text-tertia",
+      "text": "EngFlow",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 5.7,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(124,58,237)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Tổng quan",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Bài học",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Bài tập",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Chấm bài",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Đề luyện nói",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Video học tập",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Chấm shadowing",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Người dùng",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "font-bold text-sm leading-tight max-w-36 truncate",
+      "text": "administrator",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 8.76,
+      "need": 4.5,
+      "color": "rgb(251, 191, 36)",
+      "bg": "rgb(30,41,59)",
+      "size": 12,
+      "weight": 900,
+      "cls": "font-black text-tertiary tracking-widest uppercase text-xs",
+      "text": "Administrator",
+      "el": "SPAN"
+    },
+    {
+      "ratio": 14.63,
+      "need": 4.5,
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(30,41,59)",
+      "size": 14,
+      "weight": 700,
+      "cls": "",
+      "text": "Đăng xuất",
+      "el": "SPAN"
+    }
+  ],
+  "consoleRecheck": [
+    {
+      "route": "/profile",
+      "errors": []
+    },
+    {
+      "route": "/search",
+      "errors": []
+    },
+    {
+      "route": "/leaderboard",
+      "errors": []
+    },
+    {
+      "route": "/videos/1",
+      "errors": []
+    }
+  ]
+}
