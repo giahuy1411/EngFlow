@@ -50,6 +50,12 @@ logs/
 # The directory is not itself ignored (only v8-v12 are), so no whitelist rule is needed
 # beyond un-ignoring the .log files that the *.log rule above would otherwise drop.
 !.specify/specs/audit-v14-full/evidence/*.log
+# audit-v17-full closing round: the CLOSING-ROUND.md "kết quả tổng" table cites these three
+# logs by name as proof the suite numbers describe the CURRENT tree. Secret-scanned
+# 2026-09-27 — only the known AGENTS.md seed-password WARN and config key NAMES (no values).
+!.specify/specs/audit-v17-full/evidence/rerun/backend-closing.log
+!.specify/specs/audit-v17-full/evidence/rerun/frontend-closing.log
+!.specify/specs/audit-v17-full/evidence/rerun/build-closing.log
 
 # Runtime / scratch
 *.pid
