@@ -77,7 +77,13 @@ public class AiVocabService {
             "Generate %d English vocabulary words for topic: \"%s\" at CEFR level %s. " +
             "Return ONLY a valid JSON array of objects. Do not include any conversational text or markdown wrappers like ```json. " +
             "Each object must have exactly these keys: " +
-            "word, pronunciation (IPA format), wordType, definitionEn, definitionVi, exampleSentence.",
+            "word (an English word), pronunciation (IPA format), wordType (in English), " +
+            "definitionEn (the definition written in ENGLISH), " +
+            "definitionVi (the definition written in VIETNAMESE / tiếng Việt), " +
+            "exampleSentence (one sentence in ENGLISH). " +
+            "STRICT LANGUAGE RULES: definitionVi MUST be Vietnamese text in the Latin script. " +
+            "NO Chinese characters (汉字) anywhere. NO other language. " +
+            "If you cannot write Vietnamese, write the English definition instead — never Chinese.",
             count, topic, cefrLevel
         );
 
@@ -93,6 +99,14 @@ public class AiVocabService {
                 List<Map<String, String>> list = readVocabListLenient(cleanJson);
                 List<Vocabulary> vocabs = new ArrayList<>();
                 for (Map<String, String> map : list) {
+                    // audit-v19 W1: the local model (qwen2.5:1.5b, zh-centric) intermittently writes
+                    // the definitionVi gloss in Chinese (measured: 鱼/雨水/天气). The prompt now forbids
+                    // it, but a 1.5B model is not reliable, so drop any item whose fields contain CJK
+                    // rather than persist a bad card. See AiVocabServiceLanguageGuardTest.
+                    if (containsCjk(map.get("definitionVi")) || containsCjk(map.get("definitionEn"))) {
+                        log.warn("Dropping AI vocab '{}': CJK characters in a definition field", map.get("word"));
+                        continue;
+                    }
                     Vocabulary v = Vocabulary.builder()
                             .word(map.get("word"))
                             .pronunciation(map.get("pronunciation"))
@@ -137,12 +151,40 @@ public class AiVocabService {
         }
     }
 
+    /**
+     * audit-v19 W1: does the text contain CJK (Han) characters? The local model
+     * ({@code qwen2.5:1.5b}) is Chinese-centric and intermittently writes the Vietnamese
+     * definition slot in Chinese (measured live 2026-09-27: 鱼, 雨水, 天气, 气候). The prompt
+     * now forbids it, but a 1.5B model is not reliable, so this is the deterministic guard.
+     *
+     * <p>Covers the CJK Unified Ideographs block (U+4E00–U+9FFF) and the Extension A block
+     * (U+3400–U+4DBF). Deliberately narrow: it must NOT reject Vietnamese diacritics (Latin
+     * Extended Additional, U+1EA0–U+1EFF), which are legitimate in {@code definitionVi}.
+     */
+    static boolean containsCjk(String text) {
+        if (text == null || text.isEmpty()) return false;
+        for (int i = 0; i < text.length(); ) {
+            int cp = text.codePointAt(i);
+            if ((cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0x3400 && cp <= 0x4DBF)) {
+                return true;
+            }
+            i += Character.charCount(cp);
+        }
+        return false;
+    }
+
     public Mono<Vocabulary> enrichWord(String word) {
         String prompt = String.format(
             "Provide detailed vocabulary information for the English word: \"%s\". " +
             "Return ONLY a valid JSON object. Do not include any conversational text or markdown wrappers like ```json. " +
             "The object must have exactly these keys: " +
-            "word, pronunciation (IPA format), wordType, definitionEn, definitionVi, exampleSentence.",
+            "word (an English word), pronunciation (IPA format), wordType (in English), " +
+            "definitionEn (the definition written in ENGLISH), " +
+            "definitionVi (the definition written in VIETNAMESE / tiếng Việt), " +
+            "exampleSentence (one sentence in ENGLISH). " +
+            "STRICT LANGUAGE RULES: definitionVi MUST be Vietnamese text in the Latin script. " +
+            "NO Chinese characters (汉字) anywhere. NO other language. " +
+            "If you cannot write Vietnamese, write the English definition instead — never Chinese.",
             word
         );
 
@@ -156,6 +198,15 @@ public class AiVocabService {
                 }
 
                 Map<String, String> map = readVocabMapLenient(cleanJson);
+                // audit-v19 W1: reject a Chinese gloss from the local model (see generateVocabByTopic).
+                // Throw a 400 (BadRequestException) rather than a bare exception so the client gets a
+                // clear, actionable message instead of an opaque 500 — this is a model-quality
+                // outcome, not a server fault.
+                if (containsCjk(map.get("definitionVi")) || containsCjk(map.get("definitionEn"))) {
+                    log.warn("Rejecting enrich-word '{}': CJK characters in a definition field", word);
+                    throw new com.datn.engflow.exception.BadRequestException(
+                            "AI trả về nghĩa sai ngôn ngữ cho từ này. Vui lòng thử lại.");
+                }
                 return Vocabulary.builder()
                         .word(map.get("word"))
                         .pronunciation(map.get("pronunciation"))
@@ -165,6 +216,8 @@ public class AiVocabService {
                         .exampleSentence(map.get("exampleSentence"))
                         .source(DeckSource.USER_CREATED.name())
                         .build();
+            } catch (com.datn.engflow.exception.BadRequestException e) {
+                throw e;   // audit-v19 W1: keep the 400 contract (do not re-wrap as 500)
             } catch (Exception e) {
                 log.error("Failed to parse AI response: {}", e.getMessage());
                 throw new RuntimeException("Failed to enrich vocabulary");

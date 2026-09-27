@@ -92,6 +92,10 @@ const targets = `(sel) => {
   out.builder = { removed: "audit-v15 — Lesson Builder gone" };
 
   // ── 3. Video transcript tap targets (student) ───────────────────────────────
+  // NOTE (audit-v19 W2): the naive min(w,h)<24 count here is a RAW measurement, not a violation
+  // count. These word-chips are inline-level inside a <p> sentence with height == line-height
+  // (26px), so WCAG 2.5.8's inline exception applies — they are NOT failures. The corrected
+  // judgement lives in ui-sweep.js's A11Y_FN (which reports 0 real violations on /videos/1).
   {
     H.flushLimits(true);
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -101,8 +105,8 @@ const targets = `(sel) => {
     await page.waitForTimeout(3500);
     const btns = await page.evaluate(`(${targets})('button')`);
     const small = btns.filter(b => Math.min(b.w, b.h) < 24);
-    out.videoTranscript = { totalButtons: btns.length, smallCount: small.length, small: small.slice(0, 20) };
-    console.log(`video transcript buttons=${btns.length} small(<24)=${small.length}`, JSON.stringify(small.slice(0,6)));
+    out.videoTranscript = { totalButtons: btns.length, rawSmallUnder24: small.length, note: "inline word-chips in a sentence -> WCAG 2.5.8 inline exception, not violations", small: small.slice(0, 20) };
+    console.log(`video transcript buttons=${btns.length} rawSmall(<24)=${small.length} (inline exception -> not violations)`, JSON.stringify(small.slice(0,6)));
     await ctx.close();
   }
 

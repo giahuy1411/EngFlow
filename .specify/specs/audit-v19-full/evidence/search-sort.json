@@ -1,0 +1,164 @@
+{
+  "probed": [
+    {
+      "probe": "vocab-search",
+      "keyword": "ab",
+      "label": "lowercase substring",
+      "status": 200,
+      "len": 5,
+      "words": [
+        "sustainable",
+        "habitat",
+        "collaborate",
+        "collaborate",
+        "elaborate"
+      ]
+    },
+    {
+      "probe": "vocab-search",
+      "keyword": "AB",
+      "label": "uppercase substring (case-insensitive?)",
+      "status": 200,
+      "len": 5,
+      "words": [
+        "sustainable",
+        "habitat",
+        "collaborate",
+        "collaborate",
+        "elaborate"
+      ]
+    },
+    {
+      "probe": "vocab-search",
+      "keyword": "Ab",
+      "label": "mixed case",
+      "status": 200,
+      "len": 5,
+      "words": [
+        "sustainable",
+        "habitat",
+        "collaborate",
+        "collaborate",
+        "elaborate"
+      ]
+    },
+    {
+      "probe": "vocab-search",
+      "keyword": "rise",
+      "label": "real word fragment",
+      "status": 200,
+      "len": 0,
+      "words": []
+    },
+    {
+      "probe": "vocab-search",
+      "keyword": "zzzznotaword",
+      "label": "no match -> []",
+      "status": 200,
+      "len": 0,
+      "words": []
+    },
+    {
+      "probe": "vocab-search",
+      "keyword": "a",
+      "label": "1-char -> [] by design",
+      "status": 200,
+      "len": 0,
+      "words": []
+    },
+    {
+      "probe": "vocab-search",
+      "keyword": "",
+      "label": "empty -> [] by design",
+      "status": 200,
+      "len": 0,
+      "words": []
+    },
+    {
+      "probe": "vocab-search-case",
+      "same": true,
+      "lower": 0,
+      "upper": 0
+    },
+    {
+      "probe": "lesson-q",
+      "status": 200,
+      "total": 466,
+      "first": "English Grammar Exercises for A1 – be, possessives and pronouns"
+    },
+    {
+      "probe": "lesson-q-nomatch",
+      "status": 200,
+      "total": 0
+    },
+    {
+      "probe": "admin-ex-q",
+      "status": 200,
+      "total": 16591
+    },
+    {
+      "probe": "lesson-sort",
+      "identicalAscDesc": true,
+      "identicalToDefault": true,
+      "asc": [
+        "test",
+        "Admin Created Lesson",
+        "English Grammar Exercises for A1 – be, possessives and pronouns",
+        "test",
+        "thầy bình ",
+        "be, possessives and pronouns - GRAMMAR",
+        "English Grammar Exercises for A1 – have got and articles",
+        "English Grammar Exercises for A1 – have got and articles - GRAMMAR"
+      ],
+      "desc": [
+        "test",
+        "Admin Created Lesson",
+        "English Grammar Exercises for A1 – be, possessives and pronouns",
+        "test",
+        "thầy bình ",
+        "be, possessives and pronouns - GRAMMAR",
+        "English Grammar Exercises for A1 – have got and articles",
+        "English Grammar Exercises for A1 – have got and articles - GRAMMAR"
+      ]
+    },
+    {
+      "probe": "admin-ex-sort",
+      "identicalAscDesc": true
+    },
+    {
+      "probe": "vocab-sort",
+      "identicalAscDesc": false,
+      "vAscOrdered": true,
+      "vDescOrdered": true,
+      "asc": [
+        "agenda",
+        "airport",
+        "algorithm",
+        "ambiguous",
+        "ambitious",
+        "analyze",
+        "apartment",
+        "articulate"
+      ],
+      "desc": [
+        "volunteer",
+        "virtual",
+        "urbanization",
+        "under the weather",
+        "turn down",
+        "thermal",
+        "terminal",
+        "technology"
+      ]
+    },
+    {
+      "probe": "deck-sort",
+      "identicalAscDesc": true
+    },
+    {
+      "probe": "vocab-sort-invalid",
+      "status": 400
+    }
+  ],
+  "findings": []
+}

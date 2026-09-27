@@ -1,0 +1,18 @@
+=== TRUE ORPHANS (NULL excluded) ===
+rel|orphans
+---|-------
+vocabulary->lessons|0
+decks->users|0
+speaking_submissions->users|0
+speaking_submissions->prompts|0
+speaking_prompts->lessons|0
+video_attempts->users|0
+video_attempts->video_lessons|0
+exercise_attempts->users|0
+payment_transactions->users|0
+Msg 130, Level 15, State 1, Server 5d59481cb65e, Line 4
+Cannot perform an aggregate function on an expression containing an aggregate or a subquery.
+=== TIMEZONE ===
+sql_utc|sd|max_d
+-------|--|-----
+2026-09-27 12:49:13.6309135|4|2026-09-22

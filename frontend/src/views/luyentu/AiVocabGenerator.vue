@@ -207,6 +207,12 @@ async function generate() {
   try {
     const result = await aiService.generateVocab(topic.value, level.value, count.value)
     generatedWords.value = result || []
+    // audit-v19 W1: the backend drops any item whose Vietnamese/English definition came back in
+    // Chinese (the local model intermittently does this). If every item was dropped, say so
+    // instead of silently rendering nothing.
+    if (generatedWords.value.length === 0) {
+      error.value = 'AI chưa trả về từ hợp lệ (mô hình đôi khi sinh nghĩa sai ngôn ngữ). Vui lòng thử lại.'
+    }
     await auth.fetchUser()
   } catch (e) {
     error.value = e.response?.data?.detail || e.response?.data?.message || 'Sinh từ thất bại'

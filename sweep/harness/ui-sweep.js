@@ -118,13 +118,58 @@ const A11Y_FN = `() => {
   const missingAlt = [...document.querySelectorAll('img')].filter(i => !i.hasAttribute('alt')).length;
   const imgs = document.querySelectorAll('img').length;
   const small = [], borderline = [];
-  document.querySelectorAll('a[href], button, [role="button"], input, select, textarea').forEach(el => {
+  // audit-v19 W2: the naive "min(w,h) < 24" test ignored WCAG 2.5.8's exceptions, inflating the
+  // count with false positives — and the old small.slice(0,10) then hid the REAL ones, which is
+  // why the audit-v18 triage ("115 = all false positives") was wrong. Now:
+  //   (1) INLINE exception: a target that flows in a sentence (inline-level, inside a text block
+  //       such as <p>/<li>/<td>) is exempt — measured on /videos/1 the word-chips are 26px tall
+  //       (>=24) with line-height 26px, i.e. constrained by the line-height, which is exactly
+  //       what this exception covers. Only <a>/<button> with text content qualify; a chip in a
+  //       toolbar (inside a flex <div>, not a text block) does NOT.
+  //   (2) LABEL exception: a checkbox/radio inside a <label> uses the label as its effective target.
+  //   (3) SPACING exception (WCAG 2.5.8 proper): an undersized target passes if a 24px-diameter
+  //       circle centred on it does not intersect any other target. A lone small link in a
+  //       justify-between row passes; two chips 2px apart would fail.
+  const SEL = 'a[href], button, [role="button"], input, select, textarea';
+  const TEXT_BLOCK = 'p, li, td, dd, blockquote, figcaption, h1, h2, h3, h4, h5, h6';
+  const all = [...document.querySelectorAll(SEL)].filter(el => {
     const r = el.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) return;
+    if (r.width === 0 || r.height === 0) return false;
+    const cs = getComputedStyle(el);
+    return cs.visibility !== 'hidden' && cs.display !== 'none';
+  });
+  const rects = all.map(el => el.getBoundingClientRect());
+  // Does a 24px circle centred on rect R intersect any other target's box?
+  const circleHitsOther = (i, R) => {
+    const cx = R.left + R.width / 2, cy = R.top + R.height / 2, rad = 12;
+    for (let j = 0; j < rects.length; j++) {
+      if (j === i) continue;
+      const U = rects[j];
+      const nx = Math.max(U.left, Math.min(cx, U.right));
+      const ny = Math.max(U.top, Math.min(cy, U.bottom));
+      const d = Math.hypot(cx - nx, cy - ny);
+      if (d < rad) return true;
+    }
+    return false;
+  };
+  all.forEach((el, i) => {
+    const r = rects[i];
+    const cs = getComputedStyle(el);
+    const tag = el.tagName;
+    // (1) inline-level target flowing inside a text block, with text content
+    const inlineLevel = /^inline/.test(cs.display);
+    const hasText = (el.textContent || '').trim().length > 0;
+    if (inlineLevel && hasText && el.closest(TEXT_BLOCK)) return;
+    if (tag === 'INPUT' && (el.type === 'checkbox' || el.type === 'radio') && el.closest('label')) return;
     const label = (el.getAttribute('aria-label')||el.innerText||'').trim().slice(0,30);
     const m = Math.min(r.width, r.height);
-    if (m < 24) small.push({ t: el.tagName, label, w: Math.round(r.width), h: Math.round(r.height) });
-    else if (m < 44) borderline.push({ t: el.tagName, label, w: Math.round(r.width), h: Math.round(r.height) });
+    if (m < 24) {
+      // spacing exception: only a real violation when the 24px circle touches another target
+      if (!circleHitsOther(i, r)) return;
+      small.push({ t: tag, label, w: Math.round(r.width), h: Math.round(r.height), disp: cs.display });
+    } else if (m < 44) {
+      borderline.push({ t: tag, label, w: Math.round(r.width), h: Math.round(r.height) });
+    }
   });
   const noName = [...document.querySelectorAll('button, a[href]')].filter(el => {
     const r = el.getBoundingClientRect(); if (r.width===0||r.height===0) return false;
@@ -140,7 +185,8 @@ const A11Y_FN = `() => {
     imgs, missingAlt, noName, h1Count: h1, headingSkip,
     lang: document.documentElement.lang || null,
     skipLink: !!document.querySelector('a.skip-link, a[href="#main-content"]'),
-    smallTargets: small.slice(0,10), smallCount: small.length, borderlineCount: borderline.length,
+    // audit-v19 W2: do NOT slice — the cap hid the real violations from triage.
+    smallTargets: small, smallCount: small.length, borderlineCount: borderline.length,
     focusVisibleRule: [...document.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => (r.selectorText||'').includes('focus-visible')); } catch { return false; } }),
   };
 }`;
