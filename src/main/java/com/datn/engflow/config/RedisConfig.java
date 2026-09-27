@@ -35,6 +35,10 @@ public class RedisConfig {
     @org.springframework.beans.factory.annotation.Value("${cache.ttl-hours:1}")
     private long cacheTtlHours;
 
+    /** audit-v17 L2: how long a confirmed 404 ("word does not exist") is remembered. */
+    @org.springframework.beans.factory.annotation.Value("${dictionary.miss-ttl-minutes:30}")
+    private long dictionaryMissTtlMinutes;
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
@@ -43,8 +47,14 @@ public class RedisConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .disableCachingNullValues();
 
+        // audit-v17 remove-limits round (L2): a confirmed 404 gets a SHORT TTL so a typo'd word is
+        // not re-fetched from the slow upstream for an hour, while a real word that appears later
+        // still becomes findable within 30 minutes. Every other cache keeps the shared default.
+        RedisCacheConfiguration missConfig = config.entryTtl(Duration.ofMinutes(dictionaryMissTtlMinutes));
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
+                .withInitialCacheConfigurations(java.util.Map.of("dictionaryMiss", missConfig))
                 .build();
     }
 }

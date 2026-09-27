@@ -53,6 +53,15 @@ services:
       # Streak reminder catch-up: chạy bù job 20:00 lỡ vì container khởi động
       # muộn hơn cron (Spring chỉ đăng ký schedule sau khi context sẵn sàng).
       - ENGFLOW_SCHEDULER_CATCHUP_ENABLED=true
+      # audit-v17 remove-limits round (L1-B): warm the common-word dictionary cache on startup +
+      # nightly. Opt-in (the property default is false) so only the real backend warms, never the
+      # test JVM. Serial + bounded + abort-on-failure — see DictionaryWarmupService.
+      - DICTIONARY_WARMUP_ENABLED=${DICTIONARY_WARMUP_ENABLED:-true}
+      # audit-v17 remove-limits round (L2): dictionary upstream base. Defaults to the public
+      # dictionaryapi.dev; set it to point at a self-hosted dictionary or a test stub. The default
+      # is spelled out here (not left empty) because an empty env var would OVERRIDE the
+      # application.properties default rather than fall back to it.
+      - DICTIONARY_UPSTREAM_URL=${DICTIONARY_UPSTREAM_URL:-https://api.dictionaryapi.dev/api/v2/entries/en}
       # URL gốc của SPA cho link trong mail. Trong container, "localhost" là chính
       # container backend — không phải máy người dùng — nên deployment thật phải
       # override biến này bằng domain công khai, nếu không CTA trong mail chết.
@@ -86,6 +95,10 @@ services:
       - SEPAY_BANK_ACCOUNT=${SEPAY_BANK_ACCOUNT}
       - SEPAY_BANK_NAME=${SEPAY_BANK_NAME}
       - SEPAY_API_TOKEN=${SEPAY_API_TOKEN:-}
+      # audit-v17 L3-C6-a: forward the (optional) SePay API base so a sandbox token can be used
+      # without a code change. .env is not mounted into the container, so every var the app reads
+      # must be forwarded here. The default is the production host.
+      - SEPAY_API_BASE_URL=${SEPAY_API_BASE_URL:-https://my.sepay.vn/userapi}
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}

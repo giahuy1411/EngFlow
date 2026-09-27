@@ -23,8 +23,13 @@
       </div>
 
       <!-- Loading -->
-      <div v-if="loading" class="flex justify-center py-16">
+      <div v-if="loading" class="flex flex-col items-center py-16 gap-4">
         <div class="w-10 h-10 border-2 border-foreground border-t-accent rounded-full animate-spin"></div>
+        <!-- audit-v17 L1-A: a cold lookup takes ~20 s. Say so, so a slow response reads as "working"
+             rather than "broken". -->
+        <p v-if="slow" class="text-sm text-muted-foreground text-center max-w-md" role="status">
+          Đang tra từ điển… Từ mới có thể mất tới ~20 giây cho lần tra đầu tiên. Vui lòng chờ.
+        </p>
       </div>
 
       <!-- Error -->
@@ -109,6 +114,7 @@ import AppButton from '@/components/ui/AppButton.vue'
 const query = ref('')
 const results = ref([])
 const loading = ref(false)
+const slow = ref(false)   // audit-v17 L1-A: lookup is still running past the soft 6 s threshold
 const error = ref('')
 const searched = ref(false)
 
@@ -126,11 +132,15 @@ async function search() {
     return
   }
   loading.value = true
+  slow.value = false
   error.value = ''
   results.value = []
   searched.value = false
   try {
-    results.value = await vocabularyService.search(term)
+    // audit-v17 L1-A: a cold lookup legitimately takes ~20 s (measured upstream TTFB ~19.5 s), so
+    // the service keeps waiting instead of failing at 6 s. onSlow flips a calmer message on; the
+    // call still resolves with the real result (or a genuine network error).
+    results.value = await vocabularyService.search(term, { onSlow: () => { slow.value = true } })
     searched.value = true
   } catch (e) {
     if (e && e.message === 'TIMEOUT') {
@@ -142,6 +152,7 @@ async function search() {
     }
   } finally {
     loading.value = false
+    slow.value = false
   }
 }
 

@@ -35,9 +35,15 @@ public class SePayApiService {
      * User API list endpoint per official docs. The previous host
      * (userapi.sepay.vn/v2) is not in the documentation and its response
      * shape could not be verified.
+     *
+     * <p>audit-v17 remove-limits round (L3-C6-a): the base URL was a hardcoded literal. It is now
+     * configurable via {@code sepay.api-base-url} so a SePay Test-mode (sandbox) token can be used
+     * without a code change — point it at {@code https://userapi-sandbox.sepay.vn} (the documented
+     * sandbox host) and set a sandbox {@code SEPAY_API_TOKEN}. The default is the production host,
+     * so behaviour is unchanged until the env var is set. Note: the webhook secret and the API token
+     * are independent; a sandbox token only authenticates against the sandbox host.
      */
-    private static final String TRANSACTIONS_LIST_URL =
-            "https://my.sepay.vn/userapi/transactions/list";
+    private final String transactionsListUrl;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -52,16 +58,27 @@ public class SePayApiService {
 
     public SePayApiService(RestTemplate restTemplate,
                            ObjectMapper objectMapper,
-                           @Value("${sepay.api-token:}") String apiToken) {
+                           @Value("${sepay.api-token:}") String apiToken,
+                           @Value("${sepay.api-base-url:https://my.sepay.vn/userapi}") String apiBaseUrl) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.apiToken = apiToken;
+        // Strip a trailing slash so "<base>/transactions/list" never becomes "//transactions/list".
+        // A BLANK base must fall back to production: `${X:default}` does not apply its default when
+        // X is present-but-empty, and .env.example ships SEPAY_API_BASE_URL blank — so an empty value
+        // would otherwise produce the relative URI "/transactions/list", which RestTemplate rejects
+        // with "URI is not absolute" on every poll (silently disabling the fallback).
+        String raw = (apiBaseUrl == null || apiBaseUrl.isBlank())
+                ? "https://my.sepay.vn/userapi"
+                : apiBaseUrl;
+        String base = raw.replaceAll("/+$", "");
+        this.transactionsListUrl = base + "/transactions/list";
         if (apiToken == null || apiToken.isBlank()) {
             log.warn("SEPAY_API_TOKEN is NOT configured! SePay webhook fallback polling will be DISABLED.");
             log.warn("Set SEPAY_API_TOKEN in .env (my.sepay.vn -> Cau hinh Cong ty -> API Access -> + Them API), then rebuild Docker.");
             log.warn("Without it, manual bank transfers will NOT be detected automatically.");
         } else {
-            log.info("SePay API token configured. Webhook fallback polling is ENABLED.");
+            log.info("SePay API token configured. Webhook fallback polling is ENABLED (base={}).", base);
         }
     }
 
@@ -96,7 +113,7 @@ public class SePayApiService {
             return Optional.empty(); // 401/403 circuit open — log once, skip silently
         }
 
-        String url = TRANSACTIONS_LIST_URL
+        String url = transactionsListUrl
                 + "?amount_in=" + amount.toBigInteger()
                 + "&limit=20";
 

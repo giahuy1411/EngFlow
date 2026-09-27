@@ -80,7 +80,9 @@ describe('audit-v17 F-17-02 — vocabulary search does not fire a lookup for < 2
   it('2 characters -> service IS called (boundary is "< 2", not "< 3")', async () => {
     await mountAndSearch('hi')
     expect(vocabularyService.search).toHaveBeenCalledTimes(1)
-    expect(vocabularyService.search).toHaveBeenCalledWith('hi')
+    // audit-v17 L1-A: the view now passes an options bag (onSlow) as the 2nd arg.
+    expect(vocabularyService.search.mock.calls[0][0]).toBe('hi')
+    expect(vocabularyService.search.mock.calls[0][1]).toHaveProperty('onSlow')
   })
 })
 

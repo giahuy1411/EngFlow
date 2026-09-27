@@ -21,7 +21,7 @@ export default {
     vocabData
   ).then(r => r.data),
 
-  search: async (keyword) => {
+  search: async (keyword, options = {}) => {
     const trimmed = (keyword || '').trim()
     if (!trimmed) return []
 
@@ -123,23 +123,25 @@ export default {
       }))
     }
 
-    // audit-v17 closing round (C2) — the DICTIONARY is the ONLY lookup source.
-    //   The previous version kept a local exact-match fast path (F-17-05): if the word was in
-    //   the local `vocabulary` table it was returned when the dictionary had not answered
-    //   within a grace window. That table is the DECK store (deck_words / user_vocabulary_progress
-    //   — 100/118 rows are deck words), and its entries carry no audio and one meaning, so
-    //   serving them here silently degraded the answer. Decision: keep the third-party dictionary
-    //   as the single source; remove the local row from the lookup path entirely. The table and
-    //   every feature built on it (Decks / SRS / game / flashcard / AI-save) are untouched.
+    // audit-v17 remove-limits round (L1-A) — do NOT fail at 6 s; keep waiting.
     //
-    //   Bounded wait: upstream can take ~20 s when its cache is cold, and a cold failure is not
-    //   cached. We do NOT let the UI hang on that. After DICT_BUDGET_MS we surface TIMEOUT so the
-    //   view shows its "thử lại sau ít phút" guidance, but the underlying request keeps running
-    //   (we swallow the eventual rejection) so it still warms the Redis cache — the next lookup of
-    //   the same word is then ~65 ms. We deliberately do NOT shorten the backend read-timeout:
-    //   F-17-05 showed that cuts the upstream off early and reports "not found" for a word that
-    //   exists. The budget is a UI bound, not a network cut.
-    const DICT_BUDGET_MS = 6000;
+    //   Measured: the upstream's OWN TTFB is ~19.5 s (DNS + connect + TLS are only 0.17 s), so a
+    //   cold lookup of ANY word — found or not — costs ~20 s the first time. The previous version
+    //   threw TIMEOUT after 6 s, so the user saw "Tra cứu quá lâu" for a word that WOULD have
+    //   resolved at ~20 s. That is a false failure.
+    //
+    //   Fix: one request, waited on for as long as it can legitimately take. DICT_BUDGET_MS is now a
+    //   SOFT threshold — at 6 s we tell the caller "still working" (so the view can show a calmer
+    //   message) and KEEP waiting for the SAME request. DICT_TOTAL_MS is the hard cap; it sits above
+    //   the whole fallback chain (32 s backend-proxy timeout + 4 s + 4 s direct retries), so the real
+    //   outcome (a word, an empty result, or a genuine network error) is what the user sees.
+    //
+    //   We deliberately do NOT re-issue the request on the slow path: a second in-flight call would
+    //   hit the upstream while the first is still running, and the upstream throttles concurrency
+    //   (measured: 6 parallel lookups -> 5 timeouts). One request, waited on, is both faster and
+    //   kinder to the upstream. The request also warms the Redis cache, so the next lookup is ~65 ms.
+    const DICT_BUDGET_MS = 6000;   // soft: "still working" signal
+    const DICT_TOTAL_MS = 45000;   // hard: above 32 s proxy + 4 s + 4 s direct retries
 
     // Kick off the dictionary path immediately (not awaited yet).
     const dictPromise = (async () => {
@@ -176,16 +178,22 @@ export default {
       }
     })();
 
-    // Bound the wait. The dictionary request is never abandoned — it is left to settle so the
-    // Redis cache gets warmed for the next attempt.
+    // Soft signal at DICT_BUDGET_MS: tell the caller the lookup is slow but still running. Never let
+    // a callback error affect the lookup.
     let budgetId
-    const budget = new Promise((_, reject) => {
-      budgetId = setTimeout(() => reject(new Error('TIMEOUT')), DICT_BUDGET_MS)
+    if (typeof options.onSlow === 'function') {
+      budgetId = setTimeout(() => { try { options.onSlow() } catch (e) { /* ignore */ } }, DICT_BUDGET_MS)
+    }
+    // Hard cap. The request is never abandoned — it is left to settle so the Redis cache warms.
+    let totalId
+    const total = new Promise((_, reject) => {
+      totalId = setTimeout(() => reject(new Error('TIMEOUT')), DICT_TOTAL_MS)
     })
     try {
-      return await Promise.race([dictPromise, budget])
+      return await Promise.race([dictPromise, total])
     } finally {
       clearTimeout(budgetId)
+      clearTimeout(totalId)
       dictPromise.catch(() => {}) // swallow if it settles after we already gave up
     }
   }

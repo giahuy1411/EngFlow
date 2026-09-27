@@ -107,7 +107,7 @@
       "area": "mc-guard",
       "name": "  real-row copy response",
       "status": "INFO",
-      "detail": "{\"audioUrl\":null,\"correctAnswer\":\"A - Salad\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":null,\"id\":798360,\"imageUrl\":"
+      "detail": "{\"audioUrl\":null,\"correctAnswer\":\"A - Salad\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":null,\"id\":808451,\"imageUrl\":"
     },
     {
       "area": "mc-guard",
@@ -195,7 +195,7 @@
       "area": "contract",
       "name": "(2) streak/current payload",
       "status": "INFO",
-      "detail": "{\"today\":\"2026-09-27\",\"currentStreak\":0}"
+      "detail": "{\"currentStreak\":0,\"today\":\"2026-09-27\"}"
     },
     {
       "area": "contract",
@@ -421,7 +421,7 @@
     }
   },
   "mcGuard": {
-    "lessonId": 124499,
+    "lessonId": 134592,
     "badLetter": 400,
     "good": 200,
     "dash": 200,
@@ -536,7 +536,7 @@
       "descStatus": 200
     }
   ],
-  "deepDeckId": 70220,
+  "deepDeckId": 80230,
   "cleanup": {
     "studyDays": 0,
     "lessons": 0,

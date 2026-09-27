@@ -217,6 +217,19 @@ constructor; thay hardcode.
 | F-17-28 | LOW (harness) | `api-sweep` còn `blocked` webhook HMAC (lỗi thời) | `FIXED` (closing round) |
 | F-17-29 | LOW (harness) | `mc()` probe G8 trả sai stream | `FIXED` (closing round) |
 | F-17-30 | LOW (harness) | check 6 quá yếu (không bắt F-17-16) | `FIXED` (closing round, tự review) |
+| **F-17-31** | **MED (UX)** | **Fail ở 6 s = lỗi GIẢ (upstream TTFB ~19.5 s)** | `FIXED` (remove-limits L1-A) |
+| **F-17-32** | **MED (UX)** | **"Không có từ" không cache → lặp ~20 s** | `FIXED` (remove-limits L2) |
+| F-17-33 | LOW (UX) | Từ phổ biến vẫn cold ~20 s | `FIXED` (remove-limits L1-B: pre-warm) |
+| F-17-34 | LOW (harness) | Probe C5 phụ thuộc clip MinIO **có PII, không tái lập** | `FIXED` (remove-limits: fixture CC BY 4.0 trong repo) |
+| F-17-35 | LOW (config) | `SePayApiService` hardcode host production | `FIXED` (remove-limits L3-C6-a: `sepay.api-base-url`) |
+| F-17-36 | MED (bug) | `DictionaryService` 2 constructor → Spring không khởi động được | `FIXED` (tự bắt khi chạy: bỏ constructor phụ) |
+| F-17-37 | LOW (bug) | Warm-up abort ở lần rỗng ĐẦU → dừng ở từ 1 ("of") | `FIXED` (skip từ lẻ + breaker 5 lần) |
+| F-17-38 | LOW (probe) | `l2-negative-cache-proof.py` không restore upstream | `FIXED` (finally restore + `EVAL` thay `xargs`) |
+| **F-17-39** | **HIGH** | **Ghi cache lỗi → báo "không có từ" SAI cho từ CÓ** | `FIXED` (tách `putQuietly`; mutation-test) |
+| F-17-40 | MED | Đọc cache lỗi → HTTP 500 (trái "fail-soft") | `FIXED` (bọc try, rơi xuống upstream) |
+| F-17-41 | MED | `SEPAY_API_BASE_URL` rỗng → URI tương đối → tắt ngầm poll | `FIXED` (blank = production host) |
+| F-17-42 | LOW | compose không forward `SEPAY_API_BASE_URL` | `FIXED` |
+| F-17-43 | MED | `warmNightly` chạy trên thread scheduler → chặn job khác 67' | `FIXED` (daemon thread riêng) |
 
 ---
 
@@ -356,3 +369,39 @@ verdict G7 nay gồm `gone` + `sd_deleted`; verdict G6 gồm `bad_rejected` + `r
 
 ### F-17-26 — `ui-sweep.js:374` log `s.name` (đã bỏ khỏi SHOTS) — **LOW (cosmetic)** — `FIXED`
 **Fix:** dùng `shotName(s)`.
+
+---
+
+## REMOVE-LIMITS ROUND (2026-09-27) — gỡ 3 giới hạn
+
+### F-17-31 — Fail ở 6 s là lỗi GIẢ — **MED (UX)** — `FIXED`
+**Bằng chứng (đo tách tầng):** upstream `dictionaryapi.dev` TTFB **19.494 s**, còn DNS 0.075 + connect 0.117
++ TLS 0.173 s ⇒ **server của họ** chậm, không phải mạng VN. `DICT_BUDGET_MS=6000` cũ ném `TIMEOUT` ⇒ UI báo
+"Tra cứu quá lâu" cho từ **sẽ** tra được ở ~20 s.
+**Fix:** `DICT_BUDGET_MS` thành ngưỡng **mềm** (`options.onSlow`), trần cứng `DICT_TOTAL_MS=45000`; **không**
+gửi lại request (đo: 6 request song song → 5 timeout). **Mutation-test**: trần về 6 s → ca "keeps waiting" FAIL.
+
+### F-17-32 — "Không có từ" không cache → lặp ~20 s — **MED (UX)** — `FIXED`
+**Bằng chứng:** `@Cacheable(unless="#result=='[]'")` gộp 404 thật + lỗi tạm vào `"[]"` rồi không cache.
+**Fix:** hai cache (`dictionary` 1 h / `dictionaryMiss` 30'), lỗi KHÔNG cache. **Chứng minh end-to-end** bằng
+stub + Redis thật (`l2-negative-cache-proof.py`): 404 → lần 2 không gọi upstream; 500 → lần 2 gọi lại và OK.
+**Ghi chú:** upstream hiện trả **522** cho từ không tồn tại (không phải 404) ⇒ đường 404 khó thấy live.
+
+### F-17-33 — Từ phổ biến vẫn cold ~20 s — **LOW (UX)** — `FIXED`
+**Fix:** `DictionaryWarmupService` pre-warm 849 từ phổ biến vào Redis (nền + hằng đêm). Đo: cold ~20 s/từ;
+sau warm **~10 ms**. Serial + trần 200 + skip/breaker.
+
+### F-17-34 — Probe C5 dùng clip MinIO có PII, không tái lập — **LOW (harness)** — `FIXED`
+**Fix:** fixture **trong repo** `sweep/harness/fixtures/human-speech-librispeech.wav` (LibriSpeech
+`2277-149896-0000`, **CC BY 4.0**); probe tự tạo/xoá prompt riêng. Recall 0.95, dọn sạch, fixture nguyên vẹn.
+
+### F-17-35 — `SePayApiService` hardcode host production — **LOW (config)** — `FIXED`
+**Fix:** `sepay.api-base-url` (`SEPAY_API_BASE_URL`), default vẫn production; đổi sandbox bằng env.
+
+### F-17-36 — `DictionaryService` 2 constructor → Spring không khởi động — **MED (bug)** — `FIXED`
+**Bằng chứng:** backend crashloop `No default constructor found` khi thêm constructor tiện dụng thứ hai.
+**Fix:** bỏ constructor phụ; test truyền upstream base tường minh. (Tự bắt khi chạy thật, không phải suy đoán.)
+
+### F-17-37 — Warm-up abort ở lần rỗng ĐẦU → dừng ở từ 1 — **LOW (bug)** — `FIXED`
+**Bằng chứng:** `aborted at 'of' (1/500)` — "of" là hàm từ upstream không phục vụ ⇒ chính sách abort-ngay
+quá giòn. **Fix:** skip từ rỗng, chỉ dừng sau **5 lần rỗng liên tiếp**. Log thật: `25/200 (skipped 7)`.
