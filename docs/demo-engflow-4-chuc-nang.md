@@ -299,12 +299,12 @@ Giống như **mục lục của thư viện**:
 - **Tìm bài học** = gõ từ khoá + chọn trình độ; thứ tự luôn theo **lộ trình học** (không đổi lung tung).
 - **Tra từ vựng** = hệ thống thử theo thứ tự:
   1. **Kho đệm của máy chủ** (nhanh nhất, nhớ sẵn 1 giờ) — proxy qua backend tới từ điển online.
-  2. **Kho từ vựng local** (Oxford3000 trong máy chủ) — khi kho đệm/từ điển chưa có.
-  3. **Từ điển online gọi thẳng từ trình duyệt** — lớp cuối, khi proxy lỗi. Nên app **không bao giờ vỡ** vì mất mạng.
+  2. **Từ điển online gọi thẳng từ trình duyệt** — lớp cuối, khi proxy lỗi. Nên app **không bao giờ vỡ** vì mất mạng.
 - Gõ **dưới 2 ký tự thì không tìm** (để đỡ nặng máy chủ).
 - ⚠️ **Lưu ý khi demo:** lần tra **đầu tiên** cho một từ mới có thể chậm **~20 giây** (từ điển ngoài phản hồi chậm
-  từ mạng VN; các lần sau lấy từ kho đệm 1 giờ nên tức thì). Nên **tra trước vài từ quen** (ví dụ `hello`) một lần
-  ngay trước khi demo để kho đệm đã ấm.
+  từ mạng VN; các lần sau lấy từ kho đệm 1 giờ nên tức thì). Trong lúc chờ, app chờ tối đa **6 giây** rồi báo
+  "tra cứu quá lâu, thử lại sau" — nhưng **vẫn để request chạy nền** để lần sau tức thì. Nên **tra trước vài từ
+  quen** (ví dụ `hello`) một lần ngay trước khi demo để kho đệm đã ấm.
 
 ### 4.2. Kịch bản bấm (trên UI)
 
@@ -316,12 +316,13 @@ Giống như **mục lục của thư viện**:
 ### 4.3. Trả lời 30 giây
 
 > "Tìm bài học theo từ khoá và trình độ, thứ tự cố định theo lộ trình. Tra từ theo thứ tự: kho đệm máy chủ (proxy
-> từ điển, nhớ 1 giờ) → kho từ local → từ điển gọi thẳng — nên mất mạng vẫn tra được. Từ dưới 2 ký tự không tìm
-> để đỡ nặng. Lần tra đầu một từ mới có thể chậm ~20 giây, các lần sau lấy từ kho đệm nên tức thì."
+> từ điển, nhớ 1 giờ) → từ điển gọi thẳng từ trình duyệt — nên mất mạng vẫn tra được. Từ dưới 2 ký tự không tìm
+> để đỡ nặng. Lần tra đầu một từ mới có thể chậm ~20 giây (app chờ tối đa 6 giây rồi báo thử lại), các lần sau lấy
+> từ kho đệm nên tức thì."
 
 ### 4.4. Kỹ thuật — file + đoạn code thật
 
-**a) Tra từ 3 tầng + guard 2 ký tự** — `src/main/java/com/datn/engflow/controller/VocabularyController.java`
+**a) Tra từ 2 tầng + guard 2 ký tự** — `src/main/java/com/datn/engflow/controller/VocabularyController.java`
 
 ```java
 @GetMapping                                   // CẦN ĐĂNG NHẬP, mặc định 20 dòng, sắp theo "word"
@@ -336,10 +337,12 @@ public ResponseEntity<List<Vocabulary>> search(@RequestParam(defaultValue = "") 
 }
 ```
 
-> **Thứ tự fallback (đo lại audit-v17, `frontend/src/services/vocabularyService.js`):** `search()` thử
-> **proxy máy chủ** (`backendFallback()` — dòng 152-153, gọi `/api/vocabulary/dictionary/{word}`, có cache Redis 1 giờ)
-> **trước**; nếu proxy lỗi mới gọi **từ điển online thẳng từ trình duyệt** (dòng 155-160); và trong `backendFallback`,
-> sau khi proxy rỗng/lỗi thì rơi về **DB Oxford3000** (`/api/vocabulary/search`, dòng 117).
+> **Thứ tự tra từ (đo lại closing round audit-v17, `frontend/src/services/vocabularyService.js`):** `search()` thử
+> **proxy máy chủ** (`backendFallback()`, gọi `/api/vocabulary/dictionary/{word}`, có cache Redis 1 giờ) **trước**;
+> nếu proxy lỗi mới gọi **từ điển online thẳng từ trình duyệt**. **Từ điển là NGUỒN DUY NHẤT** — bảng `vocabulary`
+> local **không còn** trên đường tra (trước đây là tầng 2; đã gỡ ở closing round để tránh trả nghĩa nghèo không audio).
+> Trần chờ `DICT_BUDGET_MS = 6000`: quá 6 giây → UI báo "tra cứu quá lâu", nhưng request **vẫn chạy nền** để warm cache.
+> Bảng `vocabulary` **vẫn tồn tại** — nó là kho **bộ từ** (dùng bởi Decks/SRS/flashcard/game/AI), chỉ không phục vụ tra từ.
 > `DictionaryService` tách riêng để `@Cacheable` hoạt động đúng.
 
 **b) Tìm + sắp xếp bài học (server quyết định thứ tự)** — `LessonService` cố định `Sort.by("orderIndex")`;
@@ -370,7 +373,7 @@ Page<Exercise> page = exerciseRepository.findAdminPage(lessonId, exerciseType, e
 | 1' | Login `user@gmail.com`, mở DevTools chỉ 2 key `token`+`user`; thử `/admin/users` → bị đá về `/` | "Đăng nhập phát vé 15 phút, khu quản trị chặn học viên." |
 | 1' | `/lessons` gõ tìm kiếm + đổi trình độ + phân trang; mở 1 bài | "Tìm theo từ khoá và trình độ, thứ tự theo lộ trình." |
 | 1.5' | Tab **Bài tập** → **Kiểm tra** → F5 → **Lịch sử** (trống) → **Nộp bài** → **Lịch sử** (có) | "Kiểm tra không lưu, nộp bài mới lưu. Máy chủ chấm." |
-| 1' | `/search` gõ `hello` → có kết quả; gõ `h` → trống | "Tra từ 3 tầng, dưới 2 ký tự không tìm." |
+| 1' | `/search` gõ `hello` → có kết quả; gõ `h` → trống | "Tra từ 2 tầng (proxy → từ điển thẳng), dưới 2 ký tự không tìm." |
 | 0.5' | `/profile` → ô Streak + lịch 30 ngày | "Chuỗi ngày học, tối 8 giờ gửi mail nhắc." |
 
 ---
@@ -383,6 +386,6 @@ Page<Exercise> page = exerciseRepository.findAdminPage(lessonId, exerciseType, e
 | Sao không cho sắp xếp bài học tự do? | Cố định theo lộ trình (`orderIndex`) để giữ đúng thứ tự học. |
 | Bài tập không có đáp án thì chấm thế nào? | Loại khỏi điểm (không cho "đúng oan"), gắn nhãn "không chấm được". |
 | Đổi giờ máy có gian lận được streak không? | Không — "hôm nay" do máy chủ tính theo giờ Việt Nam. |
-| Mất mạng tới từ điển online thì sao? | Hệ thống tự chuyển sang kho từ local, app không vỡ. |
+| Mất mạng tới từ điển online thì sao? | App thử proxy máy chủ → rồi gọi thẳng từ trình duyệt; nếu vẫn lỗi thì báo "lỗi mạng, kiểm tra internet" — app không vỡ. |
 | Vì sao gõ 1 ký tự không ra kết quả? | Cố ý — dưới 2 ký tự sẽ quét quá nhiều, nên chặn để đỡ nặng. |
 | Tài khoản/mật khẩu demo? | `user@gmail.com` và `admin@gmail.com`, mật khẩu `123456`. |

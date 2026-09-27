@@ -1,7 +1,7 @@
 {
-  "pass": 143,
+  "pass": 145,
   "fail": 0,
-  "blocked": 1,
+  "blocked": 0,
   "n_a": 2,
   "findings": [],
   "areas": {
@@ -76,9 +76,9 @@
       "blocked": 0
     },
     "payment": {
-      "pass": 7,
+      "pass": 9,
       "fail": 0,
-      "blocked": 1
+      "blocked": 0
     }
   },
   "probed": [
@@ -819,9 +819,13 @@
     },
     {
       "area": "payment",
-      "name": "webhook with VALID HMAC signature",
-      "status": "BLOCKED",
-      "detail": "mutates a real payment_transactions row — real-money boundary (v11 proved it with cleanup; not repeated)"
+      "name": "POST /api/webhook/sepay VALID HMAC accepted (reaches business logic, no row mutated)",
+      "status": "PASS"
+    },
+    {
+      "area": "payment",
+      "name": "  valid HMAC over a STALE timestamp (>5 min) refused by the replay window",
+      "status": "PASS"
     },
     {
       "area": "payment",
@@ -836,8 +840,8 @@
   ],
   "c1": {
     "status": 200,
-    "id": 70609,
-    "deckId": 70213,
+    "id": 70613,
+    "deckId": 70216,
     "visibleToAnon": true
   },
   "f152": {
@@ -847,7 +851,7 @@
     "adminInject": 200,
     "leaked": false
   },
-  "createdOrderCode": "ENG7A68FA1C1E53",
+  "createdOrderCode": "ENG2CFA4A9B3D8F",
   "cleanup": {
     "decks": 0,
     "vocab": 0,

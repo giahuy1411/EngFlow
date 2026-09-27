@@ -11,15 +11,19 @@
  * harness was rebuilt from an old snapshot and re-introduced fixed bugs".
  *
  * Now the namespace is DATA, not code:
- *   node sweep/harness/<probe>.js [--audit audit-v15-full] [--out <dir>]
+ *   node sweep/harness/<probe>.js [--audit audit-v17-full] [--out <dir>]
  *
- * Defaults point at the current audit (`audit-v15-full`). A later round passes
- * `--audit audit-v16-full` and every path/marker follows — no edits, nothing lost.
+ * Defaults point at the current audit (`audit-v17-full`). A later round passes
+ * `--audit audit-v18-full` and every path/marker follows — no edits, nothing lost.
+ *
+ * NOTE: the default is ALSO asserted by assert-harness.js (F-17-16). It must name an audit
+ * directory that exists under .specify/specs/, so a stale default fails the static suite rather
+ * than silently writing evidence into a previous round's folder.
  *
  * Exports:
- *   AUDIT   "audit-v15-full"      audit name (drives evidence dir)
- *   VER     "V15"                 short version tag
- *   MARKER  "AUDIT-V15"           prefix for every row this suite writes
+ *   AUDIT   "audit-v17-full"      audit name (drives evidence dir)
+ *   VER     "V17"                 short version tag
+ *   MARKER  "AUDIT-V17"           prefix for every row this suite writes
  *   ROOT    <repo root>
  *   OUT     <evidence dir>        `.specify/specs/<AUDIT>/evidence`
  *   arg(name, def)                read a `--name value` CLI arg
@@ -31,17 +35,17 @@ function arg(name, def) {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
 
-const AUDIT = arg("audit", "audit-v15-full");
+const AUDIT = arg("audit", "audit-v17-full");
 const ROOT = path.join(__dirname, "..", "..");
 const OUT = arg("out", path.join(ROOT, ".specify", "specs", AUDIT, "evidence"));
 
-// "audit-v15-full" -> "V15". Falls back to "VX" if the name is unrecognised, so a
+// "audit-v17-full" -> "V17". Falls back to "VX" if the name is unrecognised, so a
 // typo produces a visibly wrong marker rather than silently reusing the last one.
 const vm = /^audit-v(\d+)/.exec(AUDIT);
 const VER = vm ? "V" + vm[1] : "VX";
 const MARKER = "AUDIT-" + VER;
 
-/** Marker for a data class, e.g. rowMarker("API") -> "AUDIT-V15-API". */
+/** Marker for a data class, e.g. rowMarker("API") -> "AUDIT-V17-API". */
 function rowMarker(kind) {
   return MARKER + "-" + kind;
 }

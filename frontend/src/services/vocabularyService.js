@@ -1,41 +1,12 @@
 import api from './api'
 
 /**
- * Normalise the backend's vocabulary rows into the shape this service returns.
- * Shared by the local exact fast path and the proxy's DB fallback so both stay in sync.
- */
-function mapBackendRows(data) {
-  const rows = Array.isArray(data) ? data : []
-  return rows.map((row, idx) => ({
-    id: row.id || (idx + 1),
-    word: row.word,
-    phonetic: row.pronunciation || '',
-    audioUrl: row.audioUrl || '',
-    meanings: [{
-      partOfSpeech: row.wordType || '',
-      definitions: [{
-        definition: row.definitionEn || row.meaning || '',
-        example: row.exampleSentence || '',
-        synonyms: [],
-        antonyms: []
-      }],
-      synonyms: [],
-      antonyms: []
-    }],
-    partOfSpeech: row.wordType || '',
-    definition: row.definitionEn || row.meaning || '',
-    example: row.exampleSentence || '',
-    syllables: undefined,
-    pronunciation: row.pronunciation,
-    origin: undefined,
-    cefrLevel: row.cefrLevel,
-    source: row.source
-  }))
-}
-
-/**
  * Tra từ - Dictionary lookup with rich metadata.
  * Uses free dictionaryapi.dev (no API key required).
+ *
+ * audit-v17 closing round (C2): the local `vocabulary` table is NO LONGER on this path at all.
+ * The helper that normalised its rows (`mapBackendRows`) was removed with it. The table remains
+ * the DECK store (deck_words / user_vocabulary_progress) and is untouched by this service.
  *
  * Returned shape per result (kept consistent with UI expectations):
  *   { id, word, phonetic, audioUrl, meanings: [{ partOfSpeech, definition, example, synonyms[], antonyms[] }],
@@ -55,9 +26,9 @@ export default {
     if (!trimmed) return []
 
     const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(trimmed.toLowerCase())}`
-    // dictionaryapi.dev đôi khi chậm/từ chối kết nối từ VN — thử direct 15s,
-    // thất bại thì retry 1 lần (thường DNS/TCP cache sẽ hoàn thành), sau đó
-    // fallback proxy qua backend /api/vocabulary/search (permitAll, Oxford3000 DB).
+    // dictionaryapi.dev đôi khi chậm/từ chối kết nối từ VN. Đường đi: proxy backend (container
+    // có mạng tới API) → nếu proxy lỗi, gọi thẳng từ browser, retry 1 lần (DNS/TCP cache thường
+    // giúp lần hai thành công). KHÔNG còn nhánh local DB nào (audit-v17 closing round C2).
     async function directFetch(timeoutMs) {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
@@ -113,61 +84,62 @@ export default {
       return results
     }
     async function backendFallback() {
-      // 1) Proxy qua backend tới dictionaryapi.dev (container có mạng tới API
-      //    mà browser VN đôi khi không vào được). Trả array cùng shape direct.
-      //    Timeout 32s riêng: upstream thực tế ~20s khi cache lạnh, axios
-      //    default 10s sẽ cắt sớm → báo "Không tìm thấy từ" sai.
-      try {
-        const proxy = await api.get(`/api/vocabulary/dictionary/${encodeURIComponent(trimmed)}`, { timeout: 32000 })
-        const raw = typeof proxy.data === 'string' ? JSON.parse(proxy.data) : proxy.data
-        if (Array.isArray(raw) && raw.length > 0) {
-          return raw.map((entry, idx) => ({
-            id: idx + 1,
-            word: entry.word || trimmed,
-            phonetic: (entry.phonetics || []).find(p => p && p.text)?.text || '',
-            audioUrl: (entry.phonetics || []).find(p => p && p.audio)?.audio || '',
-            meanings: (entry.meanings || []).map(m => ({
-              partOfSpeech: m.partOfSpeech || '',
-              definitions: (m.definitions || []).map(d => ({
-                definition: d.definition || '',
-                example: d.example || '',
-                synonyms: Array.isArray(d.synonyms) ? d.synonyms : [],
-                antonyms: Array.isArray(d.antonyms) ? d.antonyms : []
-              })),
-              synonyms: Array.isArray(m.synonyms) ? m.synonyms : [],
-              antonyms: Array.isArray(m.antonyms) ? m.antonyms : []
-            })),
-            partOfSpeech: entry.meanings?.[0]?.partOfSpeech || '',
-            definition: entry.meanings?.[0]?.definitions?.[0]?.definition || '',
-            example: entry.meanings?.[0]?.definitions?.[0]?.example || '',
-            syllables: entry.syllables,
-            pronunciation: entry.pronunciation,
-            origin: entry.origin
-          }))
-        }
-      } catch (proxyErr) { /* tiếp tục DB fallback */ }
-      // 2) DB Oxford3000 trong backend (shape khác — normalize)
-      const backend = await api.get(`/api/vocabulary/search?keyword=${encodeURIComponent(trimmed)}`)
-      return mapBackendRows(backend.data)
+      // Proxy qua backend tới dictionaryapi.dev (container có mạng tới API mà browser VN đôi
+      // khi không vào được). Timeout 32s riêng: upstream thực tế ~20s khi cache lạnh, axios
+      // default 10s sẽ cắt sớm → báo "Không tìm thấy từ" sai.
+      //
+      // audit-v17 closing round (C2): the local-table step that used to follow this proxy call
+      // was REMOVED — the dictionary is the ONLY lookup source now. A proxy SUCCESS is final,
+      // even an empty array (upstream 404 → "[]" = the word does not exist); only a proxy
+      // FAILURE throws, so the caller can fall through to the direct browser call. A cold
+      // upstream that times out inside the backend also yields "[]", but the caller's ~6 s
+      // budget has already surfaced TIMEOUT by then, so the user sees "quá lâu", never a false
+      // "not found".
+      const proxy = await api.get(`/api/vocabulary/dictionary/${encodeURIComponent(trimmed)}`, { timeout: 32000 })
+      const raw = typeof proxy.data === 'string' ? JSON.parse(proxy.data) : proxy.data
+      if (!Array.isArray(raw)) return []
+      return raw.map((entry, idx) => ({
+        id: idx + 1,
+        word: entry.word || trimmed,
+        phonetic: (entry.phonetics || []).find(p => p && p.text)?.text || '',
+        audioUrl: (entry.phonetics || []).find(p => p && p.audio)?.audio || '',
+        meanings: (entry.meanings || []).map(m => ({
+          partOfSpeech: m.partOfSpeech || '',
+          definitions: (m.definitions || []).map(d => ({
+            definition: d.definition || '',
+            example: d.example || '',
+            synonyms: Array.isArray(d.synonyms) ? d.synonyms : [],
+            antonyms: Array.isArray(d.antonyms) ? d.antonyms : []
+          })),
+          synonyms: Array.isArray(m.synonyms) ? m.synonyms : [],
+          antonyms: Array.isArray(m.antonyms) ? m.antonyms : []
+        })),
+        partOfSpeech: entry.meanings?.[0]?.partOfSpeech || '',
+        definition: entry.meanings?.[0]?.definitions?.[0]?.definition || '',
+        example: entry.meanings?.[0]?.definitions?.[0]?.example || '',
+        syllables: entry.syllables,
+        pronunciation: entry.pronunciation,
+        origin: entry.origin
+      }))
     }
 
-    // audit-v17 F-17-05 — resolve order, with a fast local fallback:
-    //   The dictionary gives the RICH entry (phonetics, audio, several meanings, synonyms); the
-    //   local table (118 rows) has no audio and one meaning, so it must NOT win by default.
-    //   But the dictionary can take ~20 s on a cold upstream and its failure is not cached.
-    //   So: start the dictionary immediately, and if the word is in the local table and the
-    //   dictionary has not answered within LOCAL_GRACE_MS, return the local row NOW (the
-    //   dictionary request keeps going and will populate the cache for the next lookup).
-    //   -> rich entry when the dictionary is fast (warm cache); instant answer when it is cold.
-    // NOTE: the proxy is called ONCE. It used to be reachable from two places, so a slow upstream
-    // could be hit twice (~40 s worst case).
-    const LOCAL_GRACE_MS = 1500;
-
-    async function localExact() {
-      const res = await api.get(`/api/vocabulary/search?keyword=${encodeURIComponent(trimmed)}&exact=true`)
-      const rows = mapBackendRows(res.data)
-      return rows.length === 0 ? null : rows
-    }
+    // audit-v17 closing round (C2) — the DICTIONARY is the ONLY lookup source.
+    //   The previous version kept a local exact-match fast path (F-17-05): if the word was in
+    //   the local `vocabulary` table it was returned when the dictionary had not answered
+    //   within a grace window. That table is the DECK store (deck_words / user_vocabulary_progress
+    //   — 100/118 rows are deck words), and its entries carry no audio and one meaning, so
+    //   serving them here silently degraded the answer. Decision: keep the third-party dictionary
+    //   as the single source; remove the local row from the lookup path entirely. The table and
+    //   every feature built on it (Decks / SRS / game / flashcard / AI-save) are untouched.
+    //
+    //   Bounded wait: upstream can take ~20 s when its cache is cold, and a cold failure is not
+    //   cached. We do NOT let the UI hang on that. After DICT_BUDGET_MS we surface TIMEOUT so the
+    //   view shows its "thử lại sau ít phút" guidance, but the underlying request keeps running
+    //   (we swallow the eventual rejection) so it still warms the Redis cache — the next lookup of
+    //   the same word is then ~65 ms. We deliberately do NOT shorten the backend read-timeout:
+    //   F-17-05 showed that cuts the upstream off early and reports "not found" for a word that
+    //   exists. The budget is a UI bound, not a network cut.
+    const DICT_BUDGET_MS = 6000;
 
     // Kick off the dictionary path immediately (not awaited yet).
     const dictPromise = (async () => {
@@ -204,21 +176,17 @@ export default {
       }
     })();
 
-    let local = null
-    try { local = await localExact() } catch (localErr) { /* best-effort — never block the dictionary */ }
-
-    if (local) {
-      // Race the dictionary against a short grace period. Never leave dictPromise unhandled.
-      const raced = await Promise.race([
-        dictPromise.then(r => ({ kind: 'dict', r }), e => ({ kind: 'err', e })),
-        new Promise(res => setTimeout(() => res({ kind: 'slow' }), LOCAL_GRACE_MS)),
-      ]);
-      if (raced.kind === 'dict') return raced.r;
-      if (raced.kind === 'err') return local;      // dictionary failed -> local is the best answer
-      dictPromise.catch(() => {});                 // dictionary still in flight -> let it warm the cache
-      return local;                                // slow upstream -> answer instantly from local
+    // Bound the wait. The dictionary request is never abandoned — it is left to settle so the
+    // Redis cache gets warmed for the next attempt.
+    let budgetId
+    const budget = new Promise((_, reject) => {
+      budgetId = setTimeout(() => reject(new Error('TIMEOUT')), DICT_BUDGET_MS)
+    })
+    try {
+      return await Promise.race([dictPromise, budget])
+    } finally {
+      clearTimeout(budgetId)
+      dictPromise.catch(() => {}) // swallow if it settles after we already gave up
     }
-
-    return await dictPromise;
   }
 }

@@ -14,6 +14,10 @@
 const path = require("path");
 const fs = require("fs");
 const H = require(path.join(__dirname, "..", "v8", "ui", "lib.js"));
+// audit-v17 F-17-17: the output path used to hardcode `audit-v15-full`, so every later round
+// wrote its focused-probe.json into the v15 folder. Use the shared config instead — the audit
+// namespace is DATA (`--audit`), never a literal in the harness.
+const { OUT } = require("./_config.js");
 
 const COMPOSITE_FN = `
 function parseColor(s){ const m=/rgba?\\(([^)]+)\\)/.exec(s||''); if(!m) return null;
@@ -185,6 +189,7 @@ const targets = `(sel) => {
   }
 
   await browser.close();
-  fs.writeFileSync(path.join(__dirname, "..", "..", ".specify", "specs", "audit-v15-full", "evidence", "focused-probe.json"), JSON.stringify(out, null, 2));
-  console.log("\nwritten focused-probe.json");
+  fs.mkdirSync(OUT, { recursive: true });
+  fs.writeFileSync(path.join(OUT, "focused-probe.json"), JSON.stringify(out, null, 2));
+  console.log("\nwritten focused-probe.json -> " + OUT);
 })();

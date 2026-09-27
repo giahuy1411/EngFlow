@@ -109,6 +109,7 @@ def main():
     deleted = "?"
     had_err = False
     bad_rejected = False
+    replay_rejected = False
     restored = "?"
     try:
         # 4) post the webhook with a VALID signature
@@ -128,6 +129,16 @@ def main():
                                 headers={"X-Sepay-Signature": "sha256=" + "0" * 64, "X-Sepay-Timestamp": ts})
         bad_rejected = ("Invalid signature" in body_bad) or ('"success":false' in body_bad.replace(" ", ""))
         print("webhook(bad sig):", st_bad, body_bad[:160], "-> rejected:", bad_rejected)
+
+        # 6b) REPLAY WINDOW control (C6): a signature that is VALID for its payload but carried over
+        #     a >5-minute-old timestamp must be refused (PaymentService.REPLAY_WINDOW_MS = 5*60*1000).
+        #     This is the assertion the plan asked for — it proves the window, not just the digest.
+        old_ts = str(int(time.time()) - 600)  # 10 minutes old
+        old_sig = "sha256=" + hmac.new(secret.encode(), (old_ts + "." + raw).encode(), hashlib.sha256).hexdigest()
+        st_old, body_old = post("/api/webhook/sepay", raw,
+                                headers={"X-Sepay-Signature": old_sig, "X-Sepay-Timestamp": old_ts})
+        replay_rejected = ("Invalid signature" in body_old) or ('"success":false' in body_old.replace(" ", ""))
+        print("webhook(stale-but-valid sig):", st_old, body_old[:160], "-> rejected:", replay_rejected)
     finally:
         # 7) CLEANUP (always) — delete exactly the row this probe created, by orderCode,
         #    and RESTORE the user's premium fields to their pre-run values.
@@ -142,7 +153,8 @@ def main():
         restored = (re.search(r"RESTORED=(\d+)", r) or [None, "?"])[1]
         print("cleanup: premium restored=%s (isPremium=%s expiry=%s)" % (restored, prem_before, exp_before))
 
-    ok = (status == "SUCCESS") and (deleted == "1") and not had_err and bad_rejected and (restored == "1")
+    ok = (status == "SUCCESS") and (deleted == "1") and not had_err and bad_rejected \
+        and replay_rejected and (restored == "1")
     print("G6 RESULT:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 

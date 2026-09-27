@@ -14,18 +14,16 @@ import java.util.List;
  */
 public interface VocabularyRepository extends JpaRepository<Vocabulary, Long> {
     List<Vocabulary> findByLessonId(Long lessonId);
-    List<Vocabulary> findByWordContainingIgnoreCase(String word);
 
     /**
-     * audit-v17 F-17-05: exact (case-insensitive) word match, for the local fast path.
+     * Case-insensitive substring match backing the public {@code /api/vocabulary/search} endpoint.
      *
-     * <p>The dictionary lookup can take ~20 s when the upstream is cold (measured 20.7 s), and
-     * the failure path is not cached. When the word is already in the local vocabulary table we
-     * can answer in single-digit milliseconds instead of waiting on the network. This is an
-     * exact match — {@link #findByWordContainingIgnoreCase} is a leading-wildcard LIKE, which
-     * would return the wrong rows to "settle" a lookup.
+     * <p>audit-v17 closing round: the exact-match sibling ({@code findByWordIgnoreCase}) was
+     * removed with the local lookup fallback. The dictionary is now the only tra-từ source; this
+     * table stays the DECK store (deck_words / user_vocabulary_progress) and is not on the
+     * lookup path any more.
      */
-    List<Vocabulary> findByWordIgnoreCase(String word);
+    List<Vocabulary> findByWordContainingIgnoreCase(String word);
 
     void deleteByLessonId(Long lessonId);
 }

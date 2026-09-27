@@ -54,12 +54,20 @@ làm mất audio/nghĩa 118 từ (MEDIUM, **đảo thiết kế**) · **F-17-21*
 không hoàn nguyên premium · **F-17-23** negative control không assert · **F-17-24** G7 dùng  UTC sai giờ ·
 **F-17-25** probe thiếu try/finally · **F-17-26** cosmetic. Thêm **8 test** mới + **mutation-test** chứng minh.
 
-## 6. Còn lại (nói thật)
+## 6. Còn lại (nói thật) — **ĐÃ ĐÓNG ở CLOSING ROUND 2026-09-27**
 
-- **Playwright MCP**: cấu hình đã đúng + **đã chứng minh bằng probe ngoài session**; tool **trong session này** cần
-  **restart session** để nạp args mới (MCP spawn lúc bắt đầu session).
-- **F-17-05 phần "từ không có local"**: vẫn ~20 s (đặc tính upstream) — khuyến nghị warm cache trước demo.
-- **F-17-16/17**: 2 drift harness nhỏ, ghi nhận chưa sửa.
-- **Speaking test dùng audio TTS** (không phải giọng người) — chứng minh pipeline chạy thật, không chứng minh chất
-  lượng với giọng người.
-- **SePay/speaking là test LOCAL** với secret local — **không phải** tiền thật / production.
+> Xem `CLOSING-ROUND.md`. Tất cả các mục dưới đây đã được đóng nốt; giữ lại đây để đối chiếu lịch sử.
+
+- ~~**Playwright MCP**: cần restart session~~ → **ĐÓNG:** cấu hình env `PLAYWRIGHT_MCP_EXECUTABLE_PATH`
+  (+ `--executable-path` trong plugin `.mcp.json`) đã **chứng minh** chạy (`C1 ENV ROUTE PASS: true`).
+- ~~**F-17-05 phần "từ không có local"**: vẫn ~20 s~~ → **ĐÓNG:** tra từ nay **chỉ** dùng từ điển (bỏ local
+  khỏi đường tra) + **trần chờ 6 s** (cold 19.99 s → warm 0.032 s; UI không còn treo).
+- ~~**F-17-16/17**: 2 drift harness~~ → **FIXED** + thêm 2 static guard (`assert-harness` check 6/7).
+- ~~**Speaking test dùng audio TTS**~~ → **ĐÓNG:** `g8-speaking-human-audio.py` chấm **giọng người thật**
+  (recall 0.97, tự dọn, object gốc nguyên vẹn).
+- ~~**SePay/speaking là test LOCAL**~~ → vẫn đúng và **được nói rõ**; thêm **assert replay window** + gỡ
+  `blocked` lỗi thời ở `api-sweep` (145/0/0).
+
+**Giới hạn vẫn còn (không giấu):** tra từ vẫn phụ thuộc upstream (trần chờ chỉ ngăn *treo*); file giọng người
+**có sẵn local**, không phải phiên production; SePay dùng **secret local**, không phải tiền thật; tool Playwright
+MCP **trong session này** cần restart để nạp lại cấu hình.

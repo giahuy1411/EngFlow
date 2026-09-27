@@ -38,7 +38,7 @@ function arg(name, def) {
   const i = process.argv.indexOf("--" + name);
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
-const AUDIT = arg("audit", "audit-v15-full");
+const AUDIT = arg("audit", "audit-v17-full");
 const OUT_DIR = arg("out", path.join(__dirname, "..", "..", ".specify", "specs", AUDIT, "evidence"));
 
 const R = { pass: 0, fail: 0, blocked: 0, n_a: 0, findings: [], areas: {}, probed: [] };
@@ -536,7 +536,43 @@ const login = async ({ email, password }) => {
     // Replay: a signature over a STALE timestamp must also be refused, even if it were valid.
     const stale = await req("POST", "/api/webhook/sepay", { body: { id: 2, transferAmount: 999999 }, headers: { "X-Sepay-Signature": "sha256=deadbeef", "X-Sepay-Timestamp": "1" } });
     check("  stale timestamp also refused", stale.data?.success === false, `body=${JSON.stringify(stale.data)}`);
-    blocked("webhook with VALID HMAC signature", "mutates a real payment_transactions row — real-money boundary (v11 proved it with cleanup; not repeated)");
+
+    // audit-v17 closing round (C6): the old line here was
+    //   blocked("webhook with VALID HMAC signature", "… real-money boundary …")
+    // — stale. A valid signature IS testable without touching real money: sign a payload whose
+    // orderCode has NO pending row, so PaymentService verifies the HMAC (proving acceptance) and
+    // then returns "No pending order" WITHOUT mutating any row or premium state. We also prove the
+    // replay window: the same valid HMAC over a >5-minute-old timestamp must be refused as
+    // "Invalid signature". Nothing is created, so there is nothing to clean up.
+    const secret = (() => {
+      try {
+        const env = fs.readFileSync(path.join(__dirname, "..", "..", ".env"), "utf8");
+        const m = /^SEPAY_WEBHOOK_SECRET=(.*)$/m.exec(env);
+        return m ? m[1].trim().replace(/^["']|["']$/g, "") : null;
+      } catch { return null; }
+    })();
+    if (!secret) {
+      na("webhook with VALID HMAC signature", "SEPAY_WEBHOOK_SECRET not present in .env");
+    } else {
+      const crypto = require("crypto");
+      const ghostCode = "ENGZZZZZZZZZZZZ";                 // valid token shape, no PENDING row
+      const rawBody = JSON.stringify({ id: 991700009, transferAmount: 10000, content: "AUDIT-V17-C6 " + ghostCode, gateway: "AUDIT-V17-C6" });
+      const sign = (ts) => "sha256=" + crypto.createHmac("sha256", secret).update(ts + "." + rawBody).digest("hex");
+
+      const now = String(Math.floor(Date.now() / 1000));
+      const valid = await req("POST", "/api/webhook/sepay", { body: rawBody, raw: true, headers: { "Content-Type": "application/json", "X-Sepay-Signature": sign(now), "X-Sepay-Timestamp": now } });
+      // A valid signature gets PAST isSignatureValid, so the error must be the business one
+      // ("No pending order"), never "Invalid signature".
+      check("POST /api/webhook/sepay VALID HMAC accepted (reaches business logic, no row mutated)",
+        valid.status === 200 && valid.data?.success === false && /No pending order/i.test(String(valid.data?.error || "")),
+        `status=${valid.status} body=${JSON.stringify(valid.data)}`);
+
+      const old = String(Math.floor(Date.now() / 1000) - 600);  // 10 min old > 5 min REPLAY_WINDOW_MS
+      const replay = await req("POST", "/api/webhook/sepay", { body: rawBody, raw: true, headers: { "Content-Type": "application/json", "X-Sepay-Signature": sign(old), "X-Sepay-Timestamp": old } });
+      check("  valid HMAC over a STALE timestamp (>5 min) refused by the replay window",
+        replay.status === 200 && replay.data?.success === false && /Invalid signature/i.test(String(replay.data?.error || "")),
+        `status=${replay.status} body=${JSON.stringify(replay.data)}`);
+    }
   }
 
   // ═══════════════════════════════════════════════════ CLEANUP (same run) + PARITY

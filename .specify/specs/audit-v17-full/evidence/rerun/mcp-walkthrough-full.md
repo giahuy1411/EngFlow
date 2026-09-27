@@ -1,5 +1,8 @@
 # audit-v17-full (rerun) — Phase U': đi sâu logic MỌI chức năng qua UI/UX (MCP)
 
+> **⚠️ RIÊNG dòng U'-6 (tra từ F-17-05) ĐÃ THAY THẾ (closing round 2026-09-27):** đường tra từ nay **chỉ** dùng
+> từ điển (đã gỡ `search?exact=true`). Xem `c2-dictionary-only.md`. Các dòng khác vẫn đúng.
+
 chrome-devtools MCP (engine 1) + probe `playwright-core` (engine 2). Mỗi luồng: bấm thật → console → network →
 đối chiếu API↔UI. **Dọn residue trong cùng run.**
 

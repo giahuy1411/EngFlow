@@ -46,3 +46,29 @@
 > (TaskStop) để không chặn công việc. Vì vậy **kết quả ở bảng trên là của phần TỰ REVIEW (nguồn #2)** — đã chạy
 > thật, có test + mutation-test + probe UI, **không** phải suy đoán. Khi nào subagent trả kết quả thì đối chiếu bổ
 > sung; mọi claim của reviewer vẫn phải **kiểm lại bằng code/test** trước khi hành động (kỷ luật v17).
+
+---
+
+## Vòng review chéo cho CLOSING ROUND (2026-09-27)
+
+**Nguồn #1 (subagent `general-purpose`, refute-first):** 3 lần thử **đều chết vì lỗi API của nhà cung cấp**
+(`API returned an empty or malformed response (HTTP 200)` — lỗi hạ tầng proxy/gateway, **không phải** finding).
+Ghi lại trung thực: **không** nhận được kết quả subagent cho vòng này.
+
+**Nguồn #2 (tự review, refute-first):** thay thế, chạy thật. Kết quả — **bắt được 1 defect THẬT trong chính guard mới**:
+
+- **F-17-30 (tự review bắt) — `assert-harness` check 6 QUÁ YẾU:** bản đầu chỉ kiểm "default trỏ một thư mục
+  **có thật**". Nhưng `audit-v15-full/` **vẫn tồn tại**, nên nếu ai **revert** default về `audit-v15-full`,
+  check 6 **vẫn PASS** ⇒ guard **KHÔNG** thực sự bắt được F-17-16 như tài liệu claim.
+  **Sửa:** check 6 nay so với **vòng cao nhất** (`audit-vN-full` max N dưới `.specify/specs/`).
+  **Mutation-test:** revert default → v15 ⇒ `FAIL  default=audit-v15-full latest=audit-v17-full` (đã khôi phục → CLEAN).
+
+Đã refute thêm (không tìm thấy defect):
+- **check 7** trên 20 file thật: **0 false positive**; regex **bắt** đúng cả 2 dạng hardcode
+  (`path.join(...,"audit-v15-full",...)` và chuỗi `.specify/specs/audit-v16-full/...`), **bỏ qua** `require("./_config.js").OUT`.
+- **vocabularyService contract:** 10/10 — `clearTimeout` trong `finally`, `dictPromise.catch` nuốt rejection muộn,
+  budget reject `TIMEOUT`, race đúng, **không** còn `/api/vocabulary/search`/`exact=true`, AbortError→TIMEOUT,
+  non-ok→NETWORK_ERROR, 404→`[]`, proxy non-array→`[]`.
+- **Replay window:** `skew=600000 > 300000` ⇒ từ chối đúng **lý do replay** (trước digest), fresh `skew=0` không trip.
+- **api-sweep scope:** `fs`/`path` (dòng 20-21), `na()` (dòng 88), `require("crypto")` đều trong scope; `raw:true`
+  gửi đúng byte đã ký (đã chạy thật: **145/0/0**).

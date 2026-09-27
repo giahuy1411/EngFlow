@@ -153,9 +153,29 @@ C-17-01 thứ tự fallback). Mọi `file:line` trong doc đã đối chiếu.
 `debugging-and-error-recovery`, `security-and-hardening`, `source-driven-development`, `test-driven-development`.
 **MCP:** `chrome-devtools` (`new_page`, `take_snapshot`, `click`, `fill`, `fill_form`, `evaluate_script`,
 `list_console_messages`, `list_network_requests`, `get_network_request`, `take_screenshot`, `wait_for`) — **đã dùng thật**.
-**MCP BLOCKED:** `playwright` (`browser_navigate` → lỗi Chrome channel) — ghi lại, không thay thế im lặng.
+**Playwright MCP:** vòng đầu BLOCKED (Chrome channel); **rerun + closing round đã UNBLOCK** — cấu hình env
+`PLAYWRIGHT_MCP_EXECUTABLE_PATH` (+ `--executable-path` trong plugin `.mcp.json`), chứng minh `browser_navigate` OK.
 **Agent:** `Explore` ×3 (map backend/frontend/infra), `Plan` (thiết kế orchestration), `general-purpose` (review chéo đối kháng).
 **Workflow:** kỷ luật ultracode (pipeline-over-claims + 2 lens độc lập cho Phase D; mutation-test cho test mới).
+
+---
+
+## 6b. CLOSING ROUND (2026-09-27) — đóng nốt 5 mục "Còn lại"
+
+Chi tiết: `evidence/rerun/CLOSING-ROUND.md`. Tóm tắt:
+
+| # | Việc | Kết quả |
+|---|---|---|
+| C1 | Playwright MCP | **UNBLOCKED** — env `PLAYWRIGHT_MCP_EXECUTABLE_PATH` + `--executable-path`; `C1 ENV ROUTE PASS: true` |
+| C2 | Tra từ = **từ điển là nguồn duy nhất** (chốt người dùng) | **FIXED** — gỡ local khỏi đường tra; cold 19.99 s → warm 0.032 s; UI tra chỉ gọi `/dictionary/*`; decks/SRS/game/AI vẫn xanh |
+| C3 | F-17-16 `_config.js` default | **FIXED** + guard check 6 |
+| C4 | F-17-17 `focused-probe.js` hardcode | **FIXED** + guard check 7 |
+| C5 | Speaking **giọng người thật** | **PASS** — `g8-speaking-human-audio.py`, recall **0.97**, tự dọn, gốc nguyên vẹn |
+| C6 | SePay replay window + gỡ `blocked` lỗi thời | **PASS** — replay cũ bị từ chối; `api-sweep` **145/0/0** |
+
+**Kết quả cuối:** backend **520/0/0/11**, frontend **192/1 skip**, build ✓, api-sweep **145/0/0**,
+deep-probe **58/0/0**, ui-sweep exit 0, parity `1470|43738|5|118|29|4|3|12|10` + `STUDY_DAYS=4
+PENDING_PAYMENTS=0 EXERCISE_ATTEMPTS=33` → **CLEAN**. **0 regression.**
 
 ---
 

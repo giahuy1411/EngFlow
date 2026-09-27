@@ -1,5 +1,5 @@
 {
-  "at": "2026-09-26T14:55:06.666Z",
+  "at": "2026-09-26T18:14:32.733Z",
   "app": "http://localhost:5173",
   "runs": 3,
   "playwrightFrom": "C:\\Users\\ASUS\\Documents\\LAPTRINH\\engflow\\scripts\\figma-export\\node_modules\\playwright-core",
@@ -18,7 +18,7 @@
         "/"
       ],
       "worstEntry": {
-        "t": 752,
+        "t": 742,
         "v": 0.0005,
         "sources": [
           "A.app-btn.app-btn--secondary.app-btn--lg",
@@ -97,7 +97,7 @@
       "route": "/lessons",
       "clsMedian": 0.00095,
       "clsRuns": [
-        0.00095,
+        0.00094,
         0.00095,
         0.00095
       ],
@@ -107,7 +107,7 @@
         "/lessons"
       ],
       "worstEntry": {
-        "t": 621,
+        "t": 655,
         "v": 0.00071,
         "sources": [
           "DIV.flex.flex-wrap.gap-2",
@@ -163,7 +163,7 @@
       },
       "perRun": [
         {
-          "cls": 0.00095,
+          "cls": 0.00094,
           "armed": true,
           "entries": 3,
           "url": "/lessons"
@@ -196,7 +196,7 @@
         "/login"
       ],
       "worstEntry": {
-        "t": 743,
+        "t": 652,
         "v": 0.00003,
         "sources": [
           "#text",

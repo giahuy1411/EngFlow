@@ -16,6 +16,10 @@
  *      audit-v15 F-15-09 defect: ui-sweep minted payment rows with no cleanup).
  *   5. The harness-restore record exists and is non-empty — a fix made in one round
  *      must be written down, or the next round rebuilds blind (the L2 mechanism).
+ *   6. _config.js's default audit round names a directory that exists (F-17-16) —
+ *      a stale default silently writes evidence into a previous round's folder.
+ *   7. No harness hardcodes an audit round path outside _config.js (F-17-13/16/17
+ *      were one class: the audit namespace written as a literal instead of read).
  *
  * Run: node sweep/harness/assert-harness.js [--audit <name>]
  * Exit 0 = all clean; 1 = at least one problem (each printed).
@@ -154,6 +158,51 @@ function suiteFiles() {
     detail = ok ? body.length + " chars" : "too short or missing Source/Fix sections";
   }
   check("harness-restore.md exists, non-empty, documents source + fixes", ok, detail);
+}
+
+// ── 6. _config.js default must point at the LATEST audit round (F-17-16) ─────
+{
+  // The default used to still say `audit-v15-full` several rounds later, so a probe run without
+  // `--audit` wrote its evidence into a previous round's folder. Asserting only that the named
+  // directory EXISTS is too weak — every old round's folder still exists, so a reverted default
+  // would pass. The default must be the HIGHEST-numbered `audit-vN-full` under .specify/specs/.
+  const src = fs.readFileSync(path.join(HARNESS_DIR, "_config.js"), "utf8");
+  const m = /arg\(\s*["']audit["']\s*,\s*["']([^"']+)["']\s*\)/.exec(src);
+  const def = m ? m[1] : null;
+  const specs = path.join(ROOT, ".specify", "specs");
+  const rounds = fs.existsSync(specs)
+    ? fs.readdirSync(specs)
+        .map((n) => /^audit-v(\d+)-full$/.exec(n))
+        .filter(Boolean)
+        .map((r) => ({ name: r[0], num: +r[1] }))
+    : [];
+  const latest = rounds.sort((a, b) => b.num - a.num)[0];
+  check("_config.js default audit round is the LATEST round",
+    !!def && !!latest && def === latest.name,
+    def ? `default=${def} latest=${latest ? latest.name : "none"}` : "no default found");
+}
+
+// ── 7. no harness may hardcode an audit round name (F-17-17 class) ───────────
+{
+  // F-17-13 / F-17-16 / F-17-17 were one class: the audit namespace written as a literal in code
+  // instead of read from _config.js. Any `.specify/specs/audit-.../` literal outside _config.js is
+  // that defect recurring. (routes-from-router.js mentions one only in a doc comment — comments and
+  // a leading `*`/`//` are ignored, exactly as check 3 does.)
+  const hits = [];
+  for (const f of suiteFiles()) {
+    const base = path.basename(f);
+    if (base === "_config.js") continue;                          // the single source of truth
+    const src = fs.readFileSync(f, "utf8");
+    src.split("\n").forEach((text, i) => {
+      if (/^\s*(\/\/|\*|--)/.test(text)) return;                  // a comment may explain history
+      if (/["'`]\.specify["'`]\s*,\s*["'`]specs["'`]\s*,\s*["'`]audit-v\d+-full["'`]/.test(text) ||
+          /["'`]\.specify\/specs\/audit-v\d+-full/.test(text)) {
+        hits.push(base + ":" + (i + 1) + " hardcoded audit path");
+      }
+    });
+  }
+  check("no harness hardcodes an audit round path outside _config.js",
+    hits.length === 0, hits.slice(0, 8).join(" ; "));
 }
 
 console.log("\n=== assert-harness: " + (problems.length === 0 ? "ALL CLEAN" : problems.length + " PROBLEM(S)") + " ===");

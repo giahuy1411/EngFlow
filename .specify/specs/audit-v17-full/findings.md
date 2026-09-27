@@ -202,14 +202,21 @@ constructor; thay hardcode.
 | F-17-02 | LOW (UX/docs) | Guard `<2` chỉ backend; UI gọi tra 1 ký tự | `FIXED` |
 | F-17-03 | LOW (docs) | Nút "Kiểm tra" vs doc "Chấm thử" | `OPEN` (fix doc) |
 | F-17-04 | LOW (docs) | `correctAnswer` có mặt nhưng null | `OPEN` (fix doc) |
-| F-17-05 | MED (UX) | Từ điển ngoài ~20 s cache lạnh | `OPEN` (đặc tính) |
-| F-17-06 | LOW (harness) | ui-sweep đếm YouTube warn thành error | `OPEN` |
-| F-17-07 | LOW (harness) | `exercise_attempts` không được dọn/parity | `OPEN` |
+| F-17-05 | MED (UX) | Từ điển ngoài ~20 s cache lạnh | `FIXED` (bounded wait + từ điển là nguồn duy nhất — closing round) |
+| F-17-06 | LOW (harness) | ui-sweep đếm YouTube warn thành error | `CLOSED (probe SAI)` — text thật `ERR_UNSAFE_REDIRECT`, 4× không tái hiện |
+| F-17-07 | LOW (harness) | `exercise_attempts` không được dọn/parity | `FIXED` |
 | F-17-08 | — | Claim tier-order SAI | `CLOSED (probe SAI)` |
 | F-17-09 | LOW (a11y) | Fallback `#64748B` còn sót (review bắt) | `FIXED` |
 | F-17-10 | LOW (test) | Test F-17-02 false-pass (review bắt) | `FIXED` |
 | **F-17-11** | **MED** | **AI vocab 500 khi model sinh newline thô** | `FIXED` |
 | **F-17-12** | **MED** | **AI vocab timeout hardcode 30 s** | `FIXED` |
+| F-17-13 | LOW (harness) | `ui-sweep` tên ảnh cứng `v13-*` | `FIXED` |
+| F-17-16 | LOW (harness) | `_config.js` default `audit-v15-full` | `FIXED` (closing round) |
+| F-17-17 | LOW (harness) | `focused-probe.js` hardcode `audit-v15-full` | `FIXED` (closing round) |
+| **F-17-27** | **MED (UX)** | **Tra từ còn bước fallback DB local** | `FIXED` (closing round) |
+| F-17-28 | LOW (harness) | `api-sweep` còn `blocked` webhook HMAC (lỗi thời) | `FIXED` (closing round) |
+| F-17-29 | LOW (harness) | `mc()` probe G8 trả sai stream | `FIXED` (closing round) |
+| F-17-30 | LOW (harness) | check 6 quá yếu (không bắt F-17-16) | `FIXED` (closing round, tự review) |
 
 ---
 
@@ -261,13 +268,45 @@ Chạy lại **toàn bộ** chuỗi v17 + mở rộng (đóng các mục "Chưa 
 **Fix:** đọc `media_object_key` **từ DB trước khi** xoá row; đã **xoá object orphan**; chạy lại → `Removed …`,
 `minio object gone: True`.
 
-### F-17-16 — `_config.js` mặc định còn trỏ `audit-v15-full` — **LOW (harness)** — `OPEN` (ghi nhận)
+### F-17-16 — `_config.js` mặc định còn trỏ `audit-v15-full` — **LOW (harness)** — `FIXED` (closing round)
 **Bằng chứng:** `sweep/harness/_config.js:34` `arg("audit", "audit-v15-full")` — lệch 2 vòng so với thực tế.
-Chưa sửa vì mọi lệnh đều truyền `--audit` tường minh; ghi để vòng sau (tránh ghi nhầm evidence dir khi quên cờ).
+**Fix:** default → `audit-v17-full`; thêm **check 6** vào `assert-harness.js` (FAIL nếu default không trỏ thư mục
+có thật). Chạy: `PASS  _config.js default audit round exists  -- default=audit-v17-full`.
 
-### F-17-17 — `focused-probe.js:188` hardcode `audit-v15-full` — **LOW (harness)** — `OPEN` (ghi nhận)
-Cùng lớp F-17-13 nhưng ở file khác (`path.join(..., "audit-v15-full", "evidence", "focused-probe.json")`);
-không dùng `_config.js.OUT`. Ghi nhận.
+### F-17-17 — `focused-probe.js:188` hardcode `audit-v15-full` — **LOW (harness)** — `FIXED` (closing round)
+Cùng lớp F-17-13 nhưng ở file khác (`path.join(..., "audit-v15-full", "evidence", "focused-probe.json")`).
+**Fix:** dùng `require("./_config.js").OUT`; thêm **check 7** vào `assert-harness.js` (cấm literal
+`.specify/specs/audit-vN-full` ngoài `_config.js`). Chạy: `PASS  no harness hardcodes an audit round path outside _config.js`.
+
+---
+
+## CLOSING ROUND (2026-09-27) — đóng nốt 5 mục "Còn lại"
+
+### F-17-27 — Tra từ còn bước fallback DB local trên đường tra — **MEDIUM (UX)** — `FIXED`
+**Bằng chứng:** sau vòng rerun, `vocabularyService.backendFallback()` bước 2 vẫn gọi
+`/api/vocabulary/search` khi proxy trả `[]` ⇒ bảng local (0/118 có audio, 1 nghĩa) vẫn có thể **thắng**
+một tra từ. Trái quyết định "từ điển là nguồn duy nhất".
+**Fix:** gỡ hẳn bước DB fallback + helper `mapBackendRows` + `exact` param + `findByWordIgnoreCase`;
+thêm trần chờ `DICT_BUDGET_MS=6000`. Đo: cold 19.99 s → warm 0.032 s; UI tra chỉ gọi
+`/api/vocabulary/dictionary/*` (không có `/api/vocabulary/search`); decks/SRS/game/flashcard/AI vẫn xanh
+→ `c2-dictionary-only.md`.
+
+### F-17-28 — `api-sweep` còn đánh dấu webhook HMAC hợp lệ là `blocked` (lỗi thời) — **LOW (harness)** — `FIXED`
+**Bằng chứng:** `sweep/v12/api-sweep.js:539` `blocked("webhook with VALID HMAC signature", "real-money boundary")`
+— đã **sai** từ vòng rerun (G6 chứng minh test được, tự dọn).
+**Fix:** thay bằng **assert thật không đụng tiền thật** (ký hợp lệ payload có orderCode không tồn tại → server
+qua verify rồi trả `"No pending order"`, không mutate) + **replay cũ bị từ chối**. `api-sweep`: **145/0/0**
+(trước 143/0/1). Cũng thêm ca replay-window vào `g6-sepay-signed.py`.
+
+### F-17-29 — `mc()` trong probe G8 trả sai stream — **LOW (harness)** — `FIXED`
+**Bằng chứng:** `mc rm`/`mc stat` in ra **stdout**, nhưng helper trả stderr ⇒ kiểm tra "object gone" là may mắn.
+**Fix:** `mc()` trả `(stdout_bytes, stdout+stderr_text)`; kiểm tra gốc bằng **so byte-length** khi tải lại.
+
+### F-17-30 — `assert-harness` check 6 QUÁ YẾU (không thật sự bắt F-17-16) — **LOW (harness)** — `FIXED`
+**Bằng chứng (tự review refute-first bắt):** bản đầu chỉ kiểm "default trỏ thư mục **có thật**"; nhưng
+`audit-v15-full/` **vẫn tồn tại** ⇒ **revert** default về v15 **vẫn PASS**. Guard không như tài liệu claim.
+**Fix:** check 6 so với **vòng cao nhất** `audit-vN-full`; **mutation-test**: revert v15 → `FAIL default=audit-v15-full latest=audit-v17-full`.
+
 
 ---
 
