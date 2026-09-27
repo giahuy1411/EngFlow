@@ -46,12 +46,11 @@ class SePayApiServiceTest {
 
     private final String apiToken = "test-api-token";
     // audit-v17 L3-C6-a: the base URL is now a constructor arg; the default is the production host.
-    private static final String API_BASE = "https://my.sepay.vn/userapi";
-    private static final String LIST_URL = API_BASE + "/transactions/list";
+    private static final String LIST_URL = "https://my.sepay.vn/userapi/transactions/list";
 
     @BeforeEach
     void setUp() {
-        sePayApiService = new SePayApiService(restTemplate, objectMapper, apiToken, API_BASE);
+        sePayApiService = new SePayApiService(restTemplate, objectMapper, apiToken);
     }
 
     private void stubResponse(String json) {
@@ -228,7 +227,7 @@ class SePayApiServiceTest {
     @Test
     void findTransactionByOrderCode_tokenNotConfigured_skipsHttpCall() {
         // Given - service constructed without a token
-        SePayApiService noTokenService = new SePayApiService(restTemplate, objectMapper, "", API_BASE);
+        SePayApiService noTokenService = new SePayApiService(restTemplate, objectMapper, "");
 
         // When
         Optional<Map<String, Object>> result =
@@ -242,25 +241,22 @@ class SePayApiServiceTest {
     @Test
     void isTokenConfigured_reflectsConstructorState() {
         assertThat(sePayApiService.isTokenConfigured()).isTrue();
-        SePayApiService noTokenService = new SePayApiService(restTemplate, objectMapper, "  ", API_BASE);
+        SePayApiService noTokenService = new SePayApiService(restTemplate, objectMapper, "  ");
         assertThat(noTokenService.isTokenConfigured()).isFalse();
     }
 
     @Test
-    void blankApiBaseUrl_fallsBackToProductionHost_notARelativeUri() {
-        // .env.example ships SEPAY_API_BASE_URL blank, and `${X:default}` does NOT fall back when X is
-        // present-but-empty. A blank base would build the relative URI "/transactions/list", which
-        // RestTemplate rejects with "URI is not absolute" on every poll — silently disabling the
-        // fallback. A blank value must therefore use the production host.
+    void transactionsListUrl_isTheProductionHost_constant() {
+        // The host is a constant again (the configurable `sepay.api-base-url` was removed — it was
+        // dead config for a sandbox that is not used, and a blank value produced a relative URI).
+        // Assert the service actually calls the production URL.
         when(restTemplate.exchange(eq(LIST_URL + "?amount_in=10000&limit=20"),
                 eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
                 .thenReturn(new ResponseEntity<>(documentedResponse("T1", "ENGABCDEF123456"), HttpStatus.OK));
 
-        SePayApiService blankBase = new SePayApiService(restTemplate, objectMapper, apiToken, "");
         Optional<Map<String, Object>> result =
-                blankBase.findTransactionByOrderCode("ENGABCDEF123456", new BigDecimal("10000"));
+                sePayApiService.findTransactionByOrderCode("ENGABCDEF123456", new BigDecimal("10000"));
 
-        // It reached the PRODUCTION url (stubbed above) rather than failing on a relative URI.
         assertThat(result).isPresent();
     }
 }

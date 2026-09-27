@@ -44,6 +44,19 @@ class DictionaryWarmupServiceTest {
     }
 
     @Test
+    void readWords_isTheNgslList_cleanAndDeduplicated() throws Exception {
+        // audit-v17 follow-up: the hand-entered list was replaced by the NGSL 1.2 (2,809 words,
+        // CC BY-SA 4.0 — see the file header + README). Pin its shape so a bad regeneration fails.
+        List<String> words = warmup.readWords();
+        assertThat(words).hasSize(2809);
+        assertThat(words).doesNotHaveDuplicates();
+        // Every entry is a plain lower-case token (no spaces, digits, or stray punctuation).
+        assertThat(words).allSatisfy(w -> assertThat(w).matches("[a-z'-]+"));
+        // Frequency-ordered: the NGSL's most frequent word is "the".
+        assertThat(words.get(0)).isEqualTo("the");
+    }
+
+    @Test
     void runWarmup_callsLookupOncePerWord_serially_upToTheCap() throws Exception {
         ReflectionTestUtils.setField(warmup, "limit", 5);
         when(dictionaryService.lookup(anyString())).thenReturn("[{\"word\":\"x\"}]");

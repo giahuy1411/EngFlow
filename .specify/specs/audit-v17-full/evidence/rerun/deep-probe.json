@@ -107,7 +107,7 @@
       "area": "mc-guard",
       "name": "  real-row copy response",
       "status": "INFO",
-      "detail": "{\"audioUrl\":null,\"correctAnswer\":\"A - Salad\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":null,\"id\":808451,\"imageUrl\":"
+      "detail": "{\"audioUrl\":null,\"correctAnswer\":\"A - Salad\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":null,\"id\":808486,\"imageUrl\":"
     },
     {
       "area": "mc-guard",
@@ -254,7 +254,7 @@
       "area": "contract",
       "name": "(6) ai/generate-vocab",
       "status": "INFO",
-      "detail": "status=200 body=[{\"id\":null,\"word\":\"travel\",\"pronunciation\":\"træˈliː\",\"meaning\":\"du lịch\",\"exampleSentence\":\"I plan to travel to Europe next month.\",\"audioUrl\":null,\"imageUrl\":"
+      "detail": "status=200 body=[{\"id\":null,\"word\":\"travel\",\"pronunciation\":\"trævəl\",\"meaning\":\"du lịch\",\"exampleSentence\":\"I like to travel to different countries.\",\"audioUrl\":null,\"imageUrl\""
     },
     {
       "area": "contract",
@@ -421,7 +421,7 @@
     }
   },
   "mcGuard": {
-    "lessonId": 134592,
+    "lessonId": 134624,
     "badLetter": 400,
     "good": 200,
     "dash": 200,
@@ -536,7 +536,7 @@
       "descStatus": 200
     }
   ],
-  "deepDeckId": 80230,
+  "deepDeckId": 80235,
   "cleanup": {
     "studyDays": 0,
     "lessons": 0,

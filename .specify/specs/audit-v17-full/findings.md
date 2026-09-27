@@ -221,14 +221,14 @@ constructor; thay hardcode.
 | **F-17-32** | **MED (UX)** | **"Không có từ" không cache → lặp ~20 s** | `FIXED` (remove-limits L2) |
 | F-17-33 | LOW (UX) | Từ phổ biến vẫn cold ~20 s | `FIXED` (remove-limits L1-B: pre-warm) |
 | F-17-34 | LOW (harness) | Probe C5 phụ thuộc clip MinIO **có PII, không tái lập** | `FIXED` (remove-limits: fixture CC BY 4.0 trong repo) |
-| F-17-35 | LOW (config) | `SePayApiService` hardcode host production | `FIXED` (remove-limits L3-C6-a: `sepay.api-base-url`) |
+| F-17-35 | LOW (config) | `SePayApiService` hardcode host production | `REVERTED` (follow-up: không có sandbox ⇒ biến chết, đã gỡ) |
 | F-17-36 | MED (bug) | `DictionaryService` 2 constructor → Spring không khởi động được | `FIXED` (tự bắt khi chạy: bỏ constructor phụ) |
 | F-17-37 | LOW (bug) | Warm-up abort ở lần rỗng ĐẦU → dừng ở từ 1 ("of") | `FIXED` (skip từ lẻ + breaker 5 lần) |
 | F-17-38 | LOW (probe) | `l2-negative-cache-proof.py` không restore upstream | `FIXED` (finally restore + `EVAL` thay `xargs`) |
 | **F-17-39** | **HIGH** | **Ghi cache lỗi → báo "không có từ" SAI cho từ CÓ** | `FIXED` (tách `putQuietly`; mutation-test) |
 | F-17-40 | MED | Đọc cache lỗi → HTTP 500 (trái "fail-soft") | `FIXED` (bọc try, rơi xuống upstream) |
-| F-17-41 | MED | `SEPAY_API_BASE_URL` rỗng → URI tương đối → tắt ngầm poll | `FIXED` (blank = production host) |
-| F-17-42 | LOW | compose không forward `SEPAY_API_BASE_URL` | `FIXED` |
+| F-17-41 | MED | `SEPAY_API_BASE_URL` rỗng → URI tương đối → tắt ngầm poll | `REVERTED` (follow-up: gỡ hẳn biến ⇒ hết lớp bug) |
+| F-17-42 | LOW | compose không forward `SEPAY_API_BASE_URL` | `REVERTED` (follow-up: gỡ biến) |
 | F-17-43 | MED | `warmNightly` chạy trên thread scheduler → chặn job khác 67' | `FIXED` (daemon thread riêng) |
 
 ---
@@ -405,3 +405,28 @@ sau warm **~10 ms**. Serial + trần 200 + skip/breaker.
 ### F-17-37 — Warm-up abort ở lần rỗng ĐẦU → dừng ở từ 1 — **LOW (bug)** — `FIXED`
 **Bằng chứng:** `aborted at 'of' (1/500)` — "of" là hàm từ upstream không phục vụ ⇒ chính sách abort-ngay
 quá giòn. **Fix:** skip từ rỗng, chỉ dừng sau **5 lần rỗng liên tiếp**. Log thật: `25/200 (skipped 7)`.
+
+---
+
+## FOLLOW-UP (2026-09-27) — nguồn word-list + gỡ biến SePay chết
+
+### F-17-44 — Danh sách pre-warm không có provenance đứng được — **LOW (data)** — `FIXED`
+**Bằng chứng:** header `common-words.txt` tự khai *"hand-entered … the exact upstream release was NOT
+pinned; treat the ordering as approximate"*, và kích thước **849** dù header nói "1000 most common".
+**Fix:** thay bằng **NGSL 1.2** (Browne, Culligan & Phillips) — **2 809 headword**, **CC BY-SA 4.0**
+(site ghi rõ *"free … including commercial use"*), **xếp theo tần suất** (`SFI Rank`). Nguồn pin được
+(`NGSL_12_stats.csv`, ngày tải) + attribution đầy đủ trong header file và `dictionary/README.md`.
+Test mới pin shape: `hasSize(2809)`, no duplicates, `[a-z'-]+`, phần tử đầu = `the`.
+**Ghi nhận:** list xếp theo tần suất ⇒ đầu list là **hàm từ** (`the be and of …`), một số không được
+upstream phục vụ (`be` → 404) ⇒ warm-up skip — đã đo trên list cũ (`25/200 (skipped 7)`) và breaker chịu được.
+
+### F-17-35 / F-17-41 / F-17-42 — **REVERTED** (biến SePay chết)
+**Lý do:** `sepay.api-base-url` chỉ để trỏ **sandbox** SePay; người dùng **không có sandbox** ⇒ biến **chết**
+mà còn **sinh bug** (rỗng ⇒ URI tương đối ⇒ `URI is not absolute` ⇒ tắt ngầm polling). Gỡ cả biến ⇒
+hết **lớp** bug, gọn hơn là vá từng nhánh. `SePayApiService` trở lại hằng số production.
+**Câu hỏi người dùng "biến này có tác dụng gì":** chỉ đổi host **polling API** (`…/transactions/list`),
+**không** liên quan webhook / QR / chuyển khoản thật.
+
+### Demo chuyển khoản thật (không sandbox) — đã kiểm chứng khả thi
+Funnel `https://engflow-dev.tail7fd1fe.ts.net` proxy `/` → `backend:8080`; `POST /api/webhook/sepay`
+từ internet → **200**. Không cần code mới. (Theo yêu cầu người dùng: không làm gì thêm.)
