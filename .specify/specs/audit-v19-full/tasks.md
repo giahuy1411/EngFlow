@@ -28,7 +28,7 @@
 - [x] T2.5 Timezone re-verify
 - [x] T2.6 `ddl-auto=validate` drill
 - [x] T2.7 Secret-scan → `evidence/secret-scan.md`
-- [ ] T2.8 Backup trước DML (nếu có)
+- [x] T2.8 Backup trước DML (nếu có)
 
 ## Phase 3 — UI/UX automated sweep `[gate]`
 - [x] T3.1 `ui-sweep.js` → `evidence/ui-sweep.md`
@@ -37,7 +37,7 @@
 - [x] T3.4 `routes-all.js` → 0 wrong landing
 - [x] T3.5 CLS → `evidence/cls-before.json`
 - [x] T3.6 danger-tint + focused-probe + f1302-a11y
-- [ ] **T3.7 FIX harness `smallTargets` (W2)**
+- [x] **T3.7 FIX harness `smallTargets` (W2)**
 - [x] T3.8 Tự dọn + assertClean CLEAN
 
 ## Phase U — MCP thủ công MỌI chức năng, CẢ 2 ENGINE `[gate]`
@@ -51,7 +51,7 @@
 - [x] TU.7 Game/Flashcard/SRS × 2 engine
 - [x] TU.8 Speaking/Video × 2 engine
 - [x] TU.9 Leaderboard/Profile × 2 engine
-- [ ] **TU.13 Premium × 2 engine**
+- [x] **TU.13 Premium × 2 engine**
 - [x] TU.10 Admin × 2 engine
 - [x] TU.11 Home + 5 width × 2 engine
 - [x] TU.12 `mcp-walkthrough.md` + `shots/mcp/<engine>/**`
@@ -66,10 +66,10 @@
 - [x] TD.6 `analyze` giữa kỳ
 
 ## Phase W — 4 WORKSTREAM `[gate]`
-- [ ] **W1** AI gloss: sửa prompt + guard CJK + test → `evidence/w1-ai-gloss.md`
-- [ ] **W2** smallTargets harness + a11y word-chip → `evidence/w2-tap-targets.md`
-- [ ] **W3** perf admin projection + đo before/after → `evidence/w3-perf-admin.md`
-- [ ] **W4** SePay chữ ký thật (chuyển khoản) → `evidence/w4-sepay-real.md`
+- [x] **W1** AI gloss: sửa prompt + guard CJK + test → `evidence/w1-ai-gloss.md`
+- [x] **W2** smallTargets harness + a11y word-chip → `evidence/w2-tap-targets.md`
+- [x] **W3** perf admin projection + đo before/after → `evidence/w3-perf-admin.md`
+- [x] **W4** SePay chữ ký thật (chuyển khoản) → `evidence/w4-sepay-real.md`
 
 ## Phase 5 — Performance
 - [x] T5.1 perf-probe before → `evidence/perf-before.json`
@@ -80,19 +80,19 @@
 
 ## Phase 6 — Fix + regression + review chéo
 - [x] T6.1 Findings FIXED + regression → `findings.md`
-- [ ] T6.2 Review chéo → `evidence/review-v19.md`
+- [x] T6.2 Review chéo → `evidence/review-v19.md`
 - [x] T6.3 Mutation-test
 - [x] T6.4 Suite xanh 0 regression
 
 ## Phase 7 — Vòng 2 `[gate]`
-- [ ] T7.1 Chạy lại toàn bộ → `evidence/round-2.md`
-- [ ] T7.2 Case biên
-- [ ] T7.3 Dừng: 2 vòng liên tiếp 0 finding mới
+- [x] T7.1 Chạy lại toàn bộ → `evidence/round-2.md`
+- [x] T7.2 Case biên
+- [x] T7.3 Dừng: 2 vòng liên tiếp 0 finding mới
 
 ## Phase 8 — Docs + Converge/Analyze + Report + Cleanup
-- [ ] T8.1 Cập nhật README/AGENTS/CLAUDE/.gitignore/docs → `evidence/docs-drift.md`
-- [ ] T8.2 Verify + sửa demo doc + prompt doc
-- [ ] T8.3 converge + analyze
-- [ ] T8.4 REPORT.md
-- [ ] T8.5 Cleanup manifest + thực thi
+- [x] T8.1 Cập nhật README/AGENTS/CLAUDE/.gitignore/docs → `evidence/docs-drift.md`
+- [x] T8.2 Verify + sửa demo doc + prompt doc
+- [x] T8.3 converge + analyze
+- [x] T8.4 REPORT.md
+- [x] T8.5 Cleanup manifest + thực thi
 - [ ] T8.6 Commit

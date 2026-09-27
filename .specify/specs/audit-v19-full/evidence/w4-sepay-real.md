@@ -18,18 +18,22 @@ không phải "bất khả thi kỹ thuật".
 
    | | |
    |---|---|
-   | `orderCode` | **`ENGF4E8A2FBEA40`** |
+   | `orderCode` | **`ENG2143E44D4DEC`** |
    | `amount` | **10.000đ** |
-   | `qrUrl` | `https://qr.sepay.vn/img?acc=0706718329&amount=10000&des=ENGF4E8A2FBEA40&bank=MBBank` |
+   | `qrUrl` | `https://qr.sepay.vn/img?acc=0706718329&amount=10000&des=ENG2143E44D4DEC&bank=MBBank` |
    | DB status | **PENDING** (chưa chuyển) |
+
+   > ⚠️ **Lưu ý vận hành:** `api-sweep` dọn row PENDING (unpaid) — nó đã xoá order đầu (`ENGF4E8A2FBEA40`).
+   > Nên **KHÔNG chạy api-sweep nữa** cho tới khi chuyển khoản xong (tôi đã dừng sweep).
 
 5. **Script verify:** `sweep/harness/w4-sepay-real-verify.py <orderCode>` — kiểm row `SUCCESS` + `transaction_id`
    thật + `gateway` không phải `AUDIT-*` (phân biệt với g6 local).
 
 ## CẦN NGƯỜI DÙNG LÀM (không thể tự động)
 
-> Quét QR trên (hoặc chuyển tới **MBBank `0706718329`**, nội dung **`ENGF4E8A2FBEA40`**), số tiền **đúng 10.000đ**.
+> Quét QR trên (hoặc chuyển tới **MBBank `0706718329`**, nội dung **`ENG2143E44D4DEC`**), số tiền **đúng 10.000đ**.
 > Sau khi chuyển, SePay POST webhook (chữ ký **của SePay**) tới Funnel → app kích premium.
+> Kiểm: `python sweep/harness/w4-sepay-real-verify.py ENG2143E44D4DEC` → kỳ vọng `W4 RESULT: PASS`.
 
 **Bằng chứng khi xong:** log backend `Premium activated`, row `SUCCESS` với `id`/`gateway` **thật do SePay sinh**
 (chỉ SePay ký được bằng secret của họ) → **đây là chữ ký THẬT**.

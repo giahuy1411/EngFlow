@@ -30,15 +30,27 @@ Trong `A11Y_FN`:
 | | v18 (naive) | v19 (WCAG 2.5.8 đúng) |
 |---|---|---|
 | `smallTargets` (tổng role×route) | 115 | **0** |
-| Trong đó: `/videos/1` word-chip | bị **giấu** | **14** raw → **0** sau khi áp inline exception |
+| Trong đó: `/videos/1` word-chip | bị **giấu** | **12** raw (focused-probe) → **0** sau khi áp inline exception |
 | List có bị cắt? | **Có** (`slice(0,10)`) | **Không** |
 
-**Chuỗi đo:** 115 → (bỏ cắt) 59 → (thêm label+spacing) 14 → (thêm inline exception) **0**.
+**Chuỗi đo:** 115 → (bỏ cắt list) 59 → (thêm label + spacing exception) **0**.
 
-## Mutation-test (chứng minh harness KHÔNG bị "mù")
+## Mutation-test (chứng minh harness KHÔNG bị "mù") — 2 ca
 
-Inject 2 button 10×10 cách nhau 2px (không ở text block) vào `/lessons`:
-→ `smallCount = 2` → **harness vẫn bắt được vi phạm thật**. Exceptions không làm mù check.
+Reviewer v19 bắt lỗ hổng: test cũ chỉ inject control **ngoài** text block, không phủ ca "control nhỏ **TRONG** `<p>`".
+Đã làm lại **2 ca**:
+1. 2 button 10×10 cách 2px trong flex row (ngoài text block) → **bắt được** (smallCount≥2).
+2. 2 button 10×10 **cao 30px** (taller than line-height 12px) cạnh nhau **trong `<p>`** → **bắt được**
+   (smallCount=2) → chứng minh **inline exception KHÔNG quá rộng** (control không bị line-height ràng buộc vẫn tính).
+
+→ Exceptions (inline/label/spacing) **không** làm mù check.
+
+## Đính chính sau review (reviewer #6)
+
+`/^inline/` + `td/li` ban đầu **miễn quá rộng** — control `inline-flex` (như `.app-btn`, `<router-link>` trong
+`<td>` của `AdminVideoLessons.vue:110`) bị miễn oan. **Sửa:** thêm điều kiện **`height <= line-height`** — đúng
+định nghĩa WCAG 2.5.8 "constrained by the line-height". Sau siết: `smallTargets` vẫn **0** (không false positive)
+và mutation-test ca 2 chứng minh vẫn bắt control thật.
 
 ## Kết luận W2
 

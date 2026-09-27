@@ -68,6 +68,12 @@ logs/
 !.specify/specs/audit-v18-full/evidence/*.md
 !.specify/specs/audit-v18-full/evidence/*.txt
 !.specify/specs/audit-v18-full/evidence/shots/**
+# audit-v19-full evidence is committed too (secret-scanned 2026-09-27, 0 secrets).
+!.specify/specs/audit-v19-full/evidence/*.log
+!.specify/specs/audit-v19-full/evidence/*.json
+!.specify/specs/audit-v19-full/evidence/*.md
+!.specify/specs/audit-v19-full/evidence/*.txt
+!.specify/specs/audit-v19-full/evidence/shots/**
 
 # Runtime / scratch
 *.pid

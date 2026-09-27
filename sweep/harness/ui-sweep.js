@@ -156,10 +156,17 @@ const A11Y_FN = `() => {
     const r = rects[i];
     const cs = getComputedStyle(el);
     const tag = el.tagName;
-    // (1) inline-level target flowing inside a text block, with text content
+    // (1) INLINE exception (WCAG 2.5.8): "the target is in a sentence or its size is otherwise
+    // constrained by the line-height of non-target text". The accurate discriminator is the
+    // LINE-HEIGHT constraint, not merely inline-level display: a word-chip flows at exactly the
+    // line height (measured 26px == line-height 26px), whereas an inline-flex action button in a
+    // <td> is TALLER than the surrounding line and is therefore a real target. Requiring
+    // height <= line-height keeps the chip exempt without blinding the scan to action controls.
+    const lh = parseFloat(cs.lineHeight) || 0;
     const inlineLevel = /^inline/.test(cs.display);
     const hasText = (el.textContent || '').trim().length > 0;
-    if (inlineLevel && hasText && el.closest(TEXT_BLOCK)) return;
+    const lineHeightConstrained = lh > 0 && r.height <= lh + 1;
+    if (inlineLevel && hasText && lineHeightConstrained && el.closest(TEXT_BLOCK)) return;
     if (tag === 'INPUT' && (el.type === 'checkbox' || el.type === 'radio') && el.closest('label')) return;
     const label = (el.getAttribute('aria-label')||el.innerText||'').trim().slice(0,30);
     const m = Math.min(r.width, r.height);

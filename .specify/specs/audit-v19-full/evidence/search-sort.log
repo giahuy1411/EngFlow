@@ -1,0 +1,19 @@
+flushed: 1
+tokens true true
+  SEARCH "ab" (lowercase substring) -> 200 len=5 ["sustainable","habitat","collaborate","collaborate","elaborate"]
+  SEARCH "AB" (uppercase substring (case-insensitive?)) -> 200 len=5 ["sustainable","habitat","collaborate","collaborate","elaborate"]
+  SEARCH "Ab" (mixed case) -> 200 len=5 ["sustainable","habitat","collaborate","collaborate","elaborate"]
+  SEARCH "rise" (real word fragment) -> 200 len=0 []
+  SEARCH "zzzznotaword" (no match -> []) -> 200 len=0 []
+  SEARCH "a" (1-char -> [] by design) -> 200 len=0 []
+  SEARCH "" (empty -> [] by design) -> 200 len=0 []
+  CASE-INSENSITIVE: rise==RISE -> true
+  LESSON q=grammar -> 200 total=466 titles=["English Grammar Exercises for A1 – be, possessives and pronouns","be, possessives and pronouns - GRAMMAR","English Grammar Exercises for A1 – have got and articles"]
+  LESSON q=zzzznotaword -> 200 total=0
+  ADMIN-EX q=the -> 200 total=16591 first="You can describe your daily routine by focusing on:"
+  LESSONS sort=title,asc==desc -> true (asc==no-sort -> true)
+  ADMIN-EX sort=question,asc==desc -> true
+  VOCAB sort=word,asc==desc -> false ascOrdered=true descOrdered=true
+  DECKS sort=name,asc==desc -> true
+  VOCAB sort=notacolumn -> 400 {"detail":"Tham số sắp xếp không hợp lệ.","instance":"/api/vocabulary","status":400,"title":"Bad Request"}
+written: .specify\specs\audit-v19-full\evidence

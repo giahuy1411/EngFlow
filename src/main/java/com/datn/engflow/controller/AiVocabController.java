@@ -66,7 +66,10 @@ public class AiVocabController {
         }
 
         List<Vocabulary> generated = aiVocabService.generateVocabByTopic(topic, level, count).block();
-        if (user != null) {
+        // audit-v19 W1 (cross-review): the language guard can drop items whose gloss came back in
+        // Chinese. Only charge a free-tier credit when the user actually received something — a
+        // run that yields 0 usable words must not burn one of the 5 daily generations.
+        if (user != null && generated != null && !generated.isEmpty()) {
             userService.consumeAiGenerationQuota(user);
         }
         return ResponseEntity.ok(generated);
