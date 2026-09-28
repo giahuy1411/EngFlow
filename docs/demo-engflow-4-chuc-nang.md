@@ -1,12 +1,21 @@
 # EngFlow — Cẩm nang demo đồ án tốt nghiệp (4 chức năng)
 
+<!-- doc-citation-remap: đã map (audit-v20) -->
+
 > **Ai đọc cũng hiểu.** Tài liệu này viết cho **cả người không biết lập trình**: mỗi chức năng được giải thích
 > bằng lời thường trước, rồi mới tới phần kỹ thuật (có **file + đoạn code thật, comment từng dòng** để đối chiếu
 > khi hội đồng hỏi sâu).
 >
-> **Đã kiểm chứng lại toàn bộ ngày 27/09/2026** bằng cách đọc trực tiếp source và chạy thử API/UI — không chép
-> lại mô tả cũ. Tài khoản demo: `user@gmail.com` / `admin@gmail.com`, mật khẩu `123456`.
-z
+> **Đã kiểm chứng lại toàn bộ ngày 28/09/2026 (audit-v20)** bằng cách đọc trực tiếp source, chạy thử API/UI
+> trên cả hai engine MCP (chrome-devtools + playwright) và đo lại **toàn bộ trích dẫn dòng** trong tài liệu —
+> không chép lại mô tả cũ. Lần kiểm chứng trước: 27/09/2026 (audit-v19).
+> Tài khoản demo: `user@gmail.com` / `admin@gmail.com`, mật khẩu `123456`.
+>
+> **Ghi chú kỹ thuật (audit-v20):** đợt bổ sung comment tiếng Việt vào source đã **đẩy số dòng** của nhiều file
+> được trích trong tài liệu này. Toàn bộ **167 trích dẫn dạng `File.java:số-dòng`** đã được **map lại tự động**
+> (neo theo đúng đoạn code mà tài liệu in ra), rồi **kiểm tra thủ công** một số chỗ để xác nhận trỏ đúng.
+> Nếu bạn sửa source lần nữa, hãy chạy lại bước map này trước khi demo.
+
 **4 chức năng trọng tâm của tài liệu** (đánh số theo đề cương gốc, thứ tự *dạy* thì khác — xem bảng dưới):
 
 | # | Chức năng | Chương trong tài liệu | Vì sao dạy thứ tự này |
@@ -349,23 +358,23 @@ Hãy hình dung toà nhà có **thẻ ra vào**:
 **Luồng A — Đăng ký:**
 
 1. Người dùng bấm **Đăng ký** → trình duyệt gọi `POST /api/auth/register` với `{username, email, password, fullName}`.
-2. `SecurityConfig` cho phép đường này đi qua **không cần vé** (`permitAll`) — `SecurityConfig.java:76`.
-3. `AuthController.registerUser` nhận request, từ chối ngay nếu dữ liệu sai định dạng (`@Valid`) — `AuthController.java:32-36`.
-4. `UserService.register` hỏi CSDL "email này có chưa?" và "tên đăng nhập này có chưa?" — `UserService.java:141-147`.
+2. `SecurityConfig` cho phép đường này đi qua **không cần vé** (`permitAll`) — `SecurityConfig.java:121`.
+3. `AuthController.registerUser` nhận request, từ chối ngay nếu dữ liệu sai định dạng (`@Valid`) — `AuthController.java:43-47`.
+4. `UserService.register` hỏi CSDL "email này có chưa?" và "tên đăng nhập này có chưa?" — `UserService.java:194-200`.
 5. Nếu trùng → ném lỗi → `GlobalExceptionHandler` đổi thành **HTTP 409** kèm thông báo tiếng Việt.
-6. Nếu chưa trùng → **băm mật khẩu bằng BCrypt** rồi lưu người dùng mới — `UserService.java:148-158`.
-7. Máy chủ **phát vé JWT luôn** cho người vừa đăng ký (tự đăng nhập) — `UserService.java:159-161`.
+6. Nếu chưa trùng → **băm mật khẩu bằng BCrypt** rồi lưu người dùng mới — `UserService.java:201-211`.
+7. Máy chủ **phát vé JWT luôn** cho người vừa đăng ký (tự đăng nhập) — `UserService.java:212-214`.
 8. Giao diện nhận `{token, user}`, cất vào Local Storage và chuyển vào trang chủ — `auth.js:76-94`.
 
 **Luồng B — Đăng nhập:**
 
 1. Người dùng bấm **Đăng nhập** → `POST /api/auth/login` với `{email, password}`.
 2. `UserService.login` **chuẩn hoá email** (cắt khoảng trắng, chuyển chữ thường) rồi kiểm tra **có đang bị khoá không?**
-   — `UserService.java:167-183`. Redis hỏng thì bỏ qua bước này (**fail-open**) chứ không chặn người dùng.
-3. Kiểm tra mật khẩu qua `AuthenticationManager` (bên trong là BCrypt so khớp) — `UserService.java:186-189`.
-4. **Đúng** → xoá bộ đếm sai, phát vé JWT mới — `UserService.java:192-200`.
+   — `UserService.java:235-251`. Redis hỏng thì bỏ qua bước này (**fail-open**) chứ không chặn người dùng.
+3. Kiểm tra mật khẩu qua `AuthenticationManager` (bên trong là BCrypt so khớp) — `UserService.java:254-257`.
+4. **Đúng** → xoá bộ đếm sai, phát vé JWT mới — `UserService.java:260-268`.
 5. **Sai** → tăng bộ đếm `login_fail:<email>` trong Redis; đủ **5 lần** thì đặt khoá `login_lock:<email>` 15 phút
-   và trả **HTTP 400** kèm số phút còn lại — `UserService.java:201-218`.
+   và trả **HTTP 400** kèm số phút còn lại — `UserService.java:269-286`.
 6. Giao diện lưu vé + người dùng, chuyển tới trang đã bị chặn trước đó (nếu có) — `Login.vue:67-81`.
 
 **Luồng C — Mỗi yêu cầu sau đó (ví dụ mở `/lessons`):**
@@ -374,9 +383,9 @@ Hãy hình dung toà nhà có **thẻ ra vào**:
 2. **Trước khi gửi**, giao diện tự kiểm tra hạn vé; hết hạn thì tự đăng xuất và đưa về `/login` — `api.js:37-48`.
 3. `RateLimitFilter` đếm số yêu cầu mỗi phút (quá nhiều → 429).
 4. `JwtAuthenticationFilter` kiểm tra chữ ký + hạn vé; vé hợp lệ thì nạp thông tin người dùng vào yêu cầu
-   — `JwtAuthenticationFilter.java:37-62`.
+   — `JwtAuthenticationFilter.java:62-87`.
 5. `SecurityConfig` đối chiếu **đường dẫn + vai trò**: `/api/admin/**` chỉ ADMIN; còn lại phải có vé
-   — `SecurityConfig.java:75-118`.
+   — `SecurityConfig.java:120-163`.
 6. Controller xử lý như bình thường (Chương 2).
 
 ```mermaid
@@ -412,7 +421,7 @@ sequenceDiagram
 <a id="flow-auth-code"></a>
 ### 1.5. Đọc code từng dòng
 
-#### a) Hai endpoint chính — `src/main/java/com/datn/engflow/controller/AuthController.java:20-42`
+#### a) Hai endpoint chính — `src/main/java/com/datn/engflow/controller/AuthController.java:28-59`
 
 **Hợp đồng hàm `registerUser`:** Nhận: thông tin đăng ký (username, email, mật khẩu) · Trả: **201** + thông tin
 người dùng kèm vé · Lỗi: **400** dữ liệu sai định dạng, **409** trùng email/tên đăng nhập.
@@ -449,7 +458,7 @@ nào ở đây — nhờ vậy luật "khoá 5 lần" nằm một chỗ duy nh�
 > 🎯 **Nếu bị hỏi "sao đăng ký trả 201 còn đăng nhập trả 200?"** → 201 nghĩa là "tạo mới một tài nguyên thành công"
 > (đúng chuẩn REST); đăng nhập không tạo gì mới nên dùng 200. Xem [Q&A A câu 1](#qa-gan).
 
-#### b) Kiểm tra dữ liệu đầu vào — `src/main/java/com/datn/engflow/model/dto/request/RegisterRequest.java:18-33`
+#### b) Kiểm tra dữ liệu đầu vào — `src/main/java/com/datn/engflow/model/dto/request/RegisterRequest.java:23-38`
 
 **Hợp đồng:** Nhận: 4 trường từ form đăng ký · Trả: chính nó (đã kiểm tra) · Lỗi: ném lỗi kiểm tra để
 `@Valid` chuyển thành **400** kèm danh sách lỗi tiếng Việt.
@@ -476,7 +485,7 @@ public class RegisterRequest {
 **Tóm lại:** Mỗi dòng `@...` là một "luật cửa vào". Giao diện cũng kiểm tra, nhưng **máy chủ mới là trọng tài
 cuối** — ai gọi thẳng API cũng phải qua đây.
 
-#### c) Đăng ký: chặn trùng + băm mật khẩu + tự phát vé — `src/main/java/com/datn/engflow/service/UserService.java:140-162`
+#### c) Đăng ký: chặn trùng + băm mật khẩu + tự phát vé — `src/main/java/com/datn/engflow/service/UserService.java:193-215`
 
 **Hợp đồng hàm `register`:** Nhận: `RegisterRequest` · Trả: `UserResponse` (kèm vé JWT) · Lỗi: **409** trùng
 email/username.
@@ -513,7 +522,7 @@ public UserResponse register(RegisterRequest request) {
 **Tóm lại:** Đăng ký = kiểm tra trùng → băm mật khẩu → lưu → **phát vé luôn**. Chính vì dòng cuối này mà
 người dùng không phải đăng nhập lại sau khi đăng ký.
 
-#### d) Đăng nhập — chống dò mật khẩu (phần 1: kiểm tra khoá) — `UserService.java:164-183`
+#### d) Đăng nhập — chống dò mật khẩu (phần 1: kiểm tra khoá) — `UserService.java:232-251`
 
 **Hợp đồng hàm `login`:** Nhận: `LoginRequest` (email + mật khẩu) · Trả: `UserResponse` kèm vé mới · Lỗi:
 **401** sai thông tin, **400** đang bị khoá.
@@ -548,7 +557,7 @@ public UserResponse login(LoginRequest request) {
 > ⚠️ **Bẫy khi bị hỏi:** "Redis hỏng thì có khoá được tài khoản không?" → **Không** — hệ thống chọn *fail-open*:
 > bảo vệ tính khả dụng lên trước. Đây là quyết định có chủ đích, ghi rõ trong code (xem [Q&A A câu 4](#qa-gan)).
 
-#### e) Đăng nhập — so khớp và phát vé (phần 2) — `UserService.java:185-200`
+#### e) Đăng nhập — so khớp và phát vé (phần 2) — `UserService.java:253-268`
 
 ```java
     try {
@@ -573,7 +582,7 @@ public UserResponse login(LoginRequest request) {
         return mapToUserResponse(user, jwt);                                    // Trả về thông tin + vé
 ```
 
-#### f) Đăng nhập — đếm sai và khoá tài khoản (phần 3) — `UserService.java:201-219`
+#### f) Đăng nhập — đếm sai và khoá tài khoản (phần 3) — `UserService.java:269-287`
 
 ```java
     } catch (BadCredentialsException ex) {                       // Rơi vào đây khi mật khẩu SAI
@@ -621,7 +630,7 @@ Phân biệt này quan trọng khi hội đồng hỏi — xem [Q&A A câu 3](#q
 > 💡 **Mẹo trả lời:** "Mọi con số cấu hình nằm tập trung một file `RedisConstants` — muốn đổi 5 lần thành 3 lần
 > chỉ sửa một dòng, không săn trong code."
 
-#### h) Phát vé JWT — `src/main/java/com/datn/engflow/security/JwtTokenProvider.java:27-43`
+#### h) Phát vé JWT — `src/main/java/com/datn/engflow/security/JwtTokenProvider.java:42-70`
 
 **Hợp đồng hàm `generateToken`:** Nhận: email + vai trò + cờ premium · Trả: chuỗi vé có chữ ký · Lỗi: không
 (cấu hình sai thì lỗi lúc khởi động).
@@ -651,7 +660,7 @@ Phân biệt này quan trọng khi hội đồng hỏi — xem [Q&A A câu 3](#q
 **Tóm lại:** Vé gồm 3 phần ngăn bởi dấu chấm; phần cuối là chữ ký. Sửa một chữ trong phần giữa là chữ ký hỏng,
 máy chủ từ chối ngay.
 
-#### i) Soát vé mỗi yêu cầu — `src/main/java/com/datn/engflow/security/JwtAuthenticationFilter.java:33-62`
+#### i) Soát vé mỗi yêu cầu — `src/main/java/com/datn/engflow/security/JwtAuthenticationFilter.java:58-88`
 
 **Hợp đồng hàm `doFilterInternal`:** Nhận: mọi yêu cầu HTTP · Trả: yêu cầu đã gắn danh tính (nếu vé hợp lệ)
 hoặc **401** · Lỗi: 401 vé hết hạn/không hợp lệ/tài khoản bị tắt.
@@ -698,7 +707,7 @@ hoặc **401** · Lỗi: 401 vé hết hạn/không hợp lệ/tài khoản bị
 > quyền có thể đổi trong 15 phút đó (admin khoá tài khoản, cấp/thu premium). Nạp lại để quyền **luôn tươi**.
 > Xem [Q&A A câu 7](#qa-gan).
 
-#### j) Vé hỏng / hết hạn thì trả gì — `JwtAuthenticationFilter.java:63-94`
+#### j) Vé hỏng / hết hạn thì trả gì — `JwtAuthenticationFilter.java:88-119`
 
 ```java
         } catch (ExpiredJwtException ex) {                                  // Vé QUÁ HẠN
@@ -741,7 +750,7 @@ hoặc **401** · Lỗi: 401 vé hết hạn/không hợp lệ/tài khoản bị
 **Tóm lại:** 3 nhánh lỗi — hết hạn (401 "hết hạn"), vé sửa/rác (401 "không hợp lệ"), lỗi bất ngờ (đi tiếp,
 để lớp sau chặn). Đây là lý do giao diện phân biệt được và tự đưa người dùng về trang đăng nhập.
 
-#### k) Băm mật khẩu bằng BCrypt — `src/main/java/com/datn/engflow/config/SecurityConfig.java:45-54`
+#### k) Băm mật khẩu bằng BCrypt — `src/main/java/com/datn/engflow/config/SecurityConfig.java:58-74`
 
 ```java
     @Bean                                            // "Khai báo nhà máy": Spring tạo MỘT đối tượng dùng chung toàn hệ thống
@@ -758,7 +767,7 @@ hoặc **401** · Lỗi: 401 vé hết hạn/không hợp lệ/tài khoản bị
     }
 ```
 
-#### l) Bảng phân quyền — `SecurityConfig.java:69-118` (trích — đây là chỗ dễ hiểu sai nhất)
+#### l) Bảng phân quyền — `SecurityConfig.java:114-163` (trích — đây là chỗ dễ hiểu sai nhất)
 
 **Hợp đồng:** Nhận: mọi yêu cầu HTTP · Trả: cho qua / chặn 401 / chặn 403 · Lỗi: 401 chưa đăng nhập, 403 sai vai trò.
 
@@ -808,7 +817,7 @@ hoặc **401** · Lỗi: 401 vé hết hạn/không hợp lệ/tài khoản bị
 > và làm lịch sử làm bài của mọi người thành công khai. Đây là câu chuyện bug thật để kể khi hội đồng hỏi
 > "bug khó nhất" — xem [Q&A B câu 24](#qa-mo-rong).
 
-#### m) Chính sách bảo mật trình duyệt + handler 401/403 — `SecurityConfig.java:120-145`
+#### m) Chính sách bảo mật trình duyệt + handler 401/403 — `SecurityConfig.java:165-190`
 
 ```java
             .headers(headers -> headers
@@ -1026,7 +1035,7 @@ cùng một hình dạng (ProblemDetail chuẩn RFC 7807).
 > (không có trường `remember` trong DTO đăng nhập; giao diện gửi lên nhưng máy chủ bỏ qua).
 
 > ⚠️ **Bẫy 5 — Bấm nút đăng nhập quá nhiều lần:** rate limit 20 lần/phút → **429**. Chờ 1 phút là hết.
-> 🧪 **Kiểm chứng:** `RateLimitFilter.java:31-38` (các ngưỡng), hoặc bấm liên tục và quan sát.
+> 🧪 **Kiểm chứng:** `RateLimitFilter.java:36-43` (các ngưỡng), hoặc bấm liên tục và quan sát.
 
 > 🎯 **Nếu bị hỏi "tại sao không dùng session/cookie như truyền thống?"** → Xem [Q&A B câu 13](#qa-mo-rong)
 > (JWT hợp với SPA + nhiều máy chủ; đổi lại phải chấp nhận rủi ro localStorage và bù bằng CSP).
@@ -1115,21 +1124,21 @@ Hãy hình dung một **cuốn giáo trình có phiếu bài tập kèm theo**:
 
 1. Mở `/lessons` → giao diện gọi `GET /api/lessons?page=0&size=12` (kèm `q`/`level` nếu có lọc) — `Lessons.vue:178-183`.
 2. `LessonController.getAllLessons` nhận tham số, **kẹp size trong khoảng 1..100**, đặt thứ tự cố định
-   `orderIndex` tăng dần — `LessonController.java:28-40`.
+   `orderIndex` tăng dần — `LessonController.java:42-54`.
 3. `LessonService.getPublishedLessonPage` dùng **projection** (chỉ lấy cột cần hiển thị, bỏ cột nội dung dài)
-   — `LessonService.java:98-103`.
+   — `LessonService.java:134-139`.
 4. Nếu người dùng **đã đăng nhập**, máy chủ đọc tiến độ của **cả trang trong MỘT câu SQL** rồi ghép vào kết quả
-   — `LessonService.java:126-129`. (Không đăng nhập thì mọi bài hiện `isCompleted=false`.)
+   — `LessonService.java:162-165`. (Không đăng nhập thì mọi bài hiện `isCompleted=false`.)
 5. Trả về JSON phân trang: `{content: [...], totalElements, totalPages}` — giao diện hiện 12 thẻ bài.
 
 **Luồng B — Mở một bài học:**
 
-1. Mở `/lessons/445` → `GET /api/lessons/445` — `LessonController.java:42-50`.
+1. Mở `/lessons/445` → `GET /api/lessons/445` — `LessonController.java:68-76`.
 2. `LessonService.getLessonDetails` kiểm tra bài **có xuất bản không**; bài nháp → **404** (không phải 403)
-   — `LessonService.java:171-180`.
-3. Đọc bài kèm **toàn bộ từ vựng** trong một câu (JOIN FETCH, tránh N+1) — `LessonService.java:175-176`.
+   — `LessonService.java:228-237`.
+3. Đọc bài kèm **toàn bộ từ vựng** trong một câu (JOIN FETCH, tránh N+1) — `LessonService.java:232-233`.
 4. Nếu đã đăng nhập: lấy hoặc **tạo mới** dòng tiến độ, cập nhật `lastAccessed = bây giờ` rồi lưu
-   — `LessonService.java:207-216`.
+   — `LessonService.java:264-273`.
 5. Giao diện hiện 3 tab; tab **Bài tập** mới gọi tiếp `GET /api/lessons/445/exercises` — `LessonLayout.vue:22-32`.
 
 **Luồng C — Kiểm tra một câu (không lưu):**
@@ -1137,21 +1146,21 @@ Hãy hình dung một **cuốn giáo trình có phiếu bài tập kèm theo**:
 1. Học viên chọn đáp án, bấm **Kiểm tra** → `POST /api/lessons/445/exercises/grade` với `{answers:[{exerciseId, userAnswer}]}`
    — `LessonExerciseTab.vue:290-297`.
 2. `LessonExerciseController.gradeExercises` kiểm tra bài còn hiển thị được không (chặn bài nháp — F105)
-   rồi giao cho service — `LessonExerciseController.java:50-58`.
+   rồi giao cho service — `LessonExerciseController.java:72-80`.
 3. `ExerciseService.gradeExercises` chấm từng câu: bài thiếu đáp án → đánh dấu `ungradeable` và **bỏ khỏi tử/mẫu**
-   — `ExerciseService.java:247-287`.
+   — `ExerciseService.java:327-367`.
 4. Trả về `{results:[...], score, total, percentage}` — giao diện tô màu đúng/sai cho từng câu.
 5. **Không có gì được ghi xuống CSDL** — đây là điểm khác biệt với luồng D.
 
 **Luồng D — Nộp bài (lưu + tính streak):**
 
 1. Học viên bấm **Nộp bài** → `POST /api/lessons/445/exercises/submit` — `LessonExerciseTab.vue:328-336`.
-2. `ExerciseService.submitExercises` **chấm lại từ đầu** (không tin điểm trình duyệt gửi lên) — `ExerciseService.java:474`.
-3. Gom toàn bộ bài tập của các câu trả lời trong **một query** `findAllById` (tránh N+1) — `ExerciseService.java:486-487`.
-4. Tự dựng chuỗi JSON chi tiết từng câu (câu hỏi, trả lời, đáp án, đúng/sai, giải thích) — `ExerciseService.java:490-501`.
-5. Lưu một dòng `exercise_attempts` với điểm, phần trăm, chi tiết — `ExerciseService.java:506-516`.
+2. `ExerciseService.submitExercises` **chấm lại từ đầu** (không tin điểm trình duyệt gửi lên) — `ExerciseService.java:588`.
+3. Gom toàn bộ bài tập của các câu trả lời trong **một query** `findAllById` (tránh N+1) — `ExerciseService.java:600-601`.
+4. Tự dựng chuỗi JSON chi tiết từng câu (câu hỏi, trả lời, đáp án, đúng/sai, giải thích) — `ExerciseService.java:604-615`.
+5. Lưu một dòng `exercise_attempts` với điểm, phần trăm, chi tiết — `ExerciseService.java:620-630`.
 6. **Nếu có ít nhất 1 câu trả lời khác rỗng** → gọi `recordStudy` ghi ngày học hôm nay (tính streak)
-   — `ExerciseService.java:518-521`.
+   — `ExerciseService.java:632-635`.
 7. Trả kết quả chấm về giao diện; lần sau mở tab Lịch sử sẽ thấy lần nộp này.
 
 ```mermaid
@@ -1182,7 +1191,7 @@ sequenceDiagram
 <a id="flow-bai-hoc-code"></a>
 ### 2.5. Đọc code từng dòng
 
-#### a) Danh sách bài học — kẹp tham số + thứ tự cố định — `src/main/java/com/datn/engflow/controller/LessonController.java:28-40`
+#### a) Danh sách bài học — kẹp tham số + thứ tự cố định — `src/main/java/com/datn/engflow/controller/LessonController.java:42-54`
 
 **Hợp đồng hàm `getAllLessons`:** Nhận: `q` (từ khoá), `level` (trình độ), `page`, `size` · Trả: một trang
 bài học (JSON) · Lỗi: không (tham số xấu được kẹp về hợp lệ).
@@ -1254,7 +1263,7 @@ bài học (JSON) · Lỗi: không (tham số xấu được kẹp về hợp l�
 > (rất nặng). Đo được: lấy cả entity = **320 lượt đọc LOB**, lấy đúng cột = **0 lượt** — xem
 > [Q&A B câu 11](#qa-mo-rong).
 
-#### c) Tiến độ của cả trang — MỘT query thay vì 12 — `src/main/java/com/datn/engflow/service/LessonService.java:123-147` (trích)
+#### c) Tiến độ của cả trang — MỘT query thay vì 12 — `src/main/java/com/datn/engflow/service/LessonService.java:159-183` (trích)
 
 ```java
         User user = userRepository.findByEmail(userEmail)
@@ -1287,7 +1296,7 @@ bài học (JSON) · Lỗi: không (tham số xấu được kẹp về hợp l�
 > (tìm `setIsCompleted` trong toàn bộ source = **0 kết quả**). Nghĩa là thanh tiến độ luôn 0%.
 > Đây là **hạn chế đã biết** — chủ động nói ra trước khi bị hỏi, xem [Chương 8](#han-che).
 
-#### d) Mở bài học — chặn bài nháp bằng 404 — `LessonService.java:150-169`
+#### d) Mở bài học — chặn bài nháp bằng 404 — `LessonService.java:186-212`
 
 **Hợp đồng hàm `assertLessonVisible`:** Nhận: id bài + người gọi có phải admin không · Trả: không (chỉ kiểm tra)
 · Lỗi: **404** nếu bài nháp mà người gọi không phải admin.
@@ -1319,7 +1328,7 @@ bài học (JSON) · Lỗi: không (tham số xấu được kẹp về hợp l�
 **Tóm lại:** 404 vs 403 không phải ngẫu nhiên — 404 **giấu sự tồn tại** của bản nháp. Hội đồng bảo mật
 rất thích chi tiết này.
 
-#### e) Mở bài học — ghi nhận "vừa ghé thăm" — `LessonService.java:204-216`
+#### e) Mở bài học — ghi nhận "vừa ghé thăm" — `LessonService.java:261-273`
 
 ```java
         User user = userRepository.findByEmail(userEmail)
@@ -1341,7 +1350,7 @@ rất thích chi tiết này.
         // đó là lý do thanh tiến độ luôn 0% (xem bẫy ở mục c).
 ```
 
-#### f) Lấy bài tập — đáp án bị "rút ruột" với học viên — `src/main/java/com/datn/engflow/controller/LessonExerciseController.java:28-48`
+#### f) Lấy bài tập — đáp án bị "rút ruột" với học viên — `src/main/java/com/datn/engflow/controller/LessonExerciseController.java:42-62`
 
 **Hợp đồng hàm `getExercises`:** Nhận: id bài + cờ `includeAnswers` · Trả: danh sách câu hỏi · Lỗi: **403**
 nếu học viên đòi kèm đáp án; **404** nếu bài nháp.
@@ -1372,7 +1381,7 @@ nếu học viên đòi kèm đáp án; **404** nếu bài nháp.
     }
 ```
 
-#### g) Rút ruột đáp án ở tầng Service — `src/main/java/com/datn/engflow/service/ExerciseService.java:61-86`
+#### g) Rút ruột đáp án ở tầng Service — `src/main/java/com/datn/engflow/service/ExerciseService.java:80-112`
 
 ```java
     public List<ExerciseResponse> getExercisesByLesson(Long lessonId, boolean includeAnswers) {
@@ -1409,7 +1418,7 @@ nếu học viên đòi kèm đáp án; **404** nếu bài nháp.
 > 🎯 **Nếu bị hỏi "bảo vệ đáp án bằng mấy lớp?"** → **3 lớp**: (1) luật bảo mật theo method ở `SecurityConfig`;
 > (2) controller chặn 403 khi đòi `includeAnswers`; (3) service đặt null giá trị đáp án. Xem [Q&A A câu 11](#qa-gan).
 
-#### h) Chấm điểm — trái tim của chương — `ExerciseService.java:229-298`
+#### h) Chấm điểm — trái tim của chương — `ExerciseService.java:293-378`
 
 **Hợp đồng hàm `gradeExercises`:** Nhận: id bài + danh sách câu trả lời · Trả: `GradeResponse` (điểm, tổng,
 phần trăm, chi tiết từng câu) · Lỗi: không (bài thiếu đáp án bị đánh dấu `ungradeable`).
@@ -1491,7 +1500,7 @@ phần trăm, chi tiết từng câu) · Lỗi: không (bài thiếu đáp án b
 tính sai; (2) câu trả lời cho id không thuộc bài bị **bỏ qua**; (3) đáp án đúng **chỉ xuất hiện trong kết
 quả chấm** — không bao giờ có trong dữ liệu tải trước.
 
-#### i) So khớp câu trả lời — thường và MATCHING — `ExerciseService.java:330-346`
+#### i) So khớp câu trả lời — thường và MATCHING — `ExerciseService.java:410-426`
 
 **Hợp đồng hàm `isCorrectAnswer`:** Nhận: bài tập + câu trả lời · Trả: đúng/sai · Lỗi: không.
 
@@ -1520,7 +1529,7 @@ quả chấm** — không bao giờ có trong dữ liệu tải trước.
     }
 ```
 
-#### j) Chuẩn hoá và bắt cặp — `ExerciseService.java:355-409`
+#### j) Chuẩn hoá và bắt cặp — `ExerciseService.java:435-489`
 
 ```java
     private Set<String> pairsFromOptions(String optionsJson) {
@@ -1578,7 +1587,7 @@ quả chấm** — không bao giờ có trong dữ liệu tải trước.
 **Tóm lại:** Toàn bộ phần "chấm điểm" chỉ xoay quanh 3 ý: chuẩn hoá để tha thứ lỗi định dạng nhỏ,
 so tập hợp cho MATCHING (không phụ thuộc thứ tự), và loại bài không chấm được thay vì chấm sai.
 
-#### k) Nộp bài — chấm lại + lưu + ghi ngày học — `ExerciseService.java:470-524`
+#### k) Nộp bài — chấm lại + lưu + ghi ngày học — `ExerciseService.java:565-638`
 
 **Hợp đồng hàm `submitExercises`:** Nhận: id bài + câu trả lời + email người nộp · Trả: kết quả chấm
 (như grade) · Lỗi: 404 nếu người dùng không tồn tại.
@@ -1855,39 +1864,39 @@ Hãy hình dung **chuỗi ngày đi tập gym**:
 **Luồng A — Ghi ngày học (ví dụ khi nộp bài tập):**
 
 1. Học viên nộp bài → `ExerciseService.submitExercises` gọi `studyActivityService.recordStudy(userId)`
-   — `ExerciseService.java:518-521`.
+   — `ExerciseService.java:632-635`.
 2. `recordStudy` kiểm tra **hôm nay đã tới ngày hiệu lực của streak chưa?** Chưa tới → **im lặng bỏ qua**
-   (streak đang "ngủ", không phải lỗi) — `StudyActivityService.java:56-60`.
+   (streak đang "ngủ", không phải lỗi) — `StudyActivityService.java:79-83`.
 3. **Khoá dòng người dùng** (pessimistic lock) để 2 thao tác cùng lúc không ghi đè nhau
-   — `StudyActivityService.java:61`.
-4. Kiểm tra tài khoản **còn hoạt động**; bị admin tắt → ném lỗi — `StudyActivityService.java:62-64`.
-5. Nếu hôm nay **chưa có dòng nào** → chèn một dòng `(user_id, study_date=hôm nay)` — `StudyActivityService.java:65-67`.
+   — `StudyActivityService.java:84`.
+4. Kiểm tra tài khoản **còn hoạt động**; bị admin tắt → ném lỗi — `StudyActivityService.java:85-87`.
+5. Nếu hôm nay **chưa có dòng nào** → chèn một dòng `(user_id, study_date=hôm nay)` — `StudyActivityService.java:88-90`.
 6. Cả bước này nằm trong **giao dịch của người gọi** (propagation `MANDATORY`) — nếu ghi ngày học lỗi,
    bài nộp cũng hỏng theo (không có chuyện "bài đã lưu mà ngày học mất").
 
 **Luồng B — Xem streak (mở `/profile`):**
 
-1. Giao diện gọi `GET /api/streak/snapshot` — `Profile.vue:84`.
+1. Giao diện gọi `GET /api/streak/snapshot` — `Profile.vue:105`.
 2. `StreakController.getSnapshot` lấy danh tính từ **vé** (không nhận id từ client) rồi gọi service
-   — `StreakController.java:24-30`.
+   — `StreakController.java:36-42`.
 3. `StudyActivityService.snapshot` đọc **mọi ngày học** của người này từ ngày hiệu lực tới hôm nay
-   — `StudyActivityService.java:75-78`.
-4. **Đếm chuỗi** bằng cách đi ngược từ hôm nay (hoặc hôm qua) — `StudyActivityService.java:101`.
+   — `StudyActivityService.java:113-116`.
+4. **Đếm chuỗi** bằng cách đi ngược từ hôm nay (hoặc hôm qua) — `StudyActivityService.java:139`.
 5. Trả về: `today` (máy chủ quyết), `currentStreak`, `studiedToday`, `studiedDays` (danh sách ngày để tô lịch).
 6. Giao diện kiểm tra dữ liệu hợp lệ rồi vẽ lịch; **`today` từ máy chủ** được dùng làm mốc cho toàn bộ lưới
-   — `Profile.vue:85-89`, `StreakCalendar.vue:85-93`.
+   — `Profile.vue:106-110`, `StreakCalendar.vue:85-93`.
 
 **Luồng C — Email nhắc tối (tự động, không ai bấm):**
 
-1. Đúng **20:00 giờ Việt Nam**, Spring tự gọi `sendDailyStreakReminders` — `StreakReminderScheduler.java:56-59`.
-2. Giành **"cờ ngày"** trong Redis: ngày này chỉ chạy một lần — `StreakReminderScheduler.java:76-91`.
+1. Đúng **20:00 giờ Việt Nam**, Spring tự gọi `sendDailyStreakReminders` — `StreakReminderScheduler.java:63-66`.
+2. Giành **"cờ ngày"** trong Redis: ngày này chỉ chạy một lần — `StreakReminderScheduler.java:93-108`.
 3. Kiểm tra **trần thử lại** (tối đa 3 lần/ngày) để SMTP hỏng dai dẳng không quét toàn bộ người dùng vô hạn
-   — `StreakReminderScheduler.java:96-104`.
+   — `StreakReminderScheduler.java:113-121`.
 4. Lấy nhóm **sắp gãy** (học hôm qua, chưa học hôm nay) → gửi email → đánh dấu "đã gửi"
-   — `StreakReminderScheduler.java:110-126`.
+   — `StreakReminderScheduler.java:127-143`.
 5. Lấy nhóm **đã gãy** (≥2 ngày không học) → kiểm tra **chống làm phiền 30 ngày** → gửi email "quay lại"
-   — `StreakReminderScheduler.java:128-149`.
-6. Nếu có email gửi lỗi → **nhả cờ ngày** để lần chạy sau thử lại — `StreakReminderScheduler.java:151-156`.
+   — `StreakReminderScheduler.java:145-166`.
+6. Nếu có email gửi lỗi → **nhả cờ ngày** để lần chạy sau thử lại — `StreakReminderScheduler.java:168-173`.
 
 ```mermaid
 sequenceDiagram
@@ -1915,7 +1924,7 @@ sequenceDiagram
 <a id="flow-streak-code"></a>
 ### 3.5. Đọc code từng dòng
 
-#### a) Sổ điểm danh — mỗi người mỗi ngày một dòng — `src/main/java/com/datn/engflow/model/entity/StudyDay.java:8-28`
+#### a) Sổ điểm danh — mỗi người mỗi ngày một dòng — `src/main/java/com/datn/engflow/model/entity/StudyDay.java:17-46`
 
 ```java
 /** Ngày hoàn thành hoạt động học; không đại diện cho ngày đăng nhập. */
@@ -1947,7 +1956,7 @@ public class StudyDay {
 mỗi lần xem từ các dòng ngày. Cách này gọi là "nguồn sự thật duy nhất": không bao giờ có chuyện số đếm
 lệch với lịch.
 
-#### b) Đọc ngày học — một query cho cả trang — `src/main/java/com/datn/engflow/repository/StudyDayRepository.java:12-39`
+#### b) Đọc ngày học — một query cho cả trang — `src/main/java/com/datn/engflow/repository/StudyDayRepository.java:13-40`
 
 **Hợp đồng `findDates`:** Nhận: userId + khoảng ngày · Trả: danh sách ngày đã học (mới nhất trước) · Lỗi: không.
 
@@ -1988,7 +1997,7 @@ public interface StudyDayRepository extends JpaRepository<StudyDay, Long> {
 }
 ```
 
-#### c) Ghi ngày học — hàm quan trọng nhất của chương — `src/main/java/com/datn/engflow/service/StudyActivityService.java:41-68`
+#### c) Ghi ngày học — hàm quan trọng nhất của chương — `src/main/java/com/datn/engflow/service/StudyActivityService.java:57-91`
 
 **Hợp đồng hàm `recordStudy`:** Nhận: userId · Trả: không (ghi nếu chưa có) · Lỗi: ném nếu người dùng
 không hoạt động; **im lặng bỏ qua** nếu chưa tới ngày hiệu lực.
@@ -2035,18 +2044,18 @@ Mỗi bước đều có lý do tồn tại — đây là hàm "nhiều bẫy" n
 
 | # | Hành động | Nơi gọi | Ghi streak? |
 |---|---|---|---|
-| 1 | **Nộp bài tập** (≥1 câu trả lời khác rỗng) | `ExerciseService.submitExercises` — `ExerciseService.java:518-521` | ✅ **CÓ** |
+| 1 | **Nộp bài tập** (≥1 câu trả lời khác rỗng) | `ExerciseService.submitExercises` — `ExerciseService.java:632-635` | ✅ **CÓ** |
 | 2 | **Ôn SRS** (thẻ đến hạn) | `SrsService` | ✅ CÓ |
 | 3 | **Nộp speaking** (bài nói hoàn thành) | `SpeakingSubmissionService` | ✅ CÓ |
 | 4 | **Ôn flashcard** (`/study`) | `FlashcardService` | ✅ CÓ |
-| 5 | **Nộp game** (điểm danh) | `StreakService.checkin` — `StreakService.java:19-24` | ✅ CÓ |
+| 5 | **Nộp game** (điểm danh) | `StreakService.checkin` — `StreakService.java:40-45` | ✅ CÓ |
 | — | **Đăng nhập** | `UserService.login` | ❌ **KHÔNG** — chỉ *đọc* streak để hiển thị |
 
 > ⚠️ **Câu hỏi hội đồng hay gài nhất:** *"Đăng nhập có tính streak không?"* → **KHÔNG.** Chỉ **hành động học**
 > mới tính. Và *"Nộp bài tập có tính không?"* → **CÓ** (nếu có ít nhất 1 câu trả lời thật).
 > Trả lời sai câu này là mất điểm oan — thuộc lòng bảng trên.
 
-#### e) Đếm chuỗi — thuật toán 8 dòng — `StudyActivityService.java:200-209`
+#### e) Đếm chuỗi — thuật toán 8 dòng — `StudyActivityService.java:316-325`
 
 **Hợp đồng hàm `currentStreak`:** Nhận: danh sách ngày đã học + "hôm nay" · Trả: số ngày liên tục · Lỗi: không.
 
@@ -2069,7 +2078,7 @@ Mỗi bước đều có lý do tồn tại — đây là hàm "nhiều bẫy" n
 **Tóm lại:** Thuật toán "đi ngược thời gian": bắt đầu từ hôm nay (hoặc hôm qua), đếm lùi từng ngày
 cho tới khi gặp ngày không học. Đơn giản, không cần lưu biến đếm — nên không bao giờ lệch với lịch.
 
-#### f) "Hôm nay" theo giờ Việt Nam — `StudyActivityService.java:34,138-140`
+#### f) "Hôm nay" theo giờ Việt Nam — `StudyActivityService.java:50,197-199`
 
 ```java
     private static final ZoneId STUDY_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
@@ -2087,7 +2096,7 @@ cho tới khi gặp ngày không học. Đơn giản, không cần lưu biến �
 > múi giờ Việt Nam bằng đồng hồ của chính nó; đồng hồ máy khách không được dùng vào việc này.
 > Xem [Q&A A câu 19](#qa-gan).
 
-#### g) Ngày hiệu lực — "công tắc" bật streak — `StudyActivityService.java:182-198`
+#### g) Ngày hiệu lực — "công tắc" bật streak — `StudyActivityService.java:283-302`
 
 ```java
     /**
@@ -2112,7 +2121,7 @@ cho tới khi gặp ngày không học. Đơn giản, không cần lưu biến �
     }
 ```
 
-#### h) Ảnh chụp streak — trả về cho giao diện — `StudyActivityService.java:70-103`
+#### h) Ảnh chụp streak — trả về cho giao diện — `StudyActivityService.java:108-141`
 
 **Hợp đồng hàm `snapshot`:** Nhận: userId + cửa sổ ngày (1..366) · Trả: `StudySnapshot` (hôm nay, chuỗi,
 đã học hôm nay chưa, danh sách ngày) · Lỗi: **400** nếu cửa sổ ngoài 1..366.
@@ -2149,7 +2158,7 @@ cho tới khi gặp ngày không học. Đơn giản, không cần lưu biến �
     }
 ```
 
-#### i) Một query cho cả trang leaderboard — `StudyActivityService.java:111-136`
+#### i) Một query cho cả trang leaderboard — `StudyActivityService.java:159-186`
 
 ```java
     /**
@@ -2183,7 +2192,7 @@ cho tới khi gặp ngày không học. Đơn giản, không cần lưu biến �
 **Tóm lại:** Trang leaderboard 20 người: **1 query** thay vì 21. Đây là ví dụ đẹp để kể khi hội đồng hỏi
 về N+1 — xem [Q&A A câu 16](#qa-gan).
 
-#### j) Ba endpoint streak — `src/main/java/com/datn/engflow/controller/StreakController.java:19-55`
+#### j) Ba endpoint streak — `src/main/java/com/datn/engflow/controller/StreakController.java:23-67`
 
 **Hợp đồng:** Nhận: danh tính từ vé · Trả: dữ liệu streak · Lỗi: **401** nếu không có vé.
 
@@ -2236,7 +2245,7 @@ public class StreakController {
 }
 ```
 
-#### k) Email nhắc — cỗ máy chống trùng — `src/main/java/com/datn/engflow/service/StreakReminderScheduler.java:56-104`
+#### k) Email nhắc — cỗ máy chống trùng — `src/main/java/com/datn/engflow/service/StreakReminderScheduler.java:63-121`
 
 ```java
     @Scheduled(cron = "0 0 20 * * *", zone = "Asia/Ho_Chi_Minh")
@@ -2293,7 +2302,7 @@ public class StreakController {
         // ... (phần gửi email — xem mục l)
 ```
 
-#### l) Email nhắc — hai nhóm người nhận — `StreakReminderScheduler.java:106-157`
+#### l) Email nhắc — hai nhóm người nhận — `StreakReminderScheduler.java:123-174`
 
 ```java
         boolean allSucceeded = true;                // Cờ theo dõi "mọi email đều gửi được không"
@@ -2354,7 +2363,7 @@ public class StreakController {
 **Tóm lại:** Cỗ máy chống trùng có **4 tầng**: cờ ngày (chạy 1 lần/ngày) → cờ đã-gửi (1 lần/người/ngày)
 → chống làm phiền 30 ngày (nhóm quay lại) → trần 3 lần thử (SMTP hỏng). Đây là điểm rất đáng khoe.
 
-#### m) Email trông như thế nào — `src/main/java/com/datn/engflow/service/EmailService.java:39-52`
+#### m) Email trông như thế nào — `src/main/java/com/datn/engflow/service/EmailService.java:47-64`
 
 ```java
   public void sendStreakReminder(String toEmail, String fullName, int currentStreak) {
@@ -2372,7 +2381,7 @@ public class StreakController {
   }
 ```
 
-#### n) Giao diện Profile — kiểm tra dữ liệu trước khi hiển thị — `frontend/src/views/Profile.vue:79-95`
+#### n) Giao diện Profile — kiểm tra dữ liệu trước khi hiển thị — `frontend/src/views/Profile.vue:100-116`
 
 ```js
 async function loadStudy() {
@@ -2464,10 +2473,10 @@ const calendarWeeks = computed(() => {
 > Đây là câu gài phổ biến nhất của chương.
 
 > ⚠️ **Bẫy 2 — Sáng nay chưa học không có nghĩa là mất chuỗi:** thuật toán đếm từ hôm qua nếu hôm nay chưa học.
-> 🧪 **Kiểm chứng:** `StudyActivityService.java:202` — dòng `uniqueDates.contains(today) ? today : today.minusDays(1)`.
+> 🧪 **Kiểm chứng:** `StudyActivityService.java:318` — dòng `uniqueDates.contains(today) ? today : today.minusDays(1)`.
 
 > ⚠️ **Bẫy 3 — Redis hỏng thì không gửi email nhắc** (bỏ qua lượt, không dội mail). Đây là hành vi đúng.
-> 🧪 **Kiểm chứng:** `StreakReminderScheduler.java:80-87` — nhánh `markerAcquired == null`.
+> 🧪 **Kiểm chứng:** `StreakReminderScheduler.java:97-104` — nhánh `markerAcquired == null`.
 
 > ⚠️ **Bẫy 4 — Bảng `user_streaks` trong CSDL là bảng CŨ**, không code nào đọc. Đừng đưa vào ERD luận văn.
 > 🧪 **Kiểm chứng:** `grep -rn "user_streaks" src/main/java` → **0 kết quả**.
@@ -2556,7 +2565,7 @@ Hãy hình dung **mục lục của một thư viện**:
 **Luồng A — Tìm bài học:**
 
 1. Gõ từ khoá → sau 350ms giao diện gọi `GET /api/lessons?q=present&page=0&size=12` — `Lessons.vue:178-192`.
-2. `LessonController` kẹp `size`, đặt thứ tự **cố định** `orderIndex` tăng dần — `LessonController.java:28-40`.
+2. `LessonController` kẹp `size`, đặt thứ tự **cố định** `orderIndex` tăng dần — `LessonController.java:42-54`.
 3. `LessonRepository.findPublishedPageProjection` chạy câu JPQL: tìm trong 3 cột (tiêu đề, mô tả, danh mục),
    không phân biệt hoa thường, chỉ bài đã xuất bản — `LessonRepository.java:66-81`.
 4. Trả về trang kết quả; **tham số `sort` nếu client có gửi cũng bị bỏ qua** (không có trong code).
@@ -2566,7 +2575,7 @@ Hãy hình dung **mục lục của một thư viện**:
 1. Gõ `hello` → giao diện gọi **proxy máy chủ** `GET /api/vocabulary/dictionary/hello` với timeout 32 giây
    — `vocabularyService.js:98`.
 2. `VocabularyController.dictionaryProxy` **làm sạch từ** (bỏ mọi ký tự không phải chữ cái) rồi gọi service
-   — `VocabularyController.java:63-70`.
+   — `VocabularyController.java:92-99`.
 3. `DictionaryService.lookup` kiểm tra **2 kho đệm Redis** theo thứ tự: từ-không-tồn-tại (30 phút) → kết-quả-thật (1 giờ)
    — `DictionaryService.java:77-89`.
 4. **Có đệm** → trả ngay (~0.1 giây). **Chưa có** → gọi từ điển quốc tế `dictionaryapi.dev` — `DictionaryService.java:96-98`.
@@ -2621,7 +2630,7 @@ sequenceDiagram
 <a id="flow-tim-kiem-code"></a>
 ### 4.5. Đọc code từng dòng
 
-#### a) Tìm từ vựng — guard 2 ký tự — `src/main/java/com/datn/engflow/controller/VocabularyController.java:36-54`
+#### a) Tìm từ vựng — guard 2 ký tự — `src/main/java/com/datn/engflow/controller/VocabularyController.java:50-83`
 
 **Hợp đồng hàm `search`:** Nhận: `keyword` hoặc `q` · Trả: danh sách từ chứa từ khoá · Lỗi: không
 (đầu vào ngắn → trả rỗng).
@@ -2657,7 +2666,7 @@ sequenceDiagram
 > Giao diện tra qua `/dictionary/{word}`. `/search` vẫn tồn tại như API công khai cho công cụ kiểm thử
 > và tìm trong kho từ của hệ thống. Đừng nhầm hai đường khi bị hỏi.
 
-#### b) Proxy từ điển — làm sạch từ trước khi gọi — `VocabularyController.java:56-70`
+#### b) Proxy từ điển — làm sạch từ trước khi gọi — `VocabularyController.java:85-99`
 
 **Hợp đồng hàm `dictionaryProxy`:** Nhận: một từ trên đường dẫn · Trả: JSON thô của từ điển · Lỗi:
 **400** nếu từ rỗng sau khi làm sạch.
@@ -2764,7 +2773,7 @@ Lỗi: **không bao giờ ném** (fail-soft hoàn toàn).
 lỗi tạm thời thì quên**; (3) mọi thao tác với Redis đều bọc `try/catch` — Redis chết cũng không làm sập tra từ.
 Đây là chương dễ ghi điểm nhất khi hội đồng hỏi về "xử lý lỗi".
 
-#### d) Cấu hình hai kho đệm — `src/main/java/com/datn/engflow/config/RedisConfig.java:35-59`
+#### d) Cấu hình hai kho đệm — `src/main/java/com/datn/engflow/config/RedisConfig.java:52-87`
 
 ```java
     @org.springframework.beans.factory.annotation.Value("${cache.ttl-hours:1}")
@@ -2919,7 +2928,7 @@ lỗi tạm thời thì quên**; (3) mọi thao tác với Redis đều bọc `t
 mềm 6s chỉ để báo trạng thái, trần cứng 45s mới bỏ. Tất cả vì một mục tiêu: **không bao giờ báo sai
 "không tìm thấy" cho từ thật**.
 
-#### g) Tìm bài học — thứ tự do máy chủ — `LessonController.java:28-40` (đã đọc ở Chương 3)
+#### g) Tìm bài học — thứ tự do máy chủ — `LessonController.java:42-54` (đã đọc ở Chương 3)
 
 Nhắc lại điểm quan trọng cho chương này: dòng `Sort.by("orderIndex").ascending().and(Sort.by("id"))` là
 **hằng số trong code** — không có tham số nào từ trình duyệt đổi được thứ tự này. Nếu client gửi `?sort=title`,
@@ -2928,7 +2937,7 @@ máy chủ **bỏ qua im lặng**.
 > 🧪 **Kiểm chứng:** gọi thử `GET /api/lessons?sort=title,desc` và `GET /api/lessons?sort=title,asc` —
 > kết quả giống hệt nhau và giống mặc định (đã đo 2026-09-27).
 
-#### h) Lọc bài tập admin — đẩy hết xuống SQL — `src/main/java/com/datn/engflow/controller/AdminExerciseController.java:28-40`
+#### h) Lọc bài tập admin — đẩy hết xuống SQL — `src/main/java/com/datn/engflow/controller/AdminExerciseController.java:43-55`
 
 **Hợp đồng hàm `getAllExercises`:** Nhận: lessonId, type, difficulty, q, page, size · Trả: một trang bài tập
 · Lỗi: **401/403** nếu không phải admin.
@@ -2950,7 +2959,7 @@ máy chủ **bỏ qua im lặng**.
     }
 ```
 
-#### i) Câu SQL lọc admin — mọi điều kiện xuống CSDL — `src/main/java/com/datn/engflow/repository/ExerciseRepository.java:46-58`
+#### i) Câu SQL lọc admin — mọi điều kiện xuống CSDL — `src/main/java/com/datn/engflow/repository/ExerciseRepository.java:91-103`
 
 ```java
     @Query("""
@@ -2978,7 +2987,7 @@ máy chủ **bỏ qua im lặng**.
 > đây là đặc tính của mọi CSDL quan hệ. Đo được ~0.7 giây cho 43 738 dòng; chấp nhận vì đây là trang
 > quản trị ít dùng. Xem [Q&A B câu 20](#qa-mo-rong).
 
-#### j) Bộ lọc người dùng admin — từ khoá + sắp xếp — `src/main/java/com/datn/engflow/service/AdminService.java:68-79`
+#### j) Bộ lọc người dùng admin — từ khoá + sắp xếp — `src/main/java/com/datn/engflow/service/AdminService.java:96-107`
 
 **Hợp đồng:** Nhận: keyword + thông tin trang · Trả: trang người dùng · Lỗi: không.
 
@@ -3003,7 +3012,7 @@ máy chủ **bỏ qua im lặng**.
     // Tìm trong 3 cột; COALESCE cho fullName vì cột này có thể null
 ```
 
-#### k) Giao diện admin — debounce 300ms — `frontend/src/views/admin/AdminUsers.vue:185-191` (trích ý chính)
+#### k) Giao diện admin — debounce 300ms — `frontend/src/views/admin/AdminUsers.vue:206-212` (trích ý chính)
 
 ```js
 function onSearchInput() {
@@ -3066,16 +3075,16 @@ Các câu dưới đây nối 2 chức năng với nhau — dạng câu hỏi "k
 
 | # | Câu hỏi | Trả lời (thuộc lòng) | Nguồn |
 |---|---|---|---|
-| 1 | **"Nộp bài tập có tính streak không?"** | **CÓ** — nếu có ít nhất 1 câu trả lời khác rỗng. Đây là 1 trong 5 đường ghi streak. | `ExerciseService.java:518-521` |
+| 1 | **"Nộp bài tập có tính streak không?"** | **CÓ** — nếu có ít nhất 1 câu trả lời khác rỗng. Đây là 1 trong 5 đường ghi streak. | `ExerciseService.java:632-635` |
 | 2 | **"Đăng nhập có tính streak không?"** | **KHÔNG** — đăng nhập chỉ *đọc* streak để hiển thị banner, không ghi. Chỉ hành động học mới ghi. | `UserService.login` không gọi `recordStudy` |
-| 3 | **"Xem bài học (không làm gì) có tính không?"** | **KHÔNG** — mở bài chỉ cập nhật `lastAccessed`, không ghi `study_days`. Phải *nộp bài* mới tính. | `LessonService.java:215-216` |
-| 4 | **"Vì sao lịch sử làm bài cần đăng nhập mà bài học thì không?"** | Vì lịch sử gắn với từng người (phải biết "của ai"); bài học là nội dung chung cho mọi người. | `SecurityConfig.java:83` |
+| 3 | **"Xem bài học (không làm gì) có tính không?"** | **KHÔNG** — mở bài chỉ cập nhật `lastAccessed`, không ghi `study_days`. Phải *nộp bài* mới tính. | `LessonService.java:272-273` |
+| 4 | **"Vì sao lịch sử làm bài cần đăng nhập mà bài học thì không?"** | Vì lịch sử gắn với từng người (phải biết "của ai"); bài học là nội dung chung cho mọi người. | `SecurityConfig.java:128` |
 | 5 | **"Tìm kiếm có ảnh hưởng gì tới streak không?"** | Không — tra từ là tiện ích, không phải hoạt động học, không ghi streak. | `StudyActivityService` chỉ có 5 caller |
-| 6 | **"Học viên sửa vé (JWT) để thành admin được không?"** | Không — vé có chữ ký số; sửa nội dung là chữ ký hỏng, máy chủ từ chối ngay (401). | `JwtAuthenticationFilter.java:71-78` |
+| 6 | **"Học viên sửa vé (JWT) để thành admin được không?"** | Không — vé có chữ ký số; sửa nội dung là chữ ký hỏng, máy chủ từ chối ngay (401). | `JwtAuthenticationFilter.java:96-103` |
 | 7 | **"Đang làm bài mà vé hết hạn (15 phút) thì sao?"** | Giao diện tự phát hiện trước khi gửi, đưa về trang đăng nhập kèm địa chỉ đang ở; đăng nhập xong quay lại đúng chỗ. | `api.js:37-48`, `Login.vue:75` |
-| 8 | **"Admin xoá một bài học đang có người làm dở thì sao?"** | Xoá bài sẽ **xoá kèm** lịch sử làm bài, tiến độ, từ vựng của bài đó (dọn thủ công trong code — CSDL không có cascade). **Streak không bị ảnh hưởng** vì `study_days` không tham chiếu bài học. | `LessonService.java:301-318` |
-| 9 | **"Cùng lúc nộp bài trên 2 tab thì sao?"** | Cả hai đều chấm + lưu bình thường (2 bản ghi lịch sử); nhưng `study_days` chỉ có 1 dòng nhờ khoá + ràng buộc duy nhất. | `StudyActivityService.java:61-67` |
-| 10 | **"Tra từ có cần đăng nhập không? Streak có cần không?"** | Tra từ: **không cần**. Streak: **cần** (là dữ liệu cá nhân). | `SecurityConfig.java:77,83` |
+| 8 | **"Admin xoá một bài học đang có người làm dở thì sao?"** | Xoá bài sẽ **xoá kèm** lịch sử làm bài, tiến độ, từ vựng của bài đó (dọn thủ công trong code — CSDL không có cascade). **Streak không bị ảnh hưởng** vì `study_days` không tham chiếu bài học. | `LessonService.java:391-408` |
+| 9 | **"Cùng lúc nộp bài trên 2 tab thì sao?"** | Cả hai đều chấm + lưu bình thường (2 bản ghi lịch sử); nhưng `study_days` chỉ có 1 dòng nhờ khoá + ràng buộc duy nhất. | `StudyActivityService.java:84-90` |
+| 10 | **"Tra từ có cần đăng nhập không? Streak có cần không?"** | Tra từ: **không cần**. Streak: **cần** (là dữ liệu cá nhân). | `SecurityConfig.java:122,128` |
 
 ---
 
@@ -3088,30 +3097,30 @@ Các câu dưới đây nối 2 chức năng với nhau — dạng câu hỏi "k
 ### Đăng nhập / Đăng ký (câu 1–8)
 
 **Câu 1 — Vì sao đăng ký xong không cần đăng nhập lại?**
-Vì `register()` phát vé JWT **ngay sau khi lưu** người dùng (`UserService.java:159-161`); giao diện nhận
+Vì `register()` phát vé JWT **ngay sau khi lưu** người dùng (`UserService.java:212-214`); giao diện nhận
 `{token, user}` và cất vào Local Storage (`auth.js:80-86`). Đây là chủ ý để giảm ma sát: người mới đăng ký
 là vào học được luôn.
 
 **Câu 2 — Mật khẩu lưu thế nào? Quản trị viên đọc được không?**
 Lưu bằng **BCrypt** — hàm băm một chiều, có trộn muối ngẫu nhiên, không thể dịch ngược
-(`SecurityConfig.java:45-48`). Trường `passwordHash` còn có `@JsonIgnore` nên **không bao giờ** lọt ra JSON
+(`SecurityConfig.java:58-61`). Trường `passwordHash` còn có `@JsonIgnore` nên **không bao giờ** lọt ra JSON
 (`User.java`). Quản trị viên cũng không đọc được bản rõ — chỉ có thể đặt lại mật khẩu.
 
 **Câu 3 — Sai mật khẩu 5 lần thì sao? Vì sao lần thứ 5 trả 400 mà không phải 401?**
 Bộ đếm `login_fail:<email>` trong Redis tăng mỗi lần sai, hết hạn 15 phút; đủ 5 lần thì đặt khoá
-`login_lock:<email>` 15 phút và trả **400** kèm số phút còn lại (`UserService.java:201-211`).
+`login_lock:<email>` 15 phút và trả **400** kèm số phút còn lại (`UserService.java:269-279`).
 **400** vì đây là "yêu cầu không hợp lệ **trong tình trạng hiện tại**" (đang bị khoá) — không phải "thông tin
 đăng nhập sai" (401). Phân biệt này giúp giao diện hiện đúng thông báo.
 
 **Câu 4 — Redis chết thì đăng nhập có sập không?**
 Không. Mọi nhánh Redis trong luồng đăng nhập đều **fail-open**: bọc `try/catch`, ghi log cảnh báo rồi đi tiếp
-(`UserService.java:179-183, 193-197, 213-217`). Đánh đổi: khi Redis chết thì tạm thời **không khoá được**
+(`UserService.java:246-250, 261-264, 280-284`). Đánh đổi: khi Redis chết thì tạm thời **không khoá được**
 tài khoản dò mật khẩu — chấp nhận để bảo vệ tính khả dụng.
 
 **Câu 5 — Vé sống bao lâu? Hết hạn thì sao?**
 **15 phút** (`jwt.expiration = 900000` ms). Giao diện **tự kiểm hạn trước khi gửi** yêu cầu: hết hạn thì tự
 đăng xuất và đưa về `/login` kèm địa chỉ đang ở (`api.js:37-48`). Nếu lọt qua, máy chủ trả **401** với thông
-báo "Token đã hết hạn" (`JwtAuthenticationFilter.java:63-70`).
+báo "Token đã hết hạn" (`JwtAuthenticationFilter.java:88-95`).
 
 **Câu 6 — Có refresh token không?**
 **Không** — `grep -rn "refreshToken" src/main/java` = 0 kết quả. Đây là **hạn chế đã biết**: người dùng phải
@@ -3120,37 +3129,37 @@ Xem [Chương 8](#han-che) để biết cách trả lời khéo.
 
 **Câu 7 — Tài khoản bị quản trị viên khoá thì vé đang có còn dùng được không?**
 Không. Mỗi yêu cầu, bộ lọc **nạp lại người dùng từ CSDL** và kiểm `isEnabled()` — bị tắt thì trả **401**
-ngay (`JwtAuthenticationFilter.java:44-56`). Vì sao phải nạp lại? Vì vé sống 15 phút, mà quyền có thể đổi
+ngay (`JwtAuthenticationFilter.java:69-81`). Vì sao phải nạp lại? Vì vé sống 15 phút, mà quyền có thể đổi
 trong 15 phút đó.
 
 **Câu 8 — Đăng nhập bằng email viết hoa được không?**
-Được. Máy chủ chuẩn hoá `trim().toLowerCase()` trước khi tra (`UserService.java:167`). Đã đo live:
+Được. Máy chủ chuẩn hoá `trim().toLowerCase()` trước khi tra (`UserService.java:235`). Đã đo live:
 `USER@GMAIL.COM` → đăng nhập thành công (200).
 
 ### Bài học / Bài tập (câu 9–17)
 
 **Câu 9 — Vì sao "Kiểm tra" không lưu còn "Nộp bài" lại lưu?**
-`/grade` chỉ chấm và trả kết quả (`ExerciseService.java:232-298`); `/submit` gọi lại chính hàm chấm đó rồi
-**lưu** một bản ghi `exercise_attempts` kèm chi tiết từng câu (`ExerciseService.java:473-516`). Hai nút phục
+`/grade` chỉ chấm và trả kết quả (`ExerciseService.java:312-378`); `/submit` gọi lại chính hàm chấm đó rồi
+**lưu** một bản ghi `exercise_attempts` kèm chi tiết từng câu (`ExerciseService.java:587-630`). Hai nút phục
 vụ hai mục đích: luyện tập không áp lực vs. nộp chính thức.
 
 **Câu 10 — Sửa điểm trên trình duyệt rồi nộp thì sao?**
 Vô ích. `/submit` **chấm lại từ đầu** từ đáp án trong CSDL, không dùng bất kỳ con số nào từ trình duyệt
-(`ExerciseService.java:474`). Đây là nguyên tắc "không tin client".
+(`ExerciseService.java:588`). Đây là nguyên tắc "không tin client".
 
 **Câu 11 — Đáp án có bị lộ qua API không?**
 Không — bảo vệ **3 lớp**: (1) luật bảo mật theo method; (2) controller trả **403** nếu học viên đòi
-`includeAnswers=true` (`LessonExerciseController.java:33-43`); (3) service đặt `correctAnswer = null` khi
-không phải admin (`ExerciseService.java:78`). Đã đo live: trường `correctAnswer` **có mặt nhưng `null`**.
+`includeAnswers=true` (`LessonExerciseController.java:47-57`); (3) service đặt `correctAnswer = null` khi
+không phải admin (`ExerciseService.java:104`). Đã đo live: trường `correctAnswer` **có mặt nhưng `null`**.
 
 **Câu 12 — Bài tập thiếu đáp án thì chấm thế nào?**
-**Loại khỏi cả tử số lẫn mẫu số** và gắn cờ `ungradeable` (`ExerciseService.java:263-275`). Vì sao không tính
+**Loại khỏi cả tử số lẫn mẫu số** và gắn cờ `ungradeable` (`ExerciseService.java:343-355`). Vì sao không tính
 là sai? Vì so chuỗi rỗng với rỗng sẽ thành "đúng oan"; tính là sai thì oan ngược lại. Loại hẳn là công bằng nhất.
 Giao diện hiện nhãn "không chấm được" cho câu đó.
 
 **Câu 13 — Bài MATCHING (nối cặp) chấm kiểu gì?**
 So **tập hợp cặp** dựng từ `options` trong CSDL (`left|right`), không dùng `correct_answer`
-(`ExerciseService.java:330-346`). Lý do đo được: 330/331 dòng MATCHING lưu `correct_answer` dạng chữ, nhưng
+(`ExerciseService.java:410-426`). Lý do đo được: 330/331 dòng MATCHING lưu `correct_answer` dạng chữ, nhưng
 client gửi chỉ số sau khi xáo cột — so chuỗi sẽ cho 0 điểm dù học viên nối đúng hết (bug F127, xem câu 24 Q&A B).
 
 **Câu 14 — Nối đúng 2/4 cặp thì tính sao?**
@@ -3159,28 +3168,28 @@ tập con vì "nối một nửa" chưa hoàn thành bài.
 
 **Câu 15 — Bài nháp (chưa xuất bản) có bị lộ không?**
 Không — trả **404** (không phải 403) cho khách và học viên; admin vẫn xem được để duyệt
-(`LessonService.java:158-169`). Đã đo live với bài 10888: khách 404, học viên 404, admin 200. 404 để **giấu
+(`LessonService.java:194-212`). Đã đo live với bài 10888: khách 404, học viên 404, admin 200. 404 để **giấu
 sự tồn tại** của bản nháp.
 
 **Câu 16 — Danh sách bài học có bị lỗi N+1 không?**
 Không. Tiến độ của **cả trang** đọc trong **một query** `WHERE lesson_id IN (...)` rồi ghép trong bộ nhớ
-(`LessonService.java:126-129`). Leaderboard cũng vậy (`StudyActivityService.java:122-136`).
+(`LessonService.java:162-165`). Leaderboard cũng vậy (`StudyActivityService.java:172-186`).
 
 **Câu 17 — Vì sao thanh tiến độ luôn 0%?**
 Vì **chưa có code nào** đặt `isCompleted` / `completionPercentage` — `grep -rn "setIsCompleted" src/main/java`
-= 0 kết quả. Mở bài chỉ cập nhật `lastAccessed` (`LessonService.java:215-216`). Đây là **hạn chế đã biết** —
+= 0 kết quả. Mở bài chỉ cập nhật `lastAccessed` (`LessonService.java:272-273`). Đây là **hạn chế đã biết** —
 chủ động nêu và nói hướng hoàn thiện, xem [Chương 8](#han-che).
 
 ### Streak (câu 18–22)
 
 **Câu 18 — Streak lưu ở đâu?**
 Bảng `study_days` — mỗi người mỗi ngày tối đa **một dòng**, có ràng buộc duy nhất `(user_id, study_date)`
-(`StudyDay.java:8-11`). **Không** lưu sẵn con số đếm — số chuỗi được **tính lại** mỗi lần xem
-(`StudyActivityService.java:200-209`). Nhờ vậy số đếm và lịch không bao giờ lệch nhau.
+(`StudyDay.java:17-19`). **Không** lưu sẵn con số đếm — số chuỗi được **tính lại** mỗi lần xem
+(`StudyActivityService.java:316-325`). Nhờ vậy số đếm và lịch không bao giờ lệch nhau.
 
 **Câu 19 — Đổi giờ máy tính để gian lận được không?**
 Không. "Hôm nay" do máy chủ tính bằng `LocalDate.now(clock.withZone("Asia/Ho_Chi_Minh"))`
-(`StudyActivityService.java:34,138-139`) — đồng hồ máy khách không tham gia. Giao diện cũng nhận `today`
+(`StudyActivityService.java:50,197-199`) — đồng hồ máy khách không tham gia. Giao diện cũng nhận `today`
 từ máy chủ để vẽ lịch, không tự đoán (`StreakCalendar.vue:85-93`).
 
 **Câu 20 — Hành động nào được tính là "học"?**
@@ -3190,10 +3199,10 @@ từ máy chủ để vẽ lịch, không tự đoán (`StreakCalendar.vue:85-93
 **Câu 21 — Ghi ngày học lỗi có làm mất kết quả nộp bài không?**
 Không — và ngược lại cũng không có chuyện "bài mất mà ngày học còn". `recordStudy` chạy
 `@Transactional(propagation = MANDATORY)`: **bắt buộc nằm trong giao dịch của người gọi**, nên hai việc
-sống chết cùng nhau (`StudyActivityService.java:54-55`).
+sống chết cùng nhau (`StudyActivityService.java:77-78`).
 
 **Câu 22 — Email nhắc chạy khi nào? Chống gửi trùng thế nào?**
-Cron **20:00 giờ Việt Nam** (`StreakReminderScheduler.java:56`), hai nhóm: sắp gãy (học hôm qua, chưa học
+Cron **20:00 giờ Việt Nam** (`StreakReminderScheduler.java:63`), hai nhóm: sắp gãy (học hôm qua, chưa học
 hôm nay) và đã gãy (≥2 ngày). Chống trùng **4 tầng**: cờ ngày → cờ đã-gửi/người → chống làm phiền 30 ngày
 (nhóm quay lại) → trần 3 lần thử/ngày. Redis chết thì **bỏ qua lượt** (thà không gửi còn hơn dội mail).
 
@@ -3205,7 +3214,7 @@ bài học theo `orderIndex` (lộ trình), danh sách từ theo `word`, lịch 
 `GET /api/vocabulary` **có** tôn trọng `?sort=` (nhờ `@PageableDefault`).
 
 **Câu 24 — Vì sao gõ 1 ký tự tra từ không ra kết quả?**
-Chặn có chủ đích: `query.length() < 2` → trả `[]` ngay, không truy vấn (`VocabularyController.java:46-48`).
+Chặn có chủ đích: `query.length() < 2` → trả `[]` ngay, không truy vấn (`VocabularyController.java:75-77`).
 1 ký tự sẽ khớp gần như mọi từ → quét cả kho mà kết quả vô nghĩa. **Lưu ý:** ô tìm **bài học** không có chặn
 này (1 ký tự vẫn ra kết quả — đo live 27/09/2026: 1461 dòng) vì tìm bài học 1 ký tự vẫn có nghĩa.
 
@@ -3265,7 +3274,7 @@ tải câu hỏi (`LessonLayout.vue:22-32`).
 **Câu 6 — Vì sao `recordStudy` dùng MANDATORY thay vì REQUIRES_NEW?**
 Vì ngày học phải **sống chết cùng** kết quả học tập. Nếu tách giao dịch riêng, có thể xảy ra: bài nộp
 rollback nhưng ngày học vẫn được ghi → **"chuỗi ảo"** (người dùng thấy có ngày học cho bài chưa từng lưu).
-MANDATORY buộc hàm phải nằm trong giao dịch sẵn có (`StudyActivityService.java:41-55`).
+MANDATORY buộc hàm phải nằm trong giao dịch sẵn có (`StudyActivityService.java:57-78`).
 
 ### Cơ sở dữ liệu (câu 7–11)
 
@@ -3296,8 +3305,8 @@ chỉ lấy cột cần = **0 lượt** cho một trang 20 dòng (`LessonReposit
 ### Bảo mật (câu 12–17)
 
 **Câu 12 — Chống dò mật khẩu thế nào?**
-Hai tầng: **rate limit** 20 yêu cầu/phút/IP cho đăng nhập/đăng ký (`RateLimitFilter.java:31`) và **khoá tài
-khoản** 5 lần sai/15 phút theo email (`UserService.java:201-211`). Tầng 1 chặn theo máy, tầng 2 chặn theo
+Hai tầng: **rate limit** 20 yêu cầu/phút/IP cho đăng nhập/đăng ký (`RateLimitFilter.java:36`) và **khoá tài
+khoản** 5 lần sai/15 phút theo email (`UserService.java:269-279`). Tầng 1 chặn theo máy, tầng 2 chặn theo
 tài khoản — kẻ tấn công đổi IP vẫn bị tầng 2 chặn.
 
 **Câu 13 — Vì sao lưu vé ở Local Storage? Rủi ro gì?**
@@ -3311,7 +3320,7 @@ tài khoản — kẻ tấn công đổi IP vẫn bị tầng 2 chặn.
 >   cross-origin (:5173 → :8080) làm cookie khó kiểm soát.
 > - *Session server-side:* trái tinh thần JWT stateless, phải thêm Redis cho session — trùng với thứ đã có.
 >
-> **Hệ quả:** XSS đọc được vé. **Giảm thiểu 3 lớp:** CSP chặt (`SecurityConfig.java:120-129`), mọi `v-html`
+> **Hệ quả:** XSS đọc được vé. **Giảm thiểu 3 lớp:** CSP chặt (`SecurityConfig.java:165-174`), mọi `v-html`
 > đi qua DOMPurify, upload chỉ serve qua tên an toàn + `forceDownload`. Và vé **chỉ sống 15 phút** — cửa sổ
 > tấn công hẹp.
 
@@ -3323,11 +3332,11 @@ có kết quả nối chuỗi thủ công. Đây là phòng thủ ở tầng fra
 **Câu 15 — Vì sao lỗi đăng nhập trả thông báo chung "Email hoặc mật khẩu không chính xác"?**
 Để **không tiết lộ email nào tồn tại** trong hệ thống. Nếu trả "email không tồn tại" vs "sai mật khẩu" khác
 nhau, kẻ tấn công dò được danh sách email. `forgot-password` cũng luôn trả thông báo trung tính vì lý do
-tương tự (`UserService.java:243-246`).
+tương tự (`UserService.java:336-340`).
 
 **Câu 16 — Đáp án bài tập được bảo vệ ra sao?**
 **3 lớp**: (1) luật bảo mật theo method trong `SecurityConfig`; (2) controller chặn `includeAnswers` cho
-non-admin → 403; (3) service đặt giá trị đáp án thành `null` (`ExerciseService.java:78`). Thêm guard bài
+non-admin → 403; (3) service đặt giá trị đáp án thành `null` (`ExerciseService.java:104`). Thêm guard bài
 nháp 404 ở cả `/grade` và `/submit` (F105).
 
 **Câu 17 — Upload file có phải là bề mặt nguy hiểm không?**
@@ -3379,11 +3388,11 @@ Hai ứng viên có bằng chứng trong code:
 1. **F54 — thứ tự luật bảo mật.** Spring chọn **luật khớp đầu tiên**. Luật "lịch sử làm bài phải đăng nhập"
    từng bị đặt **sau** luật "bài học công khai" → luật rộng "đá chết" luật hẹp → lịch sử làm bài của mọi
    người thành **công khai**, principal null → lỗi 500. Fix: đặt luật hẹp **trước**, kèm comment cảnh báo
-   và guard phòng thủ trong controller (`SecurityConfig.java:79-84`).
+   và guard phòng thủ trong controller (`SecurityConfig.java:124-129`).
 
 2. **F127 — MATCHING chấm sai.** Client xáo trộn cột phải rồi gửi **chỉ số vị trí**; `correct_answer` lưu
    dạng **chữ**. Đo 4/4 bài nối đúng hết vẫn 0 điểm. Fix: chấm bằng **tập cặp từ `options`**, so tập hợp,
-   không phụ thuộc thứ tự (`ExerciseService.java:300-346`).
+   không phụ thuộc thứ tự (`ExerciseService.java:380-426`).
 
 Cả hai đều được khoá bằng comment giải thích + test regression.
 

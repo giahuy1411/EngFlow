@@ -1,0 +1,12 @@
+secret loaded: length=38 (value not printed)
+login: 200
+create-order: 200 {"orderCode":"ENGBCE96A0DACB8","planType":"MONTH","qrUrl":"https://qr.sepay.vn/img?acc=070****329&amount=10000&des=ENGBCE96A0DACB8&bank=MBBank","amount":10000}
+orderCode: ENGBCE96A0DACB8
+premium before: isPremium=1 expiry=2026-10-27
+webhook(valid sig): 200 {"success":true}
+db status: SUCCESS
+webhook(bad sig): 200 {"success":false,"error":"Invalid signature"} -> rejected: True
+webhook(stale-but-valid sig): 200 {"success":false,"error":"Invalid signature"} -> rejected: True
+cleanup: deleted=1 sqlError=False
+cleanup: premium restored=1 (isPremium=1 expiry=2026-10-27)
+G6 RESULT: PASS

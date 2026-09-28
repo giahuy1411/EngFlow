@@ -1,0 +1,138 @@
+﻿
+ RUN  v1.6.1 C:/Users/<user>/Documents/LAPTRINH/engflow/frontend
+
+ ✓ src/views/__tests__/contrast-ink-tokens.test.js  (6 tests) 7ms
+ ✓ src/utils/speech.test.js  (13 tests) 8ms
+ ✓ src/utils/webmDuration.test.js  (8 tests) 13ms
+ ✓ src/services/api.test.js  (13 tests) 17ms
+ ✓ src/__tests__/vocabulary-search-order.test.js  (7 tests) 186ms
+ ✓ src/composables/useSpeakingRecorder.test.js  (4 tests) 47ms
+ ✓ src/components/common/StreakCalendar.test.js  (8 tests) 239ms
+node.exe : stderr | src/views/Profile.test.js > Profile streak header > shows retry instead of a false empty calendar 
+after an API failure
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (stderr | src/vi... an API failure:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ ✓ src/__tests__/audit-v17-regressions.test.js  (5 tests) 529ms
+stderr | src/views/Profile.test.js > Profile streak header > shows retry instead of a false empty calendar after an 
+API failure
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+stderr | src/views/Profile.test.js > Profile streak header > refreshes on focus and stops listening after unmount
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+stderr | src/views/Profile.test.js > Profile streak header > refreshes on focus and stops listening after unmount
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+stderr | src/views/Profile.test.js > Profile streak header > refreshes at Vietnam midnight even if the browser 
+timezone differs
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+stderr | src/views/Profile.test.js > Profile streak header > refreshes at Vietnam midnight even if the browser 
+timezone differs
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+[Vue warn]: Failed to resolve component: router-link
+If this is a native custom element, make sure to exclude it from component resolution via 
+compilerOptions.isCustomElement. 
+  at <Profile ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ ✓ src/views/Profile.test.js  (4 tests) 183ms
+ ✓ src/views/luyentu/FlashcardGame.test.js  (6 tests) 251ms
+ ✓ src/views/lessons/LessonExerciseTab.f13.test.js  (11 tests) 293ms
+ ✓ src/__tests__/vocabulary-search-errors.test.js  (4 tests) 56ms
+ ✓ src/components/ui/__tests__/AppButton.test.js  (11 tests) 151ms
+ ✓ src/components/decor/__tests__/decor-props.test.js  (10 tests) 96ms
+ ✓ src/utils/safeRedirect.test.js  (27 tests) 13ms
+ ✓ src/views/admin/AdminVideoLessons.test.js  (3 tests) 197ms
+ ✓ src/components/common/Pagination.test.js  (5 tests) 125ms
+ ↓ src/views/Profile.snapshot.test.js  (1 test | 1 skipped)
+ ✓ src/views/luyentu/QuizGame.test.js  (4 tests) 124ms
+ ✓ src/components/ui/__tests__/Feedback.test.js  (8 tests) 111ms
+ ✓ src/components/home/LearningPath.test.js  (4 tests) 415ms
+ ✓ src/views/admin/AdminLessons.placeholder-contrast.test.js  (2 tests) 13ms
+ ✓ src/views/speaking/SpeakingList.test.js  (2 tests) 178ms
+ ✓ src/components/ui/__tests__/States.test.js  (6 tests) 92ms
+ ✓ src/components/ui/__tests__/FormField.test.js  (4 tests) 91ms
+ ✓ src/components/ui/__tests__/StickerCard.test.js  (6 tests) 65ms
+ ✓ src/views/admin/AdminSpeakingSubmissions.test.js  (1 test) 92ms
+ ✓ src/components/ui/__tests__/AppInput.test.js  (4 tests) 64ms
+ ✓ src/components/common/UserPageHeader.test.js  (1 test) 57ms
+ ✓ src/services/dashboardService.test.js  (2 tests) 7ms
+ ✓ src/views/lessons/LessonLayout.h1.test.js  (2 tests) 29ms
+ ✓ src/utils/sanitize-a11y.test.js  (3 tests) 13ms
+
+ Test Files  31 passed | 1 skipped (32)
+      Tests  194 passed | 1 skipped (195)
+   Start at  15:11:46
+   Duration  6.45s (transform 3.12s, setup 4ms, collect 13.23s, tests 3.76s, environment 33.21s, prepare 8.61s)
+

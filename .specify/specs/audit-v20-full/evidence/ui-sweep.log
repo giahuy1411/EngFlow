@@ -1,0 +1,139 @@
+browser executable: C:\Users\<user>\AppData\Local\ms-playwright\chromium-1234\chrome-win64\chrome.exe
+seeded student isAdmin=false isPremium=true
+seeded admin   isAdmin=true
+ anon    /                              -> /                            txt= 1709 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /                              -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /                              -> /                            txt= 1720 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /login                         -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /login                         -> /lessons                     txt= 1827 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /login                         -> /lessons                     txt= 1842 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /register                      -> /register                    txt=  158 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /register                      -> /lessons                     txt= 1827 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /register                      -> /lessons                     txt= 1842 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /forgot-password               -> /forgot-password             txt=  248 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /forgot-password               -> /lessons                     txt= 1827 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /forgot-password               -> /lessons                     txt= 1842 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /reset-password                -> /reset-password              txt=  280 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /reset-password                -> /lessons                     txt= 1827 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /reset-password                -> /lessons                     txt= 1842 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /lessons                       -> /lessons                     txt= 1813 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /lessons                       -> /lessons                     txt= 1827 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /lessons                       -> /lessons                     txt= 1842 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /lessons/445                   -> /lessons/445                 txt= 2784 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /lessons/445                   -> /lessons/445                 txt= 2812 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /lessons/445                   -> /lessons/445                 txt= 2827 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /videos                        -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /videos                        -> /videos                      txt=  963 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /videos                        -> /videos                      txt=  978 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /videos/1                      -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /videos/1                      -> /videos/1                    txt= 1822 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /videos/1                      -> /videos/1                    txt= 1837 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /profile                       -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /profile                       -> /profile                     txt=  566 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /profile                       -> /profile                     txt=  593 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /search                        -> /search                      txt=  234 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /search                        -> /search                      txt=  230 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /search                        -> /search                      txt=  245 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /leaderboard                   -> /leaderboard                 txt=  610 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /leaderboard                   -> /leaderboard                 txt=  612 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /leaderboard                   -> /leaderboard                 txt=  627 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks                         -> /decks                       txt= 1308 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks                         -> /decks                       txt= 1304 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks                         -> /decks                       txt= 1319 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006                   -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006                   -> /decks/10006                 txt=  512 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006                   -> /decks/10006                 txt=  527 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006/play/flashcard    -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006/play/flashcard    -> /decks/10006/play/flashcard  txt=  278 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006/play/flashcard    -> /decks/10006/play/flashcard  txt=  293 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006/play/quiz         -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006/play/quiz         -> /decks/10006/play/quiz       txt=  267 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006/play/quiz         -> /decks/10006/play/quiz       txt=  284 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006/play/memory       -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006/play/memory       -> /decks/10006/play/memory     txt=  282 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006/play/memory       -> /decks/10006/play/memory     txt=  297 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006/play/typing       -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006/play/typing       -> /decks/10006/play/typing     txt=  257 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006/play/typing       -> /decks/10006/play/typing     txt=  273 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006/play/listening    -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006/play/listening    -> /decks/10006/play/listening  txt=  247 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006/play/listening    -> /decks/10006/play/listening  txt=  262 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/10006/play/mixed        -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/10006/play/mixed        -> /decks/10006/play/mixed      txt=  323 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/10006/play/mixed        -> /decks/10006/play/mixed      txt=  337 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /ai-vocab-generator            -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /ai-vocab-generator            -> /ai-vocab-generator          txt=  370 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /ai-vocab-generator            -> /ai-vocab-generator          txt=  385 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /decks/create                  -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /decks/create                  -> /decks/create                txt=  328 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /decks/create                  -> /decks/create                txt=  343 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /speaking                      -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /speaking                      -> /speaking                    txt= 1118 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /speaking                      -> /speaking                    txt= 1133 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /speaking/history              -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /speaking/history              -> /speaking/history            txt= 1429 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /speaking/history              -> /speaking/history            txt= 1951 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /speaking/3                    -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /speaking/3                    -> /speaking/3                  txt= 1177 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /speaking/3                    -> /speaking/3                  txt= 1178 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /speaking/3/record             -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /speaking/3/record             -> /speaking/3/record           txt=  532 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /speaking/3/record             -> /speaking/3/record           txt=  547 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /premium                       -> /premium                     txt=  657 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /premium                       -> /premium                     txt=  567 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /premium                       -> /premium                     txt=  582 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /premium/checkout              -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /premium/checkout              -> /premium/checkout            txt=  307 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /premium/checkout              -> /premium/checkout            txt=  322 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin                         -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin                         -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin                         -> /admin/dashboard             txt=  720 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/dashboard               -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/dashboard               -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/dashboard               -> /admin/dashboard             txt=  720 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/lessons                 -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/lessons                 -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/lessons                 -> /admin/lessons               txt= 2884 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/exercises               -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/exercises               -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/exercises               -> /admin/exercises             txt= 2437 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/users                   -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/users                   -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/users                   -> /admin/users                 txt=  697 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/speaking-prompts        -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/speaking-prompts        -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/speaking-prompts        -> /admin/speaking-prompts      txt= 1026 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/speaking-submissions    -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/speaking-submissions    -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/speaking-submissions    -> /admin/speaking-submissions  txt= 4306 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/videos                  -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/videos                  -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/videos                  -> /admin/videos                txt=  588 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/video-attempts          -> /login                       txt=  137 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/video-attempts          -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/video-attempts          -> /admin/video-attempts        txt=  284 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /admin/445/build               -> /                            txt= 1709 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /admin/445/build               -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /admin/445/build               -> /                            txt= 1720 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ anon    /definitely-not-a-route        -> /                            txt= 1709 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ student /definitely-not-a-route        -> /                            txt= 1705 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+ admin   /definitely-not-a-route        -> /                            txt= 1720 con= 0 small=0 alt=0 err=0 api=0 ovf=-15
+responsive: 35 cells, 0 overflowing
+design /: font="Be Vietnam Pro", system-ui, sans-serif checkBV=true lucide=true stroke=2.5px
+design /lessons: font="Be Vietnam Pro", system-ui, sans-serif checkBV=true lucide=false stroke=null
+design /admin/dashboard: font="Be Vietnam Pro", system-ui, sans-serif checkBV=true lucide=true stroke=2.5px
+shot: .specify\specs\audit-v20-full\evidence\shots\v20-home-1440.png
+shot: .specify\specs\audit-v20-full\evidence\shots\v20-lessons-360.png
+shot: .specify\specs\audit-v20-full\evidence\shots\v20-admin-dashboard-1440.png
+shot: .specify\specs\audit-v20-full\evidence\shots\v20-profile-1280.png
+shot: .specify\specs\audit-v20-full\evidence\shots\v20-premium-768.png
+shot: .specify\specs\audit-v20-full\evidence\shots\v20-lessons-1920.png
+cleanupAuditPayments: window=since 2026-09-28 00:00:00 candidates=2 remaining=0 after=13 baseline=12 sqlError=false -> SELF-CLEAN OK  [NOTE: after != baseline 12 — baseline may be stale; the sweep still cleaned its own rows]
+cleanupStudyDays: window=[2026-09-28..2026-09-28] candidates=0 remaining=0 sqlError=false -> SELF-CLEAN OK
+cleanupExerciseAttempts: window=[2026-09-28..2026-09-28] candidates=0 remaining=0 sqlError=false -> SELF-CLEAN OK
+DB parity after cleanup: 1470|43738|5|118|29|4|3|13|10   (baseline 1470|43738|5|118|29|4|3|12|10)
+assertClean: parity=1470|43738|5|118|29|4|3|13|10 study_days=4 pending_payments=0 exercise_attempts=33 -> DIRTY: parity 1470|43738|5|118|29|4|3|13|10 != expected 1470|43738|5|118|29|4|3|12|10
+RESIDUE: assertClean failed — residue left by this run: parity 1470|43738|5|118|29|4|3|13|10 != expected 1470|43738|5|118|29|4|3|12|10
+
+=== TOTALS === {"contrastFails":0,"missingAlt":0,"smallTargets":0,"noName":0,"consoleErrors":0,"apiErrors":0,"pageErrors":0,"guardFails":0,"overflowRoutes":0}
+written: .specify\specs\audit-v20-full\evidence\ui-sweep.json

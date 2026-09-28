@@ -1,0 +1,14 @@
+fixture: human-speech-librispeech.wav bytes=210958
+prompt created: 201 id=92182
+upload: 200 b'{"id":50060,"user":{"id":2,"fullName":"H\xe1\xbb\x8dc Vi\xc3\xaan M\xe1\xba\xabu","avatarUrl":"https://res.cloudinary.com/<cloud>/image/upload/v1788343118/engflow/avatars/gawimjkso3ygpfsbgei6.png"},"pro'
+assess: 200
+status=COMPLETED transcript_len=116 scoreTotal=6.0
+transcript head: He was in a fevered state of mind, owing to the blight his wife's action threatened to cast up on his entire future.
+db media_object_key: speaking-submissions/924ae6ba-1c6d-4201-b3d0-299040dd3fb2_audit-v17-human.wav
+cleanup window (VN date): 2026-09-28
+cleanup: row deleted=1 sqlError=False ; minio: Removed `local/speaking-uploads/speaking-submissions/924ae6ba-1c6d-4201-b3d0-299040dd3fb2_audit-v17-human.wav`.
+cleanup: study_days rows removed=1
+cleanup: prompt deleted=yes
+minio copy gone: True | repo fixture intact: True (bytes 210958 -> 210958)
+reference/transcript word-set recall: 0.95
+G8 RESULT: PASS (HUMAN recording -> real transcript matching the reference; cleanup verified)

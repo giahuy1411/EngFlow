@@ -1,0 +1,398 @@
+<title>EngFlow Audit v20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap">
+<style>
+  :root {
+    --bg:#FFFDF5; --fg:#1E293B; --muted:#F1F5F9; --muted-fg:#556070;
+    --card:#FFFFFF; --border:#E2E8F0; --ink-border:#1E293B;
+    --accent:#8B5CF6; --accent-ink:#6D28D9; --accent-strong:#7C3AED;
+    --pink:#F472B6; --pink-ink:#BE185D; --amber:#FBBF24; --amber-ink:#B45309;
+    --mint:#34D399; --mint-ink:#047857;
+    --danger:#E11D48; --danger-ink:#BE123C; --warn-ink:#B45309; --ok-ink:#047857;
+    --sh-sm:3px 3px 0 var(--ink-border); --sh-md:4px 4px 0 var(--ink-border);
+    --sh-lg:6px 6px 0 var(--ink-border); --sh-soft:6px 6px 0 var(--border);
+    --r-sm:8px; --r-md:16px; --r-lg:24px; --r-full:9999px;
+    --bw:2px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg:#151A24; --fg:#E8EDF5; --muted:#1E2531; --muted-fg:#9AA7B8;
+      --card:#1B2230; --border:#2C3646; --ink-border:#0B0F16;
+      --accent:#A78BFA; --accent-ink:#C4B5FD; --accent-strong:#8B5CF6;
+      --pink:#F9A8D4; --pink-ink:#F9A8D4; --amber:#FCD34D; --amber-ink:#FCD34D;
+      --mint:#6EE7B7; --mint-ink:#6EE7B7;
+      --danger:#FB7185; --danger-ink:#FDA4AF; --warn-ink:#FCD34D; --ok-ink:#6EE7B7;
+      --sh-soft:6px 6px 0 #0B0F16;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#151A24; --fg:#E8EDF5; --muted:#1E2531; --muted-fg:#9AA7B8;
+    --card:#1B2230; --border:#2C3646; --ink-border:#0B0F16;
+    --accent:#A78BFA; --accent-ink:#C4B5FD; --accent-strong:#8B5CF6;
+    --pink:#F9A8D4; --pink-ink:#F9A8D4; --amber:#FCD34D; --amber-ink:#FCD34D;
+    --mint:#6EE7B7; --mint-ink:#6EE7B7;
+    --danger:#FB7185; --danger-ink:#FDA4AF; --warn-ink:#FCD34D; --ok-ink:#6EE7B7;
+    --sh-soft:6px 6px 0 #0B0F16;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:"Be Vietnam Pro",system-ui,sans-serif;
+    font-size:16px; line-height:1.6;
+    padding-inline:16px; padding-block:0 64px;
+  }
+  .wrap { max-width:1060px; margin:0 auto; }
+  h1,h2,h3 { font-weight:900; line-height:1.12; text-wrap:balance; letter-spacing:-.02em; margin:0; }
+  h1 { font-size:clamp(2rem,5vw,3.1rem); }
+  h2 { font-size:clamp(1.3rem,3vw,1.7rem); }
+  h3 { font-size:1.05rem; font-weight:800; }
+  p { margin:0 0 .85em; max-width:68ch; }
+  a { color:var(--accent-ink); }
+  code,.mono { font-family:var(--mono); font-size:.87em; font-variant-numeric:tabular-nums; }
+  code { background:var(--muted); border:1px solid var(--border); border-radius:5px; padding:.08em .38em; }
+
+  /* ---- header ---- */
+  header.hero { padding-block:52px 34px; border-bottom:var(--bw) solid var(--ink-border); }
+  .eyebrow {
+    display:inline-flex; align-items:center; gap:.5em;
+    font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+    background:var(--amber); color:#1E293B; border:var(--bw) solid var(--ink-border);
+    border-radius:var(--r-full); padding:.34em .95em; box-shadow:var(--sh-sm);
+    margin-bottom:20px;
+  }
+  .eyebrow .dot { width:.5em; height:.5em; border-radius:50%; background:#1E293B; }
+  .sub { color:var(--muted-fg); font-size:1.02rem; margin-top:14px; }
+  .meta { display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:20px; font-size:.85rem; color:var(--muted-fg); }
+  .meta b { color:var(--fg); font-weight:700; }
+
+  /* ---- verdict ---- */
+  .verdict {
+    margin-top:34px; background:var(--card); border:var(--bw) solid var(--ink-border);
+    border-radius:var(--r-md); box-shadow:var(--sh-lg); padding:26px 28px;
+    display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .verdict .badge {
+    flex:none; background:var(--danger); color:#fff; border:var(--bw) solid var(--ink-border);
+    border-radius:var(--r-sm); padding:10px 14px; font-weight:900; font-size:.78rem;
+    letter-spacing:.08em; text-transform:uppercase; box-shadow:var(--sh-sm);
+  }
+  .verdict h3 { font-size:1.28rem; margin-bottom:6px; }
+  .verdict p { margin:0; color:var(--muted-fg); font-size:.96rem; }
+
+  /* ---- sections ---- */
+  section { padding-block:44px 8px; }
+  .sec-head { display:flex; align-items:baseline; gap:14px; margin-bottom:22px; flex-wrap:wrap; }
+  .sec-head .num {
+    font-size:.74rem; font-weight:800; letter-spacing:.1em; color:var(--muted-fg);
+    border:var(--bw) solid var(--border); border-radius:var(--r-full); padding:.2em .8em;
+  }
+
+  /* ---- metric tiles ---- */
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:16px; }
+  .tile {
+    background:var(--card); border:var(--bw) solid var(--ink-border); border-radius:var(--r-md);
+    box-shadow:var(--sh-md); padding:18px 18px 16px;
+  }
+  .tile .k { font-size:.7rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-fg); }
+  .tile .v { font-size:1.85rem; font-weight:900; line-height:1.15; margin-top:6px; font-variant-numeric:tabular-nums; }
+  .tile .n { font-size:.8rem; color:var(--muted-fg); margin-top:4px; }
+  .tile.ok .v { color:var(--ok-ink); }
+  .tile.bad .v { color:var(--danger-ink); }
+  .tile.acc .v { color:var(--accent-ink); }
+
+  /* ---- tables ---- */
+  .tscroll { overflow-x:auto; border:var(--bw) solid var(--ink-border); border-radius:var(--r-md);
+             box-shadow:var(--sh-soft); background:var(--card); }
+  table { border-collapse:collapse; width:100%; min-width:640px; font-size:.9rem; }
+  th,td { text-align:left; padding:12px 15px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { background:var(--muted); font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-fg); }
+  tr:last-child td { border-bottom:0; }
+  td.num,th.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .chip {
+    display:inline-block; font-size:.68rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    border:1.5px solid currentColor; border-radius:var(--r-full); padding:.16em .62em; white-space:nowrap;
+  }
+  .c-crit { color:var(--danger-ink); background:color-mix(in srgb,var(--danger) 14%,transparent); }
+  .c-high { color:var(--danger-ink); }
+  .c-med  { color:var(--warn-ink); }
+  .c-low  { color:var(--muted-fg); }
+  .c-info { color:var(--accent-ink); }
+  .c-fix  { color:var(--ok-ink); }
+  .id { font-family:var(--mono); font-size:.8rem; font-weight:700; white-space:nowrap; }
+
+  /* ---- callout ---- */
+  .callout {
+    background:var(--card); border:var(--bw) solid var(--ink-border); border-left-width:8px;
+    border-left-color:var(--danger); border-radius:var(--r-sm); box-shadow:var(--sh-md);
+    padding:20px 22px; margin-top:8px;
+  }
+  .callout h3 { margin-bottom:8px; }
+  .callout .code-block { margin:14px 0 0; }
+
+  pre {
+    background:var(--muted); border:1.5px solid var(--border); border-radius:var(--r-sm);
+    padding:13px 15px; overflow-x:auto; font-family:var(--mono); font-size:.82rem; line-height:1.55; margin:0;
+  }
+  pre .bad { color:var(--danger-ink); font-weight:700; }
+  pre .good { color:var(--ok-ink); font-weight:700; }
+
+  ul.clean { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+  ul.clean li { position:relative; padding-left:26px; max-width:70ch; }
+  ul.clean li::before {
+    content:""; position:absolute; left:2px; top:.58em;
+    width:9px; height:9px; border-radius:2px; background:var(--accent); transform:rotate(45deg);
+  }
+  ul.clean li.warn::before { background:var(--amber); border-radius:50%; transform:none; }
+
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; }
+  .panel { background:var(--card); border:var(--bw) solid var(--ink-border); border-radius:var(--r-md);
+           box-shadow:var(--sh-soft); padding:20px 22px; }
+  .panel h3 { margin-bottom:12px; display:flex; align-items:center; gap:9px; }
+  .panel h3 .sq { width:11px; height:11px; border-radius:3px; flex:none; border:1.5px solid var(--ink-border); }
+  .sq.v { background:var(--accent); } .sq.p { background:var(--pink); } .sq.a { background:var(--amber); } .sq.m { background:var(--mint); }
+
+  footer { margin-top:52px; padding-top:22px; border-top:var(--bw) solid var(--border);
+           color:var(--muted-fg); font-size:.84rem; display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+  @media (max-width:560px) {
+    header.hero { padding-block:36px 26px; }
+    .verdict { padding:20px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow"><span class="dot"></span>Báo cáo kiểm thử · audit-v20</span>
+    <h1>EngFlow Audit v20</h1>
+    <p class="sub">Quét toàn bộ codebase &amp; CSDL, chạy toàn bộ API, kiểm thử UI/UX trên hai engine MCP,
+      xác minh design system, comment toàn bộ mã nguồn bằng tiếng Việt, và dọn rác.</p>
+    <div class="meta">
+      <span><b>Ngày:</b> 28/09/2026 (+07)</span>
+      <span><b>Nhánh:</b> audit-v15-full</span>
+      <span><b>Nền:</b> d08dba5</span>
+      <span><b>Vòng:</b> 3 vòng kiểm thử</span>
+    </div>
+  </header>
+
+  <div class="verdict">
+    <span class="badge">1 lỗi nghiêm trọng</span>
+    <div>
+      <h3>Trước phiên này, dự án không build được.</h3>
+      <p>Đợt thêm comment do AI sinh đã xoá mất dòng khai báo lớp <code>public class AdminService {</code>,
+        khiến <code>mvnw test</code> dừng ở bước biên dịch. Đã khôi phục và xác minh lại toàn bộ.
+        Đây đúng là loại hậu quả cần chặn: mã sinh ra phá build mà không ai biết.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="num">Kết quả</span><h2>Số đo sau khi hoàn tất</h2></div>
+    <div class="tiles">
+      <div class="tile ok"><div class="k">Backend tests</div><div class="v">541</div><div class="n">0 fail · 0 error · 11 skip</div></div>
+      <div class="tile ok"><div class="k">Frontend tests</div><div class="v">194</div><div class="n">1 skip · 32 file</div></div>
+      <div class="tile ok"><div class="k">API sweep</div><div class="v">145</div><div class="n">0 fail · 0 blocked</div></div>
+      <div class="tile ok"><div class="k">Deep probe</div><div class="v">58</div><div class="n">0 fail</div></div>
+      <div class="tile acc"><div class="k">Font ngoài BVP</div><div class="v">0</div><div class="n">đo trong browser thật</div></div>
+      <div class="tile ok"><div class="k">Bundle entry</div><div class="v">177.75</div><div class="n">kB · gzip 67.69 · không tăng</div></div>
+      <div class="tile bad"><div class="k">Lỗi nghiêm trọng</div><div class="v">1</div><div class="n">đã fix (không build được)</div></div>
+      <div class="tile ok"><div class="k">File comment-only</div><div class="v">196</div><div class="n">0 dòng code thay đổi</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Phát hiện</span><h2>Lỗi nghiêm trọng nhất</h2></div>
+    <div class="callout">
+      <h3>F-20-06 · Cây làm việc không biên dịch được</h3>
+      <p>File <code>service/AdminService.java</code> bị mất dòng khai báo lớp trong lúc chèn Javadoc,
+        và Javadoc bị đặt <em>sau</em> annotation thay vì trước. Không có test nào chạy được.</p>
+      <div class="code-block">
+<pre><span class="bad">[ERROR] AdminService.java:[465,1] class, interface, enum, or record expected</span>
+<span class="bad">[ERROR] AdminService.java:[1,1] compact source file should not have package declaration</span>
+[INFO] BUILD FAILURE
+
+<span class="good">→ sau khi khôi phục dòng lớp + đưa Javadoc lên trước @Service:</span>
+[INFO] Tests run: 541, Failures: 0, Errors: 0, Skipped: 11
+[INFO] BUILD SUCCESS</pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Đã fix</span><h2>Các lỗi đã sửa và cách sửa</h2></div>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>Mã</th><th>Mức</th><th>Vấn đề</th><th>Cách sửa</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id">F-20-06</td><td><span class="chip c-crit">Nghiêm trọng</span></td>
+            <td>Không build được: mất dòng <code>public class AdminService {</code> khi thêm Javadoc.</td>
+            <td>Khôi phục dòng lớp; đưa Javadoc lên trước annotation → <b>541/0/0/11</b>.</td>
+          </tr>
+          <tr>
+            <td class="id">F-20-12</td><td><span class="chip c-high">Cao</span></td>
+            <td>Thêm comment đẩy dòng → <b>121/167</b> trích dẫn <code>File.java:số-dòng</code> trong cẩm nang demo trỏ sai.</td>
+            <td>Viết công cụ remap neo theo khối code: <b>126 viết lại, 41 giữ nguyên, 0 sót</b>. Cài vào harness.</td>
+          </tr>
+          <tr>
+            <td class="id">F-20-00</td><td><span class="chip c-high">Cao</span></td>
+            <td>Runtime chết: SQL Server + Redis thoát, backend crash-loop vì thiếu JDBC.</td>
+            <td>Dựng lại container → backend boot <code>Started … 12.542s</code>, 0 lỗi.</td>
+          </tr>
+          <tr>
+            <td class="id">F-20-02b</td><td><span class="chip c-med">Vừa</span></td>
+            <td>Lỗ hổng guard: <code>api-sweep.js</code> còn trỏ vòng v19; guard cũ chỉ soi đường dẫn nên không bắt.</td>
+            <td>Sửa default + <b>thêm check 8</b>, có mutation-test chứng minh bắt đúng.</td>
+          </tr>
+          <tr>
+            <td class="id">F-20-01</td><td><span class="chip c-med">Vừa</span></td>
+            <td>Baseline parity cũ (<code>payments=12</code> vs thật <code>13</code>) làm guard báo rác oan.</td>
+            <td>Cập nhật baseline 13 + ghi lý do (giao dịch SePay thật). <b>Không xoá dữ liệu thật.</b></td>
+          </tr>
+          <tr>
+            <td class="id">F-20-02</td><td><span class="chip c-med">Vừa</span></td>
+            <td><code>_config.js</code> mặc định trỏ vòng cũ <code>audit-v19-full</code>.</td>
+            <td>Đổi sang vòng hiện tại; check 6 đạt.</td>
+          </tr>
+          <tr>
+            <td class="id">F-20-03</td><td><span class="chip c-low">Thấp</span></td>
+            <td>Thiếu file <code>harness-restore.md</code> cho vòng v20.</td>
+            <td>Tạo file; check 5 đạt.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Đã đo</span><h2>Không phải lỗi — và tự đính chính</h2></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3><span class="sq m"></span>Đo lại thì không phải lỗi</h3>
+        <ul class="clean">
+          <li><b>N+1 “tiềm ẩn”:</b> hai repository được nghi ngờ đều map sang DTO chỉ dùng trường vô hướng, phạm vi hẹp → không có N+1. Không thêm tối ưu khi chưa đo.</li>
+          <li><b><code>/api/health</code> trả 401:</b> đúng thiết kế — đường này nằm sau lớp xác thực.</li>
+          <li><b>4 dòng “Internal server error”:</b> thuộc lượt khởi động <em>trước</em>, do client ngắt kết nối khi đang stream media. Lượt hiện tại 0 lỗi.</li>
+          <li><b><code>WebConfig.java</code>:</b> bị công cụ gắn cờ nhưng cả lớp bị comment-out có chủ đích (CORS trùng).</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3><span class="sq a"></span>Tự đính chính về công cụ</h3>
+        <ul class="clean">
+          <li class="warn">Bộ lọc đầu tiên không hiểu <b>text block</b> của Java (<code>"""</code>) nên báo sai “2 file đổi code”. Bản đúng: <b>139/139 comment-only</b>.</li>
+          <li class="warn">Một checker khác báo “85/115 sai” — thực ra cẩm nang dùng đoạn code <em>lược trích</em> nên so khớp chuỗi tuyệt đối thất bại. Kiểm tay xác nhận remap đúng.</li>
+        </ul>
+        <p style="margin:14px 0 0;font-size:.9rem;color:var(--muted-fg)">Ghi lại để báo cáo trung thực: công cụ sai từng tạo ra kết luận sai.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Đối chiếu</span><h2>Giao diện so với design system</h2></div>
+    <p>Xác minh bằng đo runtime trên cả hai engine MCP — không đọc code rồi suy đoán.</p>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>Hạng mục</th><th>Yêu cầu trong prompt</th><th class="num">Đo được</th></tr></thead>
+        <tbody>
+          <tr><td>Font</td><td>Be Vietnam Pro là font duy nhất</td><td class="num"><span class="chip c-fix">1 font</span> chỉ BVP</td></tr>
+          <tr><td>Nền</td><td>Cream <code>#FFFDF5</code></td><td class="num"><code>rgb(255,253,245)</code></td></tr>
+          <tr><td>Màu nhấn</td><td>Violet <code>#8B5CF6</code></td><td class="num"><code>--geo-accent</code> = <code>#8B5CF6</code></td></tr>
+          <tr><td>Nút</td><td>Viền 2px <code>#1E293B</code>, bo tròn pill, shadow cứng</td><td class="num">2px · 9999px · đúng</td></tr>
+          <tr><td>Tiêu đề</td><td>Weight 800/900</td><td class="num">h1 = <b>900</b></td></tr>
+          <tr><td>Tràn ngang</td><td>Không tràn ở 5 viewport</td><td class="num"><span class="chip c-fix">0</span> overflow</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:16px;font-size:.92rem;color:var(--muted-fg)">
+      Bốn luồng demo đã chạy thật: đăng nhập (chuyển tới <code>/lessons</code>), streak
+      (<code>/api/streak/snapshot</code> trả 200 đủ 7 trường), tra từ (<code>hello</code> → 200 trong 28&nbsp;ms),
+      và kiểm tra design token. Lỗi còn lại duy nhất so với prompt gốc là prompt ghi “Lucide React”
+      trong khi dự án dùng <code>lucide-vue-next</code> — đã ghi nhận, không phải lỗi mới.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Tài liệu</span><h2>Cập nhật cẩm nang demo</h2></div>
+    <div class="panel">
+      <h3><span class="sq v"></span>Đã đụng 4 chức năng demo — nên đã cập nhật theo quy trình</h3>
+      <p>Toàn bộ <b>167 trích dẫn dòng</b> đã được map lại tự động (126 viết lại, 41 giữ nguyên, 0 bỏ sót),
+        rồi kiểm tay bốn chỗ để xác nhận trỏ đúng. Đã ghi chú kỹ thuật ở đầu tài liệu, cập nhật mốc kiểm chứng
+        sang 28/09/2026, và sửa một ký tự lạc.</p>
+      <div class="tscroll" style="box-shadow:none;margin-top:14px">
+        <table>
+          <thead><tr><th>Trích dẫn mới</th><th>Tài liệu nói gì</th><th>Thực tế tại dòng đó</th></tr></thead>
+          <tbody>
+            <tr><td class="id">SecurityConfig.java:121</td><td>cho <code>/api/auth/register</code> đi qua không cần vé</td><td><span class="chip c-fix">đúng</span></td></tr>
+            <tr><td class="id">UserService.java:194-200</td><td>hỏi CSDL “email/tên đã có chưa?”</td><td><span class="chip c-fix">đúng</span></td></tr>
+            <tr><td class="id">UserService.java:212-214</td><td>phát vé JWT khi đăng ký</td><td><span class="chip c-fix">đúng</span></td></tr>
+            <tr><td class="id">UserService.java:269-286</td><td>đếm sai, đủ 5 lần thì khoá</td><td><span class="chip c-fix">đúng</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Phạm vi</span><h2>Đã làm · chưa làm · còn lại</h2></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3><span class="sq m"></span>Đã làm</h3>
+        <ul class="clean">
+          <li>Comment <b>toàn bộ</b> mã nguồn bằng tiếng Việt: 156 file Java + 40 file frontend; <b>0 dòng code đổi</b>.</li>
+          <li>Ba vòng kiểm thử; vòng 3 lặp đường AI 4 lần liên tiếp (đều 200, 0 vi phạm ký tự Trung).</li>
+          <li>Probe chuyên biệt: chữ ký SePay, audio người thật, cache từ điển — đều đạt.</li>
+          <li>Dọn rác an toàn: bản sao Java tạm, file scratch, log trùng.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3><span class="sq p"></span>Chưa làm / giữ nguyên có lý do</h3>
+        <ul class="clean">
+          <li class="warn">Hai method repository là code chết (0 nơi gọi) — chưa xoá, có thể là API dự phòng.</li>
+          <li class="warn">Annotation <code>PremiumRequired</code> 0 dùng — giữ vì là placeholder có chủ đích.</li>
+          <li class="warn">Các file <code>.env.bak-*</code> chứa bí mật thật — giữ để còn rollback.</li>
+        </ul>
+        <p style="margin:14px 0 0"><b>Không có mục nào bị chặn.</b> Mọi hạng mục đều chạy được và có bằng chứng thật.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Bàn giao</span><h2>File thay đổi chính</h2></div>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>Nhóm</th><th class="num">Số file</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td>Java</td><td class="num">156</td><td>Javadoc tiếng Việt · 0 dòng code đổi</td></tr>
+          <tr><td>Frontend</td><td class="num">40</td><td>Comment/JSDoc tiếng Việt · 0 dòng code đổi</td></tr>
+          <tr><td>Harness</td><td class="num">5</td><td>4 file sửa + 1 công cụ remap mới</td></tr>
+          <tr><td>Tài liệu</td><td class="num">3</td><td>cẩm nang demo · AGENTS.md · .gitignore</td></tr>
+          <tr><td>Artifact audit</td><td class="num">~25</td><td>báo cáo · findings · evidence · ảnh chụp</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:16px;font-size:.92rem;color:var(--muted-fg)">
+      Tổng diff: <b>203 file, +6280 / −488</b>. Phần lớn là Javadoc; phần xoá là annotation di chuyển
+      xuống dưới Javadoc và dòng trích dẫn trong cẩm nang được map lại.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">Lưu ý</span><h2>Rủi ro cho lần sau</h2></div>
+    <ul class="clean">
+      <li class="warn">Thêm comment làm lệch trích dẫn dòng — phải chạy lại công cụ remap trước khi demo.</li>
+      <li class="warn">Comment có thể phá build — sau mỗi đợt phải chạy <code>mvnw test</code>, không chỉ <code>compile</code>.</li>
+      <li class="warn">Cấu hình harness có hai nơi khai báo — sửa phải sửa cả hai.</li>
+      <li class="warn">Baseline parity phải đo lại mỗi vòng; con số 13 là do giao dịch thật.</li>
+      <li class="warn">Đường AI cần lặp nhiều vòng mới kết luận được.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>EngFlow · audit-v20 · 28/09/2026</span>
+    <span>Bằng chứng đầy đủ: <code>.specify/specs/audit-v20-full/</code></span>
+  </footer>
+
+</div>

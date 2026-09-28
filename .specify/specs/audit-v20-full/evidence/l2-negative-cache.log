@@ -1,0 +1,10 @@
+stub listening on :8099
+restarting backend with DICTIONARY_UPSTREAM_URL=...
+missing: 1st 0.04s body=[] | 2nd 0.13s body=[] | stub calls=1
+  negative-cached (2nd does not re-hit upstream): True
+flaky: 1st body=[] | 2nd body=[{"word": "flaky", "phonetics" | stub calls=2
+  failure NOT cached (2nd re-hits upstream and succeeds): True
+realword: 1st [{"word": "realword", "phoneti | 2nd [{"word": "realword", "phoneti | stub calls=1
+  positive payload cached (2nd does not re-hit upstream): True
+restored backend upstream -> https://api.dictionaryapi.dev/api/v2/entries/en
+L2 RESULT: PASS

@@ -1,0 +1,2817 @@
+{
+ "generatedBy": "docs-coverage.js",
+ "java": {
+  "files": 196,
+  "publicDecls": 410,
+  "documentedPublic": 321,
+  "privateNonTrivial": 100,
+  "documentedPrivateNonTrivial": 66
+ },
+ "frontend": {
+  "files": 119,
+  "withHeader": 36,
+  "exports": 38,
+  "documentedExports": 16
+ },
+ "badTags": [],
+ "noiseComments": 1,
+ "perFile": {
+  "java": [
+   {
+    "file": "src/main/java/com/datn/engflow/service/AiAnswerBackfillService.java",
+    "publicDecls": 6,
+    "documentedPublic": 1,
+    "privateNonTrivial": 4,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/AiExerciseService.java",
+    "publicDecls": 13,
+    "documentedPublic": 0,
+    "privateNonTrivial": 6,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/AiPromptService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/AiVocabService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/AnswerKeyService.java",
+    "publicDecls": 4,
+    "documentedPublic": 4,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/CloudinaryService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/DuckDuckGoResearchService.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/HtmlParserService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 18,
+    "documentedPrivateNonTrivial": 10,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/LessonContentService.java",
+    "publicDecls": 5,
+    "documentedPublic": 5,
+    "privateNonTrivial": 6,
+    "documentedPrivateNonTrivial": 6,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/MinioService.java",
+    "publicDecls": 4,
+    "documentedPublic": 4,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SubtitleParser.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SubtitleTranslationService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SupertonicProxyTtsService.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/TtsService.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/YouTubeTranscriptService.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/PaymentService.java",
+    "publicDecls": 8,
+    "documentedPublic": 8,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/PremiumExpiryScheduler.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SePayApiService.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SePayPollingScheduler.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/ShadowingAiGradingService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SpeakingPromptService.java",
+    "publicDecls": 9,
+    "documentedPublic": 9,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SpeakingSubmissionService.java",
+    "publicDecls": 10,
+    "documentedPublic": 10,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/VideoLessonService.java",
+    "publicDecls": 12,
+    "documentedPublic": 12,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/AdminService.java",
+    "publicDecls": 19,
+    "documentedPublic": 19,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/DashboardService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/DeckService.java",
+    "publicDecls": 11,
+    "documentedPublic": 11,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/DictionaryService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/DictionaryWarmupService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/EmailService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 3,
+    "documentedPrivateNonTrivial": 3,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/ExerciseSeedService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/ExerciseService.java",
+    "publicDecls": 11,
+    "documentedPublic": 5,
+    "privateNonTrivial": 10,
+    "documentedPrivateNonTrivial": 6,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/FlashcardService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/GameService.java",
+    "publicDecls": 7,
+    "documentedPublic": 7,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/LeaderboardService.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/LessonService.java",
+    "publicDecls": 7,
+    "documentedPublic": 7,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/LessonSubmissionService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/ProgressService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/SrsService.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/StreakReminderScheduler.java",
+    "publicDecls": 2,
+    "documentedPublic": 0,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/StreakService.java",
+    "publicDecls": 10,
+    "documentedPublic": 10,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/StudyActivityService.java",
+    "publicDecls": 9,
+    "documentedPublic": 9,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/UserService.java",
+    "publicDecls": 14,
+    "documentedPublic": 14,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/VocabularyService.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AdminAiExerciseController.java",
+    "publicDecls": 6,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AdminAnswerBackfillController.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AdminController.java",
+    "publicDecls": 16,
+    "documentedPublic": 16,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AdminExerciseController.java",
+    "publicDecls": 5,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AdminExerciseSeedController.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AdminUploadController.java",
+    "publicDecls": 3,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AiVocabController.java",
+    "publicDecls": 3,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/AuthController.java",
+    "publicDecls": 8,
+    "documentedPublic": 8,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/DashboardController.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/DeckController.java",
+    "publicDecls": 7,
+    "documentedPublic": 7,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/FlashcardController.java",
+    "publicDecls": 3,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/GameController.java",
+    "publicDecls": 6,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/LeaderboardController.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/LessonController.java",
+    "publicDecls": 5,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/LessonExerciseController.java",
+    "publicDecls": 6,
+    "documentedPublic": 6,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/LessonSubmissionController.java",
+    "publicDecls": 3,
+    "documentedPublic": 0,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/MediaProxyController.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/ProgressController.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/SrsController.java",
+    "publicDecls": 3,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/StreakController.java",
+    "publicDecls": 3,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/VocabularyController.java",
+    "publicDecls": 4,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/payment/PaymentController.java",
+    "publicDecls": 3,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/speaking/SpeakingPromptController.java",
+    "publicDecls": 9,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/speaking/SpeakingSubmissionController.java",
+    "publicDecls": 7,
+    "documentedPublic": 7,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/controller/video/VideoLessonController.java",
+    "publicDecls": 14,
+    "documentedPublic": 14,
+    "privateNonTrivial": 2,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/exception/BadRequestException.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/exception/ConflictException.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/exception/ErrorResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/exception/GlobalExceptionHandler.java",
+    "publicDecls": 21,
+    "documentedPublic": 20,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/exception/ResourceNotFoundException.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/DeckRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/DeckWordRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/ExerciseAttemptRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/ExerciseRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/LessonRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/LessonSubmissionRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/PaymentTransactionRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/ProgressRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/SpeakingPromptRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/SpeakingSubmissionRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/StudyDayRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/StudyPolicyRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/UserRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/UserVocabularyProgressRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/VideoAttemptRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/VideoLessonRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/repository/VocabularyRepository.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/EngflowApplication.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/Deck.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/DeckWord.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/Exercise.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/ExerciseAttempt.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/Lesson.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/LessonSubmission.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/PaymentTransaction.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/Progress.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/SpeakingPrompt.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/SpeakingPromptMode.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/SpeakingSubmission.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/SpeakingSubmissionStatus.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/StudyDay.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/StudyPolicy.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/User.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/UserVocabularyProgress.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/VideoAttempt.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/VideoLesson.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/entity/Vocabulary.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/AdminStatsDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/AdminUserDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/AiExerciseResult.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/AiValidateResult.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/AttemptDetailResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/AttemptHistoryResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/BatchGenerateStatus.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/DashboardStatsDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/DeckSummaryResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/ExerciseGradeItem.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/ExerciseResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/GradeResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/LeaderboardEntryDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/LessonListItemResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/LessonResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/LessonSubmissionDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/LessonSummaryDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/PaymentStatusResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/ProgressResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/SnapshotResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/SpeakingPromptResponse.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/SpeakingSubmissionResponse.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/StudySnapshot.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/UserResponse.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/UserSummaryResponse.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/response/VocabularyDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/DeckRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/GameSessionRedisDTO.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/VocabularyRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/AiBatchGenerateRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/AiGenerateRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/AiValidateRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/AvatarRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/ChangePasswordRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/CreateSpeakingPromptRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/ExerciseRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/FlashcardReviewRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/ForgotPasswordRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/GradeRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/GradeSpeakingSubmissionRequest.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/GradeSubmissionRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/LessonRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/LessonSubmissionRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/LoginRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/RegisterRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/request/ResetPasswordRequest.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/DatabaseSeeder.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 3,
+    "documentedPrivateNonTrivial": 3,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/ExerciseFixRunner.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/HtmlCleanupMigration.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/JacksonConfig.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/JsonDataSeeder.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 1,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/MinioConfig.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/RedisConfig.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/RedisConstants.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/RestTemplateConfig.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/SecurityConfig.java",
+    "publicDecls": 4,
+    "documentedPublic": 4,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/SpeakingReadAloudPromptSeeder.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/SpeakingSubmissionStatusMigration.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/VideoLessonSeeder.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/VocabularyDataSeeder.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 3,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/config/WebConfig.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/assessment/LlmChatClient.java",
+    "publicDecls": 4,
+    "documentedPublic": 4,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/assessment/SpeakingAssessmentOutcome.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/assessment/SpeakingAssessmentService.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 4,
+    "documentedPrivateNonTrivial": 4,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/assessment/SpeakingRubricResult.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/service/assessment/TranscriptAlignmentMetrics.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 3,
+    "documentedPrivateNonTrivial": 2,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/projection/ExerciseLessonProjection.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/projection/LessonListProjection.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/projection/LessonTitle.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/projection/StudyDayOwner.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/dto/video/VideoDtos.java",
+    "publicDecls": 6,
+    "documentedPublic": 6,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/DeckSource.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/ExerciseDifficulty.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/ExerciseType.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/GameType.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/LessonLevel.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/ResourceCategory.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/model/enums/SkillType.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/CustomUserDetailsService.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/JwtAuthenticationFilter.java",
+    "publicDecls": 1,
+    "documentedPublic": 1,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/JwtTokenProvider.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/MediaSigner.java",
+    "publicDecls": 2,
+    "documentedPublic": 2,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/PremiumRequired.java",
+    "publicDecls": 0,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/RateLimitFilter.java",
+    "publicDecls": 1,
+    "documentedPublic": 0,
+    "privateNonTrivial": 3,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/SafeUploadNames.java",
+    "publicDecls": 3,
+    "documentedPublic": 3,
+    "privateNonTrivial": 1,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   },
+   {
+    "file": "src/main/java/com/datn/engflow/security/UserPrincipal.java",
+    "publicDecls": 5,
+    "documentedPublic": 0,
+    "privateNonTrivial": 0,
+    "documentedPrivateNonTrivial": 0,
+    "whyComments": 0,
+    "noiseComments": 0,
+    "badTags": []
+   }
+  ],
+  "frontend": [
+   {
+    "file": "frontend/src/components/decor/DecoConfetti.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/decor/DecoShape.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/decor/DotBackground.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/decor/SquiggleDivider.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/decor/index.js",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppAlert.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppAvatar.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppButton.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppDropdown.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppEmptyState.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppErrorState.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppInput.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppModal.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppProgress.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppSkeleton.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppStepper.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppTable.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppTabs.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppToast.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/AppTooltip.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/FormField.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/StickerCard.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/ui/index.js",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/ForgotPassword.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/Home.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/Leaderboard.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/Lessons.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/Login.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/Profile.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/Register.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/ResetPassword.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/SearchVocabulary.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 1
+   },
+   {
+    "file": "frontend/src/views/lessons/GrammarSkill.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/LessonContent.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/LessonExerciseTab.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/LessonLayout.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/LessonPreview.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/ListeningSkill.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/ReadingSkill.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/SpeakingSkill.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/StreakBanner.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/VocabularySkill.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/lessons/WritingSkill.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminDashboard.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminExercises.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminLessons.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminSpeakingPrompts.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminSpeakingSubmissions.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminUsers.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminVideoAttempts.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/admin/AdminVideoLessons.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/AiVocabGenerator.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/DeckCreate.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/DeckDetail.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/Decks.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/FlashcardGame.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/ListeningGame.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/MemoryMatchGame.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/MixedGame.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/QuizGame.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/luyentu/TypingGame.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/admin/AiGeneratePanel.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/AppLogo.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/Footer.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/GuestCtaCard.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/Header.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/Pagination.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/StreakCalendar.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/common/UserPageHeader.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/home/LearningPath.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/lessons/MatchingExercise.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/premium/PremiumCheckout.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/premium/PremiumPage.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/speaking/SpeakingDetail.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/speaking/SpeakingList.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/speaking/SpeakingRecord.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/speaking/SubmissionHistory.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/videos/VideoLesson.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/views/videos/VideoLibrary.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/router/index.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/adminService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/aiExerciseService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/aiService.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/api.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/authService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/dashboardService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/deckService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/flashcardService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/gameService.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 1,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/leaderboardService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/lessonService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/paymentService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/speakingService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/streakService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/uploadService.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 1,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/videoLessonService.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/services/vocabularyService.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 1,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/store/index.js",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/store/modules/auth.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/store/modules/lesson.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/store/modules/premium.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/App.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/layout/Container.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/layout/PageHeader.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/layout/PageSection.vue",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/components/layout/StatCard.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/composables/useSpeakingRecorder.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/composables/useToast.js",
+    "hasHeader": false,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/composables/useYouTubePlayer.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 1,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/layouts/AdminLayout.vue",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/main.js",
+    "hasHeader": false,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/lessonLevels.js",
+    "hasHeader": true,
+    "exports": 3,
+    "documentedExports": 2,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/markdown.js",
+    "hasHeader": true,
+    "exports": 2,
+    "documentedExports": 2,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/mediaUrl.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 1,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/safeRedirect.js",
+    "hasHeader": true,
+    "exports": 2,
+    "documentedExports": 2,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/sanitize-a11y.js",
+    "hasHeader": true,
+    "exports": 0,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/speech.js",
+    "hasHeader": true,
+    "exports": 4,
+    "documentedExports": 4,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/subtitlePreview.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 0,
+    "noiseComments": 0
+   },
+   {
+    "file": "frontend/src/utils/webmDuration.js",
+    "hasHeader": true,
+    "exports": 1,
+    "documentedExports": 1,
+    "noiseComments": 0
+   }
+  ]
+ }
+}
