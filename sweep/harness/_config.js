@@ -35,7 +35,7 @@ function arg(name, def) {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
 
-const AUDIT = arg("audit", "audit-v20-full");
+const AUDIT = arg("audit", "audit-v21-full");
 const ROOT = path.join(__dirname, "..", "..");
 const OUT = arg("out", path.join(ROOT, ".specify", "specs", AUDIT, "evidence"));
 

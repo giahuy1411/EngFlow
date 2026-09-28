@@ -42,7 +42,7 @@ function arg(name, def) {
   const i = process.argv.indexOf("--" + name);
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
-const AUDIT = arg("audit", "audit-v20-full");
+const AUDIT = arg("audit", "audit-v21-full");
 const OUT_DIR = arg("out", path.join(__dirname, "..", "..", ".specify", "specs", AUDIT, "evidence"));
 
 const R = { pass: 0, fail: 0, blocked: 0, n_a: 0, findings: [], areas: {}, probed: [] };

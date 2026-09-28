@@ -15,27 +15,27 @@
 > Mỗi lô: Javadoc TRƯỚC annotation → **full `mvnw test`** (BE) / `vitest` (FE) → kiểm comment-only → commit.
 
 ### Backend (44 file thiếu)
-- [ ] T1.J1 `model/enums` (7) + `model/dto/projection` (3) + `model/dto/video` (1)
-- [ ] T1.J2 `repository` (10 file thiếu)
-- [ ] T1.J3 `config` (7 file thiếu)
-- [ ] T1.J4 `security` (3) + `controller` (5 thiếu)
-- [ ] T1.J5 `service` phần infra/AI (9 thiếu: AnswerKey, Cloudinary, DuckDuckGo, schedulers, Tts, assessment records)
+- [x] T1.J1 `model/enums` (7) + `model/dto/projection` (3) + `model/dto/video` (1)
+- [x] T1.J2 `repository` (10 file thiếu)
+- [x] T1.J3 `config` (7 file thiếu)
+- [x] T1.J4 `security` (3) + `controller` (5 thiếu)
+- [x] T1.J5 `service` phần infra/AI (9 thiếu: AnswerKey, Cloudinary, DuckDuckGo, schedulers, Tts, assessment records)
 
 ### Frontend (33 file thiếu)
-- [ ] T1.F1 `components/ui` (12) + `components/decor` (2) + `layout` (1) + `common` (1) + `admin` (1)
-- [ ] T1.F2 `services` (7) + `store` (2) + `composables` (1)
-- [ ] T1.F3 `utils` (5)
-- [ ] T1.F4 CSS: giải thích khối token trong 4 file (chỉ comment, không đổi giá trị)
+- [x] T1.F1 `components/ui` (12) + `components/decor` (2) + `layout` (1) + `common` (1) + `admin` (1)
+- [x] T1.F2 `services` (7) + `store` (2) + `composables` (1)
+- [x] T1.F3 `utils` (5)
+- [x] T1.F4 CSS: giải thích khối token trong 4 file (chỉ comment, không đổi giá trị)
 
-- [ ] T1.V Kiểm chứng "comment-only" (stripper hiểu text block) + remap citation doc demo
+- [x] T1.V Kiểm chứng "comment-only" (stripper hiểu text block) + remap citation doc demo
 
 ## Phase 2 — API sweep `[gate]`
-- [ ] T2.1 `api-sweep.js --audit audit-v21-full` → 145 pass / 0 fail
-- [ ] T2.2 Reconciliation vs `api-inventory.js` → 0 bỏ sót
-- [ ] T2.3 `deep-probe.js` → 58 pass / 0 fail
-- [ ] T2.4 `search-sort.js` → đo `?sort=` thật
-- [ ] T2.5 Rate-limit bucket 0 tự-gây-429
-- [ ] T2.6 AI stress ×N≥10 → `evidence/ai-stress.md`
+- [x] T2.1 `api-sweep.js --audit audit-v21-full` → 145 pass / 0 fail
+- [x] T2.2 Reconciliation vs `api-inventory.js` → 0 bỏ sót
+- [x] T2.3 `deep-probe.js` → 58 pass / 0 fail
+- [x] T2.4 `search-sort.js` → đo `?sort=` thật
+- [x] T2.5 Rate-limit bucket 0 tự-gây-429
+- [x] T2.6 AI stress ×N≥10 → `evidence/ai-stress.md`
 
 ## Phase 3 — DB + hiệu năng `[gate]`
 - [ ] T3.1 Orphan FK + FK index coverage → `evidence/db-integrity.md`
