@@ -1,0 +1,1072 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< com.datn:engflow >--------------------------
+[INFO] Building engflow 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ engflow ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 479 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ engflow ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 196 source files with javac [debug parameters release 25] to target\classes
+cmd : WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+At line:1 char:302
++ ... tch {} } }; cmd /c ".\mvnw.cmd test" > .specify\specs\demo-doc-reveri ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A term...has been called:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by lombok.permit.Permit
+WARNING: Please consider reporting this to the maintainers of class lombok.permit.Permit
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[WARNING] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/main/java/com/datn/engflow/config/RedisConfig.java:[48,41] org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer in org.springframework.data.redis.serializer has been deprecated and marked for removal
+[WARNING] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/main/java/com/datn/engflow/config/RedisConfig.java:[50,45] org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer in org.springframework.data.redis.serializer has been deprecated and marked for removal
+[WARNING] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/main/java/com/datn/engflow/config/RedisConfig.java:[78,101] org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer in org.springframework.data.redis.serializer has been deprecated and marked for removal
+[INFO] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/main/java/com/datn/engflow/security/JwtAuthenticationFilter.java: Some input files use or override a deprecated API.
+[INFO] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/main/java/com/datn/engflow/security/JwtAuthenticationFilter.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ engflow ---
+[INFO] Copying 0 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ engflow ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 85 source files with javac [debug parameters release 25] to target\test-classes
+[INFO] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/test/java/com/datn/engflow/service/PaymentServiceTest.java: C:\Users\ASUS\Documents\LAPTRINH\engflow\src\test\java\com\datn\engflow\service\PaymentServiceTest.java uses or overrides a deprecated API.
+[INFO] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/test/java/com/datn/engflow/service/PaymentServiceTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/test/java/com/datn/engflow/service/ExerciseServiceMultipleChoiceOptionsTest.java: C:\Users\ASUS\Documents\LAPTRINH\engflow\src\test\java\com\datn\engflow\service\ExerciseServiceMultipleChoiceOptionsTest.java uses unchecked or unsafe operations.
+[INFO] /C:/Users/ASUS/Documents/LAPTRINH/engflow/src/test/java/com/datn/engflow/service/ExerciseServiceMultipleChoiceOptionsTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ engflow ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.datn.engflow.AnswerExtractionTests
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in com.datn.engflow.AnswerExtractionTests
+[INFO] Running com.datn.engflow.config.SpeakingSubmissionStatusMigrationTest
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of 
+the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: 
+https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically 
+(C:\Users\ASUS\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has 
+been appended
+21:59:22.556 [main] INFO com.datn.engflow.config.SpeakingSubmissionStatusMigration -- Expanded video submission status constraint for manual grading
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.142 s -- in com.datn.engflow.config.SpeakingSubmissionStatusMigrationTest
+[INFO] Running com.datn.engflow.controller.AiVocabSaveVocabValidationTest
+21:59:22.773 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.datn.engflow.controller.AiVocabSaveVocabValidationTest]: AiVocabSaveVocabValidationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+21:59:23.040 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AiVocabSaveVocabValidationTest
+21:59:23.137 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.datn.engflow.controller.AiVocabSaveVocabValidationTest]: AiVocabSaveVocabValidationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+21:59:23.139 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AiVocabSaveVocabValidationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.6)
+
+2026-09-28T21:59:23.563+07:00  INFO 12652 --- [engflow] [           main] c.d.e.c.AiVocabSaveVocabValidationTest   : Starting AiVocabSaveVocabValidationTest using Java 25.0.3 with PID 12652 (started by ASUS in C:\Users\ASUS\Documents\LAPTRINH\engflow)
+2026-09-28T21:59:23.565+07:00  INFO 12652 --- [engflow] [           main] c.d.e.c.AiVocabSaveVocabValidationTest   : No active profile set, falling back to 1 default profile: "default"
+2026-09-28T21:59:25.419+07:00  INFO 12652 --- [engflow] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-09-28T21:59:25.422+07:00  INFO 12652 --- [engflow] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-28T21:59:25.685+07:00  INFO 12652 --- [engflow] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 251 ms. Found 17 JPA repository interfaces.
+2026-09-28T21:59:25.735+07:00  INFO 12652 --- [engflow] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-09-28T21:59:25.737+07:00  INFO 12652 --- [engflow] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-09-28T21:59:25.766+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.DeckRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.767+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.DeckWordRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.ExerciseAttemptRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.ExerciseRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.LessonRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.LessonSubmissionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.PaymentTransactionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.ProgressRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.SpeakingPromptRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.SpeakingSubmissionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.768+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.StudyDayRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.769+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.StudyPolicyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.769+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.UserRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.769+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.UserVocabularyProgressRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.769+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.VideoAttemptRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.769+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.VideoLessonRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.769+07:00  INFO 12652 --- [engflow] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.datn.engflow.repository.VocabularyRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-09-28T21:59:25.770+07:00  INFO 12652 --- [engflow] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 21 ms. Found 0 Redis repository interfaces.
+2026-09-28T21:59:26.756+07:00  INFO 12652 --- [engflow] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-09-28T21:59:26.849+07:00  INFO 12652 --- [engflow] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-09-28T21:59:27.185+07:00  INFO 12652 --- [engflow] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-28T21:59:27.228+07:00  INFO 12652 --- [engflow] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-28T21:59:27.606+07:00  INFO 12652 --- [engflow] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 8ddcb9b3-5731-4ac8-b281-9289467a0536
+2026-09-28T21:59:27.608+07:00  INFO 12652 --- [engflow] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-28T21:59:27.737+07:00  INFO 12652 --- [engflow] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=30;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=english_learning;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.2 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 15.0
+	Default catalog/schema: english_learning/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-09-28T21:59:29.152+07:00  INFO 12652 --- [engflow] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-28T21:59:30.095+07:00  INFO 12652 --- [engflow] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-28T21:59:30.253+07:00  INFO 12652 --- [engflow] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-09-28T21:59:31.919+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.config.ExerciseFixRunner  : ExerciseFixRunner created, enabled=false
+2026-09-28T21:59:33.251+07:00  INFO 12652 --- [engflow] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-09-28T21:59:33.673+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:33.798+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.AnswerKeyService  : AnswerKeyService: Could not find tienganh_nangcao_lessons.json
+2026-09-28T21:59:33.870+07:00  WARN 12652 --- [engflow] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-09-28T21:59:34.935+07:00  INFO 12652 --- [engflow] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-28T21:59:35.062+07:00  INFO 12652 --- [engflow] [           main] c.d.e.c.AiVocabSaveVocabValidationTest   : Started AiVocabSaveVocabValidationTest in 11.853 seconds (process running for 14.792)
+2026-09-28T21:59:35.159+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.config.ExerciseFixRunner  : ExerciseFixRunner.run() called, enabled=false
+2026-09-28T21:59:35.159+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.config.ExerciseFixRunner  : ExerciseFixRunner: SKIPPED (engflow.exercise-fix.enabled=false)
+2026-09-28T21:59:35.185+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.config.DatabaseSeeder   : Dropped CHECK constraint on users.current_level
+2026-09-28T21:59:35.331+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.config.DatabaseSeeder   : Database already contains data. Skipping execution of data.sql.
+2026-09-28T21:59:35.332+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.config.DatabaseSeeder   : SECURITY: default seed accounts use the fallback password 'password123'. Set DEFAULT_ADMIN_PASSWORD / DEFAULT_USER_PASSWORD before any non-local deploy.
+2026-09-28T21:59:35.388+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.config.DatabaseSeeder   : User user@gmail.com already exists. Skipping (password not overwritten).
+2026-09-28T21:59:35.405+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.config.DatabaseSeeder   : User admin@gmail.com already exists. Skipping (password not overwritten).
+2026-09-28T21:59:35.461+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.EngflowApplication      : Flyway beans detected: 0
+2026-09-28T21:59:35.526+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:35.527+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:35.530+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:35.798+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:35.798+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:35.799+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:35.883+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.AiVocabService    : Saved 1 AI-generated vocabulary words to DB
+2026-09-28T21:59:35.981+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:35.981+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:35.982+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:35.998+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:35.998+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:35.999+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.004+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.AiVocabService    : Saved 1 AI-generated vocabulary words to DB
+2026-09-28T21:59:36.019+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.019+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.020+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.036+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.036+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.037+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.063+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.064+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.064+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:36.077+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.AiVocabService    : Saved 1 AI-generated vocabulary words to DB
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.42 s -- in com.datn.engflow.controller.AiVocabSaveVocabValidationTest
+[INFO] Running com.datn.engflow.controller.AuditV10DraftLessonSubmissionGuardTest
+2026-09-28T21:59:36.090+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV10DraftLessonSubmissionGuardTest]: AuditV10DraftLessonSubmissionGuardTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:36.092+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV10DraftLessonSubmissionGuardTest
+2026-09-28T21:59:36.093+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV10DraftLessonSubmissionGuardTest]: AuditV10DraftLessonSubmissionGuardTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:36.093+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV10DraftLessonSubmissionGuardTest
+2026-09-28T21:59:36.102+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.102+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.104+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:36.159+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.160+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.160+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:36.178+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.179+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.180+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.198+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.LessonSubmissionService    : L?u b�i n?p b�i h?c: user=zzsubadmin@test.com, lessonId=165576, skill=WRITING
+2026-09-28T21:59:36.292+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.293+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.295+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:36.316+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.LessonSubmissionService    : L?u b�i n?p b�i h?c: user=zzsubstudent@test.com, lessonId=165577, skill=WRITING
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.251 s -- in com.datn.engflow.controller.AuditV10DraftLessonSubmissionGuardTest
+[INFO] Running com.datn.engflow.controller.AuditV7SecurityWaveTest
+2026-09-28T21:59:36.343+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV7SecurityWaveTest]: AuditV7SecurityWaveTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:36.345+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV7SecurityWaveTest
+2026-09-28T21:59:36.347+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV7SecurityWaveTest]: AuditV7SecurityWaveTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:36.348+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV7SecurityWaveTest
+2026-09-28T21:59:36.370+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.370+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.372+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:36.476+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.476+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.477+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.494+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : Type mismatch: Tham s? 'level' v?i gi� tr? 'NOT_A_LEVEL' kh�ng h?p l?.
+2026-09-28T21:59:36.510+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.510+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.511+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.534+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.534+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.536+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.833+07:00 ERROR 12652 --- [engflow] [           main] com.datn.engflow.service.MinioService    : Could not get object from MinIO: definitely-not-a-real-object-2628808843900.webm
+
+error occurred
+ErrorResponse(code = NoSuchKey, message = The specified key does not exist., bucketName = speaking-uploads, objectName = definitely-not-a-real-object-2628808843900.webm, resource = /speaking-uploads/definitely-not-a-real-object-2628808843900.webm, requestId = 18D9841AA3C70B5C, hostId = dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8)
+request={method=GET, url=http://localhost:9000/speaking-uploads/definitely-not-a-real-object-2628808843900.webm, headers=Host: localhost:9000
+Accept-Encoding: identity
+User-Agent: MinIO (Windows 11; amd64) minio-java/8.5.14
+Content-MD5: 1B2M2Y8AsgTpgAmY7PhCfg==
+x-amz-content-sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date: 20260928T145936Z
+Authorization: ??
+}
+response={code=404, headers=Accept-Ranges: bytes
+Content-Length: 433
+Content-Type: application/xml
+Server: MinIO
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Vary: Origin
+Vary: Accept-Encoding
+X-Amz-Id-2: dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+X-Amz-Request-Id: 18D9841AA3C70B5C
+X-Content-Type-Options: nosniff
+X-Ratelimit-Limit: 879
+X-Ratelimit-Remaining: 879
+X-Xss-Protection: 1; mode=block
+Date: Mon, 28 Sep 2026 14:59:36 GMT
+}
+
+	at io.minio.S3Base$1.onResponse(S3Base.java:775) ~[minio-8.5.14.jar:8.5.14]
+	at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:519) ~[okhttp-4.12.0.jar:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[na:na]
+
+2026-09-28T21:59:36.850+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.850+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.851+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.865+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.865+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.866+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.883+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.883+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.884+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:36.899+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.900+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.900+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:36.905+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.LessonService   : L?y chi ti?t b�i h?c: id=445, user=null
+2026-09-28T21:59:36.954+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.954+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.955+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.622 s -- in com.datn.engflow.controller.AuditV7SecurityWaveTest
+[INFO] Running com.datn.engflow.controller.AuditV8DraftLessonVisibilityTest
+2026-09-28T21:59:36.967+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV8DraftLessonVisibilityTest]: AuditV8DraftLessonVisibilityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:36.969+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV8DraftLessonVisibilityTest
+2026-09-28T21:59:36.969+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV8DraftLessonVisibilityTest]: AuditV8DraftLessonVisibilityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:36.970+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV8DraftLessonVisibilityTest
+2026-09-28T21:59:36.977+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:36.977+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:36.978+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.012+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.LessonService   : L?y chi ti?t b�i h?c: id=165578, user=null
+2026-09-28T21:59:37.029+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.030+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.031+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.052+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.052+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.053+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.121+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.122+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.123+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.154+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.154+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.155+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.168+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.LessonService   : L?y chi ti?t b�i h?c: id=165582, user=zzdraftadmin@test.com
+2026-09-28T21:59:37.231+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.231+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.234+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:37.248+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.LessonService   : L?y chi ti?t b�i h?c: id=165583, user=null
+2026-09-28T21:59:37.266+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.267+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.268+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.321 s -- in com.datn.engflow.controller.AuditV8DraftLessonVisibilityTest
+[INFO] Running com.datn.engflow.controller.AuditV8UploadXssTest
+2026-09-28T21:59:37.290+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV8UploadXssTest]: AuditV8UploadXssTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:37.292+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV8UploadXssTest
+2026-09-28T21:59:37.294+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV8UploadXssTest]: AuditV8UploadXssTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:37.295+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV8UploadXssTest
+2026-09-28T21:59:37.308+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.309+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.312+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:37.373+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.373+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.375+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:37.400+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.400+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.402+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:37.418+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.419+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.421+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:37.440+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.LessonSubmissionService    : L?u file �m thanh ???c t?i l�n: 
+2026-09-28T21:59:37.441+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.LessonSubmissionService    : File ?� ???c l?u t?i: C:\Users\ASUS\Documents\LAPTRINH\engflow\uploads\e6444ca7-889c-40a3-b523-ceaf1aae85f6.webm
+2026-09-28T21:59:37.452+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.452+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.453+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.464+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.464+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.466+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:37.480+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.LessonSubmissionService    : L?u file �m thanh ???c t?i l�n: lesson.html
+2026-09-28T21:59:37.482+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.LessonSubmissionService    : L?u file �m thanh ???c t?i l�n: x.svg
+2026-09-28T21:59:37.491+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.492+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.493+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.218 s -- in com.datn.engflow.controller.AuditV8UploadXssTest
+[INFO] Running com.datn.engflow.controller.AuditV9ControllerGuardTest
+2026-09-28T21:59:37.834+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.834+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.834+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:37.851+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.851+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.851+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.357 s -- in com.datn.engflow.controller.AuditV9ControllerGuardTest
+[INFO] Running com.datn.engflow.controller.AuditV9DraftLessonGradeGuardTest
+2026-09-28T21:59:37.867+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV9DraftLessonGradeGuardTest]: AuditV9DraftLessonGradeGuardTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:37.869+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV9DraftLessonGradeGuardTest
+2026-09-28T21:59:37.870+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV9DraftLessonGradeGuardTest]: AuditV9DraftLessonGradeGuardTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:37.870+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV9DraftLessonGradeGuardTest
+2026-09-28T21:59:37.883+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.884+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.887+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:37.935+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.936+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.937+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:37.971+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:37.971+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:37.972+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:38.074+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.074+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.075+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:38.110+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.110+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.111+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.276 s -- in com.datn.engflow.controller.AuditV9DraftLessonGradeGuardTest
+[INFO] Running com.datn.engflow.controller.AuditV9DraftSecuritySliceTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.6)
+
+2026-09-28T21:59:38.255+07:00  INFO 12652 --- [engflow] [           main] c.d.e.c.AuditV9DraftSecuritySliceTest    : Starting AuditV9DraftSecuritySliceTest using Java 25.0.3 with PID 12652 (started by ASUS in C:\Users\ASUS\Documents\LAPTRINH\engflow)
+2026-09-28T21:59:38.256+07:00  INFO 12652 --- [engflow] [           main] c.d.e.c.AuditV9DraftSecuritySliceTest    : No active profile set, falling back to 1 default profile: "default"
+2026-09-28T21:59:38.622+07:00  INFO 12652 --- [engflow] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name com.datn.engflow.security.CustomUserDetailsService#0
+2026-09-28T21:59:38.858+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.858+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.861+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:38.881+07:00  INFO 12652 --- [engflow] [           main] c.d.e.c.AuditV9DraftSecuritySliceTest    : Started AuditV9DraftSecuritySliceTest in 0.677 seconds (process running for 18.612)
+2026-09-28T21:59:38.898+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.898+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.900+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:38.919+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.919+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.920+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:38.935+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.935+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.937+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:38.958+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.958+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.959+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:38.976+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:38.977+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:38.978+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.007+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.008+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.009+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.865 s -- in com.datn.engflow.controller.AuditV9DraftSecuritySliceTest
+[INFO] Running com.datn.engflow.controller.AuditV9ExerciseListProjectionTest
+2026-09-28T21:59:39.022+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV9ExerciseListProjectionTest]: AuditV9ExerciseListProjectionTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:39.024+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV9ExerciseListProjectionTest
+2026-09-28T21:59:39.025+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.AuditV9ExerciseListProjectionTest]: AuditV9ExerciseListProjectionTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:39.025+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.AuditV9ExerciseListProjectionTest
+2026-09-28T21:59:39.036+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.036+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.039+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:39.080+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.081+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.083+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in com.datn.engflow.controller.AuditV9ExerciseListProjectionTest
+[INFO] Running com.datn.engflow.controller.DeckControllerMyDecksTest
+2026-09-28T21:59:39.196+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.196+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.196+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.213+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.213+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.213+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.230+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.230+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.230+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in com.datn.engflow.controller.DeckControllerMyDecksTest
+[INFO] Running com.datn.engflow.controller.GameControllerSubmitTypeTest
+2026-09-28T21:59:39.235+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.GameControllerSubmitTypeTest]: GameControllerSubmitTypeTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:39.237+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.GameControllerSubmitTypeTest
+2026-09-28T21:59:39.239+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.GameControllerSubmitTypeTest]: GameControllerSubmitTypeTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:39.239+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.GameControllerSubmitTypeTest
+2026-09-28T21:59:39.247+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.247+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.248+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.267+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.267+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.269+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:39.286+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.286+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.287+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.306+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.306+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.308+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.325+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.326+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.327+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.352+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.352+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.353+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.370+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.370+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.372+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.153 s -- in com.datn.engflow.controller.GameControllerSubmitTypeTest
+[INFO] Running com.datn.engflow.controller.GameControllerTest
+2026-09-28T21:59:39.491+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.492+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.492+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.514+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.514+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.514+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.534+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.534+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.534+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.543+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.543+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.543+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.556+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.556+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.556+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.565+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.565+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.566+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.581+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.581+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.581+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.593+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.593+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.593+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.605+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.605+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.606+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:39.614+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.614+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.614+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.621+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.621+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.621+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.629+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.629+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.629+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.637+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.637+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.637+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.645+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.645+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.645+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.652+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.652+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.652+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.662+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.662+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.662+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.674+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.674+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.674+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:39.686+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.686+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.686+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.303 s -- in com.datn.engflow.controller.GameControllerTest
+[INFO] Running com.datn.engflow.controller.LessonExerciseSecurityTest
+2026-09-28T21:59:39.694+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.LessonExerciseSecurityTest]: LessonExerciseSecurityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:39.695+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.LessonExerciseSecurityTest
+2026-09-28T21:59:39.697+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.LessonExerciseSecurityTest]: LessonExerciseSecurityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:39.698+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.LessonExerciseSecurityTest
+2026-09-28T21:59:39.709+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:39.710+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:39.711+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:41.006+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:41.006+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:41.008+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:41.380+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:41.381+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:41.382+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:41.777+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:41.777+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:41.778+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:42.149+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:42.150+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:42.152+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-28T21:59:42.552+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:42.552+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:42.552+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.303 s -- in com.datn.engflow.controller.LessonExerciseSecurityTest
+[INFO] Running com.datn.engflow.controller.speaking.SpeakingEndpointCompatibilityTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.datn.engflow.controller.speaking.SpeakingEndpointCompatibilityTest
+[INFO] Running com.datn.engflow.controller.speaking.SpeakingPromptPremiumVisibilityTest
+2026-09-28T21:59:43.002+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.speaking.SpeakingPromptPremiumVisibilityTest]: SpeakingPromptPremiumVisibilityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:43.050+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.speaking.SpeakingPromptPremiumVisibilityTest
+2026-09-28T21:59:43.051+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.speaking.SpeakingPromptPremiumVisibilityTest]: SpeakingPromptPremiumVisibilityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:43.052+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.speaking.SpeakingPromptPremiumVisibilityTest
+2026-09-28T21:59:43.059+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.059+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.060+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.112+07:00  WARN 12652 --- [engflow] [           main] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-09-28T21:59:43.136+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.136+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.137+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.162+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.162+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.163+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.207+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.207+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.208+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.227+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.227+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.228+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.278+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.278+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.279+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.303+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.303+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.304+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:43.333+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.333+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.335+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.362 s -- in com.datn.engflow.controller.speaking.SpeakingPromptPremiumVisibilityTest
+[INFO] Running com.datn.engflow.controller.StudySnapshotControllerTest
+2026-09-28T21:59:43.544+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.545+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.545+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:43.955+07:00  INFO 12652 --- [engflow] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:43.955+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:43.955+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.606 s -- in com.datn.engflow.controller.StudySnapshotControllerTest
+[INFO] Running com.datn.engflow.controller.video.AuditV8VideoLessonDraftVisibilityTest
+2026-09-28T21:59:43.971+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.video.AuditV8VideoLessonDraftVisibilityTest]: AuditV8VideoLessonDraftVisibilityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:43.999+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.video.AuditV8VideoLessonDraftVisibilityTest
+2026-09-28T21:59:44.000+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.video.AuditV8VideoLessonDraftVisibilityTest]: AuditV8VideoLessonDraftVisibilityTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.001+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.video.AuditV8VideoLessonDraftVisibilityTest
+2026-09-28T21:59:44.011+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.012+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.013+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.103+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.103+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.104+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.120+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.120+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.121+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.161 s -- in com.datn.engflow.controller.video.AuditV8VideoLessonDraftVisibilityTest
+[INFO] Running com.datn.engflow.controller.video.AuditV8VideoLessonUpdateTranscriptTest
+2026-09-28T21:59:44.134+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.video.AuditV8VideoLessonUpdateTranscriptTest]: AuditV8VideoLessonUpdateTranscriptTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.135+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.video.AuditV8VideoLessonUpdateTranscriptTest
+2026-09-28T21:59:44.136+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.video.AuditV8VideoLessonUpdateTranscriptTest]: AuditV8VideoLessonUpdateTranscriptTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.136+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.video.AuditV8VideoLessonUpdateTranscriptTest
+2026-09-28T21:59:44.143+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.144+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.145+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.183+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.183+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.184+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.208+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.208+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.211+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:44.238+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.238+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.242+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 4 ms
+2026-09-28T21:59:44.271+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.271+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.272+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.158 s -- in com.datn.engflow.controller.video.AuditV8VideoLessonUpdateTranscriptTest
+[INFO] Running com.datn.engflow.controller.video.VideoLessonUploadValidationTest
+2026-09-28T21:59:44.293+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.video.VideoLessonUploadValidationTest]: VideoLessonUploadValidationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.294+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.video.VideoLessonUploadValidationTest
+2026-09-28T21:59:44.294+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.video.VideoLessonUploadValidationTest]: VideoLessonUploadValidationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.295+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.video.VideoLessonUploadValidationTest
+2026-09-28T21:59:44.302+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.302+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.303+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.332+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.332+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.333+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.345+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.346+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.347+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-28T21:59:44.367+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.367+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.369+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s -- in com.datn.engflow.controller.video.VideoLessonUploadValidationTest
+[INFO] Running com.datn.engflow.controller.VocabularyControllerEndpointTest
+2026-09-28T21:59:44.390+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.VocabularyControllerEndpointTest]: VocabularyControllerEndpointTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.391+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.VocabularyControllerEndpointTest
+2026-09-28T21:59:44.392+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.controller.VocabularyControllerEndpointTest]: VocabularyControllerEndpointTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.393+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.controller.VocabularyControllerEndpointTest
+2026-09-28T21:59:44.399+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.399+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.402+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-28T21:59:44.435+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.435+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.435+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-28T21:59:44.447+07:00  INFO 12652 --- [engflow] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-28T21:59:44.447+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-28T21:59:44.448+07:00  INFO 12652 --- [engflow] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in com.datn.engflow.controller.VocabularyControllerEndpointTest
+[INFO] Running com.datn.engflow.EngflowApplicationTests
+2026-09-28T21:59:44.470+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.EngflowApplicationTests]: EngflowApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.484+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.EngflowApplicationTests
+2026-09-28T21:59:44.485+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.EngflowApplicationTests]: EngflowApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:44.485+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.EngflowApplicationTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.datn.engflow.EngflowApplicationTests
+[INFO] Running com.datn.engflow.exception.GlobalExceptionHandlerProblemDetailTest
+2026-09-28T21:59:44.493+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : Invalid sort property: No property 'nonexistentProperty' found for type 'String'
+2026-09-28T21:59:44.497+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : AI upstream unreachable: java.io.IOException: Connection refused
+2026-09-28T21:59:44.499+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : AI upstream timeout: java.util.concurrent.TimeoutException: Did not observe any item within 30000ms
+2026-09-28T21:59:44.500+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : AI upstream request failed: Connection refused: host.docker.internal/127.0.0.1:11434
+2026-09-28T21:59:44.501+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : Timeout: 30s
+2026-09-28T21:59:44.502+07:00 ERROR 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : Internal server error
+
+reactor.core.Exceptions$ReactiveException: java.io.IOException: stream closed unexpectedly
+	at reactor.core.Exceptions.propagate(Exceptions.java:410) ~[reactor-core-3.8.5.jar:3.8.5]
+	at com.datn.engflow.exception.GlobalExceptionHandlerProblemDetailTest.otherReactiveErrorsStayOn500Not504(GlobalExceptionHandlerProblemDetailTest.java:82) ~[test-classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:701) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.platform.commons.support.ReflectionSupport.invokeMethod(ReflectionSupport.java:502) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.support.MethodReflectionUtils.invoke(MethodReflectionUtils.java:45) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:61) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:124) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:163) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:148) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:123) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:105) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:99) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:66) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:47) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:39) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:104) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:98) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invokeVoid(InterceptingExecutableInvoker.java:71) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$0(TestMethodTestDescriptor.java:219) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:215) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:157) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:70) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:176) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:36) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:52) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:58) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.executeEngine(EngineExecutionOrchestrator.java:246) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.failOrExecuteEngine(EngineExecutionOrchestrator.java:218) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:179) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:108) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:66) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:157) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:65) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:125) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:58) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.lambda$execute$2(InterceptingLauncher.java:57) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.ClasspathAlignmentCheckingLauncherInterceptor.intercept(ClasspathAlignmentCheckingLauncherInterceptor.java:25) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.execute(InterceptingLauncher.java:56) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:58) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.apache.maven.surefire.api.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:125) ~[surefire-api-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.junitplatform.LauncherAdapter.executeWithCancellationToken(LauncherAdapter.java:68) ~[surefire-junit-platform-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.junitplatform.LauncherAdapter.execute(LauncherAdapter.java:54) ~[surefire-junit-platform-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:203) ~[surefire-junit-platform-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:168) ~[surefire-junit-platform-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:136) ~[surefire-junit-platform-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385) ~[surefire-booter-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162) ~[surefire-booter-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507) ~[surefire-booter-3.5.5.jar:3.5.5]
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495) ~[surefire-booter-3.5.5.jar:3.5.5]
+Caused by: java.io.IOException: stream closed unexpectedly
+	... 82 common frames omitted
+
+2026-09-28T21:59:44.503+07:00  WARN 12652 --- [engflow] [           main] c.d.e.exception.GlobalExceptionHandler   : Entity not found: Lesson not found: 1
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.datn.engflow.exception.GlobalExceptionHandlerProblemDetailTest
+[INFO] Running com.datn.engflow.HarnessDriftTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 s -- in com.datn.engflow.HarnessDriftTest
+[INFO] Running com.datn.engflow.model.dto.response.SpeakingSubmissionResponseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.datn.engflow.model.dto.response.SpeakingSubmissionResponseTest
+[INFO] Running com.datn.engflow.model.entity.StudyPolicySingletonGuardTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.datn.engflow.model.entity.StudyPolicySingletonGuardTest
+[INFO] Running com.datn.engflow.security.JwtAuthenticationFilterInactiveTest
+2026-09-28T21:59:44.764+07:00  WARN 12652 --- [engflow] [           main] c.d.e.security.JwtAuthenticationFilter   : Disabled account attempted access: null
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s -- in com.datn.engflow.security.JwtAuthenticationFilterInactiveTest
+[INFO] Running com.datn.engflow.security.RateLimitFilterTest
+2026-09-28T21:59:44.943+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.security.RateLimitFilter  : Rate limit exceeded for IP: 9.9.9.9 on URI: /api/v1/payment/create-order
+2026-09-28T21:59:44.947+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.security.RateLimitFilter  : Rate limit EXPIRE failed for key rate_limit:5.6.7.8:global, deleted best-effort: expire fail
+2026-09-28T21:59:44.970+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.security.RateLimitFilter  : Rate limit exceeded for IP: 1.2.3.4 on URI: /api/auth/login
+2026-09-28T21:59:44.980+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.security.RateLimitFilter  : Rate limit exceeded for IP: 8.8.8.8 on URI: /api/ai/enrich-word
+2026-09-28T21:59:44.984+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.security.RateLimitFilter  : Rate limit EXPIRE failed for key rate_limit:5.6.7.8:global, deleted best-effort: expire fail
+2026-09-28T21:59:44.986+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.security.RateLimitFilter  : Redis unavailable for rate limiting (IP=1.2.3.4, URI=/api/auth/login), fail-open: Redis down
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.226 s -- in com.datn.engflow.security.RateLimitFilterTest
+[INFO] Running com.datn.engflow.service.AdminServiceDashboardStreakSourceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.315 s -- in com.datn.engflow.service.AdminServiceDashboardStreakSourceTest
+[INFO] Running com.datn.engflow.service.AdminServicePaginationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.datn.engflow.service.AdminServicePaginationTest
+[INFO] Running com.datn.engflow.service.AiAnswerBackfillServiceTest
+2026-09-28T21:59:45.339+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill lesson 100: 2/2 filled (dryRun=true)
+2026-09-28T21:59:45.340+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill lesson 200: 1/1 filled (dryRun=true)
+2026-09-28T21:59:45.340+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill 15a223d1-f439-42ea-95ec-df2820cde643 done: total=3 backfilled=3 (det=3 ai=0) unfillable=0 errors=0 in 2ms [DRY-RUN]
+2026-09-28T21:59:45.382+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill lesson 100: 3/3 filled (dryRun=false)
+2026-09-28T21:59:45.382+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill bad0482a-cf2c-4f4f-8276-cbc968088b56 done: total=3 backfilled=3 (det=3 ai=0) unfillable=0 errors=0 in 1ms
+2026-09-28T21:59:45.410+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill lesson 100: 3/3 filled (dryRun=false)
+2026-09-28T21:59:45.410+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill 514c5565-daa2-48d2-a47c-c65a7cda8188 done: total=3 backfilled=3 (det=3 ai=0) unfillable=0 errors=0 in 0ms
+2026-09-28T21:59:45.437+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill 05ad9145-77b2-4b7b-b4b7-7541047e16cb done: total=1 backfilled=0 (det=0 ai=0) unfillable=1 errors=0 in 1ms
+2026-09-28T21:59:45.467+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill lesson 200: 1/1 filled (dryRun=false)
+2026-09-28T21:59:45.467+07:00  INFO 12652 --- [engflow] [answer-backfill] c.d.e.service.AiAnswerBackfillService    : Backfill 191e1830-f5b1-4bec-936b-4a89f20396fa done: total=1 backfilled=1 (det=1 ai=0) unfillable=0 errors=0 in 1ms
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.165 s -- in com.datn.engflow.service.AiAnswerBackfillServiceTest
+[INFO] Running com.datn.engflow.service.AiExerciseServiceListeningTtsTest
+2026-09-28T21:59:45.690+07:00  INFO 12652 --- [engflow] [           main] c.d.engflow.service.AiExerciseService    : TTS audio generated: https://cdn.example/audio.wav
+2026-09-28T21:59:45.693+07:00  WARN 12652 --- [engflow] [           main] c.d.engflow.service.AiExerciseService    : TTS failed: boom
+2026-09-28T21:59:45.693+07:00  INFO 12652 --- [engflow] [           main] c.d.engflow.service.AiExerciseService    : TTS audio generated: https://cdn.example/ok.wav
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.203 s -- in com.datn.engflow.service.AiExerciseServiceListeningTtsTest
+[INFO] Running com.datn.engflow.service.AiExerciseServiceParsingTest
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.082 s -- in com.datn.engflow.service.AiExerciseServiceParsingTest
+[INFO] Running com.datn.engflow.service.AiPromptServiceExtractTest
+2026-09-28T21:59:45.788+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.AiPromptService   : AI output was not JSON; using cleaned raw text as reference
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.datn.engflow.service.AiPromptServiceExtractTest
+[INFO] Running com.datn.engflow.service.AiPromptServiceFullPromptTest
+2026-09-28T21:59:45.796+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.AiPromptService   : Full prompt output not JSON; using raw text as referenceText
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.datn.engflow.service.AiPromptServiceFullPromptTest
+[INFO] Running com.datn.engflow.service.AiVocabServiceLanguageGuardTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.datn.engflow.service.AiVocabServiceLanguageGuardTest
+[INFO] Running com.datn.engflow.service.AiVocabServiceLenientParseTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.datn.engflow.service.AiVocabServiceLenientParseTest
+[INFO] Running com.datn.engflow.service.assessment.SpeakingRubricParsingTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.datn.engflow.service.assessment.SpeakingRubricParsingTest
+[INFO] Running com.datn.engflow.service.assessment.SpeakingTranscriptClientTest
+2026-09-28T21:59:46.125+07:00  WARN 12652 --- [engflow] [           main] c.d.e.s.a.SpeakingAssessmentService      : Whisper sidecar call failed: org.springframework.web.reactive.function.client.WebClientRequestException: Connection refused: getsockopt: /127.0.0.1:1
+2026-09-28T21:59:46.140+07:00  WARN 12652 --- [engflow] [           main] c.d.e.s.a.SpeakingAssessmentService      : Rubric scoring failed for submission 2: LLM kh�ng ph?n h?i: Connection refused: getsockopt: localhost/127.0.0.1:1 � retrying once
+2026-09-28T21:59:46.148+07:00  WARN 12652 --- [engflow] [           main] c.d.e.s.a.SpeakingAssessmentService      : Rubric retry failed for submission 2: LLM kh�ng ph?n h?i: Connection refused: getsockopt: localhost/127.0.0.1:1
+2026-09-28T21:59:46.154+07:00  WARN 12652 --- [engflow] [           main] c.d.e.s.a.SpeakingAssessmentService      : Transcription failed for object speaking/missing.webm: Cannot invoke "org.springframework.core.io.InputStreamResource.getInputStream()" because the return value of "com.datn.engflow.service.MinioService.getObject(String)" is null
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.321 s -- in com.datn.engflow.service.assessment.SpeakingTranscriptClientTest
+[INFO] Running com.datn.engflow.service.assessment.TranscriptAlignmentMetricsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.datn.engflow.service.assessment.TranscriptAlignmentMetricsTest
+[INFO] Running com.datn.engflow.service.AuditV9SrsIntervalCapTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.288 s -- in com.datn.engflow.service.AuditV9SrsIntervalCapTest
+[INFO] Running com.datn.engflow.service.AuditV9SrsIntervalOverflowTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.002 s -- in com.datn.engflow.service.AuditV9SrsIntervalOverflowTest
+[INFO] Running com.datn.engflow.service.AuditV9SrsSqlServerRoundTripTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in com.datn.engflow.service.AuditV9SrsSqlServerRoundTripTest
+[INFO] Running com.datn.engflow.service.DashboardServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.100 s -- in com.datn.engflow.service.DashboardServiceTest
+[INFO] Running com.datn.engflow.service.DeckServicePaginationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.102 s -- in com.datn.engflow.service.DeckServicePaginationTest
+[INFO] Running com.datn.engflow.service.DictionaryServiceTest
+2026-09-28T21:59:46.906+07:00  WARN 12652 --- [engflow] [           main] c.d.engflow.service.DictionaryService    : Dictionary cache write failed for 'ubiquitous': redis write failed
+2026-09-28T21:59:46.908+07:00  WARN 12652 --- [engflow] [           main] c.d.engflow.service.DictionaryService    : Dictionary cache read failed for 'ubiquitous': redis read failed
+2026-09-28T21:59:46.914+07:00  WARN 12652 --- [engflow] [           main] c.d.engflow.service.DictionaryService    : Dictionary proxy failed for 'ubiquitous': read timed out
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.240 s -- in com.datn.engflow.service.DictionaryServiceTest
+[INFO] Running com.datn.engflow.service.DictionaryWarmupServiceTest
+2026-09-28T21:59:47.000+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up starting: 2809 words (cap 6)
+2026-09-28T21:59:47.000+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up finished: 2 words warmed, 4 skipped
+2026-09-28T21:59:47.002+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up starting: 2809 words (cap 500)
+2026-09-28T21:59:47.003+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up aborted at 'to' (4/500): 5 consecutive empty responses � upstream looks down
+2026-09-28T21:59:47.003+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up finished: 0 words warmed, 5 skipped
+2026-09-28T21:59:47.006+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up starting: 2809 words (cap 3)
+2026-09-28T21:59:47.006+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up finished: 2 words warmed, 1 skipped
+2026-09-28T21:59:47.007+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up starting: 2809 words (cap 500)
+2026-09-28T21:59:47.009+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up aborted at 'to' (4/500): 5 consecutive empty responses � upstream looks down
+2026-09-28T21:59:47.009+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up finished: 0 words warmed, 5 skipped
+2026-09-28T21:59:47.011+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up starting: 2809 words (cap 5)
+2026-09-28T21:59:47.011+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up finished: 5 words warmed, 0 skipped
+2026-09-28T21:59:47.021+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up starting: 2809 words (cap 3)
+2026-09-28T21:59:47.021+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.DictionaryWarmupService    : Dictionary warm-up finished: 3 words warmed, 0 skipped
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in com.datn.engflow.service.DictionaryWarmupServiceTest
+[INFO] Running com.datn.engflow.service.ExerciseServiceAdminAnswerRegressionTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.084 s -- in com.datn.engflow.service.ExerciseServiceAdminAnswerRegressionTest
+[INFO] Running com.datn.engflow.service.ExerciseServiceAdminPaginationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.datn.engflow.service.ExerciseServiceAdminPaginationTest
+[INFO] Running com.datn.engflow.service.ExerciseServiceGradingTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.datn.engflow.service.ExerciseServiceGradingTest
+[INFO] Running com.datn.engflow.service.ExerciseServiceMatchingGradingTest
+2026-09-28T21:59:47.130+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.service.ExerciseServiceMatchingGradingTest]: ExerciseServiceMatchingGradingTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:47.197+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.service.ExerciseServiceMatchingGradingTest
+2026-09-28T21:59:47.197+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.service.ExerciseServiceMatchingGradingTest]: ExerciseServiceMatchingGradingTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:47.198+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.service.ExerciseServiceMatchingGradingTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.423 s -- in com.datn.engflow.service.ExerciseServiceMatchingGradingTest
+[INFO] Running com.datn.engflow.service.ExerciseServiceMultipleChoiceOptionsTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.185 s -- in com.datn.engflow.service.ExerciseServiceMultipleChoiceOptionsTest
+[INFO] Running com.datn.engflow.service.ExerciseStudyActivityTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.datn.engflow.service.ExerciseStudyActivityTest
+[INFO] Running com.datn.engflow.service.FlashcardServiceStudyActivityTest
+2026-09-28T21:59:47.825+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.FlashcardService  : Review flashcard: vocabularyId=9, quality=1, email=study@example.test
+2026-09-28T21:59:47.831+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.FlashcardService  : Review flashcard: vocabularyId=9, quality=4, email=study@example.test
+2026-09-28T21:59:47.837+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.FlashcardService  : L?y tr?ng th�i flashcard: vocabularyId=9, email=study@example.test
+2026-09-28T21:59:47.841+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.FlashcardService  : L?y tr?ng th�i flashcard: vocabularyId=8, email=study@example.test
+2026-09-28T21:59:47.845+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.FlashcardService  : Flashcard study day: userId=42
+2026-09-28T21:59:47.851+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.FlashcardService  : Review flashcard: vocabularyId=9, quality=5, email=study@example.test
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 s -- in com.datn.engflow.service.FlashcardServiceStudyActivityTest
+[INFO] Running com.datn.engflow.service.GameServiceTest
+2026-09-28T21:59:47.866+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Created temporary game session in Redis: 451a3bff-95ba-4c99-ab57-abbcfc11ca59
+2026-09-28T21:59:47.872+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Redis unavailable for daily cap check userId=1: Redis down
+2026-09-28T21:59:47.873+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Redis unavailable for daily counter update userId=1: Redis down
+2026-09-28T21:59:47.874+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Failed to delete game session key game:session:sess9: Redis down
+2026-09-28T21:59:47.874+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Submitted game session results and cleared Redis key: sess9
+2026-09-28T21:59:47.877+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Game submit without server validation for session sess5 type QUIZ - trusting client count 5
+2026-09-28T21:59:47.879+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Created temporary game session in Redis: a2b4a914-f8da-44b3-8638-a3d3f643af96
+2026-09-28T21:59:47.883+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Server-validated game score: 1/2 for session sess-manip
+2026-09-28T21:59:47.883+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Submitted game session results and cleared Redis key: sess-manip
+2026-09-28T21:59:47.887+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Server-validated game score: 2/2 for session sess2
+2026-09-28T21:59:47.887+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Submitted game session results and cleared Redis key: sess2
+2026-09-28T21:59:47.889+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Game submit without server validation for session sess6 type QUIZ - trusting client count -1
+2026-09-28T21:59:47.894+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Submitted game session results and cleared Redis key: sess8
+2026-09-28T21:59:47.898+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Submitted game session results and cleared Redis key: sess4
+2026-09-28T21:59:47.902+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Created temporary game session in Redis: ef483f6f-4373-4d45-a5ba-ac3ba70a4d94
+2026-09-28T21:59:47.906+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Created temporary game session in Redis: 82d70ca0-ee02-442b-9595-f96418e3d723
+2026-09-28T21:59:47.911+07:00  WARN 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Daily game points cap reached for user 1
+2026-09-28T21:59:47.912+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Submitted game session results and cleared Redis key: sess7
+2026-09-28T21:59:47.917+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Created temporary game session in Redis: 6a11567d-eea6-4103-970a-2cde7b99f2e8
+2026-09-28T21:59:47.918+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.GameService     : Created temporary game session in Redis: ecf0d08f-af95-4626-b3d6-a1a9cf14d6fb
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s -- in com.datn.engflow.service.GameServiceTest
+[INFO] Running com.datn.engflow.service.HtmlParserListeningDowngradeTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.datn.engflow.service.HtmlParserListeningDowngradeTest
+[INFO] Running com.datn.engflow.service.LeaderboardServicePaginationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.datn.engflow.service.LeaderboardServicePaginationTest
+[INFO] Running com.datn.engflow.service.LeaderboardStreakBatchTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.datn.engflow.service.LeaderboardStreakBatchTest
+[INFO] Running com.datn.engflow.service.LessonServicePaginationTest
+2026-09-28T21:59:48.151+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.LessonService   : X�a b�i h?c: id=1
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.203 s -- in com.datn.engflow.service.LessonServicePaginationTest
+[INFO] Running com.datn.engflow.service.PaymentServiceTest
+2026-09-28T21:59:48.370+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 15: MONTH until 2026-10-28
+2026-09-28T21:59:48.375+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 1: MONTH until 2026-10-28
+2026-09-28T21:59:48.379+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Duplicate webhook/polling, already processed: ENGABCDEF123456 / txNew
+2026-09-28T21:59:48.384+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 10: YEAR until 2027-09-28
+2026-09-28T21:59:48.390+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Invalid HMAC signature from SePay webhook
+2026-09-28T21:59:48.402+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 2: MONTH until 2026-10-28
+2026-09-28T21:59:48.406+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 11: MONTH until 2026-10-28
+2026-09-28T21:59:48.412+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 16: MONTH until 2026-10-28
+2026-09-28T21:59:48.417+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 11: MONTH until 2026-10-28
+2026-09-28T21:59:48.419+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Webhook replay rejected: timestamp skew 599581ms exceeds 300000ms window
+2026-09-28T21:59:48.419+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Invalid HMAC signature from SePay webhook
+2026-09-28T21:59:48.424+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 14: MONTH until 2026-10-28
+2026-09-28T21:59:48.431+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Invalid HMAC signature from SePay webhook
+2026-09-28T21:59:48.435+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Invalid HMAC signature from SePay webhook
+2026-09-28T21:59:48.447+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 3: YEAR until 2027-09-28
+2026-09-28T21:59:48.451+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Duplicate webhook/polling, already processed: ENGABCDEF123456 / txDup
+2026-09-28T21:59:48.460+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Webhook replay rejected: timestamp skew 600460ms exceeds 300000ms window
+2026-09-28T21:59:48.460+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Invalid HMAC signature from SePay webhook
+2026-09-28T21:59:48.474+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : No valid orderCode in transaction content: random content without code
+2026-09-28T21:59:48.485+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 9: MONTH until 2026-10-28
+2026-09-28T21:59:48.497+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : No pending order found for: ENGABCDEF123456
+2026-09-28T21:59:48.506+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Webhook rejected: transfer amount 9999 less than order amount 10000 for ENGABCDEF123456
+2026-09-28T21:59:48.510+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Webhook replay check failed: non-numeric X-Sepay-Timestamp
+2026-09-28T21:59:48.510+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Invalid HMAC signature from SePay webhook
+2026-09-28T21:59:48.517+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 12: MONTH until 2026-10-28
+2026-09-28T21:59:48.521+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 7: MONTH until 2026-10-28
+2026-09-28T21:59:48.526+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : SePay API polling detected payment for order: ENGABCDEF123456
+2026-09-28T21:59:48.527+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 1: MONTH until 2026-10-28
+2026-09-28T21:59:48.532+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Premium activated for user 17: MONTH until 2026-10-28
+2026-09-28T21:59:48.534+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.PaymentService    : Webhook missing transaction id
+[INFO] Tests run: 34, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.378 s -- in com.datn.engflow.service.PaymentServiceTest
+[INFO] Running com.datn.engflow.service.SePayApiServiceTest
+2026-09-28T21:59:48.538+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.538+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SEPAY_API_TOKEN is NOT configured! SePay webhook fallback polling will be DISABLED.
+2026-09-28T21:59:48.538+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : Set SEPAY_API_TOKEN in .env (my.sepay.vn -> Cau hinh Cong ty -> API Access -> + Them API), then rebuild Docker.
+2026-09-28T21:59:48.538+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : Without it, manual bank transfers will NOT be detected automatically.
+2026-09-28T21:59:48.539+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.545+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.546+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API found matching transaction for order code: ENGABCDEF123456
+2026-09-28T21:59:48.547+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.549+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API rate limited (429), retry-after=nulls; will be retried on next status poll
+2026-09-28T21:59:48.550+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.553+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API found matching transaction for order code: ENGABCDEF123456
+2026-09-28T21:59:48.555+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.556+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API found matching transaction for order code: ENG_0AC7BB0C1694
+2026-09-28T21:59:48.557+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.561+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.564+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.566+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API found matching transaction for order code: ENGABCDEF123456
+2026-09-28T21:59:48.568+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.568+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SEPAY_API_TOKEN is NOT configured! SePay webhook fallback polling will be DISABLED.
+2026-09-28T21:59:48.568+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : Set SEPAY_API_TOKEN in .env (my.sepay.vn -> Cau hinh Cong ty -> API Access -> + Them API), then rebuild Docker.
+2026-09-28T21:59:48.568+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : Without it, manual bank transfers will NOT be detected automatically.
+2026-09-28T21:59:48.568+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token not configured, cannot poll for transactions
+2026-09-28T21:59:48.570+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.571+07:00  WARN 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API polling failed for order code ENGABCDEF123456: Connection reset
+2026-09-28T21:59:48.573+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.577+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API token configured. Webhook fallback polling is ENABLED.
+2026-09-28T21:59:48.581+07:00  INFO 12652 --- [engflow] [           main] c.datn.engflow.service.SePayApiService   : SePay API found matching transaction for order code: ENGABCDEF123456
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s -- in com.datn.engflow.service.SePayApiServiceTest
+[INFO] Running com.datn.engflow.service.ShadowingAiGradingServiceTest
+2026-09-28T21:59:48.890+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.ShadowingAiGradingService  : Shadowing LLM feedback failed: LLM kh�ng ph?n h?i
+2026-09-28T21:59:48.897+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.ShadowingAiGradingService  : Shadowing LLM feedback ignored (empty or non-Vietnamese)
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.320 s -- in com.datn.engflow.service.ShadowingAiGradingServiceTest
+[INFO] Running com.datn.engflow.service.SpeakingPromptServicePaginationTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.datn.engflow.service.SpeakingPromptServicePaginationTest
+[INFO] Running com.datn.engflow.service.SpeakingSubmissionServiceAssessmentTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.094 s -- in com.datn.engflow.service.SpeakingSubmissionServiceAssessmentTest
+[INFO] Running com.datn.engflow.service.SpeakingSubmissionServiceAuthorizationTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.datn.engflow.service.SpeakingSubmissionServiceAuthorizationTest
+[INFO] Running com.datn.engflow.service.SpeakingSubmissionServiceManualGradingTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.datn.engflow.service.SpeakingSubmissionServiceManualGradingTest
+[INFO] Running com.datn.engflow.service.SpeakingSubmissionServicePaginationTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.datn.engflow.service.SpeakingSubmissionServicePaginationTest
+[INFO] Running com.datn.engflow.service.SrsDueWordsAuthzTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.datn.engflow.service.SrsDueWordsAuthzTest
+[INFO] Running com.datn.engflow.service.SrsStudyActivityTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.datn.engflow.service.SrsStudyActivityTest
+[INFO] Running com.datn.engflow.service.StreakEmptyActivityTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.datn.engflow.service.StreakEmptyActivityTest
+[INFO] Running com.datn.engflow.service.StreakReminderSchedulerTest
+2026-09-28T21:59:49.167+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.167+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.168+07:00 ERROR 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Error sending at-risk reminder to risk@test.com: SMTP down
+2026-09-28T21:59:49.168+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.168+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Streak reminder job partially failed � released marker streak:reminder:2026-09-28 for retry.
+2026-09-28T21:59:49.169+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Streak reminder retry budget exhausted for 2026-09-28 � releasing marker and skipping scheduled.
+2026-09-28T21:59:49.171+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Streak reminder already ran today (marker streak:reminder:2026-09-28), skip scheduled trigger.
+2026-09-28T21:59:49.173+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.173+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.173+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.173+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.175+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.175+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.176+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.176+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.177+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.178+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.178+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.178+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.182+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.183+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.183+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.183+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.186+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (catch-up trigger)...
+2026-09-28T21:59:49.187+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.187+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.187+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (catch-up trigger).
+2026-09-28T21:59:49.190+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.190+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.190+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.190+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.195+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.195+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.195+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Skip at-risk reminder for user 1 � already sent today.
+2026-09-28T21:59:49.195+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.204+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Redis unavailable for comeback suppression check userId=2: 
+Strict stubbing argument mismatch. Please check:
+ - this invocation of 'hasKey' method:
+    redisTemplate.hasKey("streak:comeback:2");
+    -> at com.datn.engflow.service.StreakReminderScheduler.isComebackSuppressed(StreakReminderScheduler.java:212)
+ - has following stubbing(s) with different arguments:
+    1. redisTemplate.hasKey(
+    "streak:sent:2026-09-28:2"
+);
+      -> at com.datn.engflow.service.StreakReminderSchedulerTest.runReminderJob_userAlreadySentToday_skipsResend(StreakReminderSchedulerTest.java:231)
+Typically, stubbing argument mismatch indicates user mistake when writing tests.
+Mockito fails early so that you can debug potential problem easily.
+However, there are legit scenarios when this exception generates false negative signal:
+  - stubbing the same method multiple times using 'given().will()' or 'when().then()' API
+    Please use 'will().given()' or 'doReturn().when()' API for stubbing.
+  - stubbed method is intentionally invoked with different arguments by code under test
+    Please use default or 'silent' JUnit Rule (equivalent of Strictness.LENIENT).
+For more information see javadoc for PotentialStubbingProblem class.
+2026-09-28T21:59:49.204+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Skip comeback mail for user 2 � already sent today.
+2026-09-28T21:59:49.204+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.206+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Redis unavailable for marker streak:reminder:2026-09-28 (trigger=scheduled): Redis unavailable
+2026-09-28T21:59:49.208+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Redis unavailable for marker streak:reminder:2026-09-28 (trigger=scheduled) � skipping this run to avoid duplicate mails.
+2026-09-28T21:59:49.209+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.209+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 1 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.209+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.209+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (scheduled trigger).
+2026-09-28T21:59:49.212+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (catch-up trigger)...
+2026-09-28T21:59:49.212+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.212+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.212+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Finished daily streak reminder job (catch-up trigger).
+2026-09-28T21:59:49.215+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Starting daily streak reminder job (scheduled trigger)...
+2026-09-28T21:59:49.215+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 2 at-risk users (studied yesterday, not today).
+2026-09-28T21:59:49.216+07:00 ERROR 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Error sending at-risk reminder to first@test.com: SMTP down
+2026-09-28T21:59:49.216+07:00  INFO 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Found 0 broken-streak users (inactive >= 2 days).
+2026-09-28T21:59:49.216+07:00  WARN 12652 --- [engflow] [           main] c.d.e.service.StreakReminderScheduler    : Streak reminder job partially failed � released marker streak:reminder:2026-09-28 for retry.
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.122 s -- in com.datn.engflow.service.StreakReminderSchedulerTest
+[INFO] Running com.datn.engflow.service.StreakServiceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.datn.engflow.service.StreakServiceTest
+[INFO] Running com.datn.engflow.service.StudyActivityServiceTest
+2026-09-28T21:59:49.239+07:00 ERROR 12652 --- [engflow] [           main] c.d.e.service.StudyActivityService       : study_policy row (id=1) is missing � streak cannot compute an effective date. Run the reviewed deployment script tasks/streak-study/deploy.sql (-v EffectiveFrom=YYYY-MM-DD BackupFile=<server-local backup path>) before starting this backend.
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.datn.engflow.service.StudyActivityServiceTest
+[INFO] Running com.datn.engflow.service.StudyReminderEmailTest
+2026-09-28T21:59:49.403+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.EmailService    : password-reset OTP sent to: learner@example.test
+2026-09-28T21:59:49.495+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.EmailService    : streak reminder sent to: learner@example.test
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.254 s -- in com.datn.engflow.service.StudyReminderEmailTest
+[INFO] Running com.datn.engflow.service.StudySqlIntegrationTest
+[WARNING] Tests run: 7, Failures: 0, Errors: 0, Skipped: 7, Time elapsed: 0 s -- in com.datn.engflow.service.StudySqlIntegrationTest
+[INFO] Running com.datn.engflow.service.SubtitleParserTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.datn.engflow.service.SubtitleParserTest
+[INFO] Running com.datn.engflow.service.SubtitleTranslationServiceTest
+2026-09-28T21:59:49.521+07:00  WARN 12652 --- [engflow] [           main] c.d.e.s.SubtitleTranslationService       : Subtitle translation failed: LLM kh�ng ph?n h?i
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.datn.engflow.service.SubtitleTranslationServiceTest
+[INFO] Running com.datn.engflow.service.UserServicePremiumAndQuotaTest
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.datn.engflow.service.UserServicePremiumAndQuotaTest
+[INFO] Running com.datn.engflow.service.UserServiceRegisterConflictTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.205 s -- in com.datn.engflow.service.UserServiceRegisterConflictTest
+[INFO] Running com.datn.engflow.service.UserServiceStudyActivityTest
+2026-09-28T21:59:49.751+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.UserService     : B?t ??u ??ng nh?p cho email: study@example.test
+2026-09-28T21:59:49.752+07:00  INFO 12652 --- [engflow] [           main] com.datn.engflow.service.UserService     : ??ng nh?p th�nh c�ng cho user: id=42, isAdmin=false
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.datn.engflow.service.UserServiceStudyActivityTest
+[INFO] Running com.datn.engflow.service.VideoLessonServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.datn.engflow.service.VideoLessonServiceTest
+[INFO] Running com.datn.engflow.service.VocabularyServiceTest
+2026-09-28T21:59:49.786+07:00  WARN 12652 --- [engflow] [           main] c.d.engflow.service.VocabularyService    : T? ch?i g?n lesson: user=7 lessonId=42 (kh�ng ph?i admin)
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in com.datn.engflow.service.VocabularyServiceTest
+[INFO] Running com.datn.engflow.service.YouTubeTranscriptServiceParsingTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.datn.engflow.service.YouTubeTranscriptServiceParsingTest
+[INFO] Running com.datn.engflow.VocabularyDataSeederTest
+2026-09-28T21:59:49.804+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.VocabularyDataSeederTest]: VocabularyDataSeederTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:49.805+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.VocabularyDataSeederTest
+2026-09-28T21:59:49.807+07:00  INFO 12652 --- [engflow] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.datn.engflow.VocabularyDataSeederTest]: VocabularyDataSeederTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-28T21:59:49.807+07:00  INFO 12652 --- [engflow] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.datn.engflow.EngflowApplication for test class com.datn.engflow.VocabularyDataSeederTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.191 s -- in com.datn.engflow.VocabularyDataSeederTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 541, Failures: 0, Errors: 0, Skipped: 11
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  46.335 s
+[INFO] Finished at: 2026-09-28T21:59:50+07:00
+[INFO] ------------------------------------------------------------------------

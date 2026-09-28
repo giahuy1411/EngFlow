@@ -1,0 +1,31 @@
+1231:     * Lightweight list query — selects only the columns the lesson list renders,
+1232:     * skipping the NVARCHAR(MAX) content columns (huge read savings on this table).
+1306:     * audit-v8 F88: chan doc noi dung nhap (is_published=false) qua cac endpoint public.
+1307:     * Nem 404 thay vi 403 de khong tiet lo su ton tai cua ban nhap.
+1519:     * True khi tập cặp người học nối BẰNG ĐÚNG tập cặp hợp lệ lấy từ options.
+1976:     * Mọi ngày học của nhiều user trong một khoảng — một query cho cả trang thay vì
+1977:     * một query mỗi row. Dùng cho leaderboard và danh sách user của admin, nơi mỗi
+1978:     * row cần streak riêng.
+1989:     * audit-v13 F-13-08: number of DISTINCT users who actually studied in a date range.
+1990:     * Replaces the admin dashboard's read of the legacy {@code users.last_study_date}
+1991:     * column, which the streak refactor stopped maintaining.
+2007:     * Khóa user trước khi kiểm tra unique day; caller phải có transaction lưu kết quả.
+2010:     * KHÔNG ném lỗi. Trước đây nhánh này ném {@code IllegalStateException}, và vì
+2013:     * HTTP 500 — nghĩa là toàn bộ khoảng thời gian trước cutover biến mọi endpoint
+2014:     * nộp bài tập, ôn SRS, điểm danh game và nộp speaking thành 500.
+2103:     * Mốc cutover đã chốt. Thiếu row là lỗi triển khai, không phải trạng thái hợp lệ:
+2104:     * Hibernate {@code ddl-auto=update} tạo được bảng nhưng cố ý KHÔNG tạo row policy,
+2105:     * vì ngày hiệu lực phải là một quyết định được review chứ không phải giá trị mặc
+2165:     * Streak của nhiều user trong MỘT query, dùng cho các trang danh sách.
+2168:     * leaderboard tốn 21 query. Ở đây đọc mọi ngày học của cả trang một lần rồi tính
+2169:     * trong bộ nhớ — và vẫn đi qua đúng hàm {@link #currentStreak(List, LocalDate)}
+2230:     * Chuỗi hiện tại kèm "hôm nay" theo ngày server (ISO {@code yyyy-MM-dd}) để
+2231:     * lịch học trong Profile đóng khung ngày đúng múi giờ backend, thay vì để
+2232:     * trình duyệt tự suy ra từ đồng hồ máy khách.
+2430: * Date neo cho toàn bộ lịch. Parse yyyy-MM-dd thủ công thành nửa đêm GIỜ ĐỊA
+2431: * PHƯƠNG: new Date('2026-09-10') sẽ bị hiểu là nửa đêm UTC và lệch một ngày
+2432: * trên máy khách múi UTC-x. Nếu server chưa gửi thì fallback đồng hồ máy.
+2676:     * Proxy tra từ điển dictionaryapi.dev — browser ở VN đôi khi không kết nối
+2677:     * trực tiếp được tới API này, trong khi backend container thì được.
+2678:     * Cache + timeout nằm ở DictionaryService (bắt buộc tách class để
+2680:     * Fail-soft: lỗi upstream → "[]".

@@ -1,0 +1,15 @@
+DRY RUN — docs/demo-engflow-4-chuc-nang.md
+  A (neo code block) : 0
+  B (map dòng)       : 0
+  giữ nguyên         : 167
+  bỏ qua             : 0
+
+*** UNHANDLED CITATION FORMS — this tool did NOT rewrite these: ***
+   ! File.java:số-dòng
+   ! StudyActivityService.java:50,197-199
+   ! vocabularyService.js:143,184-186
+   ! vocabularyService.js:144,188-191
+   ! SecurityConfig.java:122,128
+   ! UserService.java:246-250, 261-264, 280-284
+   ! StudyActivityService.java:50,197-199
+   Fix these by hand, or extend cit_re, before trusting the remap.

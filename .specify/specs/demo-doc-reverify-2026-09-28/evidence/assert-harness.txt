@@ -1,0 +1,12 @@
+PASS  every route a browser harness visits exists in the router
+PASS  every internal require() resolves to an existing file
+PASS  no hardcoded parity/payments baselines outside lib.js
+PASS  every harness that visits a write-on-mount route calls a cleanup helper
+PASS  harness-restore.md exists, non-empty, documents source + fixes  -- 2411 chars
+PASS  _config.js default audit round is the LATEST round  -- default=audit-v21-full latest=audit-v21-full
+PASS  feature.json trỏ vòng audit MỚI NHẤT (B5)  -- feature_directory=audit-v21-full latest=audit-v21-full
+PASS  no harness hardcodes an audit round path outside _config.js
+PASS  no harness defaults --audit to a stale round outside _config.js
+PASS  decisions.md tồn tại, ID D-NNN duy nhất, ngày ISO, Số mục khớp, mọi entry có token  -- 9 rows uniq=true dates=true count=true tokens=true
+
+=== assert-harness: ALL CLEAN ===

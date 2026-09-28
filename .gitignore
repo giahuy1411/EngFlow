@@ -82,6 +82,10 @@ logs/
 !.specify/specs/audit-v20-full/evidence/*.md
 !.specify/specs/audit-v20-full/evidence/*.txt
 !.specify/specs/audit-v20-full/evidence/shots/**
+# demo-doc re-verification (2026-09-28): baseline logs cited by findings.md
+# (backend/frontend/build). Secret-scanned 2026-09-28 — only the known AGENTS.md
+# seed-password WARN and config key NAMES appear, 0 real secret values.
+!.specify/specs/demo-doc-reverify-2026-09-28/evidence/*.log
 
 # Runtime / scratch
 *.pid

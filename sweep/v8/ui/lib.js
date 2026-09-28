@@ -112,15 +112,22 @@ const VN_RUN_DATE = vnDate();
  * decision deliberately keeps. It is NOT harness residue: PENDING_PAYMENTS=0 and
  * STUDY_DAYS=4 both still match, so no sweep left anything behind. The baseline
  * moved because the DATA legitimately changed, not because the guard broke.
+ *
+ * re-verify 2026-09-28 (demo-doc re-verification): video 4 -> 5, STUDY_DAYS 4 -> 5,
+ * EXERCISE_ATTEMPTS 33 -> 34. All three are REAL activity that accumulated since the
+ * v21 round — one video attempt, one study day, one exercise submit — not residue:
+ * PENDING_PAYMENTS is still 0, so no sweep leaked. Same class of change as the
+ * payments 12 -> 13 move above: the DATA changed, the guard did not break. Baseline
+ * mirrors the demo guide's Phụ lục D and AGENTS.md.
  */
-const PARITY_BASELINE = "1470|43738|5|118|29|4|3|13|10";
+const PARITY_BASELINE = "1470|43738|5|118|29|5|3|13|10";
 const PAYMENTS_BASELINE = 13;
-const STUDY_DAYS_BASELINE = 4;
+const STUDY_DAYS_BASELINE = 5;
 // audit-v17 F-17-07 (round 2, F-17-21): PROBE-ACCOUNT rows only — the same two emails
 // cleanupExerciseAttempts deletes for. The first version counted the whole table, so a REAL
 // learner submitting (there is a third user with real rows) would trip a false DIRTY even when
-// the harness left nothing behind. Measured 2026-09-26: 33 probe-account rows.
-const EXERCISE_ATTEMPTS_BASELINE = 33;
+// the harness left nothing behind. Measured 2026-09-26: 33 probe-account rows; 34 on 2026-09-28.
+const EXERCISE_ATTEMPTS_BASELINE = 34;
 
 /**
  * Remove the `payment_transactions` rows a UI sweep creates, and PROVE parity.

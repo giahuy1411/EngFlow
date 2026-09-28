@@ -1,0 +1,9 @@
+=== docker ===
+engflow-backend	Up 30 minutes
+engflow-tts	Up 30 minutes
+engflow-sqlserver	Up 30 minutes (healthy)
+engflow-frontend	Up 30 minutes
+engflow-minio	Up 30 minutes
+engflow-whisper	Up 30 minutes
+engflow-tailscale	Up 30 minutes
+engflow-redis	Up 30 minutes

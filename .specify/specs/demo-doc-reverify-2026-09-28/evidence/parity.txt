@@ -1,0 +1,12 @@
+lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks
+-------|---------|-----|----------|--------|-----|----------|--------|-----
+1470|43738|5|118|29|5|3|13|10
+study_days_marker
+-----------------
+STUDY_DAYS=5
+pending_payments_marker
+-----------------------
+PENDING_PAYMENTS=0
+exercise_attempts_marker
+------------------------
+EXERCISE_ATTEMPTS=34

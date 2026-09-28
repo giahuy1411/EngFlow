@@ -1,0 +1,84 @@
+=== HAND-VERIFY comma-list citations ===
+--- StudyActivityService.java:50 (STUDY_ZONE) ---
+    private static final ZoneId STUDY_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+--- StudyActivityService.java:197-199 (today()) ---
+    public LocalDate today() {
+        return LocalDate.now(clock.withZone(STUDY_ZONE));
+    }
+--- SecurityConfig.java:122 (vocabulary search permitAll) ---
+                .requestMatchers(HttpMethod.GET, "/api/vocabulary/search", "/api/vocabulary/dictionary/*").permitAll()
+--- SecurityConfig.java:128 (attempts authenticated) ---
+                .requestMatchers(HttpMethod.GET, "/api/lessons/*/exercises/attempts/**").authenticated()
+--- UserService.java:246-250 (lock check fail-open) ---
+            }
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Redis unavailable for lock check {}: {} - fail-open", lockKey, e.getMessage());
+--- UserService.java:261-264 (reset fail counter) ---
+            try {
+                redisTemplate.delete(failKey);
+            } catch (Exception e) {
+                log.warn("Redis unavailable for delete {}: {} - ignore", failKey, e.getMessage());
+--- UserService.java:280-284 (fail counter fail-open) ---
+                }
+            } catch (BadRequestException e) {
+                throw e;
+            } catch (Exception e) {
+                log.warn("Redis unavailable for fail counter {}: {} - fail-open, propagate BadCredentials", failKey, e.getMessage());
+--- vocabularyService.js:143-144 (budgets) ---
+    const DICT_BUDGET_MS = 6000;   // soft: "still working" signal
+    const DICT_TOTAL_MS = 45000;   // hard: above 32 s proxy + 4 s + 4 s direct retries
+--- vocabularyService.js:184-186 (soft timer) ---
+    if (typeof options.onSlow === 'function') {
+      budgetId = setTimeout(() => { try { options.onSlow() } catch (e) { /* ignore */ } }, DICT_BUDGET_MS)
+    }
+--- vocabularyService.js:188-191 (hard timer) ---
+    let totalId
+    const total = new Promise((_, reject) => {
+      totalId = setTimeout(() => reject(new Error('TIMEOUT')), DICT_TOTAL_MS)
+    })
+
+=== HAND-VERIFY sample across 4 chapters ===
+--- AuthController 28-59 ---
+@RestController
+    }
+--- RegisterRequest 23-38 ---
+public class RegisterRequest {
+}
+--- UserService 193-215 ---
+    @Transactional
+    }
+--- JwtAuthenticationFilter 58-88 ---
+    @Override
+        } catch (ExpiredJwtException ex) {
+--- LessonController 42-54 ---
+    @GetMapping
+    }
+--- LessonRepository 103-123 ---
+    /**
+                                                           Pageable pageable);
+--- ExerciseService 80-112 ---
+    public List<ExerciseResponse> getExercisesByLesson(Long lessonId, boolean includeAnswers) {
+    }
+--- StudyDay 17-46 ---
+@Entity
+    }
+--- StudyDayRepository 13-40 ---
+public interface StudyDayRepository extends JpaRepository<StudyDay, Long> {
+}
+--- VocabularyController 50-83 ---
+    @GetMapping
+    }
+--- auth.js 59-74 ---
+  async function login(credentials) {
+  }
+--- api.js 34-59 ---
+api.interceptors.request.use(config => {
+})
+--- Login.vue 67-81 ---
+async function handleLogin() {
+}
+--- StreakCalendar.vue 80-122 ---
+/**
+})
