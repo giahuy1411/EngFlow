@@ -14,20 +14,23 @@
 
 <script setup>
 /**
- * audit-v10 fixes two real defects in the previous version:
- *  1. `sizePx` was a module-level `const sizeMap.md` — every confetti rendered at
- *     18px regardless of the `size` prop, so `sm`/`lg`/`xl` silently did nothing.
- *  2. `color` was declared but never read; the colour came from a `size`-based
- *     class, which conflated "how big" with "what colour". Passing `color` had no
- *     effect at all.
+ * DecoConfetti — mảnh confetti trang trí của design system Playful Geometric.
+ * Thuần trình bày: không fetch dữ liệu, không store, không biết routing.
  *
- * Size and colour are now independent: `size` drives the pixel dimensions and
- * `color` drives the fill, defaulting to the design system's rotational palette
- * (violet → pink → amber → mint) so existing call sites keep their look.
+ * audit-v10 sửa hai lỗi thật ở phiên bản trước:
+ *  1. `sizePx` đọc từ `const sizeMap.md` cấp module — mọi confetti đều render
+ *     18px bất kể prop `size`, nên `sm`/`lg`/`xl` âm thầm không có tác dụng.
+ *  2. `color` được khai báo nhưng không bao giờ đọc; màu lấy từ class theo
+ *     `size`, tức gộp "to cỡ nào" với "màu gì". Truyền `color` không có tác dụng.
+ *
+ * Giờ `size` và `color` độc lập: `size` quyết định kích thước pixel, `color`
+ * quyết định màu tô, mặc định theo palette xoay vòng của design system
+ * (violet → pink → amber → mint) để các call site cũ giữ nguyên diện mạo.
  */
 import { computed } from 'vue'
 
 const sizeMap = { sm: 14, md: 18, lg: 24, xl: 32 }
+// Palette mặc định theo size — giữ nguyên bảng màu cũ cho call site hiện hữu.
 const paletteBySize = {
   sm: 'var(--geo-tertiary)',
   md: 'var(--geo-secondary)',
@@ -50,6 +53,7 @@ const props = defineProps({
 })
 
 const sizePx = computed(() => sizeMap[props.size] ?? sizeMap.md)
+// Màu ưu tiên: prop `color` → palette theo size → mặc định md.
 const styleVars = computed(() => ({
   '--deco-confetti-color': props.color || paletteBySize[props.size] || paletteBySize.md,
 }))

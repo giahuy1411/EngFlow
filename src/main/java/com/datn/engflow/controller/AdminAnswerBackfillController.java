@@ -10,9 +10,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Admin endpoint for backfilling empty correct_answer values on seed
- * exercises (deterministic answer-key parse first, Ollama residue second).
- * Async 202 + batchId polling, mirroring the existing AI generation flow.
+ * Endpoint admin điền bù (backfill) các giá trị {@code correct_answer} còn trống cho bài tập seed:
+ * lớp parse answer-key tất định chạy trước, phần dư mới giao cho Ollama.
+ *
+ * <p>Chạy bất đồng bộ: trả HTTP 202 kèm {@code batchId} rồi client poll trạng thái — cùng khuôn với
+ * luồng sinh bài tập bằng AI.</p>
+ *
+ * <p><b>Trùng base path có chủ đích:</b> controller này dùng chung {@code /api/admin/exercises/ai}
+ * với {@code AdminAiExerciseController}. Không xung đột vì đường dẫn method khác nhau
+ * ({@code /backfill-answers...} so với {@code /generate...}); Spring chỉ nổ {@code Ambiguous mapping}
+ * khi trùng cả method HTTP lẫn path, nên đây là thiết kế hợp lệ chứ không phải lỗi.</p>
+ *
+ * <p><b>Bảo vệ:</b> toàn bộ {@code /api/admin/**} đã bị {@code SecurityConfig} chặn bằng
+ * {@code hasRole('ADMIN')}; {@code @PreAuthorize} cấp class là lớp chặn thứ hai (defense-in-depth)
+ * phòng khi rule URL bị đổi về sau.</p>
  */
 @RestController
 @RequestMapping("/api/admin/exercises/ai")
@@ -24,18 +35,21 @@ public class AdminAnswerBackfillController {
     private final AiAnswerBackfillService backfillService;
 
     /**
-     * Starts a backfill run.
+     * Khởi động một lượt backfill.
      *
-     * @param dryRun   true → run the pipeline but skip persistence; used to measure
-     *                 the fill rate first.
-     * @param limit    max exercises to process this run (whole-lesson budget); 0 = all.
-     * @param restart  true → ignore the lesson checkpoint and start over.
-     * @param lessonId when set, restrict the run to that single lesson and leave
-     *                 the durable checkpoint untouched (proof / per-lesson fill).
-     * @param mode     "full" (default) → answer-key layers then Ollama residue;
-     *                 "deterministic" → answer-key layers only, never call the AI
-     *                 layer (gate 3.4-B: an unverified AI key grades worse than an
-     *                 empty one — measured "1. a" garbage on a grammar gap).
+     * <p>Nếu đang có lượt chạy dở, trả ngay HTTP 409 kèm {@code checkpointLessonId} hiện tại thay vì
+     * mở lượt thứ hai — chỉ một pipeline chạy tại một thời điểm.</p>
+     *
+     * @param dryRun   true → chạy pipeline nhưng bỏ qua ghi DB; dùng để đo tỉ lệ điền được trước.
+     * @param limit    số bài tập tối đa xử lý trong lượt này (ngân sách theo cả lesson); 0 = tất cả.
+     * @param restart  true → bỏ qua checkpoint lesson và chạy lại từ đầu.
+     * @param lessonId khi được set, giới hạn lượt chạy trong đúng lesson đó và KHÔNG đụng tới
+     *                 checkpoint bền (dùng để chứng minh / đo tỉ lệ điền theo từng lesson).
+     * @param mode     "full" (mặc định) → chạy các lớp answer-key rồi tới phần dư Ollama;
+     *                 "deterministic" → chỉ các lớp answer-key, không bao giờ gọi lớp AI
+     *                 (gate 3.4-B: một key AI chưa kiểm chứng chấm còn tệ hơn key trống — đo được
+     *                 key rác {@code "1. a"} trên một gap ngữ pháp).
+     * @return HTTP 202 kèm {@code batchId} + cấu hình lượt chạy, hoặc HTTP 409 nếu đang chạy
      */
     @PostMapping("/backfill-answers")
     public ResponseEntity<Map<String, Object>> startBackfill(
@@ -61,7 +75,16 @@ public class AdminAnswerBackfillController {
                 "checkpointLessonId", backfillService.getCheckpointLessonId()));
     }
 
-    /** Poll a backfill run (same shape as the AI generation status endpoint). */
+    /**
+     * Poll một lượt backfill (cùng hình dạng với endpoint trạng thái của luồng sinh AI).
+     *
+     * <p>Không truyền {@code batchId} hoặc batch đã xong/bị quên → trả {@code running=false} kèm
+     * {@code checkpointLessonId} hiện tại, KHÔNG báo lỗi: client chỉ cần biết "hết việc". Nhánh này
+     * cố tình trả 200 để vòng poll của frontend kết thúc sạch.</p>
+     *
+     * @param batchId định danh lượt chạy cần tra; null ⇒ coi như không còn gì đang chạy
+     * @return tiến độ chi tiết (đếm bài, số điền được, lỗi, mẫu không điền được…) dạng JSON
+     */
     @GetMapping("/backfill-answers/status")
     public ResponseEntity<Map<String, Object>> getBackfillStatus(
             @RequestParam(name = "batchId", required = false) String batchId) {

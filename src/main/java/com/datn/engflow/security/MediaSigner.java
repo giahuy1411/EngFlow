@@ -10,16 +10,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 /**
- * audit-v7 F55: HMAC-SHA256 "ticket" for private media objects on the MinIO
- * proxy ({@code /api/v1/media/**}). Learner speaking/shadowing recordings are
- * personal data; the proxy used to serve ANY object key to ANY caller, which
- * is an IDOR once a key leaks (logs, referrer, shoulder-surfing).
+ * Ticket HMAC-SHA256 cho các object media riêng tư trên proxy MinIO
+ * ({@code /api/v1/media/**}) — audit-v7 F55.
  *
- * <p>URLs are generated per-response as {@code ...?exp=<epoch-sec>&sig=<hex>}
- * where {@code sig = HMAC(secret, objectKey + "." + exp)}. The browser cannot
- * attach an Authorization header to {@code <audio src>}, hence signed URLs
- * rather than JWT-in-query (a JWT in a URL leaks to access logs/history —
- * this deliberately avoids that).
+ * <p>Bản ghi âm speaking/shadowing của người học là dữ liệu cá nhân. Trước bản vá, proxy phục vụ
+ * BẤT KỲ object key nào cho BẤT KỲ ai gọi — tức IDOR ngay khi key lộ (log, referrer, shoulder-surfing).
+ * Vì {@code <audio src>} của trình duyệt không gắn được header {@code Authorization}, phải dùng URL
+ * có chữ ký thay vì JWT-in-query; và cũng KHÔNG nhét JWT vào query vì URL sẽ rò vào access log/lịch
+ * sử — chữ ký dưới đây chỉ mở đúng một object trong thời hạn ngắn nên an toàn hơn.</p>
+ *
+ * <p>URL được sinh theo từng response dạng {@code ...?exp=<epoch-sec>&sig=<hex>} với
+ * {@code sig = HMAC(secret, objectKey + "." + exp)}. Secret dùng chung với {@code jwt.secret}.</p>
  */
 @Slf4j
 @Component
@@ -33,13 +34,19 @@ public class MediaSigner {
         this.secret = secret;
     }
 
-    /** Returns "exp=<epoch>&sig=<hex>" to append after "?". */
+    /** Trả chuỗi {@code "exp=<epoch>&sig=<hex>"} để nối sau dấu {@code "?"}. */
     public String paramsForObject(String objectKey) {
         long exp = System.currentTimeMillis() / 1000L + TTL_SECONDS;
         return "exp=" + exp + "&sig=" + hmac(objectKey, exp);
     }
 
-    /** Constant-time verification of the (objectKey, exp, sig) triple. */
+    /**
+     * Kiểm chứng bộ ba (objectKey, exp, sig) theo thời gian hằng số.
+     *
+     * <p>Hai điều kiện, thiếu một là từ chối: chữ ký khớp và {@code exp} chưa qua. So sánh chữ ký
+     * bằng {@link MessageDigest#isEqual} (constant-time) để không rò thông tin qua timing. Chuỗi
+     * rỗng/null trả {@code false} ngay; {@code exp} không parse được cũng vậy.</p>
+     */
     public boolean verify(String objectKey, String expRaw, String sig) {
         if (objectKey == null || expRaw == null || sig == null || sig.isBlank()) {
             return false;
@@ -69,7 +76,7 @@ public class MediaSigner {
             }
             return sb.toString();
         } catch (Exception e) {
-            // HMAC-SHA256 is mandatory in every JDK; this path is unreachable in practice.
+            // HmacSHA256 là thuật toán bắt buộc phải có ở mọi JDK; nhánh này trên thực tế không tới được.
             throw new IllegalStateException("Media signing unavailable", e);
         }
     }

@@ -15,16 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * One-time migration runner that deep-cleans all lesson HTML content.
- * Backs up original content to {@code content_original} column before cleaning.
+ * Runner migration chạy MỘT LẦN, dọn sâu toàn bộ HTML content của lesson.
+ * Backup nội dung gốc vào cột {@code content_original} trước khi dọn.
  *
- * <p>Enabled by setting {@code engflow.html-cleanup.enabled=true} in application.properties.
- * After running successfully, set it back to {@code false} to prevent re-running.</p>
+ * <p>Bật bằng {@code engflow.html-cleanup.enabled=true} trong application.properties
+ * (mặc định {@code false}). Sau khi chạy xong phải set lại {@code false} để không
+ * chạy lại — mỗi lần chạy đều ghi đè {@code content} của mọi lesson.</p>
  *
- * <p>Like {@link ExerciseFixRunner} this rewrites the {@code lessons} table, but
- * unlike it the bean is only created when the property is present, so a default
- * configuration never even instantiates the runner. Cleaning itself is delegated
- * to {@link LessonContentService#deepCleanHtml(String)}.</p>
+ * <p>Giống {@link ExerciseFixRunner} ở chỗ cùng ghi lại bảng {@code lessons}, nhưng
+ * khác là bean chỉ được tạo khi property xuất hiện, nên cấu hình mặc định thậm chí
+ * không khởi tạo runner. Việc dọn HTML được giao cho
+ * {@link LessonContentService#deepCleanHtml(String)}.</p>
  */
 @Slf4j
 @Component
@@ -36,15 +37,15 @@ public class HtmlCleanupMigration implements ApplicationRunner {
     private final LessonContentService lessonContentService;
 
     /**
-     * Deep-cleans every lesson's content, saving in batches.
+     * Dọn sâu content của mọi lesson, lưu theo batch.
      *
-     * <p>Source is {@code contentOriginal} when present, otherwise
-     * {@code content}; the original is copied into {@code contentOriginal} only
-     * the first time, so a second run keeps the truly untouched text. Writes go
-     * out every 50 lessons so an abort keeps earlier progress. The final log line
-     * reports the total character reduction.</p>
+     * <p>Nguồn là {@code contentOriginal} nếu có, không thì lấy {@code content};
+     * bản gốc chỉ được copy vào {@code contentOriginal} ở lần chạy đầu tiên, nên
+     * lần chạy thứ hai vẫn giữ được text thật sự chưa bị đụng. Cứ 50 lesson lại
+     * ghi ra một lần để nếu có abort thì tiến độ trước đó không mất. Dòng log
+     * cuối báo tổng số ký tự giảm được.</p>
      *
-     * @param args application startup arguments
+     * @param args tham số khởi động của ứng dụng
      */
     @Override
     @Transactional
@@ -64,7 +65,7 @@ public class HtmlCleanupMigration implements ApplicationRunner {
         for (int i = 0; i < total; i++) {
             Lesson lesson = lessons.get(i);
             try {
-                // Use contentOriginal as source if available, fallback to content
+                // Lấy contentOriginal làm nguồn nếu có, không thì fallback về content
                 String source = lesson.getContentOriginal();
                 if (source == null || source.isBlank()) {
                     source = lesson.getContent();
@@ -74,12 +75,12 @@ public class HtmlCleanupMigration implements ApplicationRunner {
                     continue;
                 }
 
-                // Backup original content (only if not already backed up)
+                // Backup nội dung gốc (chỉ khi chưa từng backup)
                 if (lesson.getContentOriginal() == null) {
                     lesson.setContentOriginal(source);
                 }
 
-                // Deep clean from the best available source
+                // Dọn sâu từ nguồn tốt nhất đang có
                 String cleanedContent = lessonContentService.deepCleanHtml(source);
                 lesson.setContent(cleanedContent);
 
@@ -88,7 +89,7 @@ public class HtmlCleanupMigration implements ApplicationRunner {
                 cleaned++;
                 batch.add(lesson);
 
-                // Batch save every N records to prevent losing all progress on abort
+                // Lưu batch mỗi N record để abort không mất hết tiến độ
                 if (batch.size() >= batchSize) {
                     lessonRepository.saveAll(batch);
                     batch.clear();
@@ -101,7 +102,7 @@ public class HtmlCleanupMigration implements ApplicationRunner {
             }
         }
 
-        // Save remaining batch
+        // Lưu nốt batch còn lại
         if (!batch.isEmpty()) {
             lessonRepository.saveAll(batch);
         }

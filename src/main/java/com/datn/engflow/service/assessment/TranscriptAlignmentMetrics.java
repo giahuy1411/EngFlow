@@ -5,16 +5,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Pure-text alignment metrics between a reference script and a recognized transcript.
+ * Số đo đối chiếu thuần văn bản giữa bài mẫu và transcript nhận dạng được.
  *
- * <p>The metrics are deliberately conservative: they measure content coverage and
- * word-level deviation, not pronunciation quality. Callers must not label them as
- * pronunciation scores.</p>
+ * <p>Các chỉ số này được cố ý làm bảo thủ: chúng đo độ phủ nội dung và mức lệch
+ * ở cấp từ, không đo chất lượng phát âm. Bên gọi tuyệt đối không được dán nhãn
+ * chúng là điểm phát âm.</p>
  *
- * <p>Two consumers use it: {@link SpeakingAssessmentService} for graded
- * submissions and {@code ShadowingAiGradingService} for shadowing attempts. The
- * class is non-instantiable; {@link #compute} is the only entry point and
- * {@link AlignmentResult} is its output.</p>
+ * <p>Có hai nơi dùng: {@link SpeakingAssessmentService} cho bài nộp được chấm
+ * điểm và {@code ShadowingAiGradingService} cho lượt luyện shadowing. Lớp không
+ * thể khởi tạo; {@link #compute} là lối vào duy nhất và {@link AlignmentResult}
+ * là đầu ra.</p>
  */
 public final class TranscriptAlignmentMetrics {
 
@@ -24,17 +24,16 @@ public final class TranscriptAlignmentMetrics {
     }
 
     /**
-     * Computes alignment metrics between reference and hypothesis word sequences.
+     * Tính số đo đối chiếu giữa dãy từ bài mẫu và dãy từ nhận dạng được.
      *
-     * <p>Degenerate inputs are handled without running the distance matrix: an
-     * empty reference returns all-zero metrics carrying the hypothesis length,
-     * while an empty hypothesis returns 100% WER, 0% coverage and every reference
-     * word counted as a deletion.
+     * <p>Đầu vào suy biến được xử lý mà không cần dựng ma trận khoảng cách: bài
+     * mẫu rỗng trả về các chỉ số bằng 0 kèm độ dài hypothesis, còn hypothesis
+     * rỗng trả về WER 100%, coverage 0% và mọi từ bài mẫu bị tính là deletion.</p>
      *
-     * @param referenceText expected script (may be {@code null} for unscripted tasks)
-     * @param transcript    recognized speech (may be {@code null} or blank)
-     * @return metrics with word error rate, reference coverage, and edit breakdown
-     * @throws IllegalArgumentException if the two token sequences are too long for the distance matrix
+     * @param referenceText bài mẫu mong đợi (có thể {@code null} với bài nói tự do)
+     * @param transcript    lời nói nhận dạng được (có thể {@code null} hoặc chỉ khoảng trắng)
+     * @return số đo gồm word error rate, độ phủ bài mẫu và chi tiết các loại sửa
+     * @throws IllegalArgumentException khi hai dãy token quá dài so với ma trận khoảng cách
      */
     public static AlignmentResult compute(String referenceText, String transcript) {
         List<String> reference = tokenize(referenceText);
@@ -65,8 +64,8 @@ public final class TranscriptAlignmentMetrics {
         if (text == null || text.isBlank()) {
             return words;
         }
-        // Standard WER normalization: case-folded, punctuation (incl. apostrophes)
-        // removed, so "Don't" and "dont" align as the same token.
+        // Chuẩn hoá WER thông thường: hạ chữ thường và bỏ dấu câu (kể cả dấu nháy
+        // đơn), để "Don't" và "dont" khớp thành cùng một token.
         String normalized = text.toLowerCase(Locale.ROOT)
                 .replace('’', '\'')
                 .replaceAll("['\u2018\u2019`]", "");
@@ -79,17 +78,17 @@ public final class TranscriptAlignmentMetrics {
     }
 
     /**
-     * Builds the full Levenshtein matrix over token lists.
+     * Dựng ma trận Levenshtein đầy đủ trên hai dãy token.
      *
-     * <p>The cell count is checked against {@link #MAX_EDIT_DISTANCE_CELLS} before
-     * allocating: a runaway transcript would otherwise request gigabytes and take
-     * the JVM down. The bound is computed in {@code long} so the multiplication
-     * itself cannot overflow.</p>
+     * <p>Số ô được kiểm tra với {@link #MAX_EDIT_DISTANCE_CELLS} trước khi cấp
+     * phát: một transcript dài bất thường sẽ đòi hàng gigabyte và hạ cả JVM nếu
+     * không chặn. Phép nhân được tính trong {@code long} để bản thân nó không
+     * tràn số.</p>
      *
-     * @param reference   expected token sequence
-     * @param hypothesis  recognized token sequence
-     * @return matrix of size {@code (reference+1) x (hypothesis+1)}
-     * @throws IllegalArgumentException if the cell count exceeds the cap
+     * @param reference  dãy token mong đợi
+     * @param hypothesis dãy token nhận dạng được
+     * @return ma trận kích thước {@code (reference+1) x (hypothesis+1)}
+     * @throws IllegalArgumentException khi số ô vượt ngưỡng
      */
     private static int[][] editDistanceMatrix(List<String> reference, List<String> hypothesis) {
         if ((long) (reference.size() + 1) * (hypothesis.size() + 1) > MAX_EDIT_DISTANCE_CELLS) {
@@ -114,20 +113,19 @@ public final class TranscriptAlignmentMetrics {
     }
 
     /**
-     * Walks the matrix back from the bottom-right to split the edit distance
-     * into substitutions, insertions and deletions.
+     * Truy vết ngược từ góc dưới-phải của ma trận để tách khoảng cách sửa thành
+     * substitution, insertion và deletion.
      *
-     * <p>Diagonal moves are preferred, then deletions, then insertions, so a tie
-     * is always counted as a substitution rather than a delete+insert pair — this
-     * keeps the three counts summing exactly to the reported WER. Any residual
-     * row or column index left at the end is added to deletions or insertions
-     * respectively, which happens only when one sequence is a prefix of the
-     * other.</p>
+     * <p>Ưu tiên đi chéo, rồi deletion, rồi insertion, nên khi hoà thì luôn tính
+     * là substitution thay vì một cặp delete+insert — nhờ đó ba con số cộng lại
+     * đúng bằng WER đã báo cáo. Chỉ số hàng hoặc cột còn dư ở cuối được cộng vào
+     * deletion hoặc insertion tương ứng; việc này chỉ xảy ra khi dãy này là tiền
+     * tố của dãy kia.</p>
      *
-     * @param distance   matrix produced by {@link #editDistanceMatrix}
-     * @param reference  expected token sequence
-     * @param hypothesis recognized token sequence
-     * @return a three-element array of {@code {substitutions, insertions, deletions}}
+     * @param distance   ma trận do {@link #editDistanceMatrix} tạo ra
+     * @param reference  dãy token mong đợi
+     * @param hypothesis dãy token nhận dạng được
+     * @return mảng ba phần tử {@code {substitutions, insertions, deletions}}
      */
     private static int[] backtraceOperations(int[][] distance, List<String> reference, List<String> hypothesis) {
         int substitutions = 0;
@@ -161,15 +159,15 @@ public final class TranscriptAlignmentMetrics {
     }
 
     /**
-     * Alignment outcome for one submission.
+     * Kết quả đối chiếu của một bài nộp.
      *
-     * @param wordErrorRatePercent deviation from the reference script (0 = perfect)
-     * @param coveragePercent      proportion of reference words spoken correctly
-     * @param correctWords         matched reference words
-     * @param substitutions        reference words replaced by other words
-     * @param insertions           extra words not in the reference
-     * @param deletions            reference words missing from the transcript
-     * @param hypothesisWords      total recognized words
+     * @param wordErrorRatePercent mức lệch so với bài mẫu (0 = khớp hoàn toàn)
+     * @param coveragePercent      tỉ lệ từ trong bài mẫu được nói đúng
+     * @param correctWords         số từ bài mẫu khớp
+     * @param substitutions        số từ bài mẫu bị thay bằng từ khác
+     * @param insertions           số từ thừa không có trong bài mẫu
+     * @param deletions            số từ bài mẫu bị thiếu trong transcript
+     * @param hypothesisWords      tổng số từ nhận dạng được
      */
     public record AlignmentResult(
             double wordErrorRatePercent,

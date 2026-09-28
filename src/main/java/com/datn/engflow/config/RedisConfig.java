@@ -15,28 +15,30 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 /**
- * Redis wiring for both direct key access and Spring's annotation-based cache.
+ * Wiring Redis cho cả truy cập key trực tiếp lẫn cache dựa trên annotation của
+ * Spring.
  *
- * <p>Two overlapping layers live here. {@link RedisTemplate} is used directly for
- * rate-limit counters, streak markers and game sessions, keyed as plain strings
- * so they are inspectable with {@code redis-cli}. The {@link CacheManager} backs
- * {@code @Cacheable} lookups — chiefly the dictionary proxy in
- * {@link com.datn.engflow.service.DictionaryService} — and carries a per-cache
- * TTL exception.</p>
+ * <p>Ở đây có hai lớp chồng nhau. {@link RedisTemplate} được dùng trực tiếp cho
+ * counter rate-limit, marker streak và session game — key lưu dạng chuỗi thuần để
+ * còn soi được bằng {@code redis-cli}. {@link CacheManager} đỡ các lookup
+ * {@code @Cacheable} — chủ yếu là proxy từ điển trong
+ * {@link com.datn.engflow.service.DictionaryService} — và mang một ngoại lệ TTL
+ * riêng cho từng cache.</p>
  */
 @Configuration
 @EnableCaching
 public class RedisConfig {
 
     /**
-     * Creates the template used for direct Redis reads and writes.
+     * Tạo template dùng cho đọc/ghi Redis trực tiếp.
      *
-     * <p>Keys are stored as plain strings; values and hash values use
-     * {@link GenericJackson2JsonRedisSerializer}, which embeds type hints so
-     * polymorphic values round-trip.</p>
+     * <p>Key lưu dạng chuỗi thuần; value và hash value dùng
+     * {@link GenericJackson2JsonRedisSerializer}, serializer này nhúng type hint
+     * nên value đa hình round-trip được. Đổi sang serializer không nhúng type sẽ
+     * làm {@code RedisTemplate<String, Object>} không biết dựng lại class nào.</p>
      *
-     * @param connectionFactory factory bound to the configured Redis server
-     * @return the configured template
+     * @param connectionFactory factory gắn với Redis server đã cấu hình
+     * @return template đã cấu hình
      */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
@@ -49,23 +51,24 @@ public class RedisConfig {
         return template;
     }
 
+    /** TTL mặc định (giờ) áp cho mọi cache, trừ các cache có override riêng. */
     @org.springframework.beans.factory.annotation.Value("${cache.ttl-hours:1}")
     private long cacheTtlHours;
 
-    /** audit-v17 L2: how long a confirmed 404 ("word does not exist") is remembered. */
+    /** audit-v17 L2: nhớ trong bao lâu một 404 đã xác nhận ("từ này không tồn tại"). */
     @org.springframework.beans.factory.annotation.Value("${dictionary.miss-ttl-minutes:30}")
     private long dictionaryMissTtlMinutes;
 
     /**
-     * Creates the cache manager backing {@code @Cacheable} lookups.
+     * Tạo cache manager đỡ các lookup {@code @Cacheable}.
      *
-     * <p>All caches share {@code cache.ttl-hours} (default 1h) except the
-     * {@code dictionaryMiss} cache, which uses the shorter
-     * {@code dictionary.miss-ttl-minutes} (default 30m) so a word confirmed
-     * absent by the upstream is re-checked sooner than a successful result.</p>
+     * <p>Mọi cache dùng chung {@code cache.ttl-hours} (mặc định 1h), TRỪ cache
+     * {@code dictionaryMiss} dùng {@code dictionary.miss-ttl-minutes} ngắn hơn
+     * (mặc định 30m), để một từ đã bị upstream xác nhận là không có sẽ được kiểm
+     * tra lại sớm hơn so với một kết quả thành công.</p>
      *
-     * @param connectionFactory factory bound to the configured Redis server
-     * @return a manager with a shared default TTL and a per-cache override
+     * @param connectionFactory factory gắn với Redis server đã cấu hình
+     * @return manager với TTL mặc định dùng chung và một override theo cache
      */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
@@ -75,9 +78,9 @@ public class RedisConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .disableCachingNullValues();
 
-        // audit-v17 remove-limits round (L2): a confirmed 404 gets a SHORT TTL so a typo'd word is
-        // not re-fetched from the slow upstream for an hour, while a real word that appears later
-        // still becomes findable within 30 minutes. Every other cache keeps the shared default.
+        // Vòng audit-v17 remove-limits (L2): một 404 đã xác nhận nhận TTL NGẮN để từ gõ sai
+        // không bị gọi lại upstream chậm trong suốt một giờ, mà một từ thật xuất hiện sau đó
+        // vẫn tìm thấy được trong vòng 30 phút. Mọi cache khác giữ nguyên default dùng chung.
         RedisCacheConfiguration missConfig = config.entryTtl(Duration.ofMinutes(dictionaryMissTtlMinutes));
 
         return RedisCacheManager.builder(connectionFactory)

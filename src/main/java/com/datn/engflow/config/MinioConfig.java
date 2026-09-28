@@ -7,26 +7,26 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 /**
- * Builds the two {@link MinioClient} beans used to reach object storage.
+ * Dựng hai bean {@link MinioClient} dùng để chạm tới object storage.
  *
- * <p>Writes and reads use different endpoints on purpose: uploads go to the
- * in-cluster URL, while reads go through {@code minio.public-url} so downloads
- * resolve to a hostname the browser can also reach. Both share the same
- * credentials. {@link com.datn.engflow.service.MinioService} injects them by
- * {@code @Qualifier} — the write client is additionally {@code @Primary} — and
- * uses the read client for every {@code getObject} call it serves to
- * learners.</p>
+ * <p>Việc tách endpoint ghi và đọc là CỐ Ý: upload đi qua URL nội bộ cụm
+ * ({@code minio.url}), còn đọc đi qua {@code minio.public-url} để link tải phân
+ * giải được về hostname mà browser cũng truy cập được — nếu dùng chung URL nội bộ
+ * thì URL pre-signed trả cho client sẽ không mở nổi. Hai client dùng chung
+ * credentials. {@link com.datn.engflow.service.MinioService} inject chúng bằng
+ * {@code @Qualifier} — client ghi thêm {@code @Primary} — và dùng client đọc cho
+ * mọi lời gọi {@code getObject} phục vụ học viên.</p>
  */
 @Configuration
 public class MinioConfig {
 
     /**
-     * Creates the client used for uploads (audio/video recordings, avatars).
+     * Tạo client dùng cho upload (bản ghi audio/video, avatar).
      *
-     * @param minioUrl   internal endpoint from {@code minio.url}
-     * @param accessKey  object-storage access key
-     * @param secretKey  object-storage secret key
-     * @return a client bound to the internal endpoint
+     * @param minioUrl  endpoint nội bộ lấy từ {@code minio.url}
+     * @param accessKey access key của object storage
+     * @param secretKey secret key của object storage
+     * @return client gắn với endpoint nội bộ
      */
     @Bean("minioWriteClient")
     @Primary
@@ -38,12 +38,12 @@ public class MinioConfig {
     }
 
     /**
-     * Creates the client used for downloads and pre-signed read URLs.
+     * Tạo client dùng cho download và URL đọc pre-signed.
      *
-     * @param publicUrl externally reachable endpoint, defaulting to {@code minio.url}
-     * @param accessKey object-storage access key
-     * @param secretKey object-storage secret key
-     * @return a client bound to the public endpoint
+     * @param publicUrl endpoint truy cập được từ ngoài, mặc định lấy {@code minio.url}
+     * @param accessKey access key của object storage
+     * @param secretKey secret key của object storage
+     * @return client gắn với endpoint public
      */
     @Bean("minioReadClient")
     public MinioClient minioReadClient(
@@ -53,7 +53,7 @@ public class MinioConfig {
         return createClient(publicUrl, accessKey, secretKey);
     }
 
-    /** Shared builder so the two beans differ only in endpoint. */
+    /** Builder dùng chung để hai bean chỉ khác nhau đúng ở endpoint. */
     private MinioClient createClient(String endpoint, String accessKey, String secretKey) {
         return MinioClient.builder()
                 .endpoint(endpoint)

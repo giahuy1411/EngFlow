@@ -1,8 +1,17 @@
 <script setup>
 /**
- * AppTable — striped/unstriped HTML table wrapper accessible.
- * Columns via `columns`: [{ key, label, tdClass? }].
- * Rows via `rows`. Supports slots per column (slot scope `{ row, col }`).
+ * AppTable — bọc bảng HTML, hỗ trợ kẻ sọc và accessible.
+ *
+ * Hợp đồng:
+ * - Cột qua `columns`: [{ key, label, tdClass?, width? }].
+ * - Dòng qua `rows`. Mỗi cột có thể ghi đè bằng slot tên `col-<key>`; nếu không
+ *   có thì rơi về slot `cell` chung, cuối cùng mới hiển thị `row[col.key]`.
+ *   Slot nhận scope `{ row, col, index }`.
+ * - `caption` render dạng `sr-only` để screen reader có mô tả bảng; `striped`
+ *   bật/tắt kẻ sọc. Không có dòng nào thì hiện slot `empty`.
+ *
+ * Lưu ý: biến đặt tên `attrs` nhưng thực chất là `useSlots()` — dùng để kiểm tra
+ * sự tồn tại của slot theo cột (`$slots[...]`), không phải attribute.
  */
 import { useSlots } from 'vue'
 

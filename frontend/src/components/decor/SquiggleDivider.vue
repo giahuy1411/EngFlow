@@ -4,21 +4,19 @@
 
 <script setup>
 /**
- * Squiggle section divider — the design system's hand-drawn separator.
+ * SquiggleDivider — vạch ngăn kiểu nét vẽ tay của design system.
  *
- * audit-v10 fixes two real defects in the previous version:
- *  1. `color` and `height` were declared but never used: the SVG stroke was
- *     hardcoded to `%231E293B` and `--deco-height` was never set by anything.
- *  2. The style object wrote a whole CSS *declaration*
- *     (`'color:var(--geo-fg)'`) into a custom property, which is not a valid
- *     value for `background-image` to consume.
+ * audit-v10 sửa hai lỗi thật ở phiên bản trước:
+ *  1. `color` và `height` được khai báo nhưng không dùng: stroke của SVG bị
+ *     hardcode `%231E293B` và `--deco-height` không được set ở đâu cả.
+ *  2. Object style ghi cả một *khai báo* CSS (`'color:var(--geo-fg)'`) vào một
+ *     custom property — không phải giá trị hợp lệ để `background-image` dùng.
  *
- * The squiggle is now painted with `mask-image` + `background-color`, not with a
- * coloured `background-image`. This matters: `currentColor` inside a data-URI
- * SVG does NOT inherit from the host element (the SVG is a separate document
- * whose initial `color` is black), so a coloured background-image can never be
- * driven by a prop. Masking decouples the shape from the colour, so the `color`
- * prop genuinely reaches the pixels.
+ * Nay squiggle được tô bằng `mask-image` + `background-color`, không dùng
+ * `background-image` màu. Lý do: `currentColor` bên trong data-URI SVG KHÔNG kế
+ * thừa từ phần tử host (SVG là document riêng, `color` khởi tạo là đen), nên
+ * background-image màu không bao giờ nhận được từ prop. Mask tách hình khỏi
+ * màu, nhờ đó prop `color` thật sự chạm tới pixel.
  */
 import { computed } from 'vue'
 

@@ -1,16 +1,18 @@
 <script setup>
 /**
- * AppButton — core action primitive.
- * Variants: primary | secondary | tertiary | danger | ghost
+ * AppButton — primitive hành động cốt lõi.
+ * Variants: primary | secondary | tertiary | danger | ghost (map sang class `.app-btn--*`)
  * Sizes: sm | md | lg
- * Emits click only when enabled and not loading.
- * Renders an anchor when as="a" is set (router-aware consumers pass href).
- * Forwards safe native attributes (aria-*, disabled, type).
- * Decorative icons should use aria-hidden via the leading/trailing slots.
+ * Chỉ emit `click` khi đang bật và không loading.
  *
- * `withArrow` adds the design system's ArrowRight-in-a-white-circle affordance.
- * It is opt-in rather than the default: ~100 existing call sites must not change
- * shape, and the arrow is a decorative cue, so it is always aria-hidden.
+ * Component đa hình qua prop `as`: mặc định `'button'`; đặt `as="a"` để render
+ * thẻ anchor (truyền `href`), `as="router-link"` để render RouterLink (truyền
+ * `to`). Forward các attribute native an toàn (aria-*, disabled, type).
+ * Icon trang trí nên đặt aria-hidden qua slot leading/trailing.
+ *
+ * `withArrow` thêm affordance ArrowRight-trong-vòng-tròn-trắng của design system.
+ * Đây là tùy chọn (opt-in) chứ không mặc định: ~100 call site hiện hữu không
+ * được đổi hình dạng, và mũi tên chỉ là gợi ý trang trí nên luôn `aria-hidden`.
  */
 import { computed, useAttrs } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -42,8 +44,10 @@ const classes = computed(() => [
   },
 ])
 
+// Trạng thái vô hiệu gộp cả `disabled` lẫn `loading` — nút đang tải không bấm được.
 const isDisabled = computed(() => props.disabled || props.loading)
 const isNativeButton = computed(() => props.as === 'button')
+// `router-link` (chuỗi) phải đổi thành component RouterLink thật; còn lại giữ nguyên.
 const componentType = computed(() => props.as === 'router-link' ? RouterLink : props.as)
 const componentProps = computed(() => {
   const values = {
@@ -52,6 +56,7 @@ const componentProps = computed(() => {
     'aria-busy': props.loading || undefined,
   }
 
+  // Chỉ gắn thuộc tính theo đúng loại thẻ đang render để tránh attr rác/không hợp lệ.
   if (isNativeButton.value) {
     values.type = props.type
     values.disabled = isDisabled.value
@@ -64,6 +69,7 @@ const componentProps = computed(() => {
   return values
 })
 
+// Chặn emit click khi disabled/loading — kể cả với anchor không có cơ chế disabled gốc.
 function handleClick(event) {
   if (!isDisabled.value) emit('click', event)
 }

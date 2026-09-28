@@ -31,16 +31,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Imports lesson JSON captured by the crawler into the {@code lessons} and
- * {@code exercises} tables.
+ * Import lesson JSON do crawler thu thập vào hai bảng {@code lessons} và
+ * {@code exercises}.
  *
- * <p>Runs on every startup by default ({@code engflow.seed-json-data} matches
- * when missing) and is idempotent: a lesson is only inserted when its title is
- * absent, but exercises are parsed for both new and pre-existing lessons, so a
- * restart can backfill exercises without duplicating lessons. {@code @Order(2)}
- * places it after {@link DatabaseSeeder} so the base tables exist.
- * {@code JdbcTemplate} is injected but unused in the current body — it is kept
- * for the crawler's bulk-insert path.</p>
+ * <p>Điều kiện bật: {@code @ConditionalOnProperty} với {@code matchIfMissing = true},
+ * tức bean sẽ được tạo khi property {@code engflow.seed-json-data} VẮNG MẶT. Nhưng
+ * {@code application.properties} đang set thẳng {@code engflow.seed-json-data=false},
+ * nên mặc định hiện tại seeder KHÔNG chạy — đây là cố ý, đừng bật lại. Khi chạy,
+ * nó idempotent: lesson chỉ được insert khi title chưa tồn tại, còn exercise vẫn
+ * được parse cho cả lesson mới lẫn lesson đã có, nên restart có thể backfill
+ * exercise mà không nhân đôi lesson. {@code @Order(2)} đặt nó sau
+ * {@link DatabaseSeeder} để các bảng nền đã sẵn sàng (cùng order với
+ * {@code VocabularyDataSeeder}). {@code JdbcTemplate} được inject nhưng chưa dùng
+ * trong thân hiện tại — giữ lại cho đường bulk-insert của crawler.</p>
  */
 @Slf4j
 @Component
@@ -57,22 +60,21 @@ public class JsonDataSeeder implements CommandLineRunner {
     private final ExerciseRepository exerciseRepository;
 
     /**
-     * Reads every crawler JSON file and imports its units as lessons.
+     * Đọc mọi file JSON của crawler và import các unit thành lesson.
      *
-     * <p>For each unit the seven {@code skills} keys are mapped onto
-     * {@link SkillType} constants in the same order, and each non-empty
-     * {@code content} is sanitised with Jsoup before being stored. Known
-     * scraper widgets (ads, shortcodes, social triggers) are removed and a
-     * safelist is applied. An exercise is saved only when no existing exercise of
-     * that lesson has the same question text. Answer keys are loaded once at the
-     * end, with failures logged rather than thrown.</p>
+     * <p>Với mỗi unit, bảy key trong {@code skills} được map sang các hằng
+     * {@link SkillType} theo đúng thứ tự, và mỗi {@code content} không rỗng được
+     * làm sạch bằng Jsoup trước khi lưu. Các widget quen thuộc của scraper (quảng
+     * cáo, shortcode, nút social) bị xoá và sau đó áp một safelist. Một exercise
+     * chỉ được lưu khi chưa có exercise nào cùng lesson trùng question. Answer key
+     * được load một lần ở cuối, lỗi chỉ log chứ không ném ra.</p>
      *
-     * @param args command-line arguments supplied to the application
-     * @throws Exception if a JSON file cannot be read or parsed
+     * @param args tham số dòng lệnh truyền cho ứng dụng
+     * @throws Exception nếu một file JSON không đọc hoặc parse được
      */
     @Override
     public void run(String... args) throws Exception {
-        // Try reading from the crawler/data/ directory first, then fallback to single file
+        // Thử đọc từ thư mục crawler/data/ trước, nếu không có thì fallback về file đơn
         File dataDir = new File("crawler/data");
         File singleFile = new File("tienganh_nangcao_lessons.json");
 
@@ -113,7 +115,7 @@ public class JsonDataSeeder implements CommandLineRunner {
 
             for (JsonNode unit : units) {
                 String title = unit.path("title").asText("Unit " + unit.path("unit").asText());
-                if (title.length() < 5) continue; // Skip noise entries
+                if (title.length() < 5) continue; // Bỏ các entry rác
 
                 JsonNode skillsNode = unit.path("skills");
                 for (int i = 0; i < skillKeys.length; i++) {
@@ -160,7 +162,7 @@ public class JsonDataSeeder implements CommandLineRunner {
 
                                 lessonRepository.save(lesson);
 
-                                // Parse exercises from content HTML
+                                // Parse exercise từ HTML content
                                 try {
                                     List<Exercise> parsed = htmlParserService.parseExercises(lesson, cleanHtml);
                                     for (Exercise ex : parsed) {
@@ -174,7 +176,7 @@ public class JsonDataSeeder implements CommandLineRunner {
                                 }
                             } else {
                                 log.info("Found existing lesson: {}. Parsing exercises...", fullTitle);
-                                // Parse exercises for existing lessons too
+                                // Lesson đã tồn tại cũng được parse exercise
                                 try {
                                     Lesson lesson = lessonRepository.findByTitle(fullTitle)
                                 .orElseThrow(() -> new IllegalStateException("Lesson not found: " + fullTitle));
@@ -210,15 +212,15 @@ public class JsonDataSeeder implements CommandLineRunner {
     }
 
     /**
-     * Maps a crawler level string onto a {@link LessonLevel} constant.
+     * Map chuỗi level của crawler sang hằng {@link LessonLevel}.
      *
-     * <p>Accepts both CEFR letters and the enum's own names. Anything
-     * unrecognised — including {@code null} and the empty string — falls back to
-     * {@code ELEMENTARY} rather than failing the whole import, because a single
-     * odd level string in the corpus should not abort seeding.</p>
+     * <p>Chấp nhận cả ký hiệu CEFR lẫn tên của enum. Mọi giá trị không nhận ra —
+     * kể cả {@code null} và chuỗi rỗng — rơi về {@code ELEMENTARY} thay vì làm
+     * fail cả lần import, vì một chuỗi level lạ trong corpus không đáng làm chết
+     * quá trình seed.</p>
      *
-     * @param level raw level value from the JSON, possibly {@code null}
-     * @return the matching level, defaulting to {@code ELEMENTARY}
+     * @param level giá trị level thô từ JSON, có thể {@code null}
+     * @return level khớp được, mặc định là {@code ELEMENTARY}
      */
     private LessonLevel mapLevel(String level) {
         if (level == null || level.isEmpty()) return LessonLevel.ELEMENTARY;

@@ -6,13 +6,14 @@
 
 <script setup>
 /**
- * audit-v10: the default width is now the prompt's `max-w-6xl` (72rem / 1152px),
- * down from 80rem (1280px / `max-w-7xl`).
+ * Container — khung bọc nội dung canh giữa theo bề rộng chuẩn.
  *
- * `xl` (96rem) is kept for the wide admin tables, which genuinely need the extra
- * columns; `sm` (40rem) stays for auth forms. Anything that must keep the old
- * generous width should opt into `size="xl"` explicitly rather than relying on
- * the default.
+ * audit-v10: bề rộng mặc định giờ là `max-w-6xl` (72rem / 1152px) như prompt,
+ * giảm từ 80rem (1280px / `max-w-7xl`).
+ *
+ * `xl` (96rem) giữ lại cho bảng admin rộng, vốn thật sự cần thêm cột; `sm`
+ * (40rem) dành cho form auth. Chỗ nào cần giữ bề rộng rộng rãi cũ thì phải
+ * chọn `size="xl"` tường minh thay vì dựa vào mặc định.
  */
 defineProps({
   tag: { type: String, default: 'div' },

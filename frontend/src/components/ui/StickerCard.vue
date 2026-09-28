@@ -1,8 +1,13 @@
 <script setup>
 /**
- * StickerCard — sticker-style surface primitive.
- * Non-interactive by default; `interactive` enables hover lift.
- * `featured` applies the featured hard shadow.
+ * StickerCard — primitive bề mặt kiểu sticker của design system.
+ *
+ * Hợp đồng: mặc định không tương tác; `interactive` bật hiệu ứng nâng lên khi
+ * hover (hover-lift); `featured` áp bóng cứng màu hồng của design system.
+ * `as` cho phép đổi thẻ bọc (div/article/router-link...) — giống AppButton,
+ * component được render động qua `<component :is="as">`.
+ * Slot: `icon` (phía trên), mặc định (thân card), `footer`.
+ * Primitive thuần trình bày, không fetch/store/routing.
  */
 import { computed } from 'vue'
 

@@ -1,7 +1,13 @@
 <script setup>
 /**
- * AppLogo — reusable EngFlow mark.
- * `href` empty -> static span; `href` set -> router-link home.
+ * AppLogo — logo EngFlow tái sử dụng.
+ *
+ * Hợp đồng: `href` rỗng → render `<span>` tĩnh; `href` có giá trị → render
+ * `<router-link>` trỏ về home. Logo không nhận slot và không phụ thuộc store.
+ *
+ * Lưu ý: khối hình học bên trong được đánh `aria-hidden` vì chỉ là trang trí;
+ * phần chữ "EngFlow" mới mang nghĩa. Nhãn `aria-label` đổi theo biến thể
+ * ("EngFlow home" khi là link) để screen reader đọc đúng vai trò.
  */
 defineProps({
   href: { type: String, default: '' },

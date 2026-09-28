@@ -19,15 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Optional migration runner that rebuilds the {@code exercises} table from
- * lesson HTML.
+ * Runner migration tuỳ chọn, dựng lại bảng {@code exercises} từ HTML của lesson.
  *
- * <p>Disabled by default and guarded by {@code engflow.exercise-fix.enabled};
- * when off, {@link #run} returns immediately. When on it is destructive — every
- * existing exercise row is deleted before the lessons are re-parsed by
- * {@link HtmlParserService}. {@code @Order(1)} runs it before the other
- * {@link org.springframework.boot.ApplicationRunner} beans so the rebuilt
- * exercises exist before anything seeds or reads them.</p>
+ * <p>Mặc định TẮT và được canh bởi {@code engflow.exercise-fix.enabled}; khi off,
+ * {@link #run} return ngay. Khi bật thì đây là thao tác PHÁ HUỶ — mọi row exercise
+ * hiện có bị xoá trước khi lesson được parse lại bởi {@link HtmlParserService}.
+ * {@code @Order(1)} cho nó chạy trước các bean
+ * {@link org.springframework.boot.ApplicationRunner} khác, nhờ vậy exercise dựng
+ * lại đã tồn tại trước khi có thứ gì seed hoặc đọc chúng.</p>
+ *
+ * <p>Trong {@code application.properties} cờ này cố ý để {@code false}: đây là
+ * runner chạy MỘT LẦN cho đợt sửa dữ liệu, KHÔNG bật lại — mỗi lần chạy đều xoá
+ * sạch exercise rồi parse lại toàn bộ.</p>
  */
 @Slf4j
 @Component
@@ -43,10 +46,10 @@ public class ExerciseFixRunner implements ApplicationRunner {
     private boolean enabled;
 
     /**
-     * Logs whether the destructive rebuild is armed.
+     * Ghi log cờ cấu hình của bước dựng lại exercise.
      *
-     * <p>Runs at bean construction so an operator can see the setting in the
-     * startup log even when the migration is about to be skipped.</p>
+     * <p>Chạy ngay lúc khởi tạo bean để operator thấy được setting trong log
+     * startup, kể cả khi migration sắp bị bỏ qua.</p>
      */
     @PostConstruct
     void init() {
@@ -54,15 +57,15 @@ public class ExerciseFixRunner implements ApplicationRunner {
     }
 
     /**
-     * Deletes all exercises and re-parses them from every lesson's content.
+     * Xoá toàn bộ exercise rồi parse lại từ content của từng lesson.
      *
-     * <p>Prefers {@code contentOriginal} over {@code content} so a lesson already
-     * sanitized by {@code HtmlCleanupMigration} is rebuilt from the untouched
-     * original. Lessons with neither field are counted as skipped. A parse failure
-     * on one lesson is logged and recorded, then the loop continues, so one bad
-     * lesson does not abort the migration.</p>
+     * <p>Ưu tiên {@code contentOriginal} hơn {@code content}, để lesson đã bị
+     * {@code HtmlCleanupMigration} làm sạch vẫn được dựng lại từ bản gốc chưa
+     * đụng tới. Lesson không có cả hai field được tính là skipped. Lỗi parse ở
+     * một lesson chỉ được log và ghi nhận rồi vòng lặp đi tiếp, nên một lesson
+     * hỏng không làm chết cả migration.</p>
      *
-     * @param args application startup arguments
+     * @param args tham số khởi động của ứng dụng
      */
     @Override
     @Transactional

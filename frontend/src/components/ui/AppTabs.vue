@@ -1,8 +1,17 @@
 <script setup>
 /**
- * AppTabs — accessible tablist primitive.
- * v-model:active for active tab index. Render-prop via slot: passes { active, activate }.
- * Use `items` prop for simple arrays, or full slots for complex panels.
+ * AppTabs — primitive tablist accessible.
+ *
+ * Hợp đồng: `v-model:active` giữ chỉ số tab đang chọn. Truyền `items` cho mảng
+ * đơn giản ([{ label, value? }]), hoặc dùng slot đầy đủ cho panel phức tạp.
+ * Slot mặc định là render-prop, nhận `{ active, activate }` để panel tự hiển thị
+ * theo tab hiện tại.
+ *
+ * Lưu ý: `active` so sánh với chỉ số `i` chứ không phải `item.value`; muốn dùng
+ * value thì phải xử lý ở phía consumer. Template có tham chiếu `ariaLabel`
+ * nhưng prop này chưa được khai báo nên hiện luôn là `undefined` (tablist không
+ * có nhãn) — cần khai báo prop nếu muốn gắn aria-label thật.
+ * Primitive thuần trình bày.
  */
 import { computed } from 'vue'
 
@@ -13,11 +22,13 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+// computed hai chiều: đọc prop, ghi bằng emit để consumer giữ v-model.
 const active = computed({
   get: () => props.modelValue,
   set: (v) => emit('update:modelValue', v),
 })
 
+// Kích hoạt tab theo chỉ số — consumer cũng nhận được `activate` qua slot scope.
 function activate(index) {
   active.value = index
 }

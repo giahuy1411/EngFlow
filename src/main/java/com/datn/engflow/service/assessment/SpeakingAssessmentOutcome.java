@@ -3,20 +3,21 @@ package com.datn.engflow.service.assessment;
 import com.datn.engflow.service.assessment.TranscriptAlignmentMetrics.AlignmentResult;
 
 /**
- * Outcome of the automatic (non-pronunciation) assessment of one submission.
+ * Kết quả chấm tự động (phần không phải phát âm) của một bài nộp.
  *
- * <p>Produced by {@link SpeakingAssessmentService#assess} and consumed by
- * {@code SpeakingSubmissionService}, which persists whichever fields are
- * non-null. A non-null {@code error} is not fatal: the submission still enters
- * the manual-grading queue with a teacher-facing reason instead of an
- * automated score.</p>
+ * <p>Do {@link SpeakingAssessmentService#assess} tạo ra và được
+ * {@code SpeakingSubmissionService} tiêu thụ; bên đó chỉ ghi xuống DB những
+ * trường khác {@code null}. Trường {@code error} khác {@code null} KHÔNG phải
+ * lỗi chí mạng: bài nộp vẫn vào hàng chờ chấm tay kèm lý do hiển thị cho giáo
+ * viên, thay vì bị gán một điểm tự động. Nhờ vậy học viên không bao giờ bị 0
+ * điểm chỉ vì pipeline tự động hỏng.</p>
  *
- * @param transcript   recognized speech text, or the learner-supplied text
- * @param transcriptSource where the transcript came from: {@code WHISPER}, {@code USER}, or {@code NONE}
- * @param alignment    reference-vs-transcript alignment metrics
- * @param rubric       LLM language rubric, or {@code null} when the LLM was unavailable
- * @param provider     identifier of the pipeline that produced this result
- * @param error        non-null when the assessment degraded; the submission still keeps manual grading
+ * @param transcript        văn bản nhận dạng được, hoặc văn bản do học viên tự nhập
+ * @param transcriptSource  nguồn của transcript: {@code WHISPER}, {@code USER} hoặc {@code NONE}
+ * @param alignment         số đo đối chiếu bài mẫu với transcript
+ * @param rubric            thang điểm ngôn ngữ do LLM chấm, hoặc {@code null} khi LLM không sẵn sàng
+ * @param provider          định danh pipeline đã tạo ra kết quả này
+ * @param error             khác {@code null} khi việc chấm bị suy giảm; bài nộp vẫn giữ đường chấm tay
  */
 public record SpeakingAssessmentOutcome(
         String transcript,
@@ -27,15 +28,15 @@ public record SpeakingAssessmentOutcome(
         String error) {
 
     /**
-     * Builds a failed outcome that preserves the manual-grading path.
+     * Tạo kết quả thất bại nhưng vẫn giữ đường chấm tay.
      *
-     * <p>Transcript source is fixed to {@code NONE} and both score fields are
-     * {@code null}, so a caller reading this outcome cannot mistake a failure for
-     * a zero score.</p>
+     * <p>Nguồn transcript cố định là {@code NONE} và cả hai trường điểm đều
+     * {@code null}, nên bên gọi đọc kết quả này không thể nhầm thất bại với điểm
+     * 0. Đây chính là lý do không dùng giá trị 0 thay cho {@code null}.</p>
      *
-     * @param provider pipeline identifier
-     * @param error    human-readable failure reason
-     * @return outcome carrying no scores
+     * @param provider định danh pipeline
+     * @param error    lý do thất bại, dạng người đọc được
+     * @return kết quả không mang điểm nào
      */
     public static SpeakingAssessmentOutcome failed(String provider, String error) {
         return new SpeakingAssessmentOutcome(null, "NONE", null, null, provider, error);

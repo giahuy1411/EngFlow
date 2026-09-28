@@ -17,11 +17,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Proxy phục vụ media riêng tư từ MinIO qua đường dẫn {@code /api/v1/media/**}.
+ *
+ * <p>Rule trong {@code SecurityConfig} để {@code GET /api/v1/media/**} là {@code permitAll} — điều
+ * này KHÔNG có nghĩa object nào cũng tải được. Quyền truy cập được quyết định ngay trong controller
+ * bằng hai cách chứng minh (xem {@link #serveMedia}), nên vé HMAC mới là thứ bảo vệ thật, không phải
+ * tầng filter. Lý do không dùng header {@code Authorization}: thẻ {@code <audio src>}/{@code <video src>}
+ * của trình duyệt không gắn được header, phải ký trên URL.</p>
+ *
+ * <p>Nội dung trả về luôn kèm {@code Cache-Control: private, no-store} để proxy/CDN trung gian không
+ * lưu bản ghi âm của người học.</p>
+ */
 @RestController
 @RequiredArgsConstructor
-/**
- * class MediaProxyController.
- */
 public class MediaProxyController {
 
     private final MinioService minioService;
@@ -30,6 +39,24 @@ public class MediaProxyController {
     private final VideoAttemptRepository videoAttemptRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Phục vụ một object media, chỉ khi caller chứng minh được quyền.
+     *
+     * <p><b>Hợp đồng bảo mật (audit-v7 F55):</b> bản ghi âm của người học là dữ liệu cá nhân. Trước
+     * bản vá, một object key trần chính là URL tải công khai (IDOR). Nay chỉ chấp nhận một trong hai
+     * bằng chứng:</p>
+     * <ol>
+     *   <li>vé hết hạn do server ký {@code ?exp=&sig=} — dạng DUY NHẤT mà UI sinh ra cho chủ sở hữu/admin,
+     *       hoạt động được trong {@code <audio src>};</li>
+     *   <li>URL kiểu cũ chưa có vé (lưu trước bản vá): chỉ cho qua khi principal đang đăng nhập SỞ HỮU
+     *       object đó.</li>
+     * </ol>
+     * <p>Không đạt cả hai → 403.</p>
+     *
+     * @param request request hiện tại, dùng để lấy URI (suy ra object key) và tham số {@code exp}/{@code sig}
+     * @return luồng nội dung kèm content-type theo đuôi file, 404 nếu path/key rỗng hoặc object không
+     *         tồn tại, 403 nếu không chứng minh được quyền
+     */
     @GetMapping("/api/v1/media/**")
     public ResponseEntity<InputStreamResource> serveMedia(HttpServletRequest request) {
         String path = request.getRequestURI();
@@ -41,12 +68,11 @@ public class MediaProxyController {
         if (objectKey.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        // audit-v7 F55: learner recordings are personal data; a bare object key
-        // used to be a public download URL (IDOR). Two acceptable proofs now:
-        //  1. server-signed expiring ticket (?exp=&sig=) — the only form the
-        //     UI ever generates for owners/admins, works in <audio src>;
-        //  2. legacy unsaved URLs persisted before the fix: allow only when the
-        //     CURRENT authenticated principal owns the object.
+        // audit-v7 F55: bản ghi âm của người học là dữ liệu cá nhân; trước đây một object key
+        // trần chính là URL tải công khai (IDOR). Nay chỉ chấp nhận hai bằng chứng:
+        //  1. vé hết hạn do server ký (?exp=&sig=) — dạng DUY NHẤT mà UI sinh cho chủ sở hữu/admin,
+        //     hoạt động được trong <audio src>;
+        //  2. URL kiểu cũ lưu trước bản vá: chỉ cho qua khi principal đang đăng nhập SỞ HỮU object.
         boolean signed = mediaSigner.verify(objectKey, request.getParameter("exp"), request.getParameter("sig"));
         if (!signed && !ownsCurrently(objectKey)) {
             return ResponseEntity.status(403).build();
@@ -54,6 +80,16 @@ public class MediaProxyController {
         return stream(objectKey);
     }
 
+    /**
+     * Kiểm tra principal hiện tại có sở hữu object hay không (đường dự phòng cho URL cũ không vé).
+     *
+     * <p>Phải loại cả {@link AnonymousAuthenticationToken} lẫn principal chưa xác thực: nếu chỉ hỏi
+     * {@code isAuthenticated()} thì khách ẩn danh cũng trả true và đường dự phòng thành lỗ hổng.
+     * Object hợp lệ khi thuộc một bài speaking HOẶC một video attempt của chính user đó.</p>
+     *
+     * @param objectKey key trong MinIO cần kiểm quyền sở hữu
+     * @return true nếu user đang đăng nhập sở hữu object
+     */
     private boolean ownsCurrently(String objectKey) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
@@ -65,6 +101,16 @@ public class MediaProxyController {
                 .orElse(false);
     }
 
+    /**
+     * Kéo object từ MinIO và dựng response, suy content-type từ đuôi file.
+     *
+     * <p>Đuôi lạ rơi về {@code application/octet-stream} (an toàn: không để trình duyệt đoán bừa).
+     * {@code Content-Disposition: inline} để phát trực tiếp trong thẻ media; {@code no-store} để
+     * không ai cache bản ghi âm; {@code Access-Control-Allow-Origin: *} phục vụ trình phát cross-origin.</p>
+     *
+     * @param objectKey key đã qua kiểm quyền
+     * @return luồng nội dung, hoặc 404 nếu object không tồn tại trong MinIO
+     */
     private ResponseEntity<InputStreamResource> stream(String objectKey) {
         InputStreamResource resource = minioService.getObject(objectKey);
         if (resource == null) {

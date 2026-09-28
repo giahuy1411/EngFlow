@@ -1,8 +1,12 @@
 <script setup>
 /**
- * FormField — labeled form control wrapper.
- * Provides label, optional hint, error message, and required marker.
- * Wires aria-describedby between hint/error and the slotted control.
+ * FormField — bọc control form kèm nhãn.
+ * Cung cấp label, hint tùy chọn, thông báo lỗi và dấu bắt buộc.
+ * Nối `aria-describedby` giữa hint/error và control trong slot.
+ *
+ * Hợp đồng: `id` và `label` là bắt buộc; control trong slot nhận scope
+ * `{ id, describedBy, hasError }` để tự gắn đúng id và aria-describedby.
+ * Primitive thuần trình bày: không fetch, không store, không routing.
  */
 import { computed } from 'vue'
 
@@ -17,6 +21,7 @@ const props = defineProps({
 const hasError = computed(() => Boolean(props.error))
 const hintId = computed(() => (props.hint ? `${props.id}-hint` : undefined))
 const errorId = computed(() => (hasError.value ? `${props.id}-error` : undefined))
+// Ghép id hint + error thành chuỗi aria-describedby; rỗng thì để undefined.
 const describedBy = computed(() => [hintId.value, errorId.value].filter(Boolean).join(' ') || undefined)
 </script>
 

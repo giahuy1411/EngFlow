@@ -1,40 +1,40 @@
 /**
- * audit-v13 F-13-20: the router puts a `?redirect=` parameter in the URL when it bounces a
- * user off a protected page, but nothing ever read it — so after logging in the user was not
- * returned to where they came from.
+ * audit-v13 F-13-20: router chèn tham số `?redirect=` vào URL khi đá người dùng ra khỏi
+ * trang được bảo vệ, nhưng trước đây không ai đọc tham số này — nên sau khi đăng nhập
+ * người dùng không được đưa về chỗ họ xuất phát.
  *
- * This helper decides where a post-login redirect may go. It MUST only ever return an
- * internal path: a raw `route.query.redirect` is attacker-controllable, and passing it
- * straight to `router.replace()` is an open-redirect (e.g. `//evil.com`, `https://evil.com`,
- * `javascript:...`).
+ * Helper này quyết định sau đăng nhập được phép chuyển hướng đi đâu. Nó BẮT BUỘC chỉ được
+ * trả về đường dẫn nội bộ: `route.query.redirect` thô là dữ liệu kẻ tấn công kiểm soát được,
+ * đưa thẳng vào `router.replace()` chính là lỗ hổng open-redirect (ví dụ `//evil.com`,
+ * `https://evil.com`, `javascript:...`).
  */
 
-/** Where to send a user when no usable redirect was supplied. */
+/** Đích mặc định khi không có redirect dùng được. */
 export const DEFAULT_REDIRECT = '/lessons'
 
 /**
- * Returns `candidate` when it is a safe internal path, otherwise {@link DEFAULT_REDIRECT}.
+ * Trả về `candidate` khi nó là đường dẫn nội bộ an toàn, ngược lại trả {@link DEFAULT_REDIRECT}.
  *
- * Rejected:
- *   - anything not starting with a single `/` (`http://…`, `javascript:…`, `evil.com`)
- *   - protocol-relative URLs (`//evil.com`) and backslash variants (`/\evil.com`, `\\evil.com`)
- *   - control characters and whitespace-padded tricks
+ * Các trường hợp bị từ chối:
+ *   - bất cứ thứ gì không bắt đầu bằng đúng một dấu `/` (`http://…`, `javascript:…`, `evil.com`)
+ *   - URL protocol-relative (`//evil.com`) và biến thể dùng dấu chéo ngược (`/\evil.com`, `\\evil.com`)
+ *   - ký tự điều khiển và chiêu chèn khoảng trắng để đánh lừa
  *
- * @param {unknown} candidate value from `route.query.redirect`
- * @returns {string} a safe internal path
+ * @param {unknown} candidate giá trị lấy từ `route.query.redirect`
+ * @returns {string} một đường dẫn nội bộ an toàn
  */
 export function safeRedirect(candidate) {
   if (typeof candidate !== 'string') return DEFAULT_REDIRECT
 
-  // Reject RAW control characters or whitespace: a browser may strip them and change the
-  // target (e.g. "/speak\ting" -> "/speaking"). Checked on the original, not the decoded
-  // form — an encoded space (`%20`) in a query is legitimate.
+  // Từ chối ký tự điều khiển hoặc khoảng trắng THÔ: trình duyệt có thể cắt chúng và làm đổi
+  // đích đến (ví dụ "/speak\ting" -> "/speaking"). Kiểm trên bản gốc, không phải bản đã
+  // decode — dấu cách được mã hoá (`%20`) trong query là hợp lệ.
   if (/[\u0000-\u001F\u007F\s]/.test(candidate)) return DEFAULT_REDIRECT
 
-  // Decode once so `%2F%2Fevil.com` cannot slip through as a protocol-relative URL.
-  // Validate the DECODED form, but return the ORIGINAL: returning the decoded value would
-  // corrupt a legitimate destination that contains a literal `%` (e.g. `/search?q=100%25off`
-  // would come back as `/search?q=100%off` and then fail vue-router's own decoding).
+  // Decode đúng một lần để `%2F%2Fevil.com` không lọt qua dưới dạng URL protocol-relative.
+  // Kiểm tra trên bản ĐÃ DECODE, nhưng trả về bản GỐC: trả bản đã decode sẽ làm hỏng một
+  // đích đến hợp lệ có chứa `%` theo nghĩa đen (ví dụ `/search?q=100%25off` sẽ biến thành
+  // `/search?q=100%off` rồi fail ngay ở bước decode của vue-router).
   let decoded = candidate
   try {
     decoded = decodeURIComponent(candidate)
@@ -42,9 +42,9 @@ export function safeRedirect(candidate) {
     return DEFAULT_REDIRECT
   }
 
-  // Must be a rooted path...
+  // Phải là đường dẫn bắt đầu từ gốc...
   if (!decoded.startsWith('/')) return DEFAULT_REDIRECT
-  // ...but not protocol-relative (`//host`) or a backslash trick (`/\host`, `/\/host`).
+  // ...nhưng không được là protocol-relative (`//host`) hay chiêu dấu chéo ngược (`/\host`, `/\/host`).
   if (decoded.startsWith('//') || decoded.includes('\\')) return DEFAULT_REDIRECT
 
   return candidate

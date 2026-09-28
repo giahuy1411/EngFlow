@@ -1,7 +1,11 @@
 <script setup>
 /**
- * AppStepper — step indicator.
- * Props: steps (string[]), current (index 0-based, or value if using `values`).
+ * AppStepper — chỉ báo các bước.
+ * Props: steps (string[]), current (chỉ số 0-based, hoặc giá trị nếu dùng `values`).
+ *
+ * Hợp đồng: `current` nhận số (chỉ số trực tiếp) hoặc chuỗi (tên bước, sẽ được
+ * tra trong `steps`). Bước đã qua hiện dấu ✓ và tô nền "done"; bước hiện tại gắn
+ * `aria-current="step"`. Primitive thuần trình bày.
  */
 import { computed } from 'vue'
 
@@ -10,6 +14,7 @@ const props = defineProps({
   current: { type: [Number, String], default: 0 },
 })
 
+// Chuẩn hoá `current` về chỉ số: số thì dùng luôn, chuỗi thì tra vị trí trong steps.
 const idx = computed(() => {
   if (typeof props.current === 'number') return props.current
   return props.steps.indexOf(props.current)

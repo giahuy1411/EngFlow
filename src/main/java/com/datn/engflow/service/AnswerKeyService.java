@@ -13,15 +13,19 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Service
 /**
- * Loads the answer keys of the imported {@code tienganh_nangcao_lessons.json}
- * corpus into memory at startup and serves them by lesson and skill code
- * ("vcb", "gra", "lis", "rea"). The keys are scraped out of the lesson HTML
- * with regexes rather than shipped as data, because the source file carries
- * answers only as visible text inside each skill's content. Read by the
- * data seeder; a corpus that is missing simply means no answers are available.
+ * Nạp bộ đáp án của corpus {@code tienganh_nangcao_lessons.json} vào bộ nhớ lúc
+ * khởi động và tra cứu theo bài học (unit) cùng mã kỹ năng ("vcb", "gra", "lis",
+ * "rea").
+ *
+ * <p>Vì sao phải bóc bằng regex thay vì đóng gói thành dữ liệu: file nguồn chỉ
+ * chứa đáp án dưới dạng chữ hiển thị nằm trong HTML của từng kỹ năng, không có
+ * trường JSON riêng. Đây là dịch vụ hỗ trợ cho luồng backfill đáp án bằng AI —
+ * chế độ deterministic lấy đáp án từ các khoá ANSWER trong thẻ summary — và chỉ
+ * được đọc bởi {@code JsonDataSeeder}. Corpus thiếu không phải lỗi khởi động:
+ * nó chỉ có nghĩa là không có đáp án nào để dùng.</p>
  */
+@Service
 public class AnswerKeyService {
 
     private static final Logger log = LoggerFactory.getLogger(AnswerKeyService.class);
@@ -30,8 +34,8 @@ public class AnswerKeyService {
     private static final Pattern ARR_RESULT_PATTERN = Pattern.compile("arr_result\\[\\d+]\\[\\d+]\\s*=\\s*['\"]?([^'\";]+?)['\"]?\\s*[;,]");
 
     /**
-     * Spring lifecycle hook: loads the corpus once, after the bean is
-     * constructed but before it serves any request.
+     * Hook vòng đời của Spring: nạp corpus đúng một lần, sau khi bean được tạo
+     * nhưng trước khi nó phục vụ bất kỳ request nào.
      */
     @PostConstruct
     public void init() {
@@ -39,10 +43,10 @@ public class AnswerKeyService {
     }
 
     /**
-     * Reads the corpus JSON and fills {@link #keys}. Tries the filesystem
-     * first, then the classpath, so a development checkout can override the
-     * bundled copy without a rebuild. Never throws: a missing or malformed
-     * corpus is logged and leaves the service answering empty maps.
+     * Đọc file JSON corpus và đổ vào {@link #keys}. Thử filesystem trước rồi mới
+     * tới classpath, để bản checkout khi phát triển có thể ghi đè bản đóng gói
+     * mà không cần build lại. Không bao giờ ném ngoại lệ: corpus thiếu hoặc hỏng
+     * chỉ được ghi log, dịch vụ tiếp tục trả về map rỗng.
      */
     private void loadFromJson() {
         try {
@@ -99,14 +103,15 @@ public class AnswerKeyService {
     }
 
     /**
-     * Extracts the numbered answer map from one skill's HTML content. Two
-     * shapes exist in the corpus: {@code resultN = 'x';} assignments and
-     * {@code arr_result[i][j] = 'x';} entries, whose rows are numbered by
-     * arrival order because the index does not match the visible question
-     * number.
+     * Bóc map đáp án đã đánh số từ HTML nội dung của một kỹ năng. Corpus có hai
+     * dạng: gán {@code resultN = 'x';} và các phần tử {@code arr_result[i][j] = 'x';}.
      *
-     * @param html the skill's content HTML
-     * @return question number to answer text, possibly empty
+     * <p>Với dạng {@code arr_result}, các hàng được đánh số theo thứ tự bắt gặp
+     * chứ không theo chỉ số {@code [i][j]}, vì chỉ số đó không khớp với số thứ tự
+     * câu hỏi mà người học nhìn thấy. Đánh số theo chỉ số sẽ lệch đáp án.</p>
+     *
+     * @param html HTML nội dung của kỹ năng
+     * @return map số câu sang nội dung đáp án, có thể rỗng
      */
     private Map<Integer, String> parseAnswers(String html) {
         Map<Integer, String> answers = new HashMap<>();
@@ -126,20 +131,20 @@ public class AnswerKeyService {
     }
 
     /**
-     * Re-reads the corpus into memory, replacing whatever was loaded before.
-     * Exposed so a long-running instance can pick up an edited corpus file
-     * without a restart.
+     * Đọc lại corpus vào bộ nhớ, thay thế toàn bộ nội dung đã nạp trước đó. Được
+     * mở ra để một instance chạy lâu có thể nhận file corpus vừa sửa mà không
+     * phải khởi động lại.
      */
     public void loadAllAnswerKeys() {
         loadFromJson();
     }
 
     /**
-     * Looks up the answer key for one lesson and skill.
+     * Tra đáp án của một bài học theo một kỹ năng.
      *
-     * @param lessonId  the lesson (unit) id
-     * @param skillType the skill code: "vcb", "gra", "lis" or "rea"
-     * @return question number to answer text; empty when unknown, never null
+     * @param lessonId  id bài học (unit)
+     * @param skillType mã kỹ năng: "vcb", "gra", "lis" hoặc "rea"
+     * @return map số câu sang nội dung đáp án; rỗng khi không có, không bao giờ null
      */
     public Map<Integer, String> getAnswers(long lessonId, String skillType) {
         Map<Long, Map<Integer, String>> byLesson = keys.get(skillType);
@@ -148,17 +153,17 @@ public class AnswerKeyService {
     }
 
     /**
-     * @param lessonId  the lesson (unit) id
-     * @param skillType the skill code: "vcb", "gra", "lis" or "rea"
-     * @return true when at least one answer was loaded for that pair
+     * @param lessonId  id bài học (unit)
+     * @param skillType mã kỹ năng: "vcb", "gra", "lis" hoặc "rea"
+     * @return true khi cặp (bài học, kỹ năng) này có ít nhất một đáp án
      */
     public boolean hasAnswers(long lessonId, String skillType) {
         return !getAnswers(lessonId, skillType).isEmpty();
     }
 
     /**
-     * @return the total number of individual answers across every loaded skill,
-     *         used only for the startup log line
+     * @return tổng số đáp án riêng lẻ trên mọi kỹ năng đã nạp, chỉ dùng cho dòng
+     *         log lúc khởi động
      */
     private int countKeys() {
         return keys.values().stream()

@@ -11,13 +11,15 @@ import java.time.Clock;
 import java.time.LocalDate;
 
 /**
- * Nightly job that clears the premium flag on accounts whose expiry date has passed.
+ * Job chạy hằng đêm để xoá cờ premium của những tài khoản đã quá hạn.
  *
- * <p>Layer: scheduled infrastructure, invoked by Spring at 02:00 rather than by a
- * controller. It runs one bulk {@code UPDATE} through {@link UserRepository} instead of
- * loading rows, so the check stays cheap as the user table grows; the read path
- * ({@code PaymentService.getPremiumStatus}) also downgrades lazily, so this job is a
- * cleanup for reporting rather than the only enforcement.</p>
+ * <p>Tầng hạ tầng theo lịch, do Spring gọi lúc 02:00 chứ không qua controller. Nó
+ * chạy một câu {@code UPDATE} hàng loạt qua {@link UserRepository} thay vì nạp
+ * từng hàng, nên chi phí kiểm tra không tăng theo số lượng user; đường đọc
+ * ({@code PaymentService.getPremiumStatus}) cũng tự hạ cấp một cách lazy, vì vậy
+ * job này là bước dọn dẹp cho báo cáo chứ không phải nơi thực thi duy nhất.
+ * Nói cách khác, premium hết hạn vẫn bị chặn đúng ngay cả khi job này chưa kịp
+ * chạy.</p>
  */
 @Component
 @RequiredArgsConstructor
@@ -28,8 +30,8 @@ public class PremiumExpiryScheduler {
     private final Clock clock;
 
     /**
-     * Downgrades every user whose {@code premiumExpiry} is strictly before today, using
-     * the injected {@code Clock} so the cutoff is testable.
+     * Hạ cấp mọi user có {@code premiumExpiry} trước hôm nay (nghiêm ngặt nhỏ
+     * hơn), dùng {@code Clock} được inject để mốc thời gian kiểm thử được.
      */
     @Scheduled(cron = "0 0 2 * * ?")
     @Transactional

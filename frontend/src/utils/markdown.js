@@ -2,38 +2,38 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import './sanitize-a11y'
 
-// Configure marked options if needed
+// Cấu hình tuỳ chọn cho marked nếu cần
 marked.setOptions({
   gfm: true,
   breaks: true,
 })
 
 /**
- * Cleans up garbage text from legacy HTML editors.
+ * Dọn rác text do các trình soạn thảo HTML đời cũ để lại.
  */
 function cleanLegacyText(text) {
   let cleaned = text;
-  // Remove "Audio Player" text
+  // Bỏ dòng chữ "Audio Player"
   cleaned = cleaned.replace(/Audio Player\s*/gi, '');
-  // Remove the volume instruction text
+  // Bỏ câu hướng dẫn chỉnh âm lượng
   cleaned = cleaned.replace(/Use Up\/Down Arrow keys to increase or decrease volume\./gi, '');
-  // Remove dangling 00:00 time spans
+  // Bỏ các span thời gian 00:00 còn sót
   cleaned = cleaned.replace(/00:00/g, '');
   return cleaned;
 }
 
 /**
- * Parses markdown text to sanitized HTML.
- * @param {string} text - The markdown text.
- * @returns {string} Safe HTML string.
+ * Parse text markdown thành HTML đã khử trùng (sanitize).
+ * @param {string} text - Nội dung markdown.
+ * @returns {string} Chuỗi HTML an toàn.
  */
 export function parseMarkdown(text) {
   if (!text) return ''
-  
+
   const cleanedText = cleanLegacyText(text)
   const rawHtml = marked.parse(cleanedText)
-  
-  // Configure DOMPurify to allow specific tags
+
+  // Cấu hình DOMPurify cho phép một số thẻ cụ thể
   return DOMPurify.sanitize(rawHtml, {
     ADD_TAGS: ['iframe', 'audio', 'video', 'source', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
     ADD_ATTR: ['controls', 'src', 'type', 'allow', 'allowfullscreen', 'colspan', 'rowspan']
@@ -41,13 +41,13 @@ export function parseMarkdown(text) {
 }
 
 /**
- * Sanitizes a plain-text field (e.g. word meaning, example, prompt).
- * This is used for short content fields that may contain stray HTML from
- * AI-generated or legacy data. It keeps inline formatting (bold/italic/links)
- * but removes dangerous tags and does NOT wrap the result in block elements.
- * Using this prevents raw HTML tags from being shown as visible text.
- * @param {string} text - The raw text/HTML.
- * @returns {string} Safe HTML string (null when empty).
+ * Khử trùng một field plain-text (ví dụ nghĩa của từ, câu ví dụ, đề bài).
+ * Dùng cho các field nội dung ngắn có thể lẫn HTML rác từ dữ liệu do AI sinh
+ * hoặc dữ liệu cũ. Giữ định dạng inline (bold/italic/link) nhưng gỡ các thẻ
+ * nguy hiểm và KHÔNG bọc kết quả trong thẻ block.
+ * Nhờ vậy tránh việc thẻ HTML thô bị hiện ra thành chữ.
+ * @param {string} text - Text/HTML thô.
+ * @returns {string} Chuỗi HTML an toàn (rỗng khi đầu vào rỗng).
  */
 export function sanitizeText(text) {
   if (!text) return ''

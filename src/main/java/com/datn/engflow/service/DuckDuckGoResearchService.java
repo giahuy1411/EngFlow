@@ -14,21 +14,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Kênh nghiên cứu web tuỳ chọn cho việc sinh bài tập: bóc trang HTML kết quả của
+ * DuckDuckGo rồi trả về tiêu đề, snippet và URL, để {@link AiExerciseService}
+ * ghép vào prompt sinh bài như ngữ cảnh bổ sung.
+ *
+ * <p>Hoàn toàn tuỳ chọn — cả lớp suy giảm thành "không có kết quả" khi cờ tắt
+ * hoặc request lỗi, nên việc sinh bài không bao giờ phụ thuộc vào nó. Mọi lỗi ở
+ * đây đều phải bị nuốt: research chỉ là phần phụ, hỏng nó không được làm hỏng
+ * luồng chính.</p>
+ */
 @Service
 @Slf4j
-/**
- * Optional web-research side-channel for exercise generation: scrapes the
- * DuckDuckGo HTML endpoint and hands back titles, snippets and URLs, which
- * {@link AiExerciseService} folds into its generation prompt as extra context.
- * Entirely optional — the whole class degrades to "no results" when the flag
- * is off or the request fails, so generation never depends on it.
- */
 public class DuckDuckGoResearchService {
 
     private final boolean enabled;
 
     /**
-     * @param enabled research on/off, from
+     * @param enabled bật/tắt research, lấy từ
      *               {@code ai.exercise.duckduckgo.enabled}
      */
     public DuckDuckGoResearchService(@Value("${ai.exercise.duckduckgo.enabled:true}") boolean enabled) {
@@ -36,7 +39,7 @@ public class DuckDuckGoResearchService {
     }
 
     /**
-     * One scraped search hit.
+     * Một kết quả tìm kiếm bóc được.
      */
     public static class SearchResult {
         public String title;
@@ -45,14 +48,14 @@ public class DuckDuckGoResearchService {
     }
 
     /**
-     * Scrapes the DuckDuckGo HTML results page for {@code query}. Results with
-     * no title are dropped. Fails soft — a disabled flag, a network error or a
-     * markup change all yield an empty list rather than an exception, because
-     * research is supplementary to generation.
+     * Bóc trang kết quả HTML của DuckDuckGo cho {@code query}. Kết quả không có
+     * tiêu đề bị loại. Hỏng thì im lặng chịu: cờ tắt, lỗi mạng hay markup đổi
+     * đều cho ra danh sách rỗng chứ không ném ngoại lệ, vì research chỉ là phần
+     * bổ trợ cho việc sinh bài.
      *
-     * @param query      the search phrase
-     * @param maxResults the most results to return
-     * @return the hits found, possibly empty
+     * @param query      cụm từ tìm kiếm
+     * @param maxResults số kết quả trả về nhiều nhất
+     * @return các kết quả tìm được, có thể rỗng
      */
     public List<SearchResult> search(String query, int maxResults) {
         if (!enabled) {
@@ -94,14 +97,15 @@ public class DuckDuckGoResearchService {
     }
 
     /**
-     * Renders search hits for a lesson topic as a prompt-ready bullet list.
-     * The query is padded with English-lesson wording because the endpoint is
-     * tuned for that and a bare topic returns little usable material.
+     * Kết xuất các kết quả tìm kiếm cho một chủ đề bài học thành danh sách gạch
+     * đầu dòng sẵn sàng đưa vào prompt. Query được thêm đuôi bằng từ ngữ
+     * "English lesson" vì endpoint được tinh chỉnh cho mảng đó, và một chủ đề
+     * trần trụi trả về rất ít tài liệu dùng được.
      *
-     * @param topic      the lesson title or topic
-     * @param maxSources the most sources to include
-     * @return a newline-separated "- title: snippet" block, or an empty string
-     *         when the search returns nothing
+     * @param topic      tiêu đề hoặc chủ đề bài học
+     * @param maxSources số nguồn tối đa đưa vào
+     * @return khối "- tiêu đề: snippet" phân tách bằng xuống dòng, hoặc chuỗi rỗng
+     *         khi tìm kiếm không ra gì
      */
     public String researchLessonTopic(String topic, int maxSources) {
         List<SearchResult> results = search(topic + " English lesson grammar exercises", maxSources);

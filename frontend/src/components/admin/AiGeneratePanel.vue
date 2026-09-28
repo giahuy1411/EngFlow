@@ -108,6 +108,21 @@
 </template>
 
 <script setup>
+/**
+ * AiGeneratePanel — panel quản trị để sinh bài tập bằng AI cho một lesson hoặc
+ * chạy batch cho toàn bộ lesson.
+ *
+ * Hợp đồng:
+ * - Tự nạp danh sách lesson khi mount (`lessonService.getAll`), chấp nhận cả
+ *   mảng thuần lẫn payload phân trang (`content` / `lessons`).
+ * - `selectedLessonId` là điều kiện bắt buộc: nút "Sinh bài tập AI" bị disable
+ *   khi chưa chọn lesson.
+ *
+ * Lưu ý: sinh bài tập là bất đồng bộ — API trả 202 kèm `batchId` rồi phía client
+ * poll `/status?batchId` mỗi 1.5s. Vì vậy `loading` chỉ được hạ khi poll báo
+ * xong, không hạ trong `finally`. Poll batch toàn cục dùng interval riêng, phải
+ * `clearInterval` trong `onUnmounted` để tránh rò rỉ khi rời trang.
+ */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import aiExerciseService from '@/services/aiExerciseService'
 import lessonService from '@/services/lessonService'
@@ -125,6 +140,7 @@ const successMessage = ref('')
 const batchStatus = ref({ running: false, processed: 0, totalLessons: 0, generated: 0, errors: 0, currentLesson: '' })
 let batchPollInterval = null
 
+// Tiến độ batch theo % — chặn chia cho 0 khi chưa biết tổng số lesson.
 const batchProgressPercent = computed(() => {
   if (batchStatus.value.totalLessons === 0) return 0
   return Math.round((batchStatus.value.processed / batchStatus.value.totalLessons) * 100)
@@ -133,6 +149,7 @@ const batchProgressPercent = computed(() => {
 onMounted(async () => {
   try {
     const data = await lessonService.getAll()
+    // API có thể trả mảng thuần hoặc object phân trang — chuẩn hoá cả hai dạng.
     lessons.value = Array.isArray(data) ? data : (data.content || data.lessons || [])
   } catch (e) {
     console.error('Failed to load lessons:', e)
@@ -140,6 +157,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  // Dọn interval poll batch nếu component bị unmount giữa lúc đang chạy.
   if (batchPollInterval) clearInterval(batchPollInterval)
 })
 
@@ -151,14 +169,14 @@ async function generate() {
   successMessage.value = ''
   const startTime = Date.now()
   try {
-    // Option 2: async generation → 202 + batchId, poll /status?batchId
+    // Option 2: sinh bất đồng bộ → 202 + batchId, sau đó poll /status?batchId
     const batchRes = await aiExerciseService.generateExercisesAsync(selectedLessonId.value, selectedType.value, count.value)
     const batchId = batchRes.batchId
     if (!batchId) {
       error.value = 'AI sinh khong tra ve batchId. Dung sync.'
       return
     }
-    // Poll progress per batchId
+    // Poll tiến độ theo batchId cho tới khi server báo running = false.
     const pollTimer = setInterval(async () => {
       try {
         const status = await aiExerciseService.getStatus(batchId)
@@ -178,11 +196,12 @@ async function generate() {
     error.value = e.response?.data?.error || e.message || 'Loi sinh bai tap'
     loading.value = false
   } finally {
-    // loading.value set false when poll completes
+    // loading.value chỉ hạ khi poll hoàn tất (xem vòng poll phía trên)
   }
 }
 
 async function confirmBatch() {
+  // Chạy batch cho toàn bộ lesson rất tốn thời gian → bắt xác nhận trước.
   if (!confirm('Sinh bai tap AI cho TAT CA lesson? Mat nhieu thoi gian.')) return
   batchLoading.value = true
   error.value = ''
@@ -196,6 +215,7 @@ async function confirmBatch() {
 }
 
 function startBatchPolling() {
+  // Poll trạng thái batch mỗi 2s; khi xong thì tự dừng interval và hạ cờ loading.
   batchPollInterval = setInterval(async () => {
     try {
       const status = await aiExerciseService.getBatchStatus()

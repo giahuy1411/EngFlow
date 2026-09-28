@@ -1,8 +1,15 @@
 <script setup>
 /**
- * AppDropdown — toggleable dropdown menu.
- * Use v-model:open or toggle programmatically with `toggle()`.
- * Header slot = trigger; items via `#item="{ item }"` default slot.
+ * AppDropdown — menu dropdown có thể mở/đóng.
+ *
+ * Hợp đồng: dùng `v-model:open` (modelValue) hoặc điều khiển bằng `open`/`toggle`
+ * từ ngoài. Slot `trigger` là phần tử bấm để mở; danh sách mục truyền qua prop
+ * `items` ([{ label, value, danger?, icon? }]) hoặc slot `#item="{ item }"`.
+ * `align` chỉnh menu căn trái/phải. Emit `select` kèm item rồi tự đóng menu.
+ *
+ * Lưu ý: `item.icon` render bằng `v-html` — chỉ nên truyền icon SVG tin cậy, dữ
+ * liệu do người dùng nhập không được đổ vào đây (nguy cơ XSS).
+ * Primitive thuần trình bày, không fetch/store/routing.
  */
 import { computed, useSlots } from 'vue'
 
@@ -14,16 +21,19 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'select'])
 
+// computed ghi/đọc hai chiều: đọc từ prop, ghi thì emit update:modelValue.
 const open = computed({
   get: () => props.modelValue,
   set: (v) => emit('update:modelValue', v),
 })
 
+// Chọn mục thì phát sự kiện rồi đóng menu.
 function select(item) {
   emit('select', item)
   open.value = false
 }
 
+// Biến tên `slots` (dù gán vào const `attrs`) dùng để kiểm tra slot `divider` có tồn tại.
 const slots = useSlots()
 </script>
 

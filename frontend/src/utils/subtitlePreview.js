@@ -1,10 +1,15 @@
 /**
- * Client-side preview parser for SRT/VTT transcripts — mirrors
- * backend SubtitleParser (src/main/java/com/datn/engflow/service/SubtitleParser.java).
- * Used only for admin preview/validation; the backend re-parses on save.
+ * Bộ parse preview phía client cho transcript SRT/VTT — phản chiếu backend
+ * SubtitleParser (src/main/java/com/datn/engflow/service/SubtitleParser.java).
+ * Chỉ dùng cho admin xem trước/kiểm tra; backend vẫn parse lại lúc lưu.
  */
 const CUE_LINE = /^\s*(?:\d{1,2}:)?\d{1,2}:\d{2}[.,]\d{1,3}\s*-->\s*(?:\d{1,2}:)?\d{1,2}:\d{2}[.,]\d{1,3}/
 
+/**
+ * Đổi một match timestamp thành số giây.
+ * Nhóm 1 (giờ) là tuỳ chọn — VTT/SRT có thể bỏ phần giờ; phần thập phân được
+ * pad/ cắt về đúng 3 chữ số nên "1,5" và "1,500" đều ra 1.5 giây.
+ */
 function toSeconds(match) {
   const hours = match[1] ? parseInt(match[1], 10) : 0
   const minutes = parseInt(match[2], 10)
@@ -15,6 +20,7 @@ function toSeconds(match) {
 
 const TIMESTAMP = /(?:(\d{1,2}):)?(\d{1,2}):(\d{2})[.,](\d{1,3})/g
 
+/** Gỡ thẻ HTML/khối `{...}`, giải mã vài entity thường gặp, gộp khoảng trắng. */
 function cleanText(text) {
   return text
     .replace(/<[^>]+>/g, '')
@@ -25,6 +31,17 @@ function cleanText(text) {
     .trim()
 }
 
+/**
+ * Parse thô transcript SRT/VTT thành danh sách cue để admin xem trước.
+ *
+ * Cách làm: quét từng dòng; gặp dòng timestamp thì lấy tối đa 2 mốc thời gian đầu,
+ * gom các dòng text phía sau cho tới dòng trống hoặc cue kế tiếp. Cue chỉ được nhận
+ * khi có đủ 2 mốc thời gian VÀ text không rỗng — nên dòng rác/header của VTT bị bỏ qua
+ * thay vì tạo ra cue hỏng.
+ *
+ * @param {string} raw - nội dung transcript thô (SRT hoặc VTT)
+ * @returns {Array<{start: number, end: number, text: string}>} danh sách cue, giây
+ */
 export function parseSubtitlePreview(raw) {
   const lines = String(raw || '').replace(/\r\n?/g, '\n').split('\n')
   const cues = []

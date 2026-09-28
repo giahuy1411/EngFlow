@@ -23,7 +23,14 @@ import sys
 
 
 def strip_code(src: str, kind: str) -> str:
-    """Trả về phần CODE của src (bỏ comment, giữ string ở dạng placeholder)."""
+    """Trả về phần CODE của src (bỏ comment, giữ string ở dạng placeholder).
+
+    LƯU Ý (audit-v21 F-21-03): với file `.vue`, comment trong `<template>` KHÔNG
+    được bỏ qua như comment thường — một comment HTML ở CẤP GỐC của template là
+    một ROOT NODE, biến component thành fragment (2 root) và làm
+    `wrapper.attributes()` trả `undefined` → vỡ test. Vì vậy với `kind == "vue"`
+    ta GIỮ NGUYÊN comment template (coi là code) để thay đổi đó bị bắt là code-changed.
+    """
     out = []
     i, n = 0, len(src)
     while i < n:
@@ -46,8 +53,9 @@ def strip_code(src: str, kind: str) -> str:
             j = src.find("*/", i + 2)
             i = n if j < 0 else j + 2
             continue
-        # HTML comment (chỉ khi kind html/vue)
-        if kind in ("html", "vue") and src.startswith("<!--", i):
+        # HTML comment — CHỈ strip khi kind == "html".
+        # Với "vue" thì GIỮ (xem docstring): comment template là structural.
+        if kind == "html" and src.startswith("<!--", i):
             j = src.find("-->", i + 4)
             i = n if j < 0 else j + 3
             continue

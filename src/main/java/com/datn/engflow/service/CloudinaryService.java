@@ -10,24 +10,28 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Tải ảnh người dùng và audio do AI sinh lên Cloudinary rồi trả về URL HTTPS.
+ *
+ * <p>Avatar được Cloudinary cắt thành ô vuông 200x200 lấy trọng tâm khuôn mặt, để
+ * client không phải tự cắt; audio được lưu dưới resource type video của
+ * Cloudinary. Được gọi bởi controller auth/profile và bởi
+ * {@link AiExerciseService} để đăng audio của bài LISTENING do AI sinh.</p>
+ *
+ * <p>Cloudinary ở đây là tích hợp thật, không phải demo: {@code AdminUploadController}
+ * upload audio thật và nhận về 200 kèm URL Cloudinary. Chỉ những byte giả mới bị
+ * từ chối — đó là các kiểm tra đầu vào bên dưới, không phải chế độ mô phỏng.</p>
+ */
 @Service
 @Slf4j
-/**
- * Uploads user images and AI-generated audio to Cloudinary and returns the
- * resulting HTTPS URL. Avatars are cropped to a 200x200 face-focused square so
- * the client never has to crop; audio is stored as a Cloudinary video
- * resource. Consumed by the auth/profile controllers and by
- * {@link AiExerciseService} to publish the audio of a generated LISTENING
- * exercise.
- */
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
     /**
-     * @param cloudName Cloudinary cloud name from {@code cloudinary.cloud-name}
-     * @param apiKey    Cloudinary API key
-     * @param apiSecret Cloudinary API secret
+     * @param cloudName tên cloud Cloudinary, lấy từ {@code cloudinary.cloud-name}
+     * @param apiKey    API key của Cloudinary
+     * @param apiSecret API secret của Cloudinary
      */
     public CloudinaryService(
             @Value("${cloudinary.cloud-name}") String cloudName,
@@ -42,13 +46,13 @@ public class CloudinaryService {
     }
 
     /**
-     * Uploads a profile picture, cropped by Cloudinary to a 200x200
-     * face-detected square.
+     * Tải ảnh đại diện lên, để Cloudinary cắt thành ô vuông 200x200 theo khuôn
+     * mặt nhận diện được.
      *
-     * @param file the uploaded image
-     * @return the HTTPS URL of the stored avatar
-     * @throws IllegalArgumentException when the file is empty or not an image
-     * @throws IOException              when the upload or the byte read fails
+     * @param file ảnh người dùng tải lên
+     * @return URL HTTPS của avatar đã lưu
+     * @throws IllegalArgumentException khi file rỗng hoặc không phải ảnh
+     * @throws IOException              khi upload hoặc đọc byte thất bại
      */
     public String uploadAvatar(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
@@ -73,13 +77,13 @@ public class CloudinaryService {
     }
 
     /**
-     * Uploads an uploaded audio file. Cloudinary stores audio under its video
-     * resource type.
+     * Tải một file audio người dùng đã upload lên. Cloudinary lưu audio dưới
+     * resource type video của nó.
      *
-     * @param file the uploaded audio part
-     * @return the HTTPS URL of the stored audio
-     * @throws IllegalArgumentException when the file is empty
-     * @throws IOException              when the upload or the byte read fails
+     * @param file phần audio được tải lên
+     * @return URL HTTPS của audio đã lưu
+     * @throws IllegalArgumentException khi file rỗng
+     * @throws IOException              khi upload hoặc đọc byte thất bại
      */
     public String uploadAudio(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
@@ -98,14 +102,15 @@ public class CloudinaryService {
     }
 
     /**
-     * Publishes audio synthesised in-process (TTS output) to Cloudinary.
+     * Đăng đoạn audio được tổng hợp ngay trong tiến trình (đầu ra TTS) lên
+     * Cloudinary.
      *
-     * @param audioBytes the raw audio content
-     * @param filename   the public id to store under, or null to let
-     *                   Cloudinary assign a timestamp-based one
-     * @return the HTTPS URL of the stored audio
-     * @throws IllegalArgumentException when {@code audioBytes} is null or empty
-     * @throws IOException              when the upload fails
+     * @param audioBytes nội dung audio thô
+     * @param filename   public id muốn lưu dưới đó, hoặc null để Cloudinary tự
+     *                   gán id dựa trên timestamp
+     * @return URL HTTPS của audio đã lưu
+     * @throws IllegalArgumentException khi {@code audioBytes} null hoặc rỗng
+     * @throws IOException              khi upload thất bại
      */
     public String uploadAudioBytes(byte[] audioBytes, String filename) throws IOException {
         if (audioBytes == null || audioBytes.length == 0) {

@@ -1,9 +1,12 @@
 /**
- * AppInput — text-like input primitive.
+ * AppInput — primitive input dạng text.
  *
- * - v-model via modelValue/update:modelValue.
- * - Forwards native attributes (autocomplete, name, placeholder, maxlength).
- * - `invalid` marks the control and exposes aria-invalid.
+ * Hợp đồng:
+ * - v-model qua modelValue/update:modelValue.
+ * - Forward attribute native (autocomplete, name, placeholder, maxlength).
+ * - `invalid` đánh dấu control lỗi và expose `aria-invalid`.
+ *
+ * Primitive thuần trình bày: không fetch dữ liệu, không store, không routing.
  */
 <script setup>
 import { computed } from 'vue'

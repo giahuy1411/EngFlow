@@ -13,28 +13,42 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Expands the SQL Server check constraint for video submission statuses.
- * The migration is safe to run on every startup because it skips databases
- * whose constraint already supports the manual-grading states.
+ * Mở rộng check constraint của SQL Server cho các trạng thái submission video.
+ * Migration an toàn để chạy mỗi lần startup vì nó bỏ qua những database có
+ * constraint đã hỗ trợ sẵn các trạng thái chấm tay.
  *
- * <p>Hibernate's {@code ddl-auto=update} cannot widen a CHECK constraint, so a
- * database created before manual grading existed would reject every
- * {@code UNDER_REVIEW} or {@code GRADED} write. The runner probes
- * {@code sys.check_constraints} first and only applies the SQL in
- * {@code db/migration/V4__expand_video_submission_status.sql} when the current
- * definition is missing one of the three states.</p>
+ * <p>{@code ddl-auto=update} của Hibernate KHÔNG nới được một CHECK constraint, nên
+ * database tạo trước khi có tính năng chấm tay sẽ từ chối mọi write
+ * {@code UNDER_REVIEW} hay {@code GRADED}. Runner dò
+ * {@code sys.check_constraints} trước và chỉ áp SQL trong
+ * {@code db/migration/V4__expand_video_submission_status.sql} khi định nghĩa hiện
+ * tại còn thiếu một trong ba trạng thái.</p>
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SpeakingSubmissionStatusMigration implements ApplicationRunner {
 
+    /**
+     * Đếm xem bảng {@code speaking_submissions} đã tồn tại chưa.
+     *
+     * <p>Chạy trên database trắng (chưa migrate) thì query này phải chịu được việc
+     * bảng chưa có, nên nó hỏi {@code sys.tables} chứ không SELECT thẳng vào bảng.</p>
+     */
     static final String TABLE_EXISTS_SQL = """
             SELECT COUNT(*)
             FROM sys.tables
             WHERE object_id = OBJECT_ID(N'dbo.speaking_submissions')
             """;
 
+    /**
+     * Đếm số check constraint trên cột {@code status} đã chứa đủ ba trạng thái.
+     *
+     * <p>Join {@code sys.check_constraints} với {@code sys.columns} để chắc chắn
+     * constraint tìm được đúng là constraint của cột {@code status}, rồi so
+     * {@code definition} bằng ba mẫu LIKE. Kết quả {@code > 0} nghĩa là đã migrate
+     * rồi, không cần chạy SQL nữa.</p>
+     */
     static final String MANUAL_STATUS_COUNT_SQL = """
             SELECT COUNT(*)
             FROM sys.check_constraints AS checkConstraint
@@ -48,15 +62,16 @@ public class SpeakingSubmissionStatusMigration implements ApplicationRunner {
               AND checkConstraint.definition LIKE '%GRADED%'
             """;
 
+    /** Đường dẫn classpath tới file SQL migration được áp khi constraint còn thiếu. */
     private static final String MIGRATION_RESOURCE =
             "db/migration/V4__expand_video_submission_status.sql";
 
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Applies the expand-only status constraint migration when required.
+     * Áp migration mở rộng status constraint khi thật sự cần.
      *
-     * @param args application startup arguments
+     * @param args tham số khởi động của ứng dụng
      */
     @Override
     public void run(ApplicationArguments args) {
@@ -74,10 +89,10 @@ public class SpeakingSubmissionStatusMigration implements ApplicationRunner {
     }
 
     /**
-     * Runs a scalar {@code SELECT COUNT(*)} and normalises the nullable result.
+     * Chạy một {@code SELECT COUNT(*)} dạng scalar và chuẩn hoá kết quả nullable.
      *
-     * @param sql counting query to execute
-     * @return the count, or {@code 0} when the query returned no value
+     * @param sql query đếm cần thực thi
+     * @return số đếm, hoặc {@code 0} khi query không trả về giá trị nào
      */
     private int queryCount(String sql) {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
@@ -85,14 +100,14 @@ public class SpeakingSubmissionStatusMigration implements ApplicationRunner {
     }
 
     /**
-     * Loads the migration SQL from the classpath.
+     * Nạp SQL migration từ classpath.
      *
-     * <p>Wrapped in {@link UncheckedIOException} so the caller is not forced to
-     * declare a checked exception it cannot act on — a missing resource here
-     * means a broken build artifact, and the runner should abort loudly.</p>
+     * <p>Bọc trong {@link UncheckedIOException} để caller không bị buộc phải khai
+     * checked exception mà nó không xử lý được — thiếu resource ở đây nghĩa là build
+     * artifact hỏng, và runner nên abort thật to.</p>
      *
-     * @return the file contents as a UTF-8 string
-     * @throws UncheckedIOException if the resource is absent or unreadable
+     * @return nội dung file dưới dạng chuỗi UTF-8
+     * @throws UncheckedIOException nếu resource vắng mặt hoặc không đọc được
      */
     private String readMigrationSql() {
         try {

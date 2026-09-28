@@ -1,28 +1,28 @@
 package com.datn.engflow.service;
 
 /**
- * Text-to-speech abstraction for generating the audio a LISTENING exercise
- * speaks. The only implementation in the project is
- * {@link SupertonicProxyTtsService}, a proxy to the supertonic sidecar; the
- * interface exists so a cloud TTS vendor can be swapped in without touching
- * callers.
+ * Trừu tượng hoá text-to-speech để sinh audio cho câu hỏi mà bài LISTENING sẽ
+ * đọc. Trong dự án chỉ có một implementation là
+ * {@link SupertonicProxyTtsService}, một proxy tới sidecar supertonic (cổng
+ * 8001); interface tồn tại để có thể thay bằng nhà cung cấp TTS đám mây mà không
+ * phải sửa bên gọi. Class {@code CloudTtsService} cũ đã bị xoá.
  */
 public interface TtsService {
 
     /**
-     * Renders {@code text} as audio.
+     * Kết xuất {@code text} thành audio.
      *
-     * @param text  the text to speak
-     * @param voice the voice id, or null to let the backend pick its default
-     * @param lang  the language hint, or null to let the backend default
-     * @return the audio bytes, or null when synthesis failed or was unavailable
+     * @param text  văn bản cần đọc
+     * @param voice id giọng đọc, hoặc null để backend tự chọn mặc định
+     * @param lang  gợi ý ngôn ngữ, hoặc null để backend dùng mặc định
+     * @return byte audio, hoặc null khi tổng hợp thất bại hay không khả dụng
      */
     byte[] synthesize(String text, String voice, String lang);
 
     /**
-     * Probes whether the speech backend is reachable right now.
+     * Dò xem backend đọc tiếng hiện có tới được không.
      *
-     * @return true when a synthesis request would currently succeed
+     * @return true khi một request tổng hợp tại thời điểm này sẽ thành công
      */
     boolean isAvailable();
 }
