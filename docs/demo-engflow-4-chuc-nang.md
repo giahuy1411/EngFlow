@@ -1,20 +1,26 @@
 # EngFlow — Cẩm nang demo đồ án tốt nghiệp (4 chức năng)
 
-<!-- doc-citation-remap: đã map (audit-v20) -->
+<!-- doc-citation-remap: đã map (audit-v21) -->
 
 > **Ai đọc cũng hiểu.** Tài liệu này viết cho **cả người không biết lập trình**: mỗi chức năng được giải thích
 > bằng lời thường trước, rồi mới tới phần kỹ thuật (có **file + đoạn code thật, comment từng dòng** để đối chiếu
 > khi hội đồng hỏi sâu).
 >
-> **Đã kiểm chứng lại toàn bộ ngày 28/09/2026 (audit-v20)** bằng cách đọc trực tiếp source, chạy thử API/UI
-> trên cả hai engine MCP (chrome-devtools + playwright) và đo lại **toàn bộ trích dẫn dòng** trong tài liệu —
-> không chép lại mô tả cũ. Lần kiểm chứng trước: 27/09/2026 (audit-v19).
+> **Đã kiểm chứng lại toàn bộ ngày 28/09/2026 (đối chiếu lại sau audit-v21)** bằng cách đọc trực tiếp source,
+> chạy lại **toàn bộ test + build**, đo lại mọi con số trong tài liệu (SQL/API/docker) và **hand-verify toàn bộ
+> trích dẫn dòng**. Lần kiểm chứng trước: 28/09/2026 (audit-v20).
 > Tài khoản demo: `user@gmail.com` / `admin@gmail.com`, mật khẩu `123456`.
 >
-> **Ghi chú kỹ thuật (audit-v20):** đợt bổ sung comment tiếng Việt vào source đã **đẩy số dòng** của nhiều file
-> được trích trong tài liệu này. Toàn bộ **167 trích dẫn dạng `File.java:số-dòng`** đã được **map lại tự động**
-> (neo theo đúng đoạn code mà tài liệu in ra), rồi **kiểm tra thủ công** một số chỗ để xác nhận trỏ đúng.
-> Nếu bạn sửa source lần nữa, hãy chạy lại bước map này trước khi demo.
+> **Ghi chú kỹ thuật:** tài liệu trích code bằng **167 chỗ dạng `File.java:số-dòng`**. Các trích dẫn đã được
+> kiểm tra lại và **hiện trỏ đúng** (chạy `python sweep/harness/doc_citation_remap.py --force` → *giữ nguyên
+> 167/167*, không lệch). Một số đoạn code được **lược trích** (`...`) cho gọn; khi cần đối chiếu chính xác,
+> mở thẳng file nguồn theo số dòng ghi trong tài liệu.
+> Nếu bạn sửa source lần nữa, hãy chạy lại bước map này **và** đọc lại khối code in ra trước khi demo.
+>
+> **Số liệu đã đo lại ngày 28/09/2026:** lessons 1470 (1465 xuất bản) · exercises 43 738 · users 5 ·
+> vocabulary 118 · test backend **541/0/0/11** · test frontend **194/1 (32 file)** · build **177.75 kB**.
+> Riêng dữ liệu "hoạt động" trong CSDL có tăng thật (không phải rác): `video_attempts` 4→5,
+> `study_days` 4→5, `exercise_attempts` 33→34 — xem [Phụ lục D](#phu-luc-d).
 
 **4 chức năng trọng tâm của tài liệu** (đánh số theo đề cương gốc, thứ tự *dạy* thì khác — xem bảng dưới):
 
@@ -100,8 +106,13 @@
 |---|---|---|
 | Đăng nhập / đăng ký | 20 lần / phút / mỗi địa chỉ mạng | Đừng thử login sai liên tục |
 | Gửi email (quên mật khẩu) | 5 lần / phút | Đừng bấm "quên mật khẩu" nhiều lần |
-| Toàn hệ thống | 100 lần / phút | Bấm chậm rãi, không F5 liên tục |
+| Tải file lên (ảnh/audio/video) | 15 lần / phút | Đừng upload nhiều file liên tiếp |
+| Tạo đơn thanh toán | 10 lần / phút | Đừng bấm "Tạo đơn" nhiều lần |
 | AI (sinh từ vựng) | 10 lần / phút | — |
+| Toàn hệ thống (mọi thứ còn lại) | 100 lần / phút | Bấm chậm rãi, không F5 liên tục |
+
+> 💡 **Mẹo nhớ:** 6 dòng trên là **6 "chốt đếm"** trong `RateLimitFilter.java` — endpoint nào càng đắt
+> tài nguyên thì hạn mức càng hẹp; phần còn lại chịu chung hạn mức 100/phút.
 
 > ⚠️ **Bẫy:** nếu thấy lỗi **429** ("quá nhiều yêu cầu"), đừng hoảng — chỉ cần **chờ ~1 phút** rồi làm tiếp.
 > Đừng F5 liên tục vì càng F5 càng bị chặn lâu hơn.
@@ -251,18 +262,27 @@ quyền hạn, hay streak — mọi luật đều nằm ở máy chủ. Sửa co
 | 7 | `engflow-tts` | "Giọng đọc" AI — đọc văn bản thành tiếng |
 | 8 | `engflow-tailscale` | "Cổng kết nối" cho webhook thanh toán SePay từ Internet vào máy |
 
+> 💡 **Nếu hội đồng đếm thấy 9 dòng `docker ps`:** `docker-compose.yml` khai **9 service**, nhưng dòng thứ 9
+> là `sqlserver-init` — container **chạy một lần rồi thoát** (`restart: "no"`) để tạo CSDL/lược đồ lúc khởi
+> động, **không phải dịch vụ thường trực**. 8 dòng "Up" ở trên mới là các dịch vụ đang chạy. Nói:
+> *"Có 8 dịch vụ thường trực; thêm một container khởi tạo CSDL chạy một lần lúc dựng."*
+
 ### III.4. Cơ sở dữ liệu — 18 bảng chia 7 nhóm
 
 > Nguồn chi tiết: `docs/erd-sql-guide.md` (tài liệu ERD đầy đủ để đưa vào luận văn).
+>
+> **Đếm cho đúng (đo 28/09/2026):** DB có **18 bảng thật** = **17 bảng nghiệp vụ** (bảng dưới đây)
+> **+ `user_streaks`** (bảng legacy, xem bẫy cuối mục). Ngoài ra còn `sysdiagrams` (bảng nội bộ của
+> SQL Server, không tính). Đừng đưa `user_streaks`/`sysdiagrams` vào ERD luận văn.
 
 | # | Nhóm | Bảng | Vai trò |
 |---|---|---|---|
 | 1 | Người dùng & đăng nhập | `users` | Một bảng duy nhất: tài khoản, vai trò, premium |
-| 2 | Bài học | `lessons` | Nội dung bài học (1465 bài đã xuất bản — đo 27/09/2026) |
+| 2 | Bài học | `lessons` | Nội dung bài học (1465 bài đã xuất bản — đo 28/09/2026) |
 | 3 | Từ vựng & bộ từ | `vocabulary`, `decks`, `deck_words` | Kho từ và các bộ từ (deck) |
 | 4 | Tiến độ & ôn tập | `user_progress`, `user_vocabulary_progress` | Tiến độ đọc bài + engine ôn tập ngắt quãng |
 | 5 | Streak & chính sách học | `study_days`, `study_policy` | Điểm danh từng ngày — nguồn sự thật của streak |
-| 6 | Bài tập | `exercises`, `exercise_attempts` | 43 738 câu hỏi (bảng lớn nhất — đo 27/09/2026) + lịch sử nộp |
+| 6 | Bài tập | `exercises`, `exercise_attempts`, `lesson_submissions` | 43 738 câu hỏi (bảng lớn nhất — đo 28/09/2026) + lịch sử nộp bài + bài nộp lesson |
 | 7 | Premium | `speaking_prompts`, `speaking_submissions`, `payment_transactions`, `video_lessons`, `video_attempts` | Luyện nói, thanh toán, video |
 
 > ⚠️ **Bẫy khi bị hỏi về ERD:** trong CSDL thật còn sót bảng `user_streaks` (1 dòng) là **bảng cũ** —
@@ -304,7 +324,7 @@ Không dùng API AI đám mây trả tiền — tất cả chạy trên máy:
 
 > **Nguồn:** `AuthController.java`, `UserService.java`, `JwtTokenProvider.java`, `JwtAuthenticationFilter.java`,
 > `SecurityConfig.java`, `store/modules/auth.js`, `views/Login.vue`, `utils/safeRedirect.js`.
-> **Cập nhật:** 2026-09-27.
+> **Cập nhật:** 2026-09-28.
 
 <a id="flow-auth-plain"></a>
 ### 1.1. Nó là gì (lời thường)
@@ -792,15 +812,16 @@ hoặc **401** · Lỗi: 401 vé hết hạn/không hợp lệ/tài khoản bị
                 // ↑ RULE HẸP đứng TRƯỚC — "lịch sử làm bài phải đăng nhập"
                 .requestMatchers(HttpMethod.GET, "/api/lessons/**").permitAll()
                 // ↑ RULE RỘNG đứng SAU — "bài học ai cũng xem được". Đảo thứ tự = lộ lịch sử làm bài!
-                // ... (các rule GET công khai khác: speaking-prompts, video, decks — bỏ 5 dòng)
+                // ... (các rule GET công khai khác: speaking-prompts, video-prompts, video-lessons, decks — bỏ 6 dòng)
                 .requestMatchers("/api/webhook/sepay").permitAll()   // SePay gọi vào, không thể có vé của ta
                 .requestMatchers(HttpMethod.POST, "/api/ai/generate-vocab", "/api/ai/enrich-word").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/ai/save-vocab").authenticated()   // Lưu từ AI sinh ra — cần vé
                 .requestMatchers(HttpMethod.POST, "/api/lessons/*/exercises/submit").authenticated()   // Nộp bài cần vé
                 .requestMatchers(HttpMethod.POST, "/api/lessons/*/exercises/grade").authenticated()    // Chấm thử cần vé
                 .requestMatchers(HttpMethod.GET, "/api/lessons/*/exercises/attempts/**").authenticated()  // Lịch sử cần vé
                 .requestMatchers(HttpMethod.POST, "/api/lessons", "/api/lessons/**").hasRole("ADMIN")   // Tạo/sửa bài: ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")   // Toàn bộ khu quản trị: ADMIN
-                // ... (các rule vocabulary/exercises/admin khác — bỏ 8 dòng)
+                // ... (các rule vocabulary/exercises/media/admin khác — bỏ 9 dòng)
                 .anyRequest().authenticated()                        // Mặc định: MỌI thứ còn lại đều cần vé
             )
             // ... (CSP + frame options + referrer policy — xem mục m)
@@ -964,20 +985,33 @@ export function safeRedirect(candidate) {
 
 ```js
 router.beforeEach((to, from, next) => {                 // "Trạm gác" chạy trước MỌI lần chuyển trang
-  // ... (đọc auth store — bỏ 2 dòng)
+  const auth = useAuthStore()                           // Đọc trạng thái đăng nhập (vai trò, premium)
+
   if (to.meta.requiresPremium && !auth.isAdmin && !auth.isPremium) {
-    return next('/premium')                             // Trang premium mà chưa mua → về trang nâng cấp
+    next('/premium?redirect=' + encodeURIComponent(to.fullPath))
+    // Trang premium mà chưa mua → về trang nâng cấp; mang theo đích đến để quay lại sau khi mua
+    return
   }
+
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
-    return next({ path: '/login', query: { redirect: to.fullPath } })
-    // Chưa đăng nhập → về /login KÈM địa chỉ đang muốn vào (để quay lại sau khi đăng nhập)
+    // audit-v13 F-13-20: mang theo đích đến để Login đưa người dùng về đúng đó sau khi đăng nhập.
+    next('/login?redirect=' + encodeURIComponent(to.fullPath))
+    return                                              // Chưa đăng nhập → về /login KÈM địa chỉ đang muốn vào
   }
+
   if (to.meta.guestOnly && auth.isLoggedIn) {
-    return next('/')                                    // Đã đăng nhập mà vào /login → về trang chủ
+    // Đã đăng nhập mà vào /login?redirect=/profile → vẫn tôn trọng đích đến,
+    // nhưng chặn đích tự tham chiếu (ví dụ /login?redirect=/login) để không lặp vô hạn.
+    const target = safeRedirect(to.query.redirect)
+    next(target === to.path ? '/lessons' : target)
+    return
   }
+
   if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return next('/')                                    // KHÔNG phải admin mà vào /admin/** → đá về trang chủ
+    next('/')                                           // KHÔNG phải admin mà vào /admin/** → đá về trang chủ
+    return
   }
+
   next()                                                // Qua hết các cửa → cho vào trang
 })
 ```
@@ -1057,8 +1091,9 @@ cùng một hình dạng (ProblemDetail chuẩn RFC 7807).
 | PUT | `/api/auth/avatar` | Có | `{avatarUrl}` | 200 | 400/401 | Đổi ảnh đại diện |
 | POST | `/api/auth/avatar/upload` | Có | file ảnh (multipart) | 200 | 400 (file lỗi), 500 (Cloudinary) | Tải ảnh lên |
 
-> 💡 **Mẹo nhớ:** 4 endpoint đầu là "cửa công khai" (không cần vé) — đúng 4 dòng `permitAll` đầu tiên trong
-> `SecurityConfig`. Mọi endpoint còn lại của hệ thống đều cần vé trở lên.
+> 💡 **Mẹo nhớ:** 4 endpoint **công khai** (không cần vé) là `register`, `login`, `forgot-password`,
+> `reset-password` — đúng 4 đường trong dòng `permitAll` đầu tiên của `SecurityConfig`. Các endpoint còn
+> lại trong bảng (kể cả `/api/auth/me`) đều cần vé trở lên.
 
 ---
 
@@ -1067,7 +1102,7 @@ cùng một hình dạng (ProblemDetail chuẩn RFC 7807).
 
 > **Nguồn:** `LessonController.java`, `LessonExerciseController.java`, `LessonService.java`, `ExerciseService.java`,
 > `LessonRepository.java`, `LessonLayout.vue`, `LessonExerciseTab.vue`, `Lessons.vue`, `lessonService.js`.
-> **Cập nhật:** 2026-09-27.
+> **Cập nhật:** 2026-09-28.
 
 <a id="flow-bai-hoc-plain"></a>
 ### 2.1. Nó là gì (lời thường)
@@ -1228,8 +1263,9 @@ bài học (JSON) · Lỗi: không (tham số xấu được kẹp về hợp l�
 
 ```java
     /**
-     * Lightweight list query — selects only the columns the lesson list renders,
-     * skipping the NVARCHAR(MAX) content columns (huge read savings on this table).
+     * Truy vấn danh sách nhẹ — chỉ chọn các cột màn danh sách bài học thật sự render,
+     * bỏ qua hai cột {@code NVARCHAR(MAX)} của bảng này (tiết kiệm rất nhiều read).
+     * Đây là đường chính của danh sách bài công khai.
      */
     @Query("""
             SELECT l.id AS id, l.title AS title, l.description AS description,
@@ -1811,7 +1847,7 @@ watch(searchQuery, () => {                         // Mỗi khi nội dung ô t�
 
 > **Nguồn:** `StudyActivityService.java`, `StudyDay.java`, `StudyDayRepository.java`, `StreakController.java`,
 > `StreakService.java`, `StreakReminderScheduler.java`, `EmailService.java`, `Profile.vue`, `StreakCalendar.vue`,
-> `streakService.js`. **Cập nhật:** 2026-09-27.
+> `streakService.js`. **Cập nhật:** 2026-09-28.
 
 <a id="flow-streak-plain"></a>
 ### 3.1. Nó là gì (lời thường)
@@ -1986,9 +2022,10 @@ public interface StudyDayRepository extends JpaRepository<StudyDay, Long> {
     // Kết quả trả về dạng cặp (userId, studyDate) để lát nữa gom nhóm theo người.
 
     /**
-     * audit-v13 F-13-08: number of DISTINCT users who actually studied in a date range.
-     * Replaces the admin dashboard's read of the legacy {@code users.last_study_date}
-     * column, which the streak refactor stopped maintaining.
+     * audit-v13 F-13-08: số người dùng KHÁC NHAU thật sự có học trong một khoảng ngày.
+     * Thay cho việc dashboard admin đọc cột legacy {@code users.last_study_date} mà bản
+     * refactor streak đã ngừng cập nhật (đo 2026-09-22: user 2 có last_study_date=2026-09-19
+     * trong khi thật ra học ngày 2026-09-22).
      */
     @Query("SELECT COUNT(DISTINCT d.userId) FROM StudyDay d WHERE d.studyDate BETWEEN :start AND :end")
     long countDistinctUsersBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
@@ -2507,7 +2544,7 @@ const calendarWeeks = computed(() => {
 
 > **Nguồn:** `LessonController.java`, `LessonRepository.java`, `VocabularyController.java`, `DictionaryService.java`,
 > `RedisConfig.java`, `ExerciseRepository.java`, `AdminExerciseController.java`, `Lessons.vue`, `admin/AdminUsers.vue`,
-> `vocabularyService.js`. **Cập nhật:** 2026-09-27.
+> `vocabularyService.js`. **Cập nhật:** 2026-09-28.
 
 <a id="flow-tim-kiem-plain"></a>
 ### 4.1. Nó là gì (lời thường)
@@ -2779,7 +2816,7 @@ lỗi tạm thời thì quên**; (3) mọi thao tác với Redis đều bọc `t
     @org.springframework.beans.factory.annotation.Value("${cache.ttl-hours:1}")
     private long cacheTtlHours;                              // Thời hạn đệm thật — cấu hình được, mặc định 1 giờ
 
-    /** audit-v17 L2: how long a confirmed 404 ("word does not exist") is remembered. */
+    /** audit-v17 L2: nhớ trong bao lâu một 404 đã xác nhận ("từ này không tồn tại"). */
     @org.springframework.beans.factory.annotation.Value("${dictionary.miss-ttl-minutes:30}")
     private long dictionaryMissTtlMinutes;                   // Thời hạn đệm "không tồn tại" — mặc định 30 phút
 
@@ -2791,9 +2828,9 @@ lỗi tạm thời thì quên**; (3) mọi thao tác với Redis đều bọc `t
                 .serializeValuesWith(...)                     // Cách mã hoá giá trị
                 .disableCachingNullValues();                  // Không cache giá trị null (tránh nhầm "không có" với "lỗi")
 
-        // audit-v17 remove-limits round (L2): a confirmed 404 gets a SHORT TTL so a typo'd word is
-        // not re-fetched from the slow upstream for an hour, while a real word that appears later
-        // still becomes findable within 30 minutes. Every other cache keeps the shared default.
+        // Vòng audit-v17 remove-limits (L2): một 404 đã xác nhận nhận TTL NGẮN để từ gõ sai
+        // không bị gọi lại upstream chậm trong suốt một giờ, mà một từ thật xuất hiện sau đó
+        // vẫn tìm thấy được trong vòng 30 phút. Mọi cache khác giữ nguyên default dùng chung.
         RedisCacheConfiguration missConfig = config.entryTtl(Duration.ofMinutes(dictionaryMissTtlMinutes));
         // Kho "không tồn tại" có hạn RIÊNG ngắn hơn (30 phút thay vì 1 giờ):
         // gõ sai chính tả thì lần sau không gọi lại từ điển; nhưng nếu từ điển vừa cập nhật
@@ -2928,14 +2965,14 @@ lỗi tạm thời thì quên**; (3) mọi thao tác với Redis đều bọc `t
 mềm 6s chỉ để báo trạng thái, trần cứng 45s mới bỏ. Tất cả vì một mục tiêu: **không bao giờ báo sai
 "không tìm thấy" cho từ thật**.
 
-#### g) Tìm bài học — thứ tự do máy chủ — `LessonController.java:42-54` (đã đọc ở Chương 3)
+#### g) Tìm bài học — thứ tự do máy chủ — `LessonController.java:42-54` (đã đọc ở Chương 2)
 
 Nhắc lại điểm quan trọng cho chương này: dòng `Sort.by("orderIndex").ascending().and(Sort.by("id"))` là
 **hằng số trong code** — không có tham số nào từ trình duyệt đổi được thứ tự này. Nếu client gửi `?sort=title`,
 máy chủ **bỏ qua im lặng**.
 
 > 🧪 **Kiểm chứng:** gọi thử `GET /api/lessons?sort=title,desc` và `GET /api/lessons?sort=title,asc` —
-> kết quả giống hệt nhau và giống mặc định (đã đo 2026-09-27).
+> kết quả giống hệt nhau và giống mặc định (đã đo 2026-09-28).
 
 #### h) Lọc bài tập admin — đẩy hết xuống SQL — `src/main/java/com/datn/engflow/controller/AdminExerciseController.java:43-55`
 
@@ -3216,7 +3253,7 @@ bài học theo `orderIndex` (lộ trình), danh sách từ theo `word`, lịch 
 **Câu 24 — Vì sao gõ 1 ký tự tra từ không ra kết quả?**
 Chặn có chủ đích: `query.length() < 2` → trả `[]` ngay, không truy vấn (`VocabularyController.java:75-77`).
 1 ký tự sẽ khớp gần như mọi từ → quét cả kho mà kết quả vô nghĩa. **Lưu ý:** ô tìm **bài học** không có chặn
-này (1 ký tự vẫn ra kết quả — đo live 27/09/2026: 1461 dòng) vì tìm bài học 1 ký tự vẫn có nghĩa.
+này (1 ký tự vẫn ra kết quả — đo live 28/09/2026: 1461 dòng) vì tìm bài học 1 ký tự vẫn có nghĩa.
 
 **Câu 25 — Mất mạng thì tra từ còn dùng được không?**
 Còn. Đường chính là proxy máy chủ (`/api/vocabulary/dictionary/{word}`); proxy lỗi thì giao diện **gọi
@@ -3279,7 +3316,8 @@ MANDATORY buộc hàm phải nằm trong giao dịch sẵn có (`StudyActivitySe
 ### Cơ sở dữ liệu (câu 7–11)
 
 **Câu 7 — Schema bao nhiêu bảng?**
-**18 bảng thật**, chia 7 nhóm, **22 khoá ngoại**. Bảng lớn nhất: `exercises` (43 738 dòng — đo 27/09/2026).
+**18 bảng thật**, chia 7 nhóm, **22 khoá ngoại**. Bảng lớn nhất: `exercises` (43 738 dòng — đo 28/09/2026).
+(18 bảng = 17 bảng nghiệp vụ + `user_streaks` legacy — xem [mục III.4](#kien-truc).)
 Chi tiết đầy đủ trong `docs/erd-sql-guide.md` — tài liệu ERD chính thức để đưa vào luận văn.
 
 **Câu 8 — Quan hệ chính của streak là gì?**
@@ -3349,7 +3387,7 @@ Có — ghi nhận trong `AGENTS.md`. Route `/api/resources/**` là `permitAll` 
 **Câu 18 — Test những gì, bao nhiêu?**
 **85 file test backend** (JUnit 5 + Mockito + MockMvc; trong đó **13 lớp `Audit*`** khoá regression như
 `LessonExerciseSecurityTest`, `AuditV9DraftLessonGradeGuardTest`) và **32 file frontend** (Vitest + jsdom).
-Baseline gần nhất: backend **541/0/0/11**, frontend **194 pass/1 skip** — đo 27/09/2026. Có cả `HarnessDriftTest`:
+Baseline gần nhất: backend **541/0/0/11**, frontend **194 pass/1 skip** — đo 28/09/2026. Có cả `HarnessDriftTest`:
 tự phát hiện tài liệu/công cụ trỏ vào endpoint đã bị gỡ.
 
 **Câu 19 — Có CI không?**
@@ -3418,7 +3456,7 @@ nhập liệu (thay vì chữa ở lúc chấm).
 | 4 | **Không có huy hiệu/mốc streak** | Chỉ có số chuỗi + lịch | Chưa làm — ngoài phạm vi bản này | *"Hệ thống chưa có huy hiệu — đó là hướng phát triển (mốc 7/30/100 ngày)."* |
 | 5 | **Không có CI** | Chất lượng giữ bằng test local | Chưa dựng hạ tầng CI | *"Điểm yếu đã biết; em đã có sẵn 541 test backend + 194 test frontend, chỉ cần nối vào CI."* |
 | 6 | **`?sort=` của bài học/decks bị bỏ qua** | Gửi sort nào cũng như không | Thứ tự cố định có chủ đích theo lộ trình | *"Bài học cố định thứ tự theo lộ trình — đúng thiết kế. Chỉ `/api/vocabulary` cho phép sort."* |
-| 7 | **Tìm bài học không chặn độ dài tối thiểu** | Gõ 1 ký tự vẫn tìm (đo 27/09/2026: 1461 kết quả) | Chưa thêm guard; tìm bài 1 ký tự vẫn có nghĩa | *"Khác với tra từ, tìm bài học không chặn 1 ký tự vì kết quả vẫn hữu ích; nếu muốn có thể thêm cùng cơ chế."* |
+| 7 | **Tìm bài học không chặn độ dài tối thiểu** | Gõ 1 ký tự vẫn tìm (đo 28/09/2026: 1461 kết quả) | Chưa thêm guard; tìm bài 1 ký tự vẫn có nghĩa | *"Khác với tra từ, tìm bài học không chặn 1 ký tự vì kết quả vẫn hữu ích; nếu muốn có thể thêm cùng cơ chế."* |
 | 8 | **Dữ liệu streak cũ trong Redis** | Snapshot có `legacyAccessDays` | Di sản từ hệ thống trước khi chuyển | *"Đó là dữ liệu thời kỳ cũ, chỉ hiển thị tham khảo — không tính vào chuỗi chính."* |
 | 9 | **SQL Server ngốn RAM** | Docker cần nhiều RAM | Đặc tính SQL Server | *"Đánh đổi khi chọn SQL Server; nếu triển khai thật sẽ cân nhắc PostgreSQL/MySQL."* |
 | 10 | **Chưa có backup định kỳ tự động** | Chỉ có quy trình backup thủ công cho thay đổi lớn | Chưa dựng lịch backup | *"Đã có script backup + verify cho thay đổi lớn; lịch tự động là việc cần làm trước khi vận hành thật."* |
@@ -3507,27 +3545,35 @@ nhập liệu (thay vì chữa ở lúc chấm).
 <a id="phu-luc-d"></a>
 ## Phụ lục D — Số liệu phải đo lại trước khi chốt slide
 
-> ⚠️ Mọi số liệu trong tài liệu này đo ngày **27/09/2026**. Trước khi in slide, chạy lại các lệnh dưới
+> ⚠️ Mọi số liệu trong tài liệu này **đo lại ngày 28/09/2026**. Trước khi in slide, chạy lại các lệnh dưới
 > và **cập nhật số** — số cũ trên slide lệch với thực tế là điểm trừ.
 
-| Số liệu | Lệnh đo | Giá trị ngày 27/09/2026 |
+| Số liệu | Lệnh đo | Giá trị ngày 28/09/2026 |
 |---|---|---|
 | Test backend | `.\mvnw.cmd test` (từ repo root) | **541 / 0 fail / 0 error / 11 skipped** |
 | Test frontend | `cd frontend; npm run test` | **194 pass / 1 skip (32 file)** |
+| Build frontend | `cd frontend; npm run build` | entry **177.75 kB** (gzip 67.69) |
 | Số bài học | SQL: `SELECT COUNT(*) FROM lessons` | **1470** (1465 đã xuất bản) |
 | Số bài tập | SQL: `SELECT COUNT(*) FROM exercises` | **43 738** |
 | Số người dùng | SQL: `SELECT COUNT(*) FROM users` | **5** |
 | Số từ vựng | SQL: `SELECT COUNT(*) FROM vocabulary` | **118** |
-| Số controller | `ls src/main/java/com/datn/engflow/controller/*.java \| wc -l` | **25** |
+| Số controller | `find src/main/java/com/datn/engflow/controller -name "*.java" \| wc -l` | **25** |
 | Số endpoint | `grep -rhoE "@(Get\|Post\|Put\|Delete\|Patch)Mapping" ... \| wc -l` | **121** |
 | Số file test backend | `find src/test -name "*.java" \| wc -l` | **85** (13 lớp `Audit*`) |
-| Số bảng CSDL | `docs/erd-sql-guide.md` | **18 bảng, 22 FK** |
+| Số bảng CSDL | SQL `INFORMATION_SCHEMA.TABLES` | **18 bảng thật, 22 FK** |
 
 **Lệnh SQL mẫu** (qua công cụ có sẵn của dự án):
 ```
 python sweep/v8/sqlrun.py sweep/v8/p16-parity.sql
 ```
-Kết quả mong đợi (đo 27/09/2026): `1470|43738|5|118|29|4|3|13|10`.
+Kết quả mong đợi (đo 28/09/2026): `1470|43738|5|118|29|5|3|13|10`
+(9 cột: `lessons|exercises|users|vocabulary|speaking|video|lesson_sub|payments|decks`),
+kèm 3 dòng marker `STUDY_DAYS=5`, `PENDING_PAYMENTS=0`, `EXERCISE_ATTEMPTS=34`.
+
+> 💡 **Vì sao vài số đã tăng kể từ 27/09?** Đây là **dữ liệu hoạt động tăng thật**, không phải rác:
+> `video_attempts` 4→5, `study_days` 4→5, `exercise_attempts` (2 tài khoản demo) 33→34. Riêng
+> `payments` **giữ 13** — là **giao dịch SePay thật** (`ENG73E2D3AA2DF6`), tuyệt đối không xoá.
+> Baseline chuẩn ghi trong `AGENTS.md` và `sweep/v8/ui/lib.js` đã được cập nhật theo các giá trị này.
 
 ---
 
@@ -3547,7 +3593,7 @@ Kết quả mong đợi (đo 27/09/2026): `1470|43738|5|118|29|4|3|13|10`.
 4. **`/search`** → `hello` → `h` (trống) → `hello` lại (nhanh).
 5. **`/profile`** → Streak + lịch 30 ngày.
 
-**SỐ LIỆU CHỐT (đo 27/09/2026):** 1470 bài học · 43 738 bài tập · 541 test backend · 194 test frontend · 18 bảng CSDL.
+**SỐ LIỆU CHỐT (đo 28/09/2026):** 1470 bài học · 43 738 bài tập · 541 test backend · 194 test frontend · 18 bảng CSDL.
 
 **5 CÂU HỎI NHANH NHẤT + ĐÁP:**
 
