@@ -6,14 +6,19 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Video learning DTOs (records).
+ * Nhóm DTO (record) cho tính năng học qua video (video learning).
+ *
+ * <p>Gom trong một class chỉ để chứa các record — không có instance (constructor
+ * private). Ba nhóm: payload admin ({@link VideoLessonRequest}), payload chấm
+ * ({@link GradeVideoAttemptRequest}), và response ({@link VideoLessonSummary},
+ * {@link VideoLessonDetail}, {@link VideoAttemptResponse}).
  */
 public final class VideoDtos {
 
     private VideoDtos() {
     }
 
-    /** One transcript line as stored in video_lessons.transcript_json. */
+    /** Một dòng phụ đề như lưu trong {@code video_lessons.transcript_json}. */
     public record TranscriptLine(
             double start,
             double end,
@@ -21,7 +26,7 @@ public final class VideoDtos {
             String textVi) {
     }
 
-    /** Admin create/update payload: youtube url + transcript (JSON lines or SRT/VTT raw). */
+    /** Payload admin tạo/sửa bài: youtube url + phụ đề (JSON lines hoặc SRT/VTT thô). */
     public record VideoLessonRequest(
             @NotBlank String title,
             String description,
@@ -36,7 +41,7 @@ public final class VideoDtos {
             Boolean isPublished) {
     }
 
-    /** Public list item. */
+    /** Mục trong danh sách công khai. */
     public record VideoLessonSummary(
             Long id,
             String title,
@@ -49,7 +54,7 @@ public final class VideoDtos {
             Boolean isPublished) {
     }
 
-    /** Public detail: summary + transcript + completed lines for current user. */
+    /** Chi tiết công khai: summary + phụ đề + các dòng người dùng đã hoàn thành. */
     public record VideoLessonDetail(
             Long id,
             String title,
@@ -62,7 +67,7 @@ public final class VideoDtos {
             List<Integer> completedLines) {
     }
 
-    /** Attempt (shadowing recording) as returned to users/admins. */
+    /** Lượt nộp (bản ghi shadowing) trả cho người dùng/admin. */
     public record VideoAttemptResponse(
             Long id,
             Long videoLessonId,
@@ -74,7 +79,7 @@ public final class VideoDtos {
             String submittedAt) {
     }
 
-    /** Admin grading payload. */
+    /** Payload admin chấm điểm. */
     public record GradeVideoAttemptRequest(
             @NotNull Double score,
             String feedback) {
