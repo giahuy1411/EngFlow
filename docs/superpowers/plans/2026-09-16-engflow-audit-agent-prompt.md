@@ -13,6 +13,9 @@ Không bỏ qua phase. Các phase read-only phải hoàn tất trước khi sử
 ## Quy tắc không được vi phạm
 
 - Đọc `AGENTS.md`, constitution và plan trước khi hành động.
+- **Đọc `.specify/memory/decisions.md` (sổ quyết định) trước khi viết mục "chưa làm"** — mục khớp một mã
+  `D-NNN` ghi vào nhóm "5a. Đã quyết định (ĐÓNG)", không phải "còn cần làm". Quyết định mới phải append
+  một dòng `D-NNN` mới trong cùng lúc. Guard: `node sweep/harness/assert-harness.js` check 9.
 - Bảo toàn thay đổi chưa commit; không dùng `git reset --hard` hoặc `git checkout --`.
 - Không suy đoán kết quả. Mọi kết luận phải có command output, log, screenshot, SQL result hoặc browser evidence.
 - Service không chạy được phải ghi `BLOCKED`, không ghi `PASS`.

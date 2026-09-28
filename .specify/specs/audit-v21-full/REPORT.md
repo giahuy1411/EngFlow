@@ -126,14 +126,32 @@ do comment HTML ở cấp gốc `<template>` tạo fragment. Nếu làm một l�
 
 ## 5. Còn lại / chưa làm
 
-| Hạng mục | Trạng thái | Lý do |
-|---|---|---|
-| 2 method repository dead code (F-20-10) | **Giữ** | Có thể là API dự phòng; đã ghi trong Javadoc. |
-| `PremiumRequired` 0 usage (F-20-11) | **Giữ** | Placeholder có chủ đích; đã ghi Javadoc. |
-| `.env.bak-*` (4 file secret) | **Giữ** | gitignored, cần rollback. |
-| `scripts/figma-export/node_modules` | **Giữ** | cls-probe.js cố ý dùng. |
-| Polka/diagonal-stripe utility | **Không làm** | OPTIONAL, 0 sai lệch đo được. |
-| GitHub issue (`taskstoissues`) | **Không làm** | `gh` chưa đăng nhập; người dùng không yêu cầu. |
+### 5a. Đã quyết định (ĐÓNG) — KHÔNG phải việc cần làm
+> Mỗi mục khớp một mã trong `.specify/memory/decisions.md`. Vòng sau KHÔNG được coi là "chưa làm".
+
+| ID | Hạng mục | Quyết định | Lý do | Bằng chứng |
+|---|---|---|---|---|
+| D-001 | `content_original` | GIỮ vĩnh viễn | backfill chỉ đọc `content`; 2 reader flag-off; 69MB/230MB ≈ 0 | AGENTS.md:44 · P5.1 |
+| D-002 | `.env.bak-*` (4 file secret) | GIỮ | gitignored; cần rollback | audit-v20:189 |
+| D-003 | `scripts/figma-export/node_modules` | GIỮ | `cls-probe.js:36` cố ý resolve `playwright-core` | AGENTS.md:92 |
+| D-004 | `PremiumRequired` (0 usage) | GIỮ | placeholder có chủ đích; premium qua `hasPremiumAccess()` | CLAUDE.md:57,70 |
+| D-005 | 2 method repository dead-code | GIỮ | 0 call site; có thể là API dự phòng; đã ghi Javadoc | F-20-10 |
+| D-006 | Utility `polka` / `diagonal-stripe` | KHÔNG LÀM | OPTIONAL, 0 sai lệch đo được | prompt-rewritten-v21 |
+| D-007 | Migrate timezone DB sang `migrate timezone` (UTC) | KHÔNG LÀM | 1 nguồn ghi duy nhất; 0 default `GETDATE()`; chờ consumer thứ hai | AGENTS.md:59 |
+| D-008 | GitHub issues (`taskstoissues`) | KHÔNG LÀM | `gh` chưa auth; dùng `.specify/specs/` làm sổ | v3→v21 |
+| D-009 | Chuyển `tiền thật` / webhook SePay thật | PERMANENT-BOUNDARY | audit local không chuyển tiền thật; đã verify phía nhận (HMAC/replay/settle) | AGENTS.md:83,93 |
+
+### 5b. Còn thật sự cần làm
+
+| Hạng mục | Trạng thái | Lý do | ID (nếu mới chốt) |
+|---|---|---|---|
+| **Chưa có mục nào** | — | Mọi mục vòng này đã đạt terminal state (FIXED hoặc DECIDED có mã) | — |
+
+> **Ghi chú vòng này:** 6 mục "Giữ/Không làm" của v20 và v21 nay đã thành **D-001…D-009** trong
+> `.specify/memory/decisions.md`. Đây là lần đầu cơ chế sổ quyết định được áp dụng — vòng v22 trở đi
+> sẽ tự tra sổ thay vì phát hiện lại. Xem Phần B của plan (cơ chế chống lặp) và workflow phân tích
+> 21 vòng (213 mục "chưa làm"): **D-001** tắt sau 2 vòng nhờ có mã, còn **D-007/D-008/D-009** lặp
+> 8–11 vòng vì quyết định không có mã để tra.
 
 ### BLOCKED
 **Không có mục nào BLOCKED.** Mọi hạng mục đều chạy được và có bằng chứng thật.

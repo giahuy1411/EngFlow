@@ -1,17 +1,17 @@
 <!--
 Sync Impact Report
-Version change: 1.0.3 → 1.0.4
-Modified principles: P1 (đo lại audit-v19 2026-09-27: backend 537, frontend 194 — KHÔNG đổi so v18;
-  ghi xác nhận thay vì bump số)
-Added sections: none
+Version change: 1.0.4 → 1.1.0 (MINOR: thêm nguyên tắc/quy định mới)
+Modified principles: P1 (đo lại audit-v21 2026-09-28: backend 541, frontend 194 — KHÔNG đổi so v19/v20)
+Added sections: Article III — "Sổ quyết định (Decision Registry)" (cơ chế đóng trạng thái)
 Removed sections: none
-Templates requiring updates: N/A
+Templates requiring updates: none (registry là file mới `.specify/memory/decisions.md`;
+  mẫu §5 REPORT ghi trong AGENTS.md Boundaries)
 Follow-up TODOs: none
 -->
 
-# EngFlow — Constitution v1.0.4
+# EngFlow — Constitution v1.1.0
 
-**Ratified:** 2026-09-01 | **Last amended:** 2026-09-27
+**Ratified:** 2026-09-01 | **Last amended:** 2026-09-28
 
 ## Preamble
 
@@ -69,3 +69,13 @@ CRUD/AI phải được verify bằng API thật (HTTP thật trên :8080) và U
   quyết định khi mâu thuẫn.
 - **Complexity budget:** ưu tiên giải pháp nhàm chán, đúng; cấm abstraction
   đơn-use và feature không được yêu cầu.
+- **Sổ quyết định (Decision Registry) — cơ chế ĐÓNG trạng thái:** mọi quyết định
+  đã chốt (GIỮ / KHÔNG LÀM / ĐÃ GỠ) phải ghi một lần vào
+  `.specify/memory/decisions.md` với mã `D-NNN` + ngày + lý do + bằng chứng.
+  Vòng audit sau PHẢI đọc sổ này trước khi viết mục "chưa làm": mục khớp một
+  `D-NNN` ghi vào nhóm **5a. Đã quyết định (ĐÓNG)**, không phải "còn cần làm".
+  Một finding tồn tại ≥2 vòng ở trạng thái "chưa làm" mà **không có mã** bị coi là
+  **lỗi quy trình** và phải escalate lên chủ dự án — không được im lặng trôi tiếp.
+  Cơ chế này tổng quát hoá quyết định P5.1 (`content_original`), vốn đã chứng minh
+  hiệu quả: mục đó tắt hẳn sau 2 vòng, trong khi các mục không có mã lặp 8–11 vòng.
+  Guard: `sweep/harness/assert-harness.js` check 9.

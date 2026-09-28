@@ -20,13 +20,19 @@
  *      a stale default silently writes evidence into a previous round's folder.
  *   7. No harness hardcodes an audit round path outside _config.js (F-17-13/16/17
  *      were one class: the audit namespace written as a literal instead of read).
+ *   8. No harness defaults `--audit` to a STALE round outside _config.js (F-20-02b).
+ *   9. The decision registry (.specify/memory/decisions.md) is well-formed, and a
+ *      round >= v22's REPORT does not re-list a CLOSED decision as new work. This
+ *      closes the measured class where content_original stopped recurring after a
+ *      coded decision (P5.1) while timezone/GitHub/real-money kept recurring for
+ *      8-11 rounds because their decisions had no code to be looked up by.
  *
  * Run: node sweep/harness/assert-harness.js [--audit <name>]
  * Exit 0 = all clean; 1 = at least one problem (each printed).
  */
 const fs = require("fs");
 const path = require("path");
-const { ROOT, AUDIT } = require("./_config.js");
+const { ROOT, AUDIT, OUT } = require("./_config.js");
 const { routes: routerRoutes } = require("./routes-from-router.js");
 
 const problems = [];
@@ -180,6 +186,23 @@ function suiteFiles() {
   check("_config.js default audit round is the LATEST round",
     !!def && !!latest && def === latest.name,
     def ? `default=${def} latest=${latest ? latest.name : "none"}` : "no default found");
+
+  // audit-v21 B5: `.specify/feature.json` là con trỏ cho các lệnh speckit downstream
+  // (`/speckit-plan`, `/speckit-tasks` ghi vào feature_directory). Trỏ sai vòng ⇒ ghi nhầm
+  // thư mục — CÙNG LỚP lỗi stale-default với F-21-01/F-21-06, và trước v21 không ai kiểm.
+  const fj = path.join(ROOT, ".specify", "feature.json");
+  let fjOk = false, fjDetail = "missing";
+  if (fs.existsSync(fj)) {
+    try {
+      const fd = JSON.parse(fs.readFileSync(fj, "utf8")).feature_directory || "";
+      const fdName = fd.split("/").pop();
+      fjOk = !!latest && fdName === latest.name;
+      fjDetail = "feature_directory=" + fdName + " latest=" + (latest ? latest.name : "none");
+    } catch (e) {
+      fjDetail = "unparseable: " + e.message;
+    }
+  }
+  check("feature.json trỏ vòng audit MỚI NHẤT (B5)", fjOk, fjDetail);
 }
 
 // ── 7. no harness may hardcode an audit round name (F-17-17 class) ───────────
@@ -236,6 +259,64 @@ function suiteFiles() {
   }
   check("no harness defaults --audit to a stale round outside _config.js",
     stale.length === 0, stale.slice(0, 8).join(" ; "));
+}
+
+// ── 9. decision registry: well-formed + no re-listing a CLOSED decision ─────
+{
+  // Vì sao: quét 21 vòng audit cho thấy một quyết định đã chốt KHÔNG có mã thì vòng sau
+  // tái phát hiện và liệt kê lại như việc mới (timezone 8 vòng, GitHub-issue 10 vòng,
+  // real-money 11 vòng), trong khi content_original — có quyết định P5.1 + dòng Boundaries —
+  // tắt hẳn sau 2 vòng. Check này buộc mọi quyết định đã đóng phải có mã `D-NNN`, và cấm
+  // một mục đã đóng xuất hiện lại ở nhóm "5b. Còn thật sự cần làm" của REPORT vòng >= v22.
+  //
+  // KHÔNG phải check "file tồn tại" (vô giá trị): nó nối một DÒNG REPORT với một ID registry.
+  const REG = path.join(ROOT, ".specify", "memory", "decisions.md");
+  let entries = [], regOk = false, regDetail = "missing";
+  if (fs.existsSync(REG)) {
+    const md = fs.readFileSync(REG, "utf8");
+    const rows = [...md.matchAll(/^\|\s*(D-\d{3})\s*\|\s*(\d{4}-\d{2}-\d{2})\s*\|([^|]*)\|/gm)];
+    const ids = rows.map((r) => r[1]);
+    const uniq = new Set(ids).size === ids.length;
+    const datesOk = rows.every((r) => /^\d{4}-\d{2}-\d{2}$/.test(r[2]) && r[2] >= "2026-01-01");
+    const declared = /\*\*Số mục:\*\*\s*(\d+)/.exec(md);
+    const countOk = !!declared && +declared[1] === rows.length;
+    entries = rows.map((r) => ({
+      id: r[1],
+      tokens: [...r[3].matchAll(/`([^`]+)`/g)].map((t) => t[1]),
+    }));
+    // Mỗi entry phải có >=1 token nhận dạng, nếu không nó không được bảo vệ.
+    const tokensOk = entries.every((e) => e.tokens.length > 0);
+    regOk = rows.length > 0 && uniq && datesOk && countOk && tokensOk;
+    regDetail = rows.length + " rows uniq=" + uniq + " dates=" + datesOk +
+      " count=" + countOk + " tokens=" + tokensOk;
+  }
+  check("decisions.md tồn tại, ID D-NNN duy nhất, ngày ISO, Số mục khớp, mọi entry có token",
+    regOk, regDetail);
+
+  // Cross-check REPORT chỉ cho vòng >= v22 (21 REPORT cũ là bản ghi lịch sử đóng băng).
+  const num = +(/^audit-v(\d+)-full$/.exec(AUDIT) || [0, 0])[1];
+  const REPORT = path.join(OUT, "..", "REPORT.md");
+  if (num >= 22 && fs.existsSync(REPORT)) {
+    const md = fs.readFileSync(REPORT, "utf8");
+    const body = (/##\s*5\.[\s\S]*?(?=\n##\s|$)/.exec(md) || [""])[0];
+    const has5a = /###\s*5a\./.test(body), has5b = /###\s*5b\./.test(body);
+    check("REPORT §5 tách 5a (ĐÓNG) / 5b (cần làm) từ v22", has5a && has5b,
+      has5a && has5b ? "" : "thiếu marker 5a/5b");
+
+    const block5a = (body.split(/###\s*5b\./)[0].split(/###\s*5a\./)[1] || "");
+    const block5b = (body.split(/###\s*5b\./)[1] || "").split(/###\s*BLOCKED/)[0];
+    const regIds = new Set(entries.map((e) => e.id));
+    const cited = [...block5a.matchAll(/D-\d{3}/g)].map((m) => m[0]);
+    const badCite = [...new Set(cited)].filter((id) => !regIds.has(id));
+    check("mọi dòng 5a cite ID registry tồn tại", cited.length > 0 && badCite.length === 0,
+      badCite.length ? "ID lạ: " + badCite.join(",") : cited.length + " cite");
+
+    const relisted = [];
+    for (const e of entries) for (const t of e.tokens)
+      if (block5b.includes(t)) relisted.push(e.id + ":" + t);
+    check("không mục đã đóng nào bị tái liệt kê ở 5b", relisted.length === 0,
+      relisted.slice(0, 6).join(" ; "));
+  }
 }
 
 console.log("\n=== assert-harness: " + (problems.length === 0 ? "ALL CLEAN" : problems.length + " PROBLEM(S)") + " ===");

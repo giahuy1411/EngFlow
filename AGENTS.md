@@ -39,9 +39,26 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 
 ## Boundaries
 
+- **SỔ QUYẾT ĐỊNH — đọc TRƯỚC khi viết mục "chưa làm"**: `.specify/memory/decisions.md` là sổ mọi quyết
+  định đã CHỐT (GIỮ / KHÔNG LÀM / ĐÃ GỠ), mỗi mục có mã `D-NNN`. Khi viết §5 của `REPORT.md`, mục nào
+  khớp một `D-NNN` **KHÔNG còn là "chưa làm"** → ghi vào nhóm **5a. Đã quyết định (ĐÓNG)** (kèm ID),
+  KHÔNG ghi vào **5b. Còn thật sự cần làm**. Quyết định mới (GIỮ/KHÔNG LÀM) phải được **append một dòng
+  `D-NNN` mới** vào `decisions.md` **trong cùng lúc**. Guard: `node sweep/harness/assert-harness.js`
+  check 9 (FAIL nếu tái liệt kê mục đã đóng). Lý do có cơ chế này: quét 21 vòng audit cho thấy
+  `content_original` tắt sau 2 vòng (vì có mã P5.1) còn timezone/GitHub/real-money lặp 8–11 vòng (vì
+  quyết định không có mã để tra).
+- **Mẫu §5 của REPORT** (từ vòng ≥ v22) — tách 2 nhóm, backward-compatible (21 REPORT cũ giữ nguyên):
+  ```markdown
+  ## 5. Còn lại / chưa làm
+  ### 5a. Đã quyết định (ĐÓNG) — KHÔNG phải việc cần làm
+  | ID | Hạng mục | Quyết định | Lý do | Bằng chứng |
+  ### 5b. Còn thật sự cần làm
+  | Hạng mục | Trạng thái | Lý do | ID (nếu mới chốt) |
+  ### BLOCKED (kèm điều kiện mở khoá)
+  ```
 - **Không seed data demo khi người dùng đã bỏ tính năng** (ví dụ: achievements đã gỡ triệt để — đừng tái tạo).
 - **Mật khẩu seed**: bất kỳ instance nào chạy ngoài laptop cá nhân phải set `DEFAULT_USER_PASSWORD` / `DEFAULT_ADMIN_PASSWORD` trong `.env` TRƯỚC khi boot (`DatabaseSeeder` default `password123` + WARN log F58 — đã verify 2026-09-12; không cần code thêm).
-- **`content_original` GIỮ vĩnh viễn, đóng issue** (quyết định P5.1, 2026-09-12): backfill không đọc nó (chỉ đọc `content`), 2 reader còn lại đều flag-off; chi phí 69MB/230MB ≈ 0 so với rủi ro vi phạm C2. Đừng đề nghị drop lại.
+- **`content_original` GIỮ vĩnh viễn, đóng issue** (quyết định P5.1, 2026-09-12 · **registry `D-001`**): backfill không đọc nó (chỉ đọc `content`), 2 reader còn lại đều flag-off; chi phí 69MB/230MB ≈ 0 so với rủi ro vi phạm C2. Đừng đề nghị drop lại.
 - Không thêm dependency mới khi chưa cân nhắc bundle size / license.
 - Không commit `.env`, key, file fixture local (`frontend/public/*.wav`).
 - **Upload → `/api/resources/**` là surface bảo mật, không phải chỗ tiện tay**: route permitAll và same-origin với SPA (Vite proxy `/api`), nên mọi file có extension browser-render được (.html/.svg/.js) = stored XSS đọc JWT trong localStorage. Đã đo end-to-end bằng Chromium thật TRƯỚC khi fix (2026-09-14). Write qua `SafeUploadNames.extensionOf`, serve qua `contentTypeFor` + `forceDownload` — thêm writer/route mới phải đi qua 2 hàm đó.
@@ -72,7 +89,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 - **Assert hợp đồng landing guard × role ở CẢ HAI chiều** (stay vs bounce): `public` stay mọi role; `guestOnly` (vd `/login`) stay chỉ khi anon, còn lại **bị đá đi là ĐÚNG**; `admin` stay chỉ khi admin; catch-all `/:pathMatch(.*)*` **luôn** redirect. Assertion một chiều từng báo 24 "wrong landing" oan ở `routes-all` và 5 ở `design-v2` — toàn bộ là hành vi đúng của guard.
 - **Harness chạm `/premium` hoặc `/premium/checkout` phải TỰ DỌN trong cùng run và TỰ ASSERT parity**: `PremiumCheckout.vue` gọi `POST /api/v1/payment/create-order` lúc mount → `routes-all.js` đẩy `payment_transactions` 126 → 134. Dùng `cleanupAuditPayments(expected)` + `dbParity()` trong `sweep/v8/ui/lib.js`. Xoá chỉ nhắm `status <> 'SUCCESS' AND transaction_id IS NULL`. **Đừng parse "số cuối cùng trong output"** — cách đó vớ phải `(1 rows affected)` và báo `after=2`; hãy in marker `AUDIT_CLEAN_TOTAL=<n>` rồi regex theo marker, và kiểm `Msg \d+` trong output vì `sqlcmd` vẫn exit 0 khi batch lỗi.
 - **Harness có HÀNH ĐỘNG học (submit/review/study/checkin) phải dọn `study_days` của chính nó** (audit-v16 F-16-01): `study_days` được ghi bởi `StudyActivityService.recordStudy()` — gọi từ `ExerciseService.submitExercises` (nộp bài tập), `FlashcardService.recordStudyDay` (`/api/flashcards/study`), `SrsService` (`/api/srs/review`), `StreakService.checkin` (nộp game), `SpeakingSubmissionService` (nộp speaking). **ĐĂNG NHẬP KHÔNG ghi** (`UserService.login` chỉ ĐỌC streak) — đừng nhầm. v15 đã thêm `study_days` vào `assertClean` + parity nhưng chỉ dạy `sweep/v12/api-sweep.js` dọn; các harness khác để lại hàng → guard báo `study_days 5 != expected 4`. Đã thêm `cleanupStudyDays(from)` vào `sweep/v8/ui/lib.js` (cửa sổ half-open `[VN_RUN_DATE, today]`, chỉ 2 tài khoản probe — KHÔNG đụng ngày của học viên thật) và gọi trong `ui-sweep.js`, `routes.js`, `routes-all.js`, `design.js`, `design-v2.js` (đều trong `try/finally`), và `deep-probe.js` (inline, vì HTTP-only). Harness mới có hành động học: gọi `H.cleanupStudyDays()` cạnh `H.cleanupAuditPayments()`.
-- **`scripts/figma-export/node_modules` KHÔNG phải rác**: `sweep/harness/cls-probe.js:36` **cố ý** resolve `playwright-core` từ đó (fallback khi repo-root copy lỗi version). `git ls-files` = 0 (không commit). Đừng xoá nó khi "dọn rác".
+- **`scripts/figma-export/node_modules` KHÔNG phải rác** (**registry `D-003`**): `sweep/harness/cls-probe.js:36` **cố ý** resolve `playwright-core` từ đó (fallback khi repo-root copy lỗi version). `git ls-files` = 0 (không commit). Đừng xoá nó khi "dọn rác".
 - **`generateAll` coi `count` là trần** (F84) và MC **cấm trùng phương án** (F85) — 2 guard này tồn tại vì `qwen2.5:1.5b` đo được overshoot 10× (count=3 → 30 rows) và sinh `["…","best","best"]`.
 - **Admin list không được `JOIN FETCH` entity lớn**: `findAdminPage` từng kéo `lesson.content` + `content_original` cho 20 row = **95k logical reads/367 ms**; pattern đúng là `JOIN` phẳng + 1 batch projection (`LessonTitle`, `LessonListProjection`). Đo lại bằng `sys.dm_exec_query_stats` sau restart (plan cache reset).
 - **DOMPurify là singleton** → muốn siết a11y/content cho mọi call site thì `addHook` ở `frontend/src/utils/sanitize-a11y.js`, và **import từ module lazy** (`utils/markdown.js`, `views/lessons/LessonContent.vue`) — import ở `main.js` đẩy DOMPurify vào entry bundle (+28 kB, đã đo và đã revert).
