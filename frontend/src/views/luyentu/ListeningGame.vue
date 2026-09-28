@@ -57,6 +57,23 @@
 </template>
 
 <script setup>
+/**
+ * ListeningGame.vue — Game nghe: phát audio của từ rồi chọn đáp án đúng
+ * (route `/decks/:id/play/listening`, `requiresAuth: true`).
+ *
+ * Luồng dữ liệu:
+ * - `onMounted` gọi `deckService.getDeckById(deckId)` → `GET /api/decks/{id}`.
+ * - Mỗi từ được dựng `options = [word, ...distractors]` rồi xáo trộn ngẫu nhiên
+ *   (`sort(() => Math.random() - 0.5)`); đáp án đúng luôn là chính `word`.
+ *
+ * Phát âm (`playAudio`): ưu tiên `w.audioUrl` (file thật); nếu không có thì fallback
+ * Web Speech API `SpeechSynthesisUtterance` (en-US, rate 0.85). Lưu ý: view này gọi
+ * thẳng `window.speechSynthesis`, KHÔNG dùng helper chung `utils/speech.js`.
+ *
+ * Trả lời: `selectAnswer(idx)` khóa nút (`answered`), đúng thì +1 điểm và sang từ kế tiếp
+ * sau 1 s, sai thì sau 1.5 s. `answerState(idx)` tô màu nút theo trạng thái đúng/sai.
+ * Điểm chỉ mang tính client-side (không gọi API lưu kết quả).
+ */
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import deckService from '@/services/deckService'

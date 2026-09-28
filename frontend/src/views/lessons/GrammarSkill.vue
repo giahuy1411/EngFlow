@@ -22,6 +22,23 @@
 </template>
 
 <script setup>
+/**
+ * GrammarSkill — khối nội dung kỹ năng Ngữ pháp (grammar) của một bài học.
+ *
+ * Component THUẦN TRÌNH BÀY (presentational): nhận dữ liệu qua props, KHÔNG gọi API.
+ *   - props.content   : nội dung lý thuyết dạng Markdown → render qua parseMarkdown.
+ *   - props.exercises : mảng câu hỏi trắc nghiệm ({ question, options[] }).
+ *
+ * Trạng thái `answers` là cục bộ (local) — chọn radio chỉ lưu trong component,
+ * KHÔNG emit lên cha và KHÔNG nộp bài (không có nút submit/không gọi service).
+ *
+ * An toàn XSS: mọi Markdown đều qua DOMPurify.sanitize trước khi v-html
+ * (nội dung có thể đến từ dữ liệu bài học/AI, phải coi là không tin cậy).
+ *
+ * CHƯA CHẮC: grep toàn `frontend/src` không thấy nơi import component này
+ * (chỉ LessonLayout.vue được import ở views/lessons) — có thể là component
+ * minh hoạ/không còn dùng; comment mô tả đúng hành vi code hiện tại.
+ */
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'

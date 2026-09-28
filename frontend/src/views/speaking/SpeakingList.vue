@@ -78,6 +78,20 @@
 </template>
 
 <script setup>
+/**
+ * SpeakingList.vue — Trang danh sách đề luyện nói (route `/speaking`,
+ * `requiresAuth: true` + `requiresPremium: true`; admin bypass qua guard router).
+ *
+ * Luồng dữ liệu: `loadPrompts()` gọi `speakingService.getPrompts(page, size, q)`
+ * → `GET /api/v1/speaking-prompts?page&size[&q]`. Response là Page của Spring
+ * ({ content, totalPages, totalElements }); 9 đề/trang.
+ * Ô tìm kiếm debounce 350 ms (`watch(searchQuery)`) rồi nạp lại từ trang 1.
+ * Phân trang phía server qua `handlePageChange(page)`.
+ *
+ * Mỗi thẻ đề hiển thị chế độ (READ_ALOUD = "Đọc theo mẫu" / còn lại = "Nói tự do"), cấp độ và
+ * liên kết sang `/speaking/:id`. An toàn: `description`/`prompt` render bằng `v-html`
+ * nhưng đã qua `sanitizeText` (DOMPurify).
+ */
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import speakingService from '@/services/speakingService'
 import Pagination from '@/components/common/Pagination.vue'

@@ -11,6 +11,8 @@
     </div>
 
     <div :class="['flex flex-wrap items-center gap-2', showSummary ? 'justify-end' : 'justify-center']">
+      <!-- Nhóm điều khiển trang. Thứ tự: Trước | trang 1 | ô nhập "x / N" | trang cuối | Sau.
+           Các nút đầu/cuối bị vô hiệu khi đang ở biên hoặc chỉ có 1 trang. -->
       <button
         type="button"
         :disabled="currentPage <= 1"
@@ -34,6 +36,9 @@
         1
       </button>
 
+      <!-- Ô nhập số trang: chỉ nhận chữ số (lọc trong handlePageInput), submit khi
+           Enter hoặc khi rời ô (change). Bấm vào ô thì tự bôi đen toàn bộ (selectAll)
+           để người dùng gõ đè ngay. -->
       <div class="pagination-page-selector" role="group" aria-label="Chọn trang">
         <input
           :id="paginationInputId"
@@ -78,6 +83,26 @@
 </template>
 
 <script setup>
+/*
+ * Pagination — thanh phân trang dùng chung cho các danh sách (bài học, deck...).
+ *
+ * Props:
+ *   - currentPage (Number, bắt buộc): trang hiện tại (bắt đầu từ 1).
+ *   - totalPages  (Number, bắt buộc): tổng số trang.
+ *   - totalItems  (Number, bắt buộc): tổng số bản ghi, dùng cho dòng tóm tắt.
+ *   - pageSize    (Number): số bản ghi mỗi trang, mặc định 10.
+ *   - itemLabel   (String): danh từ đơn vị hiển thị ở tóm tắt, mặc định 'mục'.
+ *   - showSummary (Boolean): có hiện dòng "Hiển thị x - y / N" hay không.
+ *
+ * Emits:
+ *   - 'page-change' (Number): phát ra số trang mới khi người dùng bấm Trước/Sau,
+ *     bấm trang đầu/cuối, hoặc nhập số trang rồi Enter/blur. Component CHA chịu
+ *     trách nhiệm tải dữ liệu tương ứng — component này không tự đổi trang.
+ *
+ * Luồng dữ liệu: ô nhập số trang là state cục bộ `pageInput`, được đồng bộ lại
+ * mỗi khi prop currentPage đổi (watch); mọi thay đổi hợp lệ đều đi qua changePage()
+ * để validate (số nguyên, trong khoảng 1..totalPages, khác trang hiện tại).
+ */
 import { computed, getCurrentInstance, ref, watch } from 'vue'
 
 const props = defineProps({

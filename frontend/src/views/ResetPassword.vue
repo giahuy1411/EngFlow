@@ -47,6 +47,22 @@
 </template>
 
 <script setup>
+/**
+ * ResetPassword — trang "Đặt lại mật khẩu".
+ *
+ * Route: `/reset-password`, meta `guestOnly` (router/index.js) — chỉ dành cho khách.
+ *
+ * THỰC TẾ CODE: trang này KHÔNG đọc token từ URL; người dùng tự nhập 3 field
+ *   Email + MÃ OTP (6 số) + MẬT KHẨU MỚI, rồi submit.
+ * Luồng dữ liệu:
+ *   handleReset() (validate: đủ field + mật khẩu ≥ 6 ký tự)
+ *   → authService.resetPassword(email, otp, newPassword)
+ *   → POST /api/auth/reset-password
+ *   → thành công thì chờ 1,5 s rồi router.push('/login').
+ *
+ * Lỗi hiển thị ưu tiên `e.response.data.detail` rồi mới tới `.message`
+ * (một số API backend trả ProblemDetail dùng field `detail`).
+ */
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/authService'

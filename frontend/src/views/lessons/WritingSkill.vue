@@ -18,6 +18,21 @@
 </template>
 
 <script setup>
+/**
+ * WritingSkill — khối nội dung kỹ năng Viết của một bài học.
+ *
+ * Component THUẦN TRÌNH BÀY: nhận props, KHÔNG gọi API.
+ *   - props.prompt      : đề bài (Markdown) → parseMarkdown.
+ *   - props.modelAnswer : gợi ý/bài mẫu, chỉ hiển thị khi có giá trị.
+ *
+ * `answer` là nội dung người dùng gõ vào <textarea>, lưu cục bộ —
+ * KHÔNG emit lên cha và KHÔNG nộp/chấm bài (không gọi service nào).
+ *
+ * An toàn XSS: prompt/modelAnswer đều qua DOMPurify.sanitize trước khi v-html.
+ *
+ * CHƯA CHẮC: grep toàn `frontend/src` không thấy nơi import component này
+ * (chỉ LessonLayout.vue được import ở views/lessons) — có thể không còn dùng.
+ */
 import { ref } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'

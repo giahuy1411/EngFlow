@@ -84,6 +84,19 @@
 </template>
 
 <script setup>
+/**
+ * DeckDetail.vue — Trang chi tiết một bộ từ (route `/decks/:id`, `requiresAuth: true`).
+ *
+ * Luồng: `loadDeck()` gọi `deckService.getDeckById(route.params.id)` → `GET /api/decks/{id}`,
+ * service đã `normalizeDeck` nên `deck.words[]` phẳng (mỗi từ có word/phonetic/meaning/example/audioUrl).
+ *
+ * View này chỉ ĐỌC và hiển thị: thông tin bộ từ + danh sách từ + 6 nút điều hướng sang các game
+ * (`/decks/:id/play/{flashcard,quiz,listening,typing,memory,mixed}`). KHÔNG có form thêm/sửa/xoá từ
+ * ở đây — việc thêm từ nằm ở luồng tạo bộ (DeckCreate) hoặc API khác.
+ *
+ * An toàn: `meaning` và `example` render bằng `v-html` nhưng đều qua `sanitizeText` (DOMPurify).
+ * `playAudio(url)` phát file audioUrl của từ bằng đối tượng `Audio` của trình duyệt.
+ */
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import deckService from '@/services/deckService'

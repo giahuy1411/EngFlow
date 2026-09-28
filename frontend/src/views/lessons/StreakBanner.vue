@@ -15,5 +15,19 @@
 </template>
 
 <script setup>
+/**
+ * StreakBanner — banner nhắc chuỗi ngày học liên tiếp, hiển thị trên đầu trang bài học.
+ *
+ * Nơi dùng: LessonLayout.vue → `<StreakBanner :streak="currentStreak" v-if="isLoggedIn" />`
+ * (chỉ hiện khi đã đăng nhập; khách không thấy).
+ *
+ * Props:
+ *   - streak (Number, mặc định 0): số ngày liên tiếp, do CHA truyền xuống.
+ *     Cha (LessonLayout) lấy giá trị này từ streakService.getCurrentStreak()
+ *     → GET /api/streak/current; lỗi thì để 0 (banner vẫn hiển thị).
+ *
+ * Component thuần trình bày, KHÔNG tự gọi API. Link "Xem chi tiết →" dẫn tới
+ * `/profile` để xem StreakCalendar đầy đủ.
+ */
 defineProps({ streak: { type: Number, default: 0 } })
 </script>

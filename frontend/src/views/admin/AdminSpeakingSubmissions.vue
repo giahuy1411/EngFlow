@@ -116,7 +116,7 @@
           </div>
         </div>
 
-        <!-- Grid body -->
+        <!-- Grid body: cột trái là media + transcript + nhận xét đã lưu; cột phải là form chấm điểm -->
         <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
           <!-- Media Player & Feedback -->
           <div class="space-y-4">
@@ -223,6 +223,29 @@
 </template>
 
 <script setup>
+/**
+ * AdminSpeakingSubmissions.vue — Trang duyệt & chấm tay bài nói của học viên
+ * (route `/admin/speaking-submissions`, guard `requiresAdmin`).
+ *
+ * Luồng dữ liệu:
+ * - `loadSubmissions()` gọi `speakingService.getAdminSubmissions(page, size, status)`
+ *   → `GET /api/v1/admin/speaking-submissions?page&size[&status]`. Response là Page của Spring.
+ * - `submissionStatus` là bộ lọc trạng thái phía server (SUBMITTED/UNDER_REVIEW/GRADED/COMPLETED/
+ *   PROCESSING/FAILED); `searchQuery` lọc thêm phía client (`filteredSubmissions`) trên
+ *   tên/username/email học viên, tiêu đề đề bài và nhận xét — vì API không có tham số tìm kiếm.
+ * - Mỗi bài nộp được dựng một form chấm trong `gradeForms` (key = id bài nộp) gồm
+ *   điểm / nhận xét cho học viên / ghi chú nội bộ.
+ *
+ * Chấm điểm:
+ * - `grade(s)` kiểm tra điểm trong [0, 10] rồi gọi `speakingService.gradeSubmission(id, {...})`
+ *   → `PATCH /api/v1/admin/speaking-submissions/{id}/grade`. Thành công thì tải lại danh sách.
+ *
+ * LƯU Ý QUAN TRỌNG: KHÔNG có API xoá submission (DELETE .../{id} trả 404) và view này cố ý
+ * KHÔNG có nút xoá. Muốn dọn bài test phải xoá thủ công bằng SQL + xoá object trên MinIO.
+ *
+ * Media: `isAudio(url)` đoán loại theo đuôi file/`/media/`; `resolveMediaUrl` ghép URL media
+ * tương đối thành URL đầy đủ. Không có media thì hiển thị placeholder.
+ */
 import { ref, computed, onMounted } from 'vue'
 import { AudioWaveformIcon, SearchIcon, RefreshCwIcon, AlertTriangleIcon, InboxIcon } from 'lucide-vue-next'
 import speakingService from '@/services/speakingService'

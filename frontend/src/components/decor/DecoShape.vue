@@ -3,6 +3,24 @@
 </template>
 
 <script setup>
+/*
+ * DecoShape — hoạ tiết hình học trang trí (hiện tại là hình TRÒN) đặt lệch trong
+ * một khối cha `position: relative`; dùng để "làm dày" nền theo phong cách
+ * Playful Geometric. Luôn aria-hidden vì thuần trang trí.
+ *
+ * Props:
+ *   - variant (String): màu, một trong 'tertiary' | 'secondary' | 'accent' |
+ *                       'quaternary'; mặc định 'tertiary'.
+ *   - size    (String): kích thước, 'sm' (48px) | 'md' (88px) | 'lg' (144px);
+ *                       mặc định 'md'.
+ *
+ * Không slot, không emit. classList ghép ba class: 'geoshape' (định vị + viền +
+ * opacity 0.4) và hai class biến thể `geoshape--{variant}` / `geoshape--{size}`
+ * khai báo trong <style scoped>.
+ *
+ * LƯU Ý: mô tả ban đầu của task nói prop tên `kind` (circle/triangle/...) nhưng
+ * code thực tế dùng `variant` + `size` và chỉ vẽ hình tròn — không có tam giác.
+ */
 import { computed } from 'vue'
 
 const props = defineProps({

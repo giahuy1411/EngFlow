@@ -16,7 +16,10 @@
 
     <Footer />
 
-    <!-- Toast Container -->
+    <!-- Toast Container: khay chứa thông báo nổi ở góc dưới-phải.
+         `pointer-events-none` đặt trên khay để không chặn click vào trang;
+         từng toast tự bật lại `pointer-events-auto`. TransitionGroup chạy
+         animation vào/ra định nghĩa trong <style> (toast-enter/leave). -->
     <div class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
       <TransitionGroup name="toast">
         <div
@@ -39,6 +42,19 @@
 </template>
 
 <script setup>
+/*
+ * App.vue — component GỐC (root) của toàn bộ ứng dụng EngFlow.
+ *
+ * Vai trò: dựng khung layout chung cho mọi trang và các thành phần toàn cục:
+ *   - <a class="skip-link">  : link "Bỏ qua điều hướng" cho người dùng bàn phím.
+ *   - <Header />             : luôn được mount (ẩn/hiện theo route bên trong).
+ *   - <main id="main-content">: nơi <router-view> render trang hiện tại.
+ *   - <Footer />             : luôn được mount như Header.
+ *   - Khay Toast             : chứa thông báo nổi lấy từ composable useToast().
+ *
+ * Component này KHÔNG nhận props / không emit sự kiện; dữ liệu duy nhất nó
+ * dùng là store auth (chỉ để hydrate user sau khi mount — xem chú thích ở onMounted).
+ */
 import { onMounted } from 'vue'
 import Header from '@/components/common/Header.vue'
 import Footer from '@/components/common/Footer.vue'
@@ -48,6 +64,13 @@ import { useAuthStore } from '@/store/modules/auth'
 const { toasts, remove, toastBackground } = useToast()
 const auth = useAuthStore()
 
+/*
+ * Hydrate user SAU KHI MOUNT (không phải lúc boot):
+ * main.js chỉ mount app và KHÔNG gọi auth.fetchUser(). Nếu trong localStorage
+ * vẫn còn token hợp lệ (isLoggedIn === true) thì phải gọi fetchUser() ở đây để
+ * nạp lại hồ sơ user (tên, avatar, role, trạng thái premium...) cho Header và
+ * các route guard sử dụng. Chưa đăng nhập thì bỏ qua để tránh gọi API thừa.
+ */
 onMounted(() => {
   if (auth.isLoggedIn) auth.fetchUser()
 })

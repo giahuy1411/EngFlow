@@ -16,5 +16,18 @@
 </template>
 
 <script setup>
+/*
+ * GuestCtaCard — thẻ "kêu gọi hành động" (CTA) hiển thị cho KHÁCH chưa đăng nhập,
+ * mời tạo tài khoản miễn phí hoặc đăng nhập.
+ *
+ * Props:
+ *   - title (String): tiêu đề thẻ, mặc định 'Cần đăng nhập'.
+ *
+ * Không emit sự kiện, không slot. Điều hướng bằng hai <router-link> cứng tới
+ * /register và /login — đây là component dùng chung (common/) chứ không phải
+ * primitive ui/, nên được phép biết routing.
+ *
+ * role="note" cho screen reader biết đây là khối thông tin phụ trợ.
+ */
 defineProps({ title: { type: String, default: 'Cần đăng nhập' } })
 </script>

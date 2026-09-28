@@ -83,6 +83,16 @@ word3"
 </template>
 
 <script setup>
+/**
+ * DeckCreate.vue — Form tạo bộ từ vựng mới (route `/decks/create`, `requiresAuth: true`).
+ *
+ * Luồng: người dùng điền form reactive `form` (name, description, source, cefrLevel, words, isPublic)
+ * → `handleCreate()` tách ô "Từ vựng" theo dòng (`split('\n')` + bỏ dòng trắng) thành mảng `words`
+ * → `deckService.createDeck(payload)` → `POST /api/decks` → thành công thì `router.push('/decks')`.
+ * Lỗi hiển thị từ `error.response.data.message`, mặc định "Tạo thất bại".
+ *
+ * Không có API riêng: tạo bộ từ kèm danh sách từ luôn trong 1 request.
+ */
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import deckService from '@/services/deckService'

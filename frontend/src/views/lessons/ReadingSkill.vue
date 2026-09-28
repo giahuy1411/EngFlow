@@ -21,6 +21,20 @@
 </template>
 
 <script setup>
+/**
+ * ReadingSkill — khối nội dung kỹ năng Đọc hiểu của một bài học.
+ *
+ * Component THUẦN TRÌNH BÀY: nhận props, KHÔNG gọi API.
+ *   - props.readingContent : đoạn văn bản đọc (Markdown) → parseMarkdown.
+ *   - props.questions      : mảng câu hỏi ({ question, options[] }).
+ *
+ * `answers` là trạng thái cục bộ; chọn radio KHÔNG emit lên cha và KHÔNG nộp bài.
+ *
+ * An toàn XSS: Markdown luôn qua DOMPurify.sanitize trước khi v-html.
+ *
+ * CHƯA CHẮC: grep toàn `frontend/src` không thấy nơi import component này
+ * (chỉ LessonLayout.vue được import ở views/lessons) — có thể không còn dùng.
+ */
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'

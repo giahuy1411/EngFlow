@@ -55,6 +55,27 @@
 </template>
 
 <script setup>
+/**
+ * Profile — trang hồ sơ cá nhân / tiến độ học tập.
+ *
+ * Route: `/profile`, meta `requiresAuth: true` (router/index.js) — bắt buộc đăng nhập,
+ * chưa đăng nhập sẽ bị đá về `/login?redirect=/profile`.
+ *
+ * Dữ liệu & luồng chính:
+ *   - user            ← auth.user (Pinia). Avatar chỉ HIỂN THỊ `user.avatarUrl`
+ *                        (fallback DiceBear); view này KHÔNG có UI upload avatar —
+ *                        việc upload nằm ở authService.uploadAvatarFile, không gọi ở đây.
+ *   - premiumStore.checkStatus() → đồng bộ trạng thái Premium rồi ghi lại localStorage 'user'.
+ *   - streakService.getSnapshot() → GET /api/streak/snapshot (streak + lịch sử ngày học).
+ *   - dashboardService.getStats() → thống kê số bài học hoàn thành / tổng.
+ *   - StreakCalendar (component con) nhận history/current-streak/today từ snapshot.
+ *
+ * Chống race & tự refresh (xem loadStudy / scheduleMidnight / onUnmounted):
+ *   - `studyRequest` tăng dần để bỏ qua response cũ; `disposed` chặn set state sau unmount.
+ *   - snapshot được validate chặt (đủ field, đúng kiểu) trước khi nhận.
+ *   - hẹn timer tới nửa đêm giờ VN (+07) để tự tải lại lịch khi sang ngày mới,
+ *     và tải lại khi tab được focus / hiện lại (visibilitychange).
+ */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
 import { usePremiumStore } from '@/store/modules/premium'

@@ -37,6 +37,21 @@
 </template>
 
 <script setup>
+/**
+ * ForgotPassword — trang "Quên mật khẩu".
+ *
+ * Route: `/forgot-password`, meta `guestOnly` (router/index.js) — người ĐÃ đăng nhập
+ * sẽ bị guard đá sang `redirect` hoặc `/lessons`, nên trang này chỉ dành cho khách.
+ *
+ * Luồng dữ liệu:
+ *   form submit → handleForgot() → auth.forgotPassword(email)
+ *   → store/modules/auth.js → authService.requestPasswordReset(email)
+ *   → POST /api/auth/forgot-password
+ *
+ * Lưu ý (fail-soft, xem auth.js): backend hiện CHƯA có endpoint forgot-password nên
+ * trả 404, nhưng store vẫn coi 404 là thành công để không lộ email nào đã tồn tại.
+ * Vì vậy UI luôn hiện thông báo "đã gửi liên kết" kể cả khi backend chưa hỗ trợ.
+ */
 import { ref } from 'vue'
 import { useAuthStore } from '@/store/modules/auth'
 import { AppButton, AppInput, FormField } from '@/components/ui'

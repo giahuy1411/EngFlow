@@ -69,6 +69,26 @@
 </template>
 
 <script setup>
+/**
+ * LessonPreview — tab "Lịch sử" trong LessonLayout (route `/lessons/:id`, public).
+ *
+ * Chỉ được render khi đã đăng nhập: LessonLayout dùng `<LessonPreview v-if="isLoggedIn" />`,
+ * khách thấy GuestCtaCard thay thế.
+ *
+ * Luồng dữ liệu:
+ *   - onMounted → lessonService.getAttempts(lessonId)
+ *       → GET /api/lessons/{lessonId}/exercises/attempts  (danh sách lượt làm bài).
+ *   - Bấm vào một lượt → toggleExpand(id):
+ *       nếu chưa có cache thì lessonService.getAttemptDetail(lessonId, id)
+ *       → GET /api/lessons/{lessonId}/exercises/attempts/{attemptId}
+ *       (chi tiết từng câu), lưu vào `detailCache` để không gọi lại.
+ *   - lessonId lấy từ `route.params.id`.
+ *
+ * Lưu ý hiển thị:
+ *   - Mốc đạt = 70% (xem class quaternary/success ở template).
+ *   - `item.explanation` đi qua `sanitizeText` (utils/markdown) còn `item.question`
+ *     qua DOMPurify + marked — đều là chống XSS cho dữ liệu bài làm/AI.
+ */
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked'

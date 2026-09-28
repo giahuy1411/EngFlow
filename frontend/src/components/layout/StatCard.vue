@@ -12,6 +12,21 @@
 </template>
 
 <script setup>
+/*
+ * StatCard — thẻ hiển thị một chỉ số thống kê (số bài đã làm, streak, điểm...).
+ * Gồm ô icon, nhãn nhỏ phía trên và giá trị lớn bên dưới.
+ *
+ * Props:
+ *   - label     (String, bắt buộc): nhãn mô tả chỉ số.
+ *   - value     (String | Number): giá trị hiển thị, mặc định 0.
+ *   - icon      (Object | Function | String, bắt buộc): component icon, render
+ *               bằng <component :is="icon">.
+ *   - iconBg    (String): class nền ô icon, mặc định 'bg-accent/10'.
+ *   - iconColor (String): class màu icon, mặc định 'text-accent-ink'.
+ *
+ * Không slot, không emit. Là component trình bày thuần — dữ liệu do component
+ * cha truyền vào.
+ */
 defineProps({
   label: { type: String, required: true },
   value: { type: [String, Number], default: 0 },

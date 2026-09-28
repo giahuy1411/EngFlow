@@ -25,6 +25,26 @@
 </template>
 
 <script setup>
+/*
+ * UserPageHeader — tiêu đề trang dùng chung cho các trang phía người dùng
+ * (Profile, Luyện tập...). Gồm tiêu đề lớn + phụ đề, kèm hai hoạ tiết hình học
+ * trang trí (aria-hidden) đặt lệch góc.
+ *
+ * Props:
+ *   - title     (String): tiêu đề. Từ CUỐI CÙNG được tô màu accent (xem titleParts).
+ *   - subtitle  (String): phụ đề; nếu rỗng thì fallback sang `eyebrow`.
+ *   - eyebrow   (String): nhãn nhỏ thay thế khi không có subtitle.
+ *   - rootClass (String): class Tailwind bổ sung gắn vào thẻ <header>.
+ *   - titleId   (String): id gán cho <h1> để nơi khác aria-labelledby tới được.
+ *   - divided   (Boolean): true thì thêm đường kẻ dưới (border-b) ngăn cách.
+ *
+ * Slots:
+ *   - title   : thay thế toàn bộ nội dung <h1> (mặc định là prefix + từ highlight).
+ *   - actions : khu vực nút hành động bên phải; chỉ render khi slot được truyền.
+ *
+ * Không emit. Luồng dữ liệu: titleParts tách `title` thành phần đầu (prefix) và
+ * từ cuối (highlight) để tô màu accent cho từ cuối.
+ */
 import { computed } from 'vue'
 
 const props = defineProps({

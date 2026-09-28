@@ -111,6 +111,24 @@
 </template>
 
 <script setup>
+/**
+ * SpeakingDetail.vue — Trang chi tiết một đề luyện nói + lịch sử các lần luyện
+ * (route `/speaking/:id`, `requiresAuth: true` + `requiresPremium: true`; admin bypass qua guard router).
+ *
+ * Luồng dữ liệu: `loadPage()` chạy song song 2 request (`Promise.all`):
+ * - `speakingService.getById(id)` → `GET /api/v1/speaking-prompts/{id}` (nội dung đề).
+ * - `speakingService.getPromptSubmissions(id, page, 5)` → `GET /api/v1/speaking-prompts/{id}/submissions`
+ *   (Page các bài đã nộp của chính người dùng cho đề này, 5 bài/trang).
+ * Nút "Bắt đầu luyện" điều hướng sang `/speaking/:id/record` (trang ghi âm/nộp).
+ *
+ * Hiển thị điểm: ưu tiên điểm giáo viên chấm tay (`submission.score`); nếu chưa có thì dùng điểm AI
+ * (`scoreTotal` + `feedback` từ Whisper sidecar + rubric Ollama). `statusMeta(status)` ánh xạ trạng thái
+ * (SUBMITTED/UNDER_REVIEW/GRADED/COMPLETED/PROCESSING/FAILED) sang nhãn + mô tả tiếng Việt.
+ *
+ * `isAudio(submission)` ưu tiên `mediaType` (audio/* vs video/*), fallback đoán theo đuôi file trong
+ * `videoUrl`; `resolveMediaUrl` ghép URL media tương đối thành URL đầy đủ.
+ * An toàn: `prompt.prompt`/`referenceText` render bằng `v-html` nhưng qua `sanitizeText` (DOMPurify).
+ */
 import { ref } from 'vue'
 import { resolveMediaUrl } from '@/utils/mediaUrl'
 import { useRoute } from 'vue-router'

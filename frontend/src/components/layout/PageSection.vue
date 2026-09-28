@@ -1,11 +1,16 @@
 <template>
   <section class="relative geo-section" :class="{ 'geo-section--flush': !padding }">
+    <!-- Hoạ tiết nền: chỉ render khi bật prop `decorative`. Ba DecoShape (tròn)
+         đặt lệch các góc, giảm opacity; thuần trang trí nên component DecoShape
+         đã tự aria-hidden. -->
     <template v-if="decorative">
       <DecoShape variant="tertiary" size="lg" class="absolute -top-16 -left-16 opacity-40" />
       <DecoShape variant="accent" size="md" class="absolute top-1/4 right-8 opacity-30" />
       <DecoShape variant="secondary" size="sm" class="absolute bottom-8 left-1/3 opacity-30" />
     </template>
     <Container>
+      <!-- Header của section: chỉ hiện khi có kicker/title/subtitle (hasHeading).
+           kicker kèm một chấm tròn accent; subtitle canh giữa nếu align='center'. -->
       <header v-if="hasHeading" class="relative z-10 mb-12 geo-section__header" :class="{ 'text-center': align === 'center' }">
         <div v-if="kicker" class="inline-flex items-center gap-2.5 mb-3">
           <span class="w-3.5 h-3.5 rounded-full bg-accent border-2 border-foreground inline-block" />
@@ -26,6 +31,24 @@
 </template>
 
 <script setup>
+/*
+ * PageSection — khối section chuẩn của layout: bọc nội dung trong <Container>,
+ * giữ nhịp dọc (padding) và tuỳ chọn thêm hoạ tiết trang trí + phần heading.
+ *
+ * Props:
+ *   - decorative (Boolean): true thì rải 3 DecoShape mờ ở các góc (trang trí).
+ *   - padding    (Boolean): true (mặc định) dùng nhịp py-24; false thì thêm class
+ *                           `geo-section--flush` để bỏ padding trên/dưới.
+ *   - align      (String): 'center' thì heading canh giữa, còn lại canh trái.
+ *   - kicker     (String): nhãn nhỏ phía trên tiêu đề (kèm chấm accent).
+ *   - title      (String): tiêu đề section.
+ *   - subtitle   (String): mô tả phụ dưới tiêu đề.
+ *
+ * Slot: slot mặc định là nội dung chính của section.
+ * Không emit. `hasHeading` = có ít nhất một trong kicker/title/subtitle thì mới
+ * render <header>. Nhịp dọc nằm ở class .geo-section trong <style scoped>:
+ * padding 3rem trên mobile, 6rem (đúng mốc py-24 = 96px) từ màn hình md trở lên.
+ */
 import { computed } from 'vue'
 import Container from './Container.vue'
 import DecoShape from '@/components/decor/DecoShape.vue'

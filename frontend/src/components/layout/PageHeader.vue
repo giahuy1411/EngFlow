@@ -12,6 +12,20 @@
 </template>
 
 <script setup>
+/*
+ * PageHeader — khối tiêu đề cấp mục trong trang: một icon vuông (tuỳ chọn) đặt
+ * cạnh tiêu đề và phụ đề. Là component layout, không gọi API và không biết routing.
+ *
+ * Props:
+ *   - title     (String, bắt buộc): tiêu đề chính.
+ *   - subtitle  (String): dòng phụ đề nhỏ phía dưới, rỗng thì ẩn.
+ *   - icon      (Object | Function | String): component icon truyền vào và render
+ *               bằng <component :is="icon">; không truyền thì ẩn cả ô icon.
+ *   - iconBg    (String): class Tailwind nền cho ô icon, mặc định 'bg-accent'.
+ *   - iconColor (String): class màu cho icon, mặc định 'text-white'.
+ *
+ * Không slot, không emit. (Khác UserPageHeader ở chỗ có icon và phụ đề cố định.)
+ */
 defineProps({
   title: { type: String, required: true },
   subtitle: { type: String, default: '' },

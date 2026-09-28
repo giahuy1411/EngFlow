@@ -31,6 +31,7 @@
         </div>
       </section>
 
+      <!-- 4 nhánh hiển thị loại trừ nhau: đang tải (skeleton) → lỗi → có dữ liệu → rỗng -->
       <section v-if="loading" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Đang tải bộ từ">
         <div v-for="index in 6" :key="index" class="h-64 animate-pulse border-2 border-foreground/10 bg-card/60"></div>
       </section>
@@ -89,6 +90,20 @@
 </template>
 
 <script setup>
+/**
+ * Decks.vue — Trang danh sách bộ từ vựng (route `/decks`, `requiresAuth: false` → khách xem được).
+ *
+ * Hai tab (server-side, mỗi tab giữ phân trang riêng):
+ * - "Cộng đồng" (`activeTab === 'public'`) → `deckService.getPublicDecks` → `GET /api/decks`.
+ * - "Bộ của tôi" (`activeTab === 'my'`)     → `deckService.getMyDecks`    → `GET /api/decks/my`
+ *   (endpoint này cần đăng nhập; khách bấm tab này sẽ nhận 401).
+ *
+ * Luồng dữ liệu: `loadPage()` gửi `{ page: currentPage-1, size: 9 }` và thêm `q` khi có từ khóa.
+ * Response là Page của Spring; view tách riêng totalPages/totalElements cho từng tab.
+ * Ô tìm kiếm debounce 350 ms (`watch(searchQuery)`) rồi nạp lại từ trang 1.
+ *
+ * An toàn: `deck.description` render qua `v-html` nhưng đã đi qua `sanitizeText` (DOMPurify).
+ */
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import deckService from '@/services/deckService'
 import Pagination from '@/components/common/Pagination.vue'

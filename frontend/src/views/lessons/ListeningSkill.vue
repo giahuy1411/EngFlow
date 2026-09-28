@@ -26,6 +26,29 @@
 </template>
 
 <script setup>
+/**
+ * ListeningSkill — khối nội dung kỹ năng Nghe của một bài học.
+ *
+ * Component THUẦN TRÌNH BÀY: nhận props, KHÔNG gọi API.
+ *   - props.audioUrl  : audio chung của cả bài (thẻ <audio> đầu trang), có thể rỗng.
+ *   - props.exercises : mảng câu hỏi; mỗi câu có thể kèm `ex.audioUrl` riêng.
+ * Template chỉ render thẻ <audio> khi có URL tương ứng (v-if).
+ *
+ * ⚠️ FALLBACK GIỌNG TRÌNH DUYỆT KHÔNG NẰM Ở FILE NÀY:
+ *   Khi bài LISTENING thiếu audio, cơ chế đọc bằng giọng máy của trình duyệt nằm ở
+ *   `frontend/src/views/lessons/LessonExerciseTab.vue`, dùng
+ *   `frontend/src/utils/speech.js` (isSpeechAvailable / blankOutForSpeech /
+ *   stripLeadingNumber / speakEnglish) — `blankOutForSpeech` che `____` thành `...`
+ *   để không lộ đáp án fill-blank. Grep xác nhận speech.js chỉ được import ở
+ *   LessonExerciseTab.vue và ListeningGame.vue, KHÔNG ở ListeningSkill.vue.
+ *   (ListeningSkill chỉ là UI tĩnh; nếu được tái dùng làm nơi phát audio thì phải
+ *   tự bổ sung fallback, hiện tại chưa có.)
+ *
+ * An toàn XSS: Markdown luôn qua DOMPurify.sanitize trước khi v-html.
+ *
+ * CHƯA CHẮC: grep toàn `frontend/src` không thấy nơi import component này
+ * (chỉ LessonLayout.vue được import ở views/lessons) — có thể không còn dùng.
+ */
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'

@@ -42,6 +42,22 @@
 </template>
 
 <script setup>
+/**
+ * VocabularySkill — khối nội dung kỹ năng Từ vựng của một bài học.
+ *
+ * Component THUẦN TRÌNH BÀY (presentational): nhận props, KHÔNG gọi API.
+ *   - props.lessonId  : id bài học — chỉ dùng cho link "Quay lại" (/lessons/:id).
+ *   - props.skill     : thông tin kỹ năng (hiển thị `skill.name` ở header).
+ *   - props.content   : nội dung Markdown → parseMarkdown.
+ *   - props.exercises : mảng câu hỏi trắc nghiệm ({ question, options[] }).
+ *
+ * `answers` là trạng thái cục bộ; chọn radio KHÔNG emit lên cha và KHÔNG nộp bài.
+ *
+ * An toàn XSS: Markdown luôn qua DOMPurify.sanitize trước khi v-html.
+ *
+ * CHƯA CHẮC: grep toàn `frontend/src` không thấy nơi import component này
+ * (chỉ LessonLayout.vue được import ở views/lessons) — có thể không còn dùng.
+ */
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'

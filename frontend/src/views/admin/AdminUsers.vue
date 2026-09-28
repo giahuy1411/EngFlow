@@ -90,6 +90,8 @@
                 Không
               </span>
             </td>
+            <!-- Cột thao tác: nút Khóa/Mở luôn hiện; nút Premium đổi nhãn theo trạng thái
+                 (đang có hạn → "Huỷ Premium", chưa có → "Cấp Premium"). Nút đang xử lý thì disabled + hiện "..." -->
             <td class="p-4 text-center">
               <div class="flex flex-col gap-1.5 items-center">
                 <AppButton @click="toggleUser(user.id)"
@@ -135,6 +137,25 @@
 </template>
 
 <script setup>
+/**
+ * AdminUsers.vue — Trang quản lý người dùng (route `/admin/users`, guard `requiresAdmin`).
+ *
+ * Luồng dữ liệu:
+ * - `loadUsers()` gọi `GET /api/admin/users` kèm `q` (tìm kiếm), `page` (0-based), `size`.
+ *   Backend trả Page của Spring ({ content, totalPages, totalElements }) — view cũng chấp nhận
+ *   mảng phẳng phòng khi API đổi hình dạng.
+ * - Ô tìm kiếm debounce 300 ms (`onSearchInput`) rồi nạp lại từ trang 1.
+ *
+ * Thao tác (đều là PUT, backend trả user đã cập nhật; view vá tại chỗ vào mảng `users`):
+ * - `toggleUser(userId)`        → PUT /api/admin/users/{id}/toggle-active   (khóa / mở tài khoản)
+ * - `activatePremium(userId)`   → PUT /api/admin/users/{id}/toggle-premium (cấp Premium)
+ * - `revokePremium(userId)`     → PUT /api/admin/users/{id}/revoke-premium (huỷ Premium)
+ *   Lưu ý: `adminService.toggleUserAdmin` (đổi quyền Admin) có tồn tại nhưng view này KHÔNG dùng —
+ *   nên cột "Vai trò" chỉ hiển thị, không bấm đổi được.
+ *
+ * Phân trang phía server: `currentPage`/`pageSize` (10 dòng/trang) gửi thẳng lên API,
+ * `paginatedUsers` chỉ là alias của `users` (không cắt lại ở client).
+ */
 import { ref, computed, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
 import Pagination from '@/components/common/Pagination.vue'
