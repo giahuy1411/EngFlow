@@ -107,7 +107,7 @@
       "area": "mc-guard",
       "name": "  real-row copy response",
       "status": "INFO",
-      "detail": "{\"audioUrl\":null,\"correctAnswer\":\"A - Salad\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":null,\"id\":819242,\"imageUrl\":"
+      "detail": "{\"audioUrl\":null,\"correctAnswer\":\"A - Salad\",\"difficulty\":\"EASY\",\"exerciseType\":\"MULTIPLE_CHOICE\",\"explanation\":null,\"id\":819452,\"imageUrl\":"
     },
     {
       "area": "mc-guard",
@@ -254,7 +254,7 @@
       "area": "contract",
       "name": "(6) ai/generate-vocab",
       "status": "INFO",
-      "detail": "status=200 body=[{\"id\":null,\"word\":\"du lịch\",\"pronunciation\":\"dù lù\",\"meaning\":\"Đi du lịch\",\"exampleSentence\":\"Tôi thường đi du lịch vào cuối tuần.\",\"audioUrl\":null,\"imageUrl\":"
+      "detail": "status=200 body=[{\"id\":null,\"word\":\"du lịch\",\"pronunciation\":\"dù lù\",\"meaning\":\"du lịch\",\"exampleSentence\":\"Tôi đang chuẩn bị du lịch đến Nhật Bản.\",\"audioUrl\":null,\"imageUrl\":"
     },
     {
       "area": "contract",
@@ -421,7 +421,7 @@
     }
   },
   "mcGuard": {
-    "lessonId": 145391,
+    "lessonId": 155605,
     "badLetter": 400,
     "good": 200,
     "dash": 200,
@@ -536,7 +536,7 @@
       "descStatus": 200
     }
   ],
-  "deepDeckId": 90295,
+  "deepDeckId": 100310,
   "cleanup": {
     "studyDays": 0,
     "lessons": 0,
