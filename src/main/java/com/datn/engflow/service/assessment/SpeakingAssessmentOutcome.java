@@ -5,6 +5,12 @@ import com.datn.engflow.service.assessment.TranscriptAlignmentMetrics.AlignmentR
 /**
  * Outcome of the automatic (non-pronunciation) assessment of one submission.
  *
+ * <p>Produced by {@link SpeakingAssessmentService#assess} and consumed by
+ * {@code SpeakingSubmissionService}, which persists whichever fields are
+ * non-null. A non-null {@code error} is not fatal: the submission still enters
+ * the manual-grading queue with a teacher-facing reason instead of an
+ * automated score.</p>
+ *
  * @param transcript   recognized speech text, or the learner-supplied text
  * @param transcriptSource where the transcript came from: {@code WHISPER}, {@code USER}, or {@code NONE}
  * @param alignment    reference-vs-transcript alignment metrics
@@ -22,6 +28,10 @@ public record SpeakingAssessmentOutcome(
 
     /**
      * Builds a failed outcome that preserves the manual-grading path.
+     *
+     * <p>Transcript source is fixed to {@code NONE} and both score fields are
+     * {@code null}, so a caller reading this outcome cannot mistake a failure for
+     * a zero score.</p>
      *
      * @param provider pipeline identifier
      * @param error    human-readable failure reason

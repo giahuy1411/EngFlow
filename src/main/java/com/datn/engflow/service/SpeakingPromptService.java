@@ -18,11 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * CRUD and access control for speaking prompts — the scripts learners read or speak.
+ *
+ * <p>Layer: sits between {@code SpeakingPromptController} and the repositories. Public
+ * reads are permission-gated on a {@code premiumViewer} flag supplied by the controller,
+ * so a premium prompt is invisible (not merely hidden in the UI) to a caller without
+ * access; {@link #getPromptForViewer} applies the same rule to a single row. Writes are
+ * admin-only, enforced upstream by the controller's {@code @PreAuthorize}.</p>
+ */
 @Service
 @RequiredArgsConstructor
-/**
- * class SpeakingPromptService.
- */
 public class SpeakingPromptService {
     private final SpeakingPromptRepository repository;
     private final LessonRepository lessonRepository;
@@ -64,10 +70,24 @@ public class SpeakingPromptService {
         return prompt;
     }
 
+    /**
+     * Admin listing ordered by {@code orderIndex}, ignoring the publish and premium
+     * filters the public path applies.
+     *
+     * @return every prompt, drafts and premium ones included
+     */
     public List<SpeakingPrompt> getAllPromptsForAdmin() {
         return repository.findAllByOrderByOrderIndexAsc();
     }
 
+    /**
+     * Admin listing with optional keyword search; unlike the public path it shows
+     * unpublished and premium prompts.
+     *
+     * @param keyword  từ khóa tìm kiếm, null/blank thì trả về tất cả
+     * @param pageable phân trang
+     * @return trang đề nói cho quản trị viên
+     */
     public Page<SpeakingPrompt> getAllPromptsForAdmin(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isBlank()) {
             return repository.findAll(pageable);
@@ -75,11 +95,29 @@ public class SpeakingPromptService {
         return repository.searchByKeyword(keyword.trim(), pageable);
     }
 
+    /**
+     * Loads a prompt by id without any permission check; callers that serve a
+     * user-facing endpoint should go through {@link #getPromptForViewer} instead.
+     *
+     * @param id mã đề nói
+     * @return đề nói
+     * @throws ResourceNotFoundException nếu không tồn tại
+     */
     public SpeakingPrompt getPrompt(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SpeakingPrompt", "id", id));
     }
 
+    /**
+     * Creates a prompt, defaulting the optional fields the admin form may omit:
+     * {@code maxDurationSeconds} to 120, {@code attemptLimit} to 10,
+     * {@code isPremium} to false and {@code isPublished} to true.
+     *
+     * @param request dữ liệu đề nói từ form admin
+     * @return đề nói đã lưu
+     * @throws BadRequestException    nếu mode READ_ALOUD thiếu referenceText
+     * @throws ResourceNotFoundException nếu lessonId không tồn tại
+     */
     @Transactional
     public SpeakingPrompt createPrompt(CreateSpeakingPromptRequest request) {
         SpeakingPromptMode mode = resolveMode(request);
@@ -105,6 +143,17 @@ public class SpeakingPromptService {
         return repository.save(prompt);
     }
 
+    /**
+     * Updates a prompt with "null means keep current" semantics for the fields the
+     * trimmed admin form does not send (lesson, category, thumbnail, orderIndex,
+     * reference media, duration and attempt limits).
+     *
+     * @param id      mã đề nói
+     * @param request dữ liệu cập nhật
+     * @return đề nói sau khi lưu
+     * @throws ResourceNotFoundException nếu đề nói hoặc lessonId không tồn tại
+     * @throws BadRequestException      nếu mode READ_ALOUD thiếu referenceText
+     */
     @Transactional
     public SpeakingPrompt updatePrompt(Long id, CreateSpeakingPromptRequest request) {
         SpeakingPrompt prompt = getPrompt(id);
@@ -138,6 +187,14 @@ public class SpeakingPromptService {
         return repository.save(prompt);
     }
 
+    /**
+     * Deletes a prompt, refusing while any submission still references it so historical
+     * attempts keep their target.
+     *
+     * @param id mã đề nói
+     * @throws ResourceNotFoundException nếu đề nói không tồn tại
+     * @throws BadRequestException      nếu đề đã có bài nộp
+     */
     @Transactional
     public void deletePrompt(Long id) {
         SpeakingPrompt prompt = getPrompt(id);
@@ -147,10 +204,23 @@ public class SpeakingPromptService {
         repository.delete(prompt);
     }
 
+    /**
+     * Unpaged, unsorted admin listing. Preferred by the console table; the paged
+     * {@link #getAllPromptsForAdmin(String, Pageable)} is what the REST list endpoint uses.
+     *
+     * @return mọi đề nói, không sắp xếp
+     */
     public List<SpeakingPrompt> getAllPromptsAdmin() {
         return repository.findAll();
     }
 
+    /**
+     * Resolves the optional lesson link of a prompt.
+     *
+     * @param lessonId mã lesson, null thì đề nói không gắn lesson
+     * @return lesson tương ứng, hoặc null
+     * @throws ResourceNotFoundException nếu lessonId không tồn tại
+     */
     private Lesson resolveLesson(Long lessonId) {
         if (lessonId == null) {
             return null;
@@ -159,10 +229,19 @@ public class SpeakingPromptService {
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson", "id", lessonId));
     }
 
+    /** Defaults an absent mode to {@link SpeakingPromptMode#FREE_SPEAKING}. */
     private SpeakingPromptMode resolveMode(CreateSpeakingPromptRequest request) {
         return request.getMode() == null ? SpeakingPromptMode.FREE_SPEAKING : request.getMode();
     }
 
+    /**
+     * Enforces the one mode-dependent rule: a READ_ALOUD task is scored against a script,
+     * so a blank {@code referenceText} would make grading meaningless.
+     *
+     * @param request dữ liệu đề nói
+     * @param mode    chế độ đã resolve
+     * @throws BadRequestException nếu mode là READ_ALOUD mà referenceText trống
+     */
     private void validateMode(CreateSpeakingPromptRequest request, SpeakingPromptMode mode) {
         if (mode == SpeakingPromptMode.READ_ALOUD
                 && (request.getReferenceText() == null || request.getReferenceText().isBlank())) {

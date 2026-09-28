@@ -10,6 +10,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bộ từ vựng gom nhiều {@link Vocabulary} qua bảng nối {@link DeckWord}, dùng cho
+ * ôn SRS, trò chơi và các bài tập xếp từ theo chủ đề.
+ *
+ * <p>Tầng entity. {@link DeckService} đọc/ghi qua {@code DeckRepository} và
+ * kiểm tra quyền theo {@link #owner} cùng {@link #isPublic}; {@link SrsService} và
+ * {@link GameService} đọc danh sách từ qua {@link DeckWord} để dựng phiên ôn.
+ * Deck có {@code owner == null} là deck hệ thống tạo sẵn, không ai sở hữu được,
+ * nên mọi thao tác ghi của user đều bị chặn ở tầng service.
+ */
 @Entity
 @Table(name = "decks")
 @Getter
@@ -18,9 +28,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-/**
- * class Deck.
- */
 public class Deck {
 
     @Id

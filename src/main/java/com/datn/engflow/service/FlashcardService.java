@@ -15,7 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 /**
- * class FlashcardService.
+ * Điều phối luồng ôn flashcard của người học: nộp kết quả ôn, ghi ngày học và đọc trạng thái.
+ *
+ * <p>Tầng service, được gọi từ {@code FlashcardController}. Đây là lớp mỏng: nó tra user qua
+ * {@link UserRepository} rồi giao toàn bộ logic lặp lại ngắt quãng cho {@link SrsService},
+ * và ghi ngày học cho streak qua {@link StudyActivityService}.
  *
  * <p>audit-v12 F148: this service used to implement its OWN spaced-repetition schedule
  * (a fixed 1/3/7/14-day table driven by a binary known/unknown flag) and write it into the
@@ -36,6 +40,13 @@ public class FlashcardService {
     private final SrsService srsService;
     private final StudyActivityService studyActivityService;
 
+    /**
+     * Ghi nhận một lượt ôn flashcard với chất lượng nhớ do người học báo lên.
+     *
+     * @param request chứa vocabularyId và quality (0..5)
+     * @param email email người học
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     */
     @Transactional
     public void reviewFlashcard(FlashcardReviewRequest request, String email) {
         log.info("Review flashcard: vocabularyId={}, quality={}, email={}",
@@ -60,6 +71,9 @@ public class FlashcardService {
      *
      * <p>{@code recordStudy} is {@code Propagation.MANDATORY}, so this MUST stay
      * {@code @Transactional} — without it the call throws instead of recording.
+     *
+     * @param email email người học
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
      */
     @Transactional
     public void recordStudyDay(String email) {
@@ -69,6 +83,14 @@ public class FlashcardService {
         studyActivityService.recordStudy(user.getId());
     }
 
+    /**
+     * Đọc mastery level hiện tại của một từ trong tiến trình ôn của user.
+     *
+     * @param vocabularyId id từ vựng
+     * @param email email người học
+     * @return mastery level, hoặc 0 nếu user chưa từng ôn từ này
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     */
     @Transactional(readOnly = true)
     public Integer getStatus(Long vocabularyId, String email) {
         log.info("Lấy trạng thái flashcard: vocabularyId={}, email={}", vocabularyId, email);

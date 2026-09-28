@@ -32,6 +32,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Bài học: đọc danh sách/chi tiết, và CRUD cho quản trị viên.
+ *
+ * <p>Tầng service, gọi bởi {@code LessonController} (đọc) và {@code AdminLessonController}
+ * (tạo/sửa/xoá). Bài nháp ({@code is_published = false}) là nội dung soạn thảo:
+ * {@link #assertLessonVisible} chặn mọi đường đọc public, và {@link #getLessonDetails}
+ * áp lại đúng quy tắc đó sau khi nạp bản ghi.
+ *
+ * <p>Mọi DTO trả về đều kèm tiến độ của user đang đăng nhập; với khách vãng la
+ * ({@code userEmail} null) trường tiến độ để mặc định chưa học, vì endpoint này
+ * {@code permitAll}.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,6 +58,17 @@ public class LessonService {
     private final VocabularyRepository vocabularyRepository;
     private final SpeakingPromptRepository speakingPromptRepository;
 
+    /**
+     * Toàn bộ bài học đã publish, kèm tiến độ của user (nếu có).
+     *
+     * <p>Đường đọc không phân trang; {@link #getPublishedLessonPage} là bản có phân
+     * trang dùng cho trang danh sách mới, và nó nạp qua projection nên không
+     * kéo cột nội dung {@code NVARCHAR(MAX)}.
+     *
+     * @param userEmail email user đang đăng nhập, null nếu khách
+     * @return danh sách bài học đã publish
+     * @throws ResourceNotFoundException nếu {@code userEmail} không khớp user nào
+     */
     @Transactional(readOnly = true)
     public List<LessonResponse> getAllLessons(String userEmail) {
         log.info("Lấy danh sách bài học cho user: {}", userEmail);
@@ -94,6 +117,19 @@ public class LessonService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Trang bài học đã publish, lọc theo từ khoá và trình độ, kèm tiến độ từng bài.
+     *
+     * <p>Tiến độ nạp một lần cho cả trang bằng {@code findByUserIdAndLessonIdIn},
+     * không query lặp theo từng dòng.
+     *
+     * @param userEmail email user đang đăng nhập, null nếu khách
+     * @param keyword từ khoá tìm kiếm trong tiêu đề/mô tả; null hoặc rỗng thì không lọc
+     * @param level trình độ lọc, null thì không lọc
+     * @param pageable phân trang và sắp xếp
+     * @return trang kết quả
+     * @throws ResourceNotFoundException nếu {@code userEmail} không khớp user nào
+     */
     @Transactional(readOnly = true)
     public Page<LessonListItemResponse> getPublishedLessonPage(String userEmail, String keyword, LessonLevel level, Pageable pageable) {
         // Use the lightweight projection to avoid hydrating NVARCHAR(MAX) content columns.
@@ -162,12 +198,33 @@ public class LessonService {
         assertVisible(lesson, requesterIsAdmin);
     }
 
+    /**
+     * Luật hiển thị dùng chung: bài nháp chỉ admin đọc được, người khác nhận 404.
+     *
+     * @param lesson bài học đã nạp
+     * @param requesterIsAdmin người gọi có quyền admin hay không
+     * @throws ResourceNotFoundException nếu bài nháp và người gọi không phải admin
+     */
     private void assertVisible(Lesson lesson, boolean requesterIsAdmin) {
         if (!requesterIsAdmin && !Boolean.TRUE.equals(lesson.getIsPublished())) {
             throw new ResourceNotFoundException("Lesson", "id", lesson.getId());
         }
     }
 
+    /**
+     * Nội dung đầy đủ của một bài học, kèm từ vựng và tiến độ của user.
+     *
+     * <p>CÓ ghi {@code Progress.lastAccessed} — đây là lý do hàm không
+     * {@code readOnly}: mở bài học phải để lại dấu vết cho dashboard. Với khách vãng
+     * la không tạo bản ghi tiến độ.
+     *
+     * @param lessonId id bài học
+     * @param userEmail email user đang đăng nhập, null nếu khách
+     * @param requesterIsAdmin admin được đọc cả bài nháp để xem trước
+     * @return DTO chi tiết bài học
+     * @throws ResourceNotFoundException nếu bài học không tồn tại, là bài nháp mà
+     *         người gọi không phải admin, hoặc {@code userEmail} không khớp user nào
+     */
     @Transactional
     public LessonResponse getLessonDetails(Long lessonId, String userEmail, boolean requesterIsAdmin) {
         log.info("Lấy chi tiết bài học: id={}, user={}", lessonId, userEmail);
@@ -236,6 +293,15 @@ public class LessonService {
                 .build();
     }
 
+    /**
+     * Tạo bài học mới từ request của quản trị viên.
+     *
+     * <p>{@code isPublished} bỏ trống thì mặc định publish; tiến độ trong DTO trả về
+     * luôn là chưa học vì bài vừa tạo chưa ai học.
+     *
+     * @param lessonRequest dữ liệu bài học
+     * @return DTO bài học vừa lưu
+     */
     @Transactional
     public LessonResponse createLesson(LessonRequest lessonRequest) {
         log.info("Tạo bài học mới: title={}", lessonRequest.getTitle());
@@ -255,6 +321,15 @@ public class LessonService {
         return mapToResponse(savedLesson);
     }
 
+    /**
+     * Cập nhật bài học; {@code orderIndex} và {@code isPublished} chỉ ghi đè khi có
+     * giá trị trong request, nên gửi một payload thiếu trường không xoá trạng thái cũ.
+     *
+     * @param id id bài học cần sửa
+     * @param lessonRequest dữ liệu mới
+     * @return DTO bài học sau cập nhật
+     * @throws ResourceNotFoundException nếu bài học không tồn tại
+     */
     @Transactional
     public LessonResponse updateLesson(Long id, LessonRequest lessonRequest) {
         log.info("Cập nhật bài học: id={}", id);
@@ -280,6 +355,12 @@ public class LessonService {
         return mapToResponse(updatedLesson);
     }
 
+    /**
+     * Ánh xạ entity bài học sang DTO dùng chung cho đường ghi của quản trị viên.
+     *
+     * @param lesson entity đã lưu
+     * @return DTO với tiến độ mặc định chưa học
+     */
     private LessonResponse mapToResponse(Lesson lesson) {
         return LessonResponse.builder()
                 .id(lesson.getId())
@@ -297,6 +378,15 @@ public class LessonService {
                 .build();
     }
 
+    /**
+     * Xoá bài học và toàn bộ dữ liệu con tham chiếu tới nó.
+     *
+     * <p>Thứ tự xoá là bắt buộc: các bảng con phải sạch trước khi xoá lesson, vì
+     * khoá ngoại không khai {@code ON DELETE CASCADE}.
+     *
+     * @param id id bài học cần xoá
+     * @throws ResourceNotFoundException nếu bài học không tồn tại
+     */
     @Transactional
     public void deleteLesson(Long id) {
         log.info("Xóa bài học: id={}", id);

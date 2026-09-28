@@ -20,24 +20,53 @@ import com.datn.engflow.service.VocabularyService;
 
 import java.util.List;
 
+/**
+ * API từ vựng: danh sách, tìm kiếm nội bộ, proxy từ điển ngoài, và tạo từ mới.
+ *
+ * <p>Lưu ý phân quyền (xem {@code SecurityConfig}): chỉ {@code GET /api/vocabulary/search} và
+ * {@code GET /api/vocabulary/dictionary/*} là {@code permitAll}; còn {@code GET /api/vocabulary}
+ * (danh sách) rơi vào {@code anyRequest().authenticated()} nên <b>cần đăng nhập</b> — ẩn danh trả
+ * 401 là đúng thiết kế. Các thao tác ghi ({@code POST}/{@code PUT}/{@code DELETE}) còn siết chặt hơn.</p>
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/vocabulary")
 @RequiredArgsConstructor
-/**
- * class VocabularyController.
- */
 public class VocabularyController {
 
     private final VocabularyRepository vocabularyRepository;
     private final DictionaryService dictionaryService;
     private final VocabularyService vocabularyService;
 
+    /**
+     * Liệt kê từ vựng có phân trang (mặc định 20 từ/trang, sắp theo {@code word}).
+     *
+     * <p>Đây <b>không</b> phải endpoint public: SecurityConfig chỉ mở {@code /search} và
+     * {@code /dictionary/*}, nên request ẩn danh vào đây bị chặn 401.</p>
+     *
+     * @param pageable tham số phân trang/sắp xếp do Spring bind từ query string
+     * @return một trang {@link Vocabulary}
+     */
     @GetMapping
     public ResponseEntity<Page<Vocabulary>> list(@PageableDefault(size = 20, sort = "word") Pageable pageable) {
         return ResponseEntity.ok(vocabularyRepository.findAll(pageable));
     }
 
+    /**
+     * Tìm từ vựng theo chuỗi con (không phân biệt hoa thường) trong kho từ nội bộ.
+     *
+     * <p><b>Guard độ dài:</b> từ khoá dưới 2 ký tự (hoặc rỗng) trả ngay danh sách rỗng, không chạm
+     * DB — tránh truy vấn LIKE quét toàn bảng với từ khoá quá ngắn vô nghĩa. Nhận cả hai tên tham
+     * số {@code keyword} và {@code q}, ưu tiên {@code keyword} khi có.</p>
+     *
+     * <p>Endpoint này là public (permitAll) và vẫn được các công cụ sweep/perf dùng, nhưng
+     * <b>không</b> còn nằm trên đường "tra từ" của frontend — đường đó đi thẳng tới proxy từ điển
+     * {@code /dictionary/{word}} (xem {@code vocabularyService.js}).</p>
+     *
+     * @param keyword tham số ưu tiên
+     * @param q       tham số thay thế khi {@code keyword} trống
+     * @return danh sách từ khớp, hoặc rỗng nếu từ khoá quá ngắn
+     */
     @GetMapping("/search")
     public ResponseEntity<List<Vocabulary>> search(
             @RequestParam(defaultValue = "") String keyword,
@@ -69,6 +98,18 @@ public class VocabularyController {
         return ResponseEntity.ok(dictionaryService.lookup(clean));
     }
 
+    /**
+     * Thêm một từ vựng mới vào kho bộ từ.
+     *
+     * <p>Quy tắc (audit-v12 F147): người dùng thường **bắt buộc** nêu {@code deckId} —
+     * từ được gắn vào deck của chính họ ngay trong cùng transaction; admin được phép
+     * thêm từ dùng chung không cần deck.
+     *
+     * @param request        dữ liệu từ vựng (đã validate)
+     * @param deckId         deck sẽ chứa từ (bắt buộc với non-admin)
+     * @param authentication thông tin đăng nhập; null ⇒ trả 401
+     * @return từ vựng vừa tạo
+     */
     @PostMapping
     public ResponseEntity<Vocabulary> create(
             @Valid @RequestBody VocabularyRequest request,

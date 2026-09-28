@@ -7,6 +7,16 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Đề bài luyện nói: câu tự do hoặc đoạn mẫu để đọc theo, kèm giới hạn thời lượng
+ * và số lượt.
+ *
+ * <p>Tầng entity. {@link SpeakingPromptService} quản lý vòng đời đề (tạo/sửa/xoá,
+ * chặn xoá khi đã có bài nộp) và là nơi kiểm tra {@link #mode} phải có
+ * {@link #referenceText}; {@link SpeakingSubmissionService} đọc đề để chấm.
+ * {@link #attemptLimit} hiện chỉ được admin ghi và trả ra DTO — chưa có service nào
+ * đếm số lượt để chặn, nên đừng hiểu nó là hạn chế đang hoạt động.
+ */
 @Entity
 @Table(name = "speaking_prompts")
 @Getter
@@ -14,9 +24,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class SpeakingPrompt.
- */
 public class SpeakingPrompt {
 
     @Id

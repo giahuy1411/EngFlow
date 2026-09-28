@@ -30,7 +30,12 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 /**
- * class LessonSubmissionService.
+ * Nhận và tra cứu bài nộp kỹ năng của người học cho một bài học (viết/nói...), kèm lưu file ghi âm.
+ *
+ * <p>Tầng service, được gọi từ {@code LessonSubmissionController}. Lưu bài nộp qua
+ * {@link LessonSubmissionRepository}; bài nộp mới/được nộp lại luôn ở trạng thái
+ * {@code PENDING} để admin chấm tay. File ghi âm được ghi xuống thư mục {@code uploads/}
+ * trên đĩa cục bộ rồi phục vụ qua {@code /api/resources/**}.
  */
 public class LessonSubmissionService {
 
@@ -38,6 +43,17 @@ public class LessonSubmissionService {
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
 
+    /**
+     * Nộp (hoặc nộp lại) bài của một kỹ năng cho một bài học.
+     *
+     * <p>Nếu đã có bài nộp cùng user/lesson/skill, bài cũ được cập nhật tại chỗ và điểm/feedback
+     * cũ bị xóa, đưa về {@code PENDING} để chấm lại. Ngược lại tạo bản ghi mới.
+     *
+     * @param request nội dung bài nộp (lessonId, skillType, submissionText, audioUrl)
+     * @param userEmail email người nộp
+     * @return DTO bài nộp đã lưu
+     * @throws ResourceNotFoundException nếu không tìm thấy user hoặc bài học
+     */
     @Transactional
     public LessonSubmissionDTO submitLessonSkill(LessonSubmissionRequest request, String userEmail) {
         log.info("Lưu bài nộp bài học: user={}, lessonId={}, skill={}", userEmail, request.getLessonId(), request.getSkillType());
@@ -74,6 +90,15 @@ public class LessonSubmissionService {
         return convertToDTO(saved);
     }
 
+    /**
+     * Đọc bài nộp của chính người gọi cho một bài học và kỹ năng.
+     *
+     * @param lessonId id bài học
+     * @param skillType kỹ năng của bài nộp
+     * @param userEmail email người nộp
+     * @return DTO bài nộp
+     * @throws ResourceNotFoundException nếu không tìm thấy user, hoặc chưa có bài nộp phù hợp
+     */
     @Transactional(readOnly = true)
     public LessonSubmissionDTO getLessonSkillSubmission(Long lessonId, SkillType skillType, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
@@ -87,6 +112,17 @@ public class LessonSubmissionService {
     }
 
 
+    /**
+     * Lưu file ghi âm tải lên thư mục {@code uploads/} cục bộ và trả URL phục vụ tĩnh.
+     *
+     * <p>Tên file được đổi thành UUID + phần mở rộng đã lọc qua {@link SafeUploadNames} vì URL
+     * trả về được phục vụ cho mọi khách qua {@code /api/resources/**}, không được mang đuôi
+     * thực thi được trên trình duyệt.
+     *
+     * @param file file ghi âm client gửi lên
+     * @return đường dẫn tương đối dạng {@code /api/resources/<uuid>.<ext>}
+     * @throws RuntimeException nếu ghi file xuống đĩa thất bại
+     */
     public String saveAudioFile(MultipartFile file) {
         log.info("Lưu file âm thanh được tải lên: {}", file.getOriginalFilename());
         

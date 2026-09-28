@@ -6,14 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Hồ sơ người dùng trả về cho chính họ.
+ *
+ * <p>Tầng response của {@code /api/auth} (đăng ký, đăng nhập, đọc và sửa profile).
+ * {@code UserService.mapToUserResponse} dựng DTO này cho mọi đường trong nhóm đó;
+ * {@code token} chỉ có giá trị ở đăng ký/đăng nhập, các đường đọc profile truyền
+ * null nên client không được coi đây là nguồn token duy nhất.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class UserResponse.
- */
 public class UserResponse {
     private Long id;
     private String username;

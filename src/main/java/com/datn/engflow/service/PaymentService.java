@@ -24,12 +24,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Owns the SePay payment flow: creates PENDING orders with a VietQR URL, verifies
+ * inbound webhooks, and flips {@link User#setIsPremium} on successful settlement.
+ *
+ * <p>Layer: called by {@code PaymentController} over HTTP and by
+ * {@link SePayPollingScheduler} on a timer. Every activation path — signed webhook or
+ * {@link SePayApiService} polling fallback — funnels into
+ * {@link #processSePayTransaction}, which is idempotent per order, so a duplicated
+ * delivery can never grant premium twice. Rows are persisted through
+ * {@code PaymentTransactionRepository}.</p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-/**
- * class PaymentService.
- */
 public class PaymentService {
 
     private final PaymentTransactionRepository paymentTransactionRepository;
@@ -50,11 +58,27 @@ public class PaymentService {
     @Value("${sepay.bank-name}")
     private String bankName;
 
+    /**
+     * Webhook entry point for callers that carry no signature header; delegates to the
+     * four-argument overload with all signature sources null, which forces validation
+     * through the body {@code signature} field.
+     *
+     * @param rawBody the raw JSON request body
+     * @return result map with a {@code success} key
+     */
     @Transactional
     public Map<String, Object> processWebhook(String rawBody) {
         return processWebhook(rawBody, null, null, null);
     }
 
+    /**
+     * Webhook entry point carrying only the legacy {@code X-Signature} header; delegates
+     * to the four-argument overload with the production SePay headers null.
+     *
+     * @param rawBody         the raw JSON request body
+     * @param headerSignature legacy {@code X-Signature} header value
+     * @return result map with a {@code success} key
+     */
     @Transactional
     public Map<String, Object> processWebhook(String rawBody, String headerSignature) {
         return processWebhook(rawBody, headerSignature, null, null);
@@ -296,6 +320,16 @@ public class PaymentService {
         return false;
     }
 
+    /**
+     * Creates a PENDING order row and returns the VietQR URL the frontend renders as a
+     * QR code. No premium is granted here: activation happens only once SePay confirms
+     * the transfer through a webhook or the polling fallback.
+     *
+     * @param userId   the authenticated user id
+     * @param planType {@code "YEAR"} for the 12-month plan, anything else for the 1-month plan
+     * @return map with {@code orderCode}, {@code amount}, {@code qrUrl} and {@code planType}
+     * @throws RuntimeException if no user exists with the given id
+     */
     @Transactional
     public Map<String, Object> createOrder(Long userId, String planType) {
         User user = userRepository.findById(userId)
@@ -330,6 +364,18 @@ public class PaymentService {
         );
     }
 
+    /**
+     * Reads the caller's premium flag, first giving the polling fallback a chance to
+     * settle any PENDING order, then downgrading an account whose expiry date has passed.
+     *
+     * <p>The map also carries {@code pollingEnabled} plus a Vietnamese {@code pollMessage}
+     * when fallback polling is off, so the frontend can explain why a paid order is
+     * still pending.</p>
+     *
+     * @param userId the authenticated user id
+     * @return map with {@code isPremium}, {@code premiumExpiry} and the polling diagnostics
+     * @throws RuntimeException if no user exists with the given id
+     */
     @Transactional
     public Map<String, Object> getPremiumStatus(Long userId) {
         User user = userRepository.findById(userId)
@@ -436,6 +482,9 @@ public class PaymentService {
      * SePay signs the payload without the "signature" field itself.
      * Strips the signature field(s) from the raw JSON before computing HMAC.
      * Uses raw-string removal to preserve original key order, falls back to Map re-serialize.
+     *
+     * @param rawBody the raw JSON request body
+     * @return the body with every {@code signature}/{@code Signature} field removed
      */
     private String stripSignature(String rawBody) {
         try {
@@ -463,6 +512,9 @@ public class PaymentService {
     /**
      * Extracts the received signature from the body. The header-based
      * signature (X-Signature) is passed by the controller.
+     *
+     * @param body the parsed webhook payload
+     * @return the signature value, or an empty string when the body carries none
      */
     private String pickSignature(Map<String, Object> body) {
         Object sig = body.get("signature");
@@ -470,6 +522,7 @@ public class PaymentService {
         return sig != null ? String.valueOf(sig) : "";
     }
 
+    /** Lapses premium +1 year for {@code YEAR}, +1 month otherwise, measured from the injected {@code Clock}'s today. */
     private LocalDate calculateExpiry(String planType) {
         LocalDate now = LocalDate.now(clock);
         if ("YEAR".equals(planType)) return now.plusYears(1);

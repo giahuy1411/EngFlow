@@ -10,6 +10,11 @@ import java.util.Locale;
  * <p>The metrics are deliberately conservative: they measure content coverage and
  * word-level deviation, not pronunciation quality. Callers must not label them as
  * pronunciation scores.</p>
+ *
+ * <p>Two consumers use it: {@link SpeakingAssessmentService} for graded
+ * submissions and {@code ShadowingAiGradingService} for shadowing attempts. The
+ * class is non-instantiable; {@link #compute} is the only entry point and
+ * {@link AlignmentResult} is its output.</p>
  */
 public final class TranscriptAlignmentMetrics {
 
@@ -21,9 +26,15 @@ public final class TranscriptAlignmentMetrics {
     /**
      * Computes alignment metrics between reference and hypothesis word sequences.
      *
+     * <p>Degenerate inputs are handled without running the distance matrix: an
+     * empty reference returns all-zero metrics carrying the hypothesis length,
+     * while an empty hypothesis returns 100% WER, 0% coverage and every reference
+     * word counted as a deletion.
+     *
      * @param referenceText expected script (may be {@code null} for unscripted tasks)
      * @param transcript    recognized speech (may be {@code null} or blank)
      * @return metrics with word error rate, reference coverage, and edit breakdown
+     * @throws IllegalArgumentException if the two token sequences are too long for the distance matrix
      */
     public static AlignmentResult compute(String referenceText, String transcript) {
         List<String> reference = tokenize(referenceText);
@@ -67,6 +78,19 @@ public final class TranscriptAlignmentMetrics {
         return words;
     }
 
+    /**
+     * Builds the full Levenshtein matrix over token lists.
+     *
+     * <p>The cell count is checked against {@link #MAX_EDIT_DISTANCE_CELLS} before
+     * allocating: a runaway transcript would otherwise request gigabytes and take
+     * the JVM down. The bound is computed in {@code long} so the multiplication
+     * itself cannot overflow.</p>
+     *
+     * @param reference   expected token sequence
+     * @param hypothesis  recognized token sequence
+     * @return matrix of size {@code (reference+1) x (hypothesis+1)}
+     * @throws IllegalArgumentException if the cell count exceeds the cap
+     */
     private static int[][] editDistanceMatrix(List<String> reference, List<String> hypothesis) {
         if ((long) (reference.size() + 1) * (hypothesis.size() + 1) > MAX_EDIT_DISTANCE_CELLS) {
             throw new IllegalArgumentException("Transcript too long for alignment metrics");
@@ -89,6 +113,22 @@ public final class TranscriptAlignmentMetrics {
         return distance;
     }
 
+    /**
+     * Walks the matrix back from the bottom-right to split the edit distance
+     * into substitutions, insertions and deletions.
+     *
+     * <p>Diagonal moves are preferred, then deletions, then insertions, so a tie
+     * is always counted as a substitution rather than a delete+insert pair — this
+     * keeps the three counts summing exactly to the reported WER. Any residual
+     * row or column index left at the end is added to deletions or insertions
+     * respectively, which happens only when one sequence is a prefix of the
+     * other.</p>
+     *
+     * @param distance   matrix produced by {@link #editDistanceMatrix}
+     * @param reference  expected token sequence
+     * @param hypothesis recognized token sequence
+     * @return a three-element array of {@code {substitutions, insertions, deletions}}
+     */
     private static int[] backtraceOperations(int[][] distance, List<String> reference, List<String> hypothesis) {
         int substitutions = 0;
         int insertions = 0;

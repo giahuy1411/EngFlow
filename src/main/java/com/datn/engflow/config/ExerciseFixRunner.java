@@ -18,13 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Optional migration runner that rebuilds the {@code exercises} table from
+ * lesson HTML.
+ *
+ * <p>Disabled by default and guarded by {@code engflow.exercise-fix.enabled};
+ * when off, {@link #run} returns immediately. When on it is destructive — every
+ * existing exercise row is deleted before the lessons are re-parsed by
+ * {@link HtmlParserService}. {@code @Order(1)} runs it before the other
+ * {@link org.springframework.boot.ApplicationRunner} beans so the rebuilt
+ * exercises exist before anything seeds or reads them.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 @Order(1)
-/**
- * class ExerciseFixRunner.
- */
 public class ExerciseFixRunner implements ApplicationRunner {
 
     private final LessonRepository lessonRepository;
@@ -34,11 +42,28 @@ public class ExerciseFixRunner implements ApplicationRunner {
     @Value("${engflow.exercise-fix.enabled:false}")
     private boolean enabled;
 
+    /**
+     * Logs whether the destructive rebuild is armed.
+     *
+     * <p>Runs at bean construction so an operator can see the setting in the
+     * startup log even when the migration is about to be skipped.</p>
+     */
     @PostConstruct
     void init() {
         log.info("ExerciseFixRunner created, enabled={}", enabled);
     }
 
+    /**
+     * Deletes all exercises and re-parses them from every lesson's content.
+     *
+     * <p>Prefers {@code contentOriginal} over {@code content} so a lesson already
+     * sanitized by {@code HtmlCleanupMigration} is rebuilt from the untouched
+     * original. Lessons with neither field are counted as skipped. A parse failure
+     * on one lesson is logged and recorded, then the loop continues, so one bad
+     * lesson does not abort the migration.</p>
+     *
+     * @param args application startup arguments
+     */
     @Override
     @Transactional
     public void run(ApplicationArguments args) {

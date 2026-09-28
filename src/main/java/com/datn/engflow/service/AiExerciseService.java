@@ -206,27 +206,54 @@ public class AiExerciseService {
 
     // ΓöÇΓöÇ Exercise generation ΓöÇΓöÇ
 
+    /**
+     * Sinh bài tập cho một bài học theo một loại cụ thể — điểm vào chung của mọi loại.
+     *
+     * <p>Luồng: tra cứu ngữ cảnh bổ sung qua {@link DuckDuckGoResearchService} (tối đa 2 kết quả)
+     * rồi đưa vào vòng lặp sinh + duyệt {@link #generateWithReviewLoop} (Ollama sinh → salvage JSON
+     * → validate schema → repair MATCHING → chặn copy ví dụ → dedup → AI review).
+     *
+     * @param lesson bài học nguồn (lấy title/content làm ngữ cảnh)
+     * @param type   loại bài tập cần sinh
+     * @param count  số bài mong muốn — là TRẦN, không phải cam kết (xem guard F84 ở {@link #generateAll})
+     * @return danh sách bài tập đã qua validate + review; có thể ít hơn {@code count} nếu model sinh kém
+     */
     public List<Exercise> generateByType(Lesson lesson, ExerciseType type, int count) {
         String researchContext = researchService.researchLessonTopic(lesson.getTitle(), 2);
         return generateWithReviewLoop(lesson, type, count, researchContext);
     }
 
+    /** Sinh câu trắc nghiệm (MULTIPLE_CHOICE). Tiện ích gọi {@link #generateByType}. */
     public List<Exercise> generateMultipleChoice(Lesson lesson, int count) {
         return generateByType(lesson, ExerciseType.MULTIPLE_CHOICE, count);
     }
 
+    /** Sinh bài điền khuyết (FILL_BLANK). Tiện ích gọi {@link #generateByType}. */
     public List<Exercise> generateFillBlank(Lesson lesson, int count) {
         return generateByType(lesson, ExerciseType.FILL_BLANK, count);
     }
 
+    /** Sinh bài nối cặp (MATCHING). Tiện ích gọi {@link #generateByType}. */
     public List<Exercise> generateMatching(Lesson lesson, int count) {
         return generateByType(lesson, ExerciseType.MATCHING, count);
     }
 
+    /** Sinh bài dịch (TRANSLATION, Anh → Việt). Tiện ích gọi {@link #generateByType}. */
     public List<Exercise> generateTranslation(Lesson lesson, int count) {
         return generateByType(lesson, ExerciseType.TRANSLATION, count);
     }
 
+    /**
+     * Sinh bài nghe (LISTENING) rồi gắn audio TTS cho từng câu.
+     *
+     * <p>Chỉ gọi {@link TtsService} khi nó sẵn sàng ({@code isAvailable()}); audio được upload lên
+     * Cloudinary và gán vào {@code audioUrl}. Nếu sidecar TTS không chạy hoặc lỗi, bài vẫn được trả
+     * về với {@code audioUrl} rỗng để frontend fallback sang giọng đọc của trình duyệt.
+     *
+     * @param lesson bài học nguồn
+     * @param count  số bài mong muốn
+     * @return danh sách bài nghe (một số có thể chưa có audio)
+     */
     public List<Exercise> generateListening(Lesson lesson, int count) {
         List<Exercise> exercises = generateByType(lesson, ExerciseType.LISTENING, count);
         for (Exercise ex : exercises) {
@@ -246,6 +273,18 @@ public class AiExerciseService {
         return exercises;
     }
 
+    /**
+     * Sinh bài tập đủ cả 5 loại cho một bài học, chia đều ngân sách {@code count}.
+     *
+     * <p>Chia {@code count} thành 5 phần; phần dư dồn cho LISTENING (dùng {@code Math.max(1, …)} để
+     * không bao giờ âm — bản cũ từng yêu cầu listening {@code -1} khi count &lt; 5). Vì mỗi generator
+     * có thể trả nhiều hơn yêu cầu, kết quả được lấy XOAY VÒNG mỗi loại một bài cho tới khi hết ngân
+     * sách — đảm bảo {@code count} là TRẦN cứng (audit-v8 F84: count=3 từng lưu tới 30 dòng).
+     *
+     * @param lesson bài học nguồn
+     * @param count  trần tổng số bài muốn sinh
+     * @return danh sách bài tập đã đánh lại {@code orderIndex} liên tục từ 0
+     */
     public List<Exercise> generateAll(Lesson lesson, int count) {
         int perType = Math.max(1, count / 5);
         var buckets = java.util.List.of(
@@ -534,6 +573,22 @@ public class AiExerciseService {
 
     // ΓöÇΓöÇ Validation ΓöÇΓöÇ
 
+    /**
+     * Kiểm tra schema một bài tập vừa sinh.
+     *
+     * <p>Trả về chuỗi mô tả lỗi nếu KHÔNG hợp lệ, hoặc {@code null} nếu đạt. Luật chính:
+     * <ul>
+     *   <li>Chung: question và correctAnswer không được rỗng.</li>
+     *   <li>MULTIPLE_CHOICE: cần ≥ 2 lựa chọn, các lựa chọn phải KHÁC NHAU (audit-v8: model từng sinh
+     *       {@code ["best","best"]}), và phải có ít nhất một lựa chọn chứa nội dung thật
+     *       (audit-v13 F-13-01: model từng sinh toàn "a"/"b"/"c"/"d" — lựa chọn rỗng nghĩa).</li>
+     *   <li>MATCHING: cần ≥ 2 cặp, MỌI option phải ở dạng {@code "left|right"} và
+     *       {@code correctAnswer} phải chứa {@code "="} (hợp đồng với {@code MatchingExercise.vue}).</li>
+     * </ul>
+     *
+     * @param ex bài tập cần kiểm
+     * @return thông điệp lỗi, hoặc {@code null} khi hợp lệ
+     */
     public String validateSchema(Exercise ex) {
         if (ex.getQuestion() == null || ex.getQuestion().isBlank()) return "question empty";
         if (ex.getCorrectAnswer() == null || ex.getCorrectAnswer().isBlank()) return "correctAnswer empty";
@@ -582,6 +637,17 @@ public class AiExerciseService {
 
     public static class ReviewResult { public boolean passed; public String reason; }
 
+    /**
+     * Nhờ model reviewer (khác/độc lập với model sinh) chấm một bài tập: câu hỏi rõ ràng, đáp án
+     * đúng, độ khó phù hợp.
+     *
+     * <p><b>Fail-open:</b> mọi lỗi (gọi Ollama lỗi, JSON hỏng, parse lỗi) đều trả {@code passed=true}
+     * kèm lý do "Review skipped" — reviewer là lớp phụ, không được phép chặn oan một bài đã qua
+     * {@link #validateSchema}.
+     *
+     * @param ex bài tập cần duyệt
+     * @return kết quả duyệt ({@code passed} + {@code reason})
+     */
     public ReviewResult reviewExercise(Exercise ex) {
         ReviewResult result = new ReviewResult();
         try {
@@ -606,6 +672,16 @@ public class AiExerciseService {
 
     // ΓöÇΓöÇ Batch generation ΓöÇΓöÇ
 
+    /**
+     * Sinh bài hàng loạt cho TOÀN BỘ lesson trong DB, chạy trên một thread nền riêng.
+     *
+     * <p>Tiến độ lưu IN-MEMORY ở key cố định {@code "batch"} trong {@code batchProgressMap} — chỉ
+     * đúng trong mô hình một container (single-container), không chia sẻ giữa nhiều instance.
+     * Bỏ qua lesson không có content; trừ khi {@code force=true}, bỏ qua lesson đã có bài tập.
+     *
+     * @param force true để sinh lại cả lesson đã có bài tập
+     * @return đối tượng tiến độ (đọc lại bằng {@link #getBatchProgress()})
+     */
     public BatchProgress generateBatch(boolean force) {
         List<Lesson> allLessons = lessonRepository.findAll();
         BatchProgress progress = new BatchProgress();
@@ -638,6 +714,7 @@ public class AiExerciseService {
         return progress;
     }
 
+    /** @return tiến độ batch chạy toàn bộ (key {@code "batch"}), hoặc {@code null} nếu chưa từng chạy. */
     public BatchProgress getBatchProgress() {
         return batchProgressMap.get("batch");
     }
@@ -646,6 +723,20 @@ public class AiExerciseService {
     // Returns batchId IMMEDIATELY; generation runs in a background thread so the
     // HTTP 202 Accepted response is never blocked by slow Ollama calls.
 
+    /**
+     * Sinh bài cho MỘT lesson theo kiểu bất đồng bộ — trả về NGAY để HTTP 202 Accepted không bị
+     * chặn bởi các call Ollama chậm.
+     *
+     * <p>Công việc chạy trên {@code generationPool}; tiến độ tra theo {@code batchId} qua
+     * {@link #getProgress(String)}. Nếu {@code type == null} thì sinh đủ 5 loại
+     * ({@link #generateAll}), ngược lại chỉ sinh đúng loại yêu cầu. Bài sinh ra được lưu DB và trả
+     * kèm trong tiến độ.
+     *
+     * @param lesson bài học nguồn
+     * @param count  số bài mong muốn
+     * @param type   loại bài, hoặc {@code null} để sinh đủ 5 loại
+     * @return batchId để client poll tiến độ
+     */
     public String generateSingleAsync(Lesson lesson, int count, ExerciseType type) {
         String batchId = UUID.randomUUID().toString();
         BatchProgress progress = new BatchProgress();
@@ -685,6 +776,7 @@ public class AiExerciseService {
         return batchId;
     }
 
+    /** @return tiến độ của batch theo id, hoặc {@code null} nếu không có/đã bị dọn khỏi map in-memory. */
     public BatchProgress getProgress(String batchId) {
         return batchProgressMap.get(batchId);
     }

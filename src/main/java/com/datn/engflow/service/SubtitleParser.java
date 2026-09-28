@@ -23,6 +23,10 @@ public final class SubtitleParser {
     private static final Pattern CUE_LINE =
             Pattern.compile("^\\s*(\\d{1,2}:)?\\d{1,2}:\\d{2}[.,]\\d{1,3}\\s*-->\\s*(\\d{1,2}:)?\\d{1,2}:\\d{2}[.,]\\d{1,3}");
 
+    /**
+     * Utility class: every operation is a static pure function over the
+     * transcript text, so there is nothing to instantiate.
+     */
     private SubtitleParser() {
     }
 
@@ -33,6 +37,16 @@ public final class SubtitleParser {
     public record Cue(double start, double end, String text) {
     }
 
+    /**
+     * Parses a pasted SRT or WebVTT transcript into timed cues. Cues without
+     * text or without a parseable timing line are dropped silently, so a
+     * partially damaged file still yields the cues it does contain.
+     *
+     * @param raw the raw transcript text
+     * @return the cues in file order
+     * @throws BadRequestException when the input is blank, is already JSON, or
+     *                             contains no recognisable cue line
+     */
     public static List<Cue> parse(String raw) {
         if (raw == null || raw.isBlank()) {
             throw new BadRequestException("Transcript rỗng — hãy dán nội dung SRT/VTT hoặc JSON");
@@ -69,7 +83,13 @@ public final class SubtitleParser {
         return cues;
     }
 
-    /** Extract [start, end] seconds from a cue timing line. */
+    /**
+     * Extracts the two timestamps of a cue timing line.
+     *
+     * @param line the {@code start --> end} line
+     * @return {@code [startSeconds, endSeconds]}, or null when fewer than two
+     *         timestamps are present
+     */
     private static double[] parseTimes(String line) {
         Matcher m = TIMESTAMP.matcher(line);
         List<double[]> found = new ArrayList<>();
@@ -82,6 +102,14 @@ public final class SubtitleParser {
         return new double[]{found.get(0)[0], found.get(1)[0]};
     }
 
+    /**
+     * Converts one matched timestamp into seconds.
+     *
+     * @param m a matcher positioned on a {@link #TIMESTAMP} match, whose
+     *          groups are optional hours, minutes, seconds and fraction
+     * @return a one-element array holding the value in seconds, because a
+     *         caller may consume several matches from one matcher
+     */
     private static double[] toSeconds(Matcher m) {
         int hours = m.group(1) == null ? 0 : Integer.parseInt(m.group(1));
         int minutes = Integer.parseInt(m.group(2));
@@ -90,6 +118,14 @@ public final class SubtitleParser {
         return new double[]{hours * 3600 + minutes * 60 + seconds + fraction / 1000.0};
     }
 
+    /**
+     * Right-pads a fractional-seconds group to exactly three digits, so both
+     * SRT ({@code ,5} and {@code ,500}) and VTT ({@code .5}) write the same
+     * number of milliseconds.
+     *
+     * @param fraction the digits captured after the seconds separator
+     * @return exactly three digits
+     */
     private static String padFraction(String fraction) {
         return switch (fraction.length()) {
             case 1 -> fraction + "00";
@@ -98,6 +134,13 @@ public final class SubtitleParser {
         };
     }
 
+    /**
+     * Strips subtitle markup from cue text: HTML/ASS styling tags, the entities
+     * the formats emit, and any run of whitespace the joins introduced.
+     *
+     * @param text the joined raw cue lines
+     * @return plain text, trimmed
+     */
     private static String cleanText(String text) {
         return text
                 .replaceAll("<[^>]+>", "")      // <i>, <b>, <c>...

@@ -7,13 +7,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO nhận dữ liệu tạo và cập nhật bộ từ vựng, bind từ body của {@code POST /api/decks} và
+ * {@code PUT /api/decks/{id}} rồi được {@code DeckService} chuyển thành entity {@code Deck}.
+ *
+ * <p>{@code isPublic} được xử lý kiểu patch: {@code DeckService.createDeck} coi null là
+ * {@code true}, còn {@code DeckService.updateDeck} coi null là "giữ nguyên giá trị cũ".
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * class DeckRequest.
- */
 public class DeckRequest {
     
     @NotBlank(message = "Tên bộ từ vựng không được để trống")

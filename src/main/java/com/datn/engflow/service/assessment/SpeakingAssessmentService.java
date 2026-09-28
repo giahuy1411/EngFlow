@@ -24,6 +24,14 @@ import java.util.Map;
  * <p>Flow: audio from MinIO → transcript (Whisper sidecar if configured, otherwise the
  * learner-supplied transcript) → alignment metrics against the prompt reference text →
  * LLM rubric on the transcript. Pronunciation is never claimed from text-only signals.</p>
+ *
+ * <p>Called by {@code SpeakingSubmissionService} right after a recording is
+ * uploaded, and by {@code ShadowingAiGradingService} via {@link #transcribe}.
+ * Two collaborators are built in the constructor rather than injected —
+ * {@link SpeakingTranscriptClient} and {@link SpeakingRubricClient} — because each
+ * wraps endpoint and model settings that exist only for this pipeline. A blank
+ * Whisper base URL leaves transcription disabled, and the learner-supplied text is
+ * used instead.</p>
  */
 @Service
 @Slf4j
@@ -31,6 +39,9 @@ public class SpeakingAssessmentService {
 
     static final String PROVIDER = "LOCAL_WHISPER_LLM";
 
+    // Đo được: một bài nói của học viên hiếm khi vượt 4000 ký tự (~700 từ). Cắt ở
+    // đây giữ request LLM và ma trận edit-distance trong giới hạn mà không cắt
+    // mất câu cuối của các bài thật.
     private static final int MAX_TRANSCRIPT_CHARS = 4000;
 
     private final MinioService minioService;
@@ -38,6 +49,21 @@ public class SpeakingAssessmentService {
     private final SpeakingRubricClient rubricClient;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Builds the two internal clients from configuration.
+     *
+     * <p>Both share the {@code ai.speaking.llm.timeout-seconds} budget, since the
+     * whole assessment is expected to finish inside it. The rubric client reuses
+     * the shared {@link ObjectMapper} for its request and response bodies; the
+     * transcript client does not, because it parses a single fixed field.</p>
+     *
+     * @param minioService     service used to stream the stored recording back
+     * @param whisperBaseUrl   Whisper sidecar root URL, blank disables transcription
+     * @param ollamaBaseUrl    chat-completions root URL for the rubric
+     * @param ollamaModel      model name requested for rubric scoring
+     * @param llmTimeoutSeconds shared timeout for both clients
+     * @param objectMapper     shared Jackson mapper
+     */
     public SpeakingAssessmentService(
             MinioService minioService,
             @Value("${ai.speaking.whisper.base-url:}") String whisperBaseUrl,
@@ -53,6 +79,15 @@ public class SpeakingAssessmentService {
 
     /**
      * Assesses one submission end to end.
+     *
+     * <p>A transcript already stored on the submission wins; the Whisper sidecar is
+     * only called when there is none. With no transcript obtainable the method
+     * returns a {@link SpeakingAssessmentOutcome#failed failed} outcome whose message
+     * differs depending on whether the sidecar is configured, so the learner is told
+     * whether to re-record or to type instead. The transcript is trimmed and
+     * truncated to {@link #MAX_TRANSCRIPT_CHARS} before scoring. Rubric failure is
+     * non-fatal: alignment metrics are still returned, with the reason in
+     * {@code error}.</p>
      *
      * @param submission uploaded submission awaiting assessment
      * @return outcome with transcript, alignment, and rubric (or a failure marker)
@@ -104,12 +139,28 @@ public class SpeakingAssessmentService {
         return new SpeakingAssessmentOutcome(transcript, transcriptSource, alignment, rubric, PROVIDER, error);
     }
 
+    /**
+     * Pulls the recording's object key and media type off the submission and
+     * transcribes it.
+     *
+     * <p>A thin indirection over {@link #transcribe(String, String)} that keeps
+     * the entity field names out of the pipeline body.</p>
+     *
+     * @param submission submission whose media should be transcribed
+     * @return recognized text, or {@code null} when unavailable
+     */
     private String transcribeFromAudio(SpeakingSubmission submission) {
         return transcribe(submission.getMediaObjectKey(), submission.getMediaType());
     }
 
     /**
      * Transcribes stored audio through the Whisper sidecar.
+     *
+     * <p>The recording is streamed from MinIO and read fully into memory before
+     * the request is sent. Every failure mode — a missing object, an unconfigured
+     * sidecar, a non-2xx response, a timeout — is logged and collapsed into a
+     * {@code null} return, so callers can treat transcription as best-effort.
+     * {@code ShadowingAiGradingService} also calls this directly.</p>
      *
      * @param objectKey MinIO object key of the recording
      * @param mediaType MIME type reported by the browser recorder
@@ -128,6 +179,16 @@ public class SpeakingAssessmentService {
         }
     }
 
+    /**
+     * Clips a message to a maximum length.
+     *
+     * <p>Applied to the stored {@code error} so a long upstream failure message
+     * cannot overflow the column; {@code null} passes through unchanged.</p>
+     *
+     * @param value text to clip, may be {@code null}
+     * @param max  maximum number of characters to keep
+     * @return the value, truncated to {@code max} characters
+     */
     private static String truncate(String value, int max) {
         if (value == null) {
             return null;
@@ -146,17 +207,36 @@ public class SpeakingAssessmentService {
         private final String baseUrl;
         private final Duration timeout;
 
+        /**
+         * Normalises the sidecar endpoint and stores the request timeout.
+         *
+         * @param baseUrl sidecar root URL; blank disables the client
+         * @param timeout request timeout
+         */
         SpeakingTranscriptClient(String baseUrl, Duration timeout) {
             this.baseUrl = baseUrl == null || baseUrl.isBlank() ? null : baseUrl.replaceAll("/+$", "");
             this.timeout = timeout;
         }
 
+        /**
+         * Reports whether the sidecar was configured.
+         *
+         * <p>{@link SpeakingAssessmentService#assess} reads this to choose between
+         * a re-record hint and a type-the-transcript hint.</p>
+         *
+         * @return {@code true} when a sidecar URL is present
+         */
         boolean isConfigured() {
             return baseUrl != null;
         }
 
         /**
          * Sends raw audio bytes to the sidecar's {@code /v1/audio/transcriptions} endpoint.
+         *
+         * <p>The multipart body is assembled by hand because the audio arrives as a
+         * byte array, not a file. Any failure is logged and returned as
+         * {@code null}, including a response whose {@code text} field is missing or
+         * blank — silence is not a transcription.</p>
          *
          * @param audio     encoded audio bytes
          * @param mediaType MIME type reported by the browser recorder
@@ -183,6 +263,8 @@ public class SpeakingAssessmentService {
                         .block();
                 JsonNode node = new ObjectMapper().readTree(response);
                 String text = node.path("text").asText(null);
+                // Sidecar trả {"text": ""} khi không nghe ra gì — coi như không có
+                // transcript để assess() chọn đúng nhánh hướng dẫn cho người học.
                 return text == null || text.isBlank() ? null : text;
             } catch (Exception ex) {
                 log.warn("Whisper sidecar call failed: {}", ex.toString());
@@ -190,6 +272,16 @@ public class SpeakingAssessmentService {
             }
         }
 
+        /**
+         * Picks a filename extension matching the browser's recorded media type.
+         *
+         * <p>The sidecar chooses its decoder from the filename, so an unmatched
+         * type falls back to {@code audio.webm} — the format MediaRecorder
+         * produces by default.</p>
+         *
+         * @param mediaType MIME type reported by the browser recorder, may be {@code null}
+         * @return a filename ending in {@code wav}, {@code ogg}, {@code mp3} or {@code webm}
+         */
         private static String resolveFilename(String mediaType) {
             String normalized = mediaType == null ? "" : mediaType.toLowerCase(Locale.ROOT);
             if (normalized.contains("wav")) return "audio.wav";
@@ -198,6 +290,19 @@ public class SpeakingAssessmentService {
             return "audio.webm";
         }
 
+        /**
+         * Concatenates the multipart/form-data body by hand.
+         *
+         * <p>WebClient would need a file part for this, but the audio is already
+         * an in-memory array. The result is the raw head, audio, extra
+         * {@code model} field, and closing boundary copied into one buffer in
+         * that order.</p>
+         *
+         * @param boundary multipart boundary string, without leading dashes
+         * @param filename name reported in the {@code file} part
+         * @param audio    encoded audio bytes
+         * @return the complete multipart payload
+         */
         private static byte[] buildMultipart(String boundary, String filename, byte[] audio) {
             String head = "--" + boundary + "\r\n"
                     + "Content-Disposition: form-data; name=\"file\"; filename=\"" + filename + "\"\r\n"
@@ -221,6 +326,12 @@ public class SpeakingAssessmentService {
 
     /**
      * LLM rubric scorer over an OpenAI-compatible chat endpoint (Ollama by default).
+     *
+     * <p>The system prompt is a constant, not per-request state: it fixes the
+     * output contract (four JSON keys, no markdown, no pronunciation claims) and
+     * adds spelling rules for Vietnamese, because small local models drop
+     * diacritics on words the learner will read. Nothing about it varies with the
+     * submission.</p>
      *
      * @param baseUrl      chat-completions root URL
      * @param model        model name to request
@@ -258,6 +369,14 @@ public class SpeakingAssessmentService {
         private final Duration timeout;
         private final ObjectMapper objectMapper;
 
+        /**
+         * Normalises the chat endpoint and stores model, timeout and mapper.
+         *
+         * @param baseUrl      chat-completions root URL; blank disables scoring
+         * @param model        model name to request
+         * @param timeout      request timeout
+         * @param objectMapper shared Jackson mapper
+         */
         SpeakingRubricClient(String baseUrl, String model, Duration timeout, ObjectMapper objectMapper) {
             this.baseUrl = baseUrl == null || baseUrl.isBlank() ? null : baseUrl.replaceAll("/+$", "");
             this.model = model;
@@ -265,6 +384,19 @@ public class SpeakingAssessmentService {
             this.objectMapper = objectMapper;
         }
 
+        /**
+         * Asks the model to grade one transcript and parses its JSON answer.
+         *
+         * <p>Temperature is 0.1 for determinism. Failures surface as
+         * {@link IllegalStateException} — unconfigured endpoint, timeout, empty
+         * content, or unparseable output — so the caller's retry logic in
+         * {@link SpeakingAssessmentService#assess} has a single thing to catch.</p>
+         *
+         * @param prompt     the task the learner attempted, may be {@code null}
+         * @param transcript recognized or learner-supplied text
+         * @return the parsed rubric with scores clamped to 0-10
+         * @throws IllegalStateException when unconfigured, timed out, or the reply was unusable
+         */
         SpeakingRubricResult score(SpeakingPrompt prompt, String transcript) {
             if (baseUrl == null) {
                 throw new IllegalStateException("Ollama base URL chưa cấu hình");
@@ -300,6 +432,18 @@ public class SpeakingAssessmentService {
             }
         }
 
+        /**
+         * Builds the user turn from the task and the transcript.
+         *
+         * <p>The task line falls back to the prompt title when
+         * {@code prompt} is null, and the reference script is included only when
+         * the prompt actually has one — unscripted tasks must not present a
+         * reference the learner never saw.</p>
+         *
+         * @param prompt     the attempted prompt, may be {@code null}
+         * @param transcript recognized or learner-supplied text
+         * @return the user message content
+         */
         private static String buildUserPrompt(SpeakingPrompt prompt, String transcript) {
             StringBuilder sb = new StringBuilder();
             if (prompt != null) {
@@ -312,6 +456,20 @@ public class SpeakingAssessmentService {
             return sb.toString();
         }
 
+        /**
+         * Parses the model's reply into a rubric.
+         *
+         * <p>Scores are clamped into 0-10 so a hallucinated 15 cannot reach the
+         * database, and empty feedback is replaced with a fixed sentence so the
+         * learner never sees a blank comment. The Vietnamese spelling pass runs
+         * before that fallback. A reply with no JSON object at all is rejected
+         * rather than defaulted, since a silently zeroed score is worse than a
+         * visible failure.</p>
+         *
+         * @param raw assistant message content, possibly wrapped in markdown
+         * @return the parsed rubric
+         * @throws IllegalArgumentException if no JSON object can be found or parsed
+         */
         static SpeakingRubricResult parseRubric(String raw) {
             String json = extractJsonObject(raw);
             try {
@@ -334,6 +492,15 @@ public class SpeakingAssessmentService {
          * learner-facing feedback. Correction is deterministic Java, not another
          * LLM call, so the fix cannot regress. Extend the map as new misspellings
          * surface in production feedback.
+         *
+         * <p>Replacements are applied in the map's own iteration order and use
+         * plain {@code String.replace}, so a key that is a substring of another
+         * entry's value is safe, but a key that is a substring of a longer
+         * misspelling would win by ordering — hence each variant is listed
+         * explicitly rather than derived.</p>
+         *
+         * @param feedback learner-facing text, may be {@code null} or empty
+         * @return the text with known misspellings replaced
          */
         static String sanitizeVietnameseSpelling(String feedback) {
             if (feedback == null || feedback.isEmpty()) {
@@ -346,6 +513,14 @@ public class SpeakingAssessmentService {
             return corrected;
         }
 
+        /**
+         * Misspelling to correction map applied to learner-facing feedback.
+         *
+         * <p>Keys include the diacritic-stripped and partially-stripped forms
+         * the 1.5b-3b models actually produce, not just the fully-stripped one.
+         * The order of {@code Map.ofEntries} is unspecified, which is harmless:
+         * no key is a substring of another key.</p>
+         */
         private static final Map<String, String> VIETNAMESE_MISSPELLINGS = Map.ofEntries(
                 Map.entry("từ vựt", "từ vựng"),
                 Map.entry("tư vựng", "từ vựng"),
@@ -369,6 +544,19 @@ public class SpeakingAssessmentService {
                 Map.entry("cấu truc", "cấu trúc"),
                 Map.entry("câu truc", "câu trúc"));
 
+        /**
+         * Isolates the first JSON object from a possibly chatty model reply.
+         *
+         * <p>Small local models sometimes wrap the JSON in a sentence or a
+         * ```json fence, so the substring between the first {@code &#123;} and
+         * the last {@code &#125;} is taken rather than the whole message. Using
+         * first-and-last rather than first-matching-brace tolerates nested
+         * objects. Text with no braces is rejected outright.</p>
+         *
+         * @param raw assistant message content
+         * @return the JSON object substring
+         * @throws IllegalArgumentException if the text is null or contains no object
+         */
         private static String extractJsonObject(String raw) {
             if (raw == null) {
                 throw new IllegalArgumentException("empty rubric");
@@ -381,6 +569,15 @@ public class SpeakingAssessmentService {
             return raw.substring(start, end + 1);
         }
 
+        /**
+         * Constrains a model-supplied score to the 0-10 scale.
+         *
+         * <p>Bounds the value rather than rejecting it: an out-of-range score is
+         * evidence the model answered, and clamping keeps the submission gradable.</p>
+         *
+         * @param value raw score from the model
+         * @return the score clamped into 0-10
+         */
         private static int clamp(int value) {
             return Math.max(0, Math.min(10, value));
         }

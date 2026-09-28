@@ -4,12 +4,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Kết quả chấm điểm của một câu hỏi trong lần nộp bài.
+ *
+ * <p>Tầng response của {@code POST /api/lessons/{lessonId}/exercises/grade} và
+ * {@code /submit} ({@link GradeResponse}); {@code ExerciseService.gradeExercises}
+ * sinh ra từng item rồi gom vào {@code results}. Câu không chấm được vẫn có mặt
+ * trong danh sách nhưng không tính vào mẫu số — xem {@link #isUngradeable()}.
+ */
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-/**
- * class ExerciseGradeItem.
- */
 public class ExerciseGradeItem {
     private Long exerciseId;
     private boolean correct;

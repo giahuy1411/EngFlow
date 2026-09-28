@@ -15,13 +15,20 @@ import java.time.Duration;
 @Service
 @Slf4j
 /**
- * class SupertonicProxyTtsService.
+ * The one and only {@link TtsService} implementation: an HTTP proxy to the
+ * supertonic sidecar that runs in the local docker compose stack. Used by
+ * {@link AiExerciseService} to render the spoken prompt of a generated
+ * LISTENING exercise, and by the health probe before every synthesis.
  */
 public class SupertonicProxyTtsService implements TtsService {
 
     private final String supertonicUrl;
     private final HttpClient httpClient;
 
+    /**
+     * @param supertonicUrl base URL of the sidecar, from
+     *                      {@code ai.exercise.tts.supertonic.url}
+     */
     public SupertonicProxyTtsService(@Value("${ai.exercise.tts.supertonic.url:http://localhost:8001}") String supertonicUrl) {
         this.supertonicUrl = supertonicUrl;
         // audit-v5 TTS: force HTTP/1.1. Java HttpClient defaults to HTTP/2 and
@@ -34,6 +41,16 @@ public class SupertonicProxyTtsService implements TtsService {
                 .build();
     }
 
+    /**
+     * POSTs a {@code /synthesize} request to the sidecar and returns the raw
+     * audio bytes. Fails soft: any non-200 status or transport error is logged
+     * and yields null so the caller can ship an exercise without audio.
+     *
+     * @param text  the text to speak
+     * @param voice voice id, or null for the sidecar default
+     * @param lang  language hint, or null for the sidecar default
+     * @return the audio bytes, or null on failure
+     */
     @Override
     public byte[] synthesize(String text, String voice, String lang) {
         try {
@@ -57,6 +74,13 @@ public class SupertonicProxyTtsService implements TtsService {
         }
     }
 
+    /**
+     * Health probe against the sidecar's {@code /health} endpoint. Used by
+     * {@link AiExerciseService} to skip TTS entirely when the sidecar is down
+     * rather than burn a synthesis request on a guaranteed failure.
+     *
+     * @return true when the sidecar answers 200 within 3 seconds
+     */
     @Override
     public boolean isAvailable() {
         try {
@@ -72,6 +96,14 @@ public class SupertonicProxyTtsService implements TtsService {
         }
     }
 
+    /**
+     * Minimal hand-rolled JSON string escaper — the prompt is the only
+     * untrusted part of the request body and the sidecar accepts a flat
+     * object, so a full serializer would be overkill.
+     *
+     * @param text raw text that may contain quotes, backslashes or newlines
+     * @return the text safe to embed between JSON double quotes
+     */
     private String escapeJson(String text) {
         return text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
     }

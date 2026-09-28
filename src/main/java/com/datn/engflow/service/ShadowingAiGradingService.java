@@ -55,6 +55,11 @@ public class ShadowingAiGradingService {
     /**
      * Grades one attempt with AI and stores score + feedback. Existing manual
      * grades (GRADED with a teacher) are not touched.
+     *
+     * @param attemptId mã bài shadowing cần chấm
+     * @return bài nộp sau khi lưu điểm và nhận xét
+     * @throws ResourceNotFoundException nếu bài nộp không tồn tại
+     * @throws BadRequestException      nếu đã có giáo viên chấm, hoặc dòng phụ đề không hợp lệ
      */
     @Transactional
     public VideoAttempt aiGrade(Long attemptId) {
@@ -85,6 +90,14 @@ public class ShadowingAiGradingService {
         return attemptRepository.save(attempt);
     }
 
+    /**
+     * Resolves the English target line the attempt is scored against, by reading the
+     * lesson's transcript through {@link VideoLessonService} and indexing it.
+     *
+     * @param attempt bài nộp có {@code lineIndex} và lesson
+     * @return câu mẫu tiếng Anh
+     * @throws BadRequestException nếu lineIndex nằm ngoài transcript
+     */
     private String referenceText(VideoAttempt attempt) {
         VideoLesson lesson = attempt.getVideoLesson();
         List<TranscriptLine> transcript = videoLessonService.readTranscript(lesson.getTranscriptJson());

@@ -6,10 +6,16 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-@Data
 /**
- * class CreateSpeakingPromptRequest.
+ * DTO tạo và sửa bài luyện nói, dùng chung cho {@code POST} và {@code PUT} trên cả hai cặp
+ * đường dẫn {@code /api/v1/admin/speaking-prompts} và {@code /api/v1/admin/video-prompts}.
+ *
+ * <p>{@code SpeakingPromptService} áp ba quy tắc lên payload mà validation không thể biểu đạt:
+ * {@code mode} null thì mặc định {@code FREE_SPEAKING}; mode {@code READ_ALOUD} bắt buộc có
+ * {@link #referenceText}; và các trường null khi sửa được hiểu là "giữ nguyên" chứ không phải
+ * "xoá" — riêng {@code lessonId} phải truyền lại khi muốn gỡ liên kết bài học.
  */
+@Data
 public class CreateSpeakingPromptRequest {
     @NotBlank
     private String title;

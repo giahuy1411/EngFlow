@@ -7,6 +7,19 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Bài nộp luyện nói của một user cho một {@link SpeakingPrompt}, kèm kết quả chấm
+ * tự động và — nếu có — chấm tay của admin.
+ *
+ * <p>Tầng entity. {@link SpeakingSubmissionService} lưu media lên MinIO, chạy
+ * {@link SpeakingAssessmentService} rồi điền điểm và {@link #status}; admin chấm tay
+ * sẽ ghi đè {@link #score} và {@link #adminFeedback} qua cùng service. Media được
+ * phục vụ qua object key có chữ ký, không phải URL công khai — xem
+ * {@link MediaProxyController}. Cặp điểm chấm tự động
+ * ({@code scorePronunciation}/{@code scoreGrammar}/{@code scoreVocabulary}/
+ * {@code scoreFluency}) và điểm tổng {@link #score} là hai nguồn khác nhau, đừng
+ * nhầm chúng.
+ */
 @Entity
 @Table(name = "speaking_submissions")
 @Getter
@@ -14,9 +27,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class SpeakingSubmission.
- */
 public class SpeakingSubmission {
 
     @Id

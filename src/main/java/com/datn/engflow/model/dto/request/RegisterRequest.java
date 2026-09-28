@@ -8,13 +8,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO đăng ký tài khoản mới, bind từ body của {@code POST /api/auth/register} rồi
+ * {@code UserService.register} xử lý.
+ *
+ * <p>Khác {@link LoginRequest}, mật khẩu ở đây là bản rõ chưa mã hoá và được truyền thẳng
+ * cho {@code passwordEncoder.encode}. Cả {@code email} lẫn {@code username} đều phải
+ * chưa tồn tại — service kiểm tra trước khi ghi và ném {@code ConflictException} nếu trùng.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * class RegisterRequest.
- */
 public class RegisterRequest {
 
     @NotBlank(message = "Tên đăng nhập không được để trống")

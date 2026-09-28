@@ -24,7 +24,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 /**
- * class GameService.
+ * Sinh đề và chấm điểm cho các mini-game luyện từ vựng (QUIZ, MEMORY_MATCH, TYPING, LISTENING, MIXED).
+ *
+ * <p>Tầng service, được gọi từ {@code GameController}. Đề của mỗi phiên được dựng từ các từ
+ * trong deck ({@link DeckWordRepository}) và lưu tạm ở Redis dưới dạng
+ * {@link GameSessionRedisDTO}; khi nộp bài, điểm được xác thực lại ở server-side rồi cộng
+ * vào {@code totalPoints} qua {@link UserRepository}, đồng thời ghi ngày học qua
+ * {@link StreakService}.
  */
 public class GameService {
 
@@ -35,12 +41,29 @@ public class GameService {
     private final DeckRepository deckRepository;
     private final Clock clock;
 
+    /**
+     * Kiểm tra deck tồn tại trước khi sinh đề; ném nếu không.
+     *
+     * @param deckId id deck cần kiểm
+     * @throws ResourceNotFoundException nếu {@code deckId} null hoặc không tồn tại
+     */
     private void requireDeck(Long deckId) {
         if (deckId == null || !deckRepository.existsById(deckId)) {
             throw new ResourceNotFoundException("Deck", "deckId", deckId);
         }
     }
 
+    /**
+     * Tạo phiên chơi trong Redis với TTL {@link RedisConstants#GAME_SESSION_TTL}, kèm bản đồ đáp án
+     * để server tự chấm khi nộp bài.
+     *
+     * @param userId id người chơi
+     * @param deckId id deck nguồn
+     * @param gameType loại game
+     * @param totalQuestions số câu của phiên
+     * @param answerMap map vocabId → đáp án đúng, dùng cho chấm điểm server-side
+     * @return DTO phiên vừa tạo (đã có sessionId)
+     */
     private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions, Map<String, String> answerMap) {
         String sessionId = UUID.randomUUID().toString();
         GameSessionRedisDTO session = GameSessionRedisDTO.builder()
@@ -58,10 +81,21 @@ public class GameService {
         return session;
     }
 
+    /** Bản không có answerMap của {@link #createSession(Long, Long, String, int, Map)}. */
     private GameSessionRedisDTO createSession(Long userId, Long deckId, String gameType, int totalQuestions) {
         return createSession(userId, deckId, gameType, totalQuestions, null);
     }
 
+    /**
+     * Sinh đề trắc nghiệm (QUIZ): mỗi từ là một câu hỏi với đáp án đúng cộng tối đa 3 phương án nhiễu.
+     *
+     * <p>Đề bị xáo trộn và cắt còn tối đa 10 câu; answerMap chỉ giữ đáp án của các câu được chọn.
+     *
+     * @param deckId id deck nguồn
+     * @param userId id người chơi
+     * @return map chứa {@code sessionId} và {@code data} (danh sách câu hỏi)
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     @Transactional
     public Map<String, Object> generateQuiz(Long deckId, Long userId) {
         requireDeck(deckId);
@@ -109,6 +143,14 @@ public class GameService {
         return response;
     }
 
+    /**
+     * Sinh bộ thẻ lật (MEMORY_MATCH): chọn tối đa 8 cặp từ/nghĩa và trả về danh sách thẻ đã xáo trộn.
+     *
+     * @param deckId id deck nguồn
+     * @param userId id người chơi
+     * @return map chứa {@code sessionId} và {@code data} (danh sách thẻ)
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     @Transactional
     public Map<String, Object> generateMemoryMatch(Long deckId, Long userId) {
         requireDeck(deckId);
@@ -147,21 +189,57 @@ public class GameService {
         return response;
     }
 
+    /**
+     * Sinh đề gõ lại từ (TYPING) — ủy quyền cho {@link #generateBaseList}.
+     *
+     * @param deckId id deck nguồn
+     * @param userId id người chơi
+     * @return map chứa {@code sessionId} và {@code data}
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     @Transactional
     public Map<String, Object> generateTyping(Long deckId, Long userId) {
         return generateBaseList(deckId, userId, "TYPING");
     }
 
+    /**
+     * Sinh đề nghe hiểu (LISTENING) — ủy quyền cho {@link #generateBaseList}.
+     *
+     * @param deckId id deck nguồn
+     * @param userId id người chơi
+     * @return map chứa {@code sessionId} và {@code data}
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     @Transactional
     public Map<String, Object> generateListening(Long deckId, Long userId) {
         return generateBaseList(deckId, userId, "LISTENING");
     }
 
+    /**
+     * Sinh đề tổng hợp (MIXED) — ủy quyền cho {@link #generateBaseList}.
+     *
+     * @param deckId id deck nguồn
+     * @param userId id người chơi
+     * @return map chứa {@code sessionId} và {@code data}
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     @Transactional
     public Map<String, Object> generateMixed(Long deckId, Long userId) {
         return generateBaseList(deckId, userId, "MIXED");
     }
 
+    /**
+     * Dựng danh sách câu hỏi dạng "từ + nghĩa" dùng chung cho TYPING/LISTENING/MIXED.
+     *
+     * <p>Danh sách được xáo trộn và cắt còn tối đa 10 câu; answerMap chỉ giữ đáp án của
+     * các câu được chọn.
+     *
+     * @param deckId id deck nguồn
+     * @param userId id người chơi
+     * @param gameType loại game ghi vào phiên
+     * @return map chứa {@code sessionId} và {@code data}
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     private Map<String, Object> generateBaseList(Long deckId, Long userId, String gameType) {
         requireDeck(deckId);
         List<DeckWord> deckWords = deckWordRepository.findByDeckIdOrderByOrderIndexAsc(deckId);
@@ -194,11 +272,36 @@ public class GameService {
         return response;
     }
 
+    /**
+     * Bản không có danh sách câu trả lời của {@link #submitGameResult(Long, String, int, List)}.
+     *
+     * @param userId id người chơi
+     * @param sessionId id phiên chơi
+     * @param correctAnswers số câu đúng client báo lên
+     * @return map chứa {@code correctAnswers} (đã áp trần ngày) và {@code totalQuestions}
+     * @throws BadRequestException nếu phiên không tồn tại/hết hạn, không thuộc user, hoặc điểm client vượt số câu
+     * @throws ResourceNotFoundException nếu không tìm thấy user
+     */
     @Transactional
     public Map<String, Object> submitGameResult(Long userId, String sessionId, int correctAnswers) {
         return submitGameResult(userId, sessionId, correctAnswers, null);
     }
 
+    /**
+     * Nộp kết quả một phiên chơi: xác thực, cộng điểm và dọn phiên.
+     *
+     * <p>Khi client gửi kèm {@code userAnswers} và phiên có answerMap, server tự chấm lại
+     * (không tin số câu đúng client khai). Ngược lại dùng số client báo nhưng chặn trần ngày
+     * {@link RedisConstants#GAME_DAILY_LIMIT} để chống farm điểm. Phiên Redis bị xóa sau khi nộp.
+     *
+     * @param userId id người chơi
+     * @param sessionId id phiên chơi
+     * @param clientCorrectAnswers số câu đúng do client báo (dùng khi không có answerMap)
+     * @param userAnswers danh sách câu trả lời thô để server chấm; null thì tin client
+     * @return map chứa {@code correctAnswers} (đã áp trần ngày) và {@code totalQuestions}
+     * @throws BadRequestException nếu phiên không tồn tại/hết hạn, không thuộc user, hoặc điểm client vượt số câu
+     * @throws ResourceNotFoundException nếu không tìm thấy user
+     */
     @Transactional
     public Map<String, Object> submitGameResult(Long userId, String sessionId, int clientCorrectAnswers, List<Map<String, Object>> userAnswers) {
         String key = RedisConstants.GAME_SESSION_KEY_PREFIX + sessionId;

@@ -10,12 +10,14 @@ import java.time.LocalDateTime;
 /**
  * Lightweight lesson summary for admin lists — excludes heavy NVARCHAR(MAX)
  * content fields to keep list responses small and fast.
+ *
+ * <p>Tầng response của {@code GET /api/admin/lessons}; {@code AdminService.toSummary}
+ * map từ entity {@code Lesson}. Khác {@link LessonResponse} ở chỗ trả về
+ * {@code level}/{@code skillType} dạng enum, và có {@code isPublished} để admin
+ * lọc/bấm phát hành.
  */
 @Data
 @Builder
-/**
- * class LessonSummaryDTO.
- */
 public class LessonSummaryDTO {
     private Long id;
     private String title;

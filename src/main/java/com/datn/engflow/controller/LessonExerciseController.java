@@ -13,18 +13,32 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Cổng REST cho bài tập của một bài học: đọc danh sách, chấm, nộp, xem lịch sử attempt và
+ * lấy phần nội dung đã cắt bỏ đáp án.
+ *
+ * <p>Tầng controller — dữ liệu bài tập đến từ {@link ExerciseService}, phần nội dung bài
+ * đến từ {@link LessonContentService}. {@link LessonService#assertLessonVisible} là chốt
+ * chặn bài nháp: mọi đường chạm tới bài tập — kể cả đường chấm/nộp, vì đáp án đúng nằm trong
+ * phản hồi — đều phải đi qua nó trước.
+ */
 @RestController
 @RequestMapping("/api/lessons/{lessonId}/exercises")
 @RequiredArgsConstructor
-/**
- * class LessonExerciseController.
- */
 public class LessonExerciseController {
 
     private final ExerciseService exerciseService;
     private final LessonContentService lessonContentService;
     private final LessonService lessonService;
 
+    /**
+     * Danh sách bài tập của bài học.
+     *
+     * @param lessonId       id bài học
+     * @param includeAnswers có kèm đáp án đúng hay không; chỉ admin được yêu cầu
+     * @param authentication principal hiện tại
+     * @return danh sách bài tập, hoặc 403 khi người gọi không phải admin mà lại xin đáp án
+     */
     @GetMapping
     public ResponseEntity<List<ExerciseResponse>> getExercises(
             @PathVariable Long lessonId,
@@ -47,6 +61,14 @@ public class LessonExerciseController {
         return ResponseEntity.ok(exercises);
     }
 
+    /**
+     * Chấm bài không ghi vào lịch sử — dùng cho vòng luyện tập giữa bài.
+     *
+     * @param lessonId       id bài học
+     * @param request        danh sách câu trả lời
+     * @param authentication principal hiện tại
+     * @return điểm và phần giải thích từng câu
+     */
     @PostMapping("/grade")
     public ResponseEntity<GradeResponse> gradeExercises(
             @PathVariable Long lessonId,
@@ -58,6 +80,14 @@ public class LessonExerciseController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Nộp bài và ghi vào lịch sử attempt của người học.
+     *
+     * @param lessonId       id bài học
+     * @param request        danh sách câu trả lời
+     * @param authentication principal hiện tại, dùng làm danh tính người nộp
+     * @return điểm, phần giải thích và id attempt đã lưu
+     */
     @PostMapping("/submit")
     public ResponseEntity<GradeResponse> submitExercises(
             @PathVariable Long lessonId,
@@ -69,6 +99,13 @@ public class LessonExerciseController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Lịch sử nộp bài của chính người gọi trên bài này.
+     *
+     * @param lessonId       id bài học
+     * @param authentication principal hiện tại
+     * @return lịch sử attempt, hoặc 401 khi principal không phải người dùng thật
+     */
     @GetMapping("/attempts")
     public ResponseEntity<List<AttemptHistoryResponse>> getAttempts(
             @PathVariable Long lessonId,
@@ -82,6 +119,14 @@ public class LessonExerciseController {
         return ResponseEntity.ok(history);
     }
 
+    /**
+     * Chi tiết một attempt đã nộp.
+     *
+     * @param lessonId       id bài học chứa attempt
+     * @param attemptId      id attempt
+     * @param authentication principal hiện tại
+     * @return chi tiết attempt, hoặc 401 khi principal không phải người dùng thật
+     */
     @GetMapping("/attempts/{attemptId}")
     public ResponseEntity<AttemptDetailResponse> getAttemptDetail(
             @PathVariable Long lessonId,
@@ -119,6 +164,10 @@ public class LessonExerciseController {
 
     /**
      * Returns lesson content with Answer sections stripped + per-exercise HTML fragments.
+     *
+     * @param lessonId       id bài học
+     * @param authentication principal hiện tại
+     * @return nội dung bài đã loại mục đáp án
      */
     @GetMapping("/content")
     public ResponseEntity<LessonContentInfo> getCleanContent(

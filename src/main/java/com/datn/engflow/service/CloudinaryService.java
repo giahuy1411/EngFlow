@@ -13,12 +13,22 @@ import java.util.Map;
 @Service
 @Slf4j
 /**
- * class CloudinaryService.
+ * Uploads user images and AI-generated audio to Cloudinary and returns the
+ * resulting HTTPS URL. Avatars are cropped to a 200x200 face-focused square so
+ * the client never has to crop; audio is stored as a Cloudinary video
+ * resource. Consumed by the auth/profile controllers and by
+ * {@link AiExerciseService} to publish the audio of a generated LISTENING
+ * exercise.
  */
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
+    /**
+     * @param cloudName Cloudinary cloud name from {@code cloudinary.cloud-name}
+     * @param apiKey    Cloudinary API key
+     * @param apiSecret Cloudinary API secret
+     */
     public CloudinaryService(
             @Value("${cloudinary.cloud-name}") String cloudName,
             @Value("${cloudinary.api-key}") String apiKey,
@@ -31,6 +41,15 @@ public class CloudinaryService {
         ));
     }
 
+    /**
+     * Uploads a profile picture, cropped by Cloudinary to a 200x200
+     * face-detected square.
+     *
+     * @param file the uploaded image
+     * @return the HTTPS URL of the stored avatar
+     * @throws IllegalArgumentException when the file is empty or not an image
+     * @throws IOException              when the upload or the byte read fails
+     */
     public String uploadAvatar(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File khong duoc de trong");
@@ -53,6 +72,15 @@ public class CloudinaryService {
         return secureUrl;
     }
 
+    /**
+     * Uploads an uploaded audio file. Cloudinary stores audio under its video
+     * resource type.
+     *
+     * @param file the uploaded audio part
+     * @return the HTTPS URL of the stored audio
+     * @throws IllegalArgumentException when the file is empty
+     * @throws IOException              when the upload or the byte read fails
+     */
     public String uploadAudio(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File khong duoc de trong");
@@ -69,6 +97,16 @@ public class CloudinaryService {
         return secureUrl;
     }
 
+    /**
+     * Publishes audio synthesised in-process (TTS output) to Cloudinary.
+     *
+     * @param audioBytes the raw audio content
+     * @param filename   the public id to store under, or null to let
+     *                   Cloudinary assign a timestamp-based one
+     * @return the HTTPS URL of the stored audio
+     * @throws IllegalArgumentException when {@code audioBytes} is null or empty
+     * @throws IOException              when the upload fails
+     */
     public String uploadAudioBytes(byte[] audioBytes, String filename) throws IOException {
         if (audioBytes == null || audioBytes.length == 0) {
             throw new IllegalArgumentException("Audio bytes khong duoc de trong");

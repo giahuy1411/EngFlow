@@ -8,6 +8,13 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Bài viết/ghi âm nộp theo kỹ năng của một bài học, chờ hoặc đã được admin chấm tay.
+ *
+ * <p>Tầng entity. {@link LessonSubmissionService} tạo bản ghi với
+ * {@code status = PENDING} và xoá điểm cũ khi người học nộp lại; điểm và nhận xét
+ * chỉ được ghi bởi tay quản trị. {@link AdminService} đọc danh sách chờ chấm.
+ */
 @Entity
 @Table(name = "lesson_submissions")
 @Getter
@@ -15,9 +22,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class LessonSubmission.
- */
 public class LessonSubmission {
 
     @Id

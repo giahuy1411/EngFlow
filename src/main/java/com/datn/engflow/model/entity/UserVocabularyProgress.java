@@ -7,6 +7,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Lịch ôn cá nhân của một user cho một {@link Vocabulary}, theo thuật toán SM-2
+ * rút gọn: khoảng cách lần sau, hệ số độ dễ và mức thuộc lòng.
+ *
+ * <p>Tầng entity. Cặp {@code (user_id, vocabulary_id)} là duy nhất. {@link SrsService}
+ * là nơi duy nhất ghi các trường SM-2 sau khi người học ôn; {@link FlashcardService}
+ * chỉ đọc để dựng phiên ôn. Bản ghi được tạo ở {@link SrsService} khi lần đầu gặp
+ * từ đó, nên có thể chưa tồn tại với mọi từ.
+ */
 @Entity
 @Table(name = "user_vocabulary_progress", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "vocabulary_id"})})
 @Getter
@@ -14,9 +23,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class UserVocabularyProgress.
- */
 public class UserVocabularyProgress {
 
     @Id

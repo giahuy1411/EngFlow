@@ -4,14 +4,19 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Một dòng trong danh sách người dùng mà admin quản lý.
+ *
+ * <p>Tầng response của {@code /api/admin/users} và các endpoint toggle
+ * (active/admin/premium): {@link com.datn.engflow.controller.AdminController} trả
+ * DTO này sau khi {@code AdminService} đọc user kèm streak hiệu lực. Không chứa
+ * {@code token} hay mật khẩu — dùng lại cho cả đường đọc và đường ghi.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class AdminUserDTO.
- */
 public class AdminUserDTO {
     private Long id;
     private String username;

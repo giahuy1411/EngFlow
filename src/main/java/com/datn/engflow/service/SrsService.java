@@ -24,7 +24,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 /**
- * class SrsService.
+ * Lịch ôn từ vựng theo thuật toán SM-2 rút gọn.
+ *
+ * <p>Tầng service, gọi bởi {@code SrsController} (nộp một lượt ôn, lấy từ đến hạn,
+ * xem thống kê) và bởi {@code FlashcardService}. Mỗi lượt ôn cập nhật hàng
+ * {@link UserVocabularyProgress} — interval, ease factor, mastery level, hạn ôn
+ * kế tiếp — rồi gọi {@link StudyActivityService#recordStudy} để lượt ôn cũng được
+ * tính vào streak. Việc đọc từ đến hạn phải qua {@link #getDueWords} để còn kiểm
+ * tra quyền sở hữu deck; gọi thẳng {@link DeckWordRepository} sẽ vượt lớp này
+ * và đọc được deck riêng tư của người khác.
  */
 public class SrsService {
 
@@ -54,6 +62,20 @@ public class SrsService {
      */
     private final DeckService deckService;
 
+    /**
+     * Ghi một lượt ôn và cập nhật toàn bộ trạng thái SRS của từ đó.
+     *
+     * <p>SM-2 rút gọn: {@code quality >= 3} thì interval đi theo chuỗi 1 → 6 →
+     * interval × ease factor, còn {@code quality < 3} thì reset về 1 ngày. Ease
+     * factor dùng đúng công thức SM-2 gốc và sàn ở 1.3; mastery level bắt nguồn
+     * từ {@code quality} chứ không tích luỹ theo số lần lặp.
+     *
+     * @param userId user ôn từ
+     * @param vocabId từ vựng được ôn
+     * @param quality chất lượng nhớ, 0 (quên) .. 5 (nhớ hoàn hảo)
+     * @throws com.datn.engflow.exception.BadRequestException nếu {@code quality} ngoài 0..5
+     * @throws ResourceNotFoundException nếu user hoặc từ vựng không tồn tại
+     */
     @Transactional
     public void reviewWord(Long userId, Long vocabId, int quality) {
         if (quality < 0 || quality > 5) {
@@ -116,6 +138,19 @@ public class SrsService {
         studyActivityService.recordStudy(userId);
     }
 
+    /**
+     * Các từ trong deck đã tới hạn ôn đối với user, đọc gộp trong một truy vấn.
+     *
+     * <p>Từ chưa từng ôn coi là luôn đến hạn. Deck được kiểm tra quyền sở hữu
+     * TRƯỚC khi đọc dữ liệu, nên gọi hàm này bằng {@code deckId} của người khác sẽ
+     * bị chặn y như {@code GET /api/decks/{id}} chặn.
+     *
+     * @param userId user đang ôn
+     * @param deckId deck chứa các từ
+     * @return danh sách map mô tả từ đến hạn (vocabId, word, nghĩa, audio, level...)
+     * @throws com.datn.engflow.exception.BadRequestException nếu user không được đọc deck này
+     * @throws ResourceNotFoundException nếu deck không tồn tại
+     */
     public List<Map<String, Object>> getDueWords(Long userId, Long deckId) {
         // audit-v12 F151: authorise BEFORE reading. Without this, any authenticated user could
         // pass another user's deckId and read that private deck's words — the same deck that
@@ -173,6 +208,16 @@ public class SrsService {
         return dueWords;
     }
 
+    /**
+     * Thống kê ôn tập của user: phân bố mastery level và số từ đến hạn.
+     *
+     * <p>Mọi số đếm trên các hàng {@link UserVocabularyProgress} đã có của user —
+     * tức là CHỈ những từ đã từng ôn; từ mới chưa ôn lần nào không nằm trong
+     * {@code totalWords}.
+     *
+     * @param userId user cần tra
+     * @return map newWords/learningWords/masteredWords/totalWords/dueReviews
+     */
     public Map<String, Object> getStudyStats(Long userId) {
         List<UserVocabularyProgress> allProgress = progressRepository.findByUserId(userId);
         long newWords = 0;

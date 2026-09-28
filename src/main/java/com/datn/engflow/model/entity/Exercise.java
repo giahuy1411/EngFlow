@@ -9,6 +9,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Một câu hỏi bài tập thuộc một {@link Lesson}, lưu kèm đáp án đúng và lời giải thích.
+ *
+ * <p>Tầng entity. {@link ExerciseService} chấm điểm rồi ghi kết quả tổng hợp vào
+ * {@link ExerciseAttempt}; {@link AiExerciseService} sinh câu hỏi mới bằng LLM và
+ * ghi thẳng qua {@code ExerciseRepository}. Cột {@link #options} chứa JSON array
+ * các lựa chọn, còn với {@code MATCHING} mỗi phần tử là một cặp {@code "trái|phải"}.
+ */
 @Entity
 @Table(name = "exercises")
 @Getter
@@ -16,9 +24,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class Exercise.
- */
 public class Exercise {
 
     @Id

@@ -15,11 +15,24 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 /**
- * interface ExerciseRepository.
+ * Truy cập bảng {@code exercises} — các câu hỏi thuộc về một lesson.
+ *
+ * <p>Đọc bởi {@code ExerciseService} (dựng bài, chấm điểm), {@code LessonService},
+ * {@code AdminService} và {@code AiExerciseService} (sinh câu hỏi bằng AI);
+ * {@code ExerciseFixRunner} và {@code JsonDataSeeder} dùng khi nạp dữ liệu.
+ * Bảng này lớn hơn 43k dòng nên các truy vấn danh sách đều tránh kéo theo
+ * cột LOB của lesson.
  */
+@Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
+    /**
+     * Câu hỏi của một lesson theo thứ tự hiển thị, tải kèm {@code lesson} trong
+     * cùng truy vấn để tránh N+1 khi dựng bài.
+     *
+     * @param lessonId id lesson
+     * @return danh sách câu hỏi tăng dần {@code orderIndex}
+     */
     @Query("SELECT e FROM Exercise e JOIN FETCH e.lesson WHERE e.lesson.id = :lessonId ORDER BY e.orderIndex ASC")
     List<Exercise> findByLessonIdOrderByOrderIndexAsc(@Param("lessonId") Long lessonId);
 
@@ -28,6 +41,9 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
      * JOIN FETCH variant above drags lesson.content + lesson.content_original
      * (NVARCHAR(MAX)) into every row of the response; see
      * {@link ExerciseLessonProjection} for the measurements.
+     *
+     * @param lessonId id lesson
+     * @return danh sách projection chỉ gồm cột câu hỏi và thông tin lesson liên quan
      */
     @Query("""
             SELECT e.id AS id, l.id AS lessonId, l.title AS lessonTitle, e.question AS question,
@@ -41,8 +57,37 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
             ORDER BY e.orderIndex ASC
             """)
     List<ExerciseLessonProjection> findLessonExercisesProjection(@Param("lessonId") Long lessonId);
+
+    /**
+     * Câu hỏi của lesson lọc theo loại, ví dụ riêng phần nghe hoặc phần nói.
+     *
+     * @param lessonId    id lesson
+     * @param exerciseType tên loại câu hỏi cần lọc
+     * @return danh sách câu hỏi tăng dần {@code orderIndex}
+     */
     List<Exercise> findByLessonIdAndExerciseTypeOrderByOrderIndexAsc(Long lessonId, String exerciseType);
+
+    /**
+     * Câu hỏi của lesson lọc theo độ khó.
+     *
+     * @param lessonId   id lesson
+     * @param difficulty tên độ khó cần lọc
+     * @return danh sách câu hỏi tăng dần {@code orderIndex}
+     */
     List<Exercise> findByLessonIdAndDifficultyOrderByOrderIndexAsc(Long lessonId, String difficulty);
+
+    /**
+     * Trang câu hỏi cho màn hình quản trị: lọc theo lesson, loại, độ khó và từ
+     * khóa trong một truy vấn. Điều kiện nullable được xử lý trong JPQL nên
+     * controller truyền thẳng giá trị query param xuống được.
+     *
+     * @param lessonId   id lesson, null hoặc rỗng nghĩa là không lọc
+     * @param type       loại câu hỏi, null nghĩa là không lọc
+     * @param difficulty độ khó, null nghĩa là không lọc
+     * @param keyword    từ khóa tìm trong question và explanation
+     * @param pageable   cấu hình phân trang
+     * @return trang câu hỏi khớp bộ lọc
+     */
     @Query("""
             SELECT e FROM Exercise e
             JOIN e.lesson l
@@ -59,8 +104,19 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
                                  @Param("keyword") String keyword,
                                  Pageable pageable);
 
+    /**
+     * Số câu hỏi của một lesson, dùng cho thống kê và kiểm tra ràng buộc khi xoá.
+     *
+     * @param lessonId id lesson
+     * @return số câu hỏi thuộc lesson
+     */
     long countByLessonId(Long lessonId);
 
+    /**
+     * Xoá toàn bộ câu hỏi của một lesson, dùng khi xoá lesson.
+     *
+     * @param lessonId id lesson cần dọn câu hỏi
+     */
     @Modifying
     @Transactional
     void deleteAllByLessonId(Long lessonId);

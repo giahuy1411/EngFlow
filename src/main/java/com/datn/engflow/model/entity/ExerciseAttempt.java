@@ -7,6 +7,15 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Lần làm bài của một user cho một bài học, lưu điểm và chi tiết từng câu.
+ *
+ * <p>Tầng entity. Chỉ {@link ExerciseService} tạo dòng này (mỗi lần nộp bài một
+ * dòng), rồi {@link LessonService} đọc lịch sử theo
+ * {@code findByUserIdAndLessonIdOrderByCompletedAtDesc}. Trường {@link #lessonId}
+ * cố ý là {@code Long} thay vì quan hệ {@code @ManyToOne}: lịch sử là dữ liệu bất
+ * biến, không cần join bảng lesson và không muốn nó bị xóa theo lesson.
+ */
 @Entity
 @Table(name = "exercise_attempts")
 @Getter
@@ -14,9 +23,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class ExerciseAttempt.
- */
 public class ExerciseAttempt {
 
     @Id

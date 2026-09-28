@@ -18,12 +18,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * API sinh từ vựng bằng AI (Ollama local) và lưu kết quả vào bộ từ của người dùng.
+ *
+ * <p>Ba endpoint: {@code generate-vocab} (sinh loạt từ theo chủ đề), {@code enrich-word} (làm giàu
+ * một từ đã có), và {@code save-vocab} (lưu vào deck). Tất cả đều bắt buộc đăng nhập và tiêu tốn
+ * hạn mức sinh AI miễn phí của tài khoản thường — trừ khi là Premium/admin (không giới hạn).</p>
+ */
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
-/**
- * class AiVocabController.
- */
 public class AiVocabController {
 
     private final AiVocabService aiVocabService;
@@ -32,6 +36,24 @@ public class AiVocabController {
     // sinh ra thực sự vào được một bộ từ người dùng mở lại được.
     private final DeckService deckService;
 
+    /**
+     * Sinh một loạt từ vựng theo chủ đề và trình độ bằng AI local.
+     *
+     * <p>Validate đầu vào: {@code topic} bắt buộc, {@code count} phải là số nguyên trong 1–50
+     * (trả 400 nếu không). Quota được kiểm <b>trước</b> khi gọi AI: tài khoản thường chỉ có
+     * {@code AI_GENERATIONS_PER_DAY} lượt miễn phí mỗi ngày, hết lượt trả 403; Premium/admin bỏ qua.</p>
+     *
+     * <p><b>Guard ngôn ngữ (CJK):</b> model {@code qwen2.5:1.5b} thỉnh thoảng trả nghĩa tiếng Trung
+     * cho {@code definitionVi}; {@code AiVocabService.containsCjk} loại các item chứa chữ Hán
+     * (dải {@code U+4E00–9FFF} và {@code U+3400–4DBF}) khỏi kết quả. Vì guard có thể loại bớt —
+     * thậm chí trả về rỗng — quota <b>chỉ bị trừ khi có ít nhất một từ dùng được</b>, để một lần
+     * sinh thất bại không đốt mất lượt của người dùng.</p>
+     *
+     * @param payload      body chứa {@code topic}, {@code level} (mặc định {@code B2}), {@code count}
+     * @param userPrincipal người gọi, lấy từ JWT (có thể null trong test standalone)
+     * @param authentication ngữ cảnh xác thực, dùng để kiểm tra đã đăng nhập
+     * @return danh sách từ sinh được (có thể ít hơn {@code count} hoặc rỗng)
+     */
     @PostMapping("/generate-vocab")
     public ResponseEntity<?> generateVocab(
             @RequestBody Map<String, String> payload,
@@ -75,6 +97,19 @@ public class AiVocabController {
         return ResponseEntity.ok(generated);
     }
 
+    /**
+     * Làm giàu một từ đã có: nhờ AI bổ sung nghĩa, phiên âm, ví dụ... theo ngữ cảnh.
+     *
+     * <p>Cùng hạn mức với {@code generate-vocab} vì đây cũng là một lượt gọi model local (audit-v6
+     * F31). Quota được kiểm trước khi gọi; chỉ trừ lượt <b>sau khi</b> AI trả kết quả thành công —
+     * lỗi phía AI không tính vào quota. {@code enrichWord} cũng áp guard CJK: nghĩa trả về là chữ
+     * Hán thì bị từ chối (400) thay vì trả dữ liệu sai ngôn ngữ.</p>
+     *
+     * @param payload      body chứa {@code word} cần làm giàu
+     * @param userPrincipal người gọi, lấy từ JWT
+     * @param authentication ngữ cảnh xác thực
+     * @return từ đã được làm giàu, 400 nếu thiếu {@code word} hoặc kết quả dính CJK
+     */
     @PostMapping("/enrich-word")
     public ResponseEntity<?> enrichWord(
             @RequestBody Map<String, String> payload,

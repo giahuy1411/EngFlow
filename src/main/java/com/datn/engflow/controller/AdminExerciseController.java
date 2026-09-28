@@ -25,6 +25,21 @@ public class AdminExerciseController {
 
     private final ExerciseService exerciseService;
 
+    /**
+     * Liệt kê bài tập cho màn quản trị, có lọc và phân trang — CHỈ ADMIN.
+     *
+     * <p>Lưu ý hiệu năng (AGENTS.md): lọc {@code q} dùng LIKE {@code %kw%} trên bảng
+     * {@code exercises} rất lớn nên chậm hơn hẳn bản không lọc; không có index nào cứu
+     * leading-wildcard, đừng cố "tối ưu" bằng cách thêm index.</p>
+     *
+     * @param lessonId   lọc theo bài học, null = mọi bài
+     * @param type       lọc theo loại bài tập, null = mọi loại
+     * @param difficulty lọc theo độ khó, null = mọi mức
+     * @param q          từ khoá tìm kiếm, null = không lọc
+     * @param page       chỉ số trang, mặc định 0
+     * @param size       số bài mỗi trang, mặc định 20 (kẹp [1, 100])
+     * @return trang bài tập dạng {@link ExerciseResponse}, sắp theo orderIndex rồi id
+     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<ExerciseResponse>> getAllExercises(
@@ -39,18 +54,39 @@ public class AdminExerciseController {
                 PageRequest.of(Math.max(page, 0), size, Sort.by("orderIndex").ascending().and(Sort.by("id")))));
     }
 
+    /**
+     * Lấy chi tiết một bài tập theo id — CHỈ ADMIN.
+     *
+     * @param id id bài tập
+     * @return bài tập dạng {@link ExerciseResponse}
+     * @throws com.datn.engflow.exception.ResourceNotFoundException nếu bài tập không tồn tại
+     */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExerciseResponse> getExercise(@PathVariable Long id) {
         return ResponseEntity.ok(exerciseService.getExercise(id));
     }
 
+    /**
+     * Tạo bài tập mới — CHỈ ADMIN.
+     *
+     * @param request dữ liệu bài tập, đã validate
+     * @return bài tập vừa tạo (HTTP 200)
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExerciseResponse> createExercise(@Valid @RequestBody ExerciseRequest request) {
         return ResponseEntity.ok(exerciseService.createExercise(request));
     }
 
+    /**
+     * Cập nhật bài tập theo id — CHỈ ADMIN.
+     *
+     * @param id      id bài tập cần sửa
+     * @param request dữ liệu thay thế (không {@code @Valid} — giữ hành vi cũ)
+     * @return bài tập sau cập nhật
+     * @throws com.datn.engflow.exception.ResourceNotFoundException nếu bài tập không tồn tại
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExerciseResponse> updateExercise(@PathVariable Long id,
@@ -58,6 +94,13 @@ public class AdminExerciseController {
         return ResponseEntity.ok(exerciseService.updateExercise(id, request));
     }
 
+    /**
+     * Xoá bài tập theo id — CHỈ ADMIN.
+     *
+     * @param id id bài tập cần xoá
+     * @return map {@code {success:true, message:"..."}}
+     * @throws com.datn.engflow.exception.ResourceNotFoundException nếu bài tập không tồn tại
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteExercise(@PathVariable Long id) {

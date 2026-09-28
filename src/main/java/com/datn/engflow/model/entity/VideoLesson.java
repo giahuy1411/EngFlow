@@ -8,6 +8,16 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Bài học dạng video: video YouTube kèm transcript chia theo từng dòng để luyện
+ * shadowing và chấm điểm đọc theo.
+ *
+ * <p>Tầng entity. {@link VideoLessonService} quản lý nội dung và parse
+ * {@link #transcriptJson} thành danh sách dòng cho màn luyện tập; danh sách dòng đó
+ * cũng là đáp án mà {@link ShadowingAiGradingService} dùng để chấm
+ * {@link VideoAttempt}. Cột transcript là {@code NVARCHAR(MAX)} vì mỗi bài có thể
+ * chứa cả bài hát/đoạn hội thoại dài.
+ */
 @Entity
 @Table(name = "video_lessons")
 @Getter
@@ -15,9 +25,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class VideoLesson.
- */
 public class VideoLesson {
 
     @Id

@@ -17,19 +17,35 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Seeds the built-in vocabulary decks (Oxford 3000/5000, AWL, TOEIC, IELTS, THPT,
+ * phrasal verbs, idioms) that ship with the application.
+ *
+ * <p>All ten decks are created in a single guarded pass: the whole block is
+ * skipped unless the {@code decks} table is completely empty, so the seeder is
+ * safe to leave enabled but never partially applies. Each seed method builds one
+ * deck plus its word list and hands both to
+ * {@link #saveDeckWords(Deck, List)}, which persists the vocabulary rows and the
+ * {@code deck_word} join rows with sequential {@code orderIndex} values.
+ * {@code @Order(2)} runs it alongside {@link JsonDataSeeder} but after
+ * {@link DatabaseSeeder}.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 @Order(2)
-/**
- * class VocabularyDataSeeder.
- */
 public class VocabularyDataSeeder implements CommandLineRunner {
 
     private final VocabularyRepository vocabularyRepository;
     private final DeckRepository deckRepository;
     private final DeckWordRepository deckWordRepository;
 
+    /**
+     * Seeds every built-in deck when none exist.
+     *
+     * @param args command-line arguments supplied to the application
+     * @throws Exception if a deck or word batch cannot be persisted
+     */
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -209,6 +225,19 @@ public class VocabularyDataSeeder implements CommandLineRunner {
         saveDeckWords(deck, vocabs);
     }
 
+    /**
+     * Persists a deck and returns the saved entity, so its generated id can be
+     * linked by {@link #saveDeckWords(Deck, List)}.
+     *
+     * <p>The source is persisted as its {@code name()}, not the enum constant,
+     * because the column is a plain string.</p>
+     *
+     * @param name        deck title shown in the UI
+     * @param description one-line summary shown under the title
+     * @param source      provenance tag stored on the deck
+     * @param cefrLevel   target level string, e.g. {@code "B2"}
+     * @return the saved deck with its id populated
+     */
     private Deck createDeck(String name, String description, DeckSource source, String cefrLevel) {
         Deck deck = Deck.builder()
                 .name(name)
@@ -220,6 +249,25 @@ public class VocabularyDataSeeder implements CommandLineRunner {
         return deckRepository.save(deck);
     }
 
+    /**
+     * Builds an unsaved {@link Vocabulary} from the seed tuple.
+     *
+     * <p>{@code vi} becomes {@code meaning} and {@code en} becomes
+     * {@code definitionEn}, matching the two-column glossary shown to learners;
+     * the source tag is stored by name for the same reason as in
+     * {@link #createDeck}. The entity is not persisted here —
+     * {@link #saveDeckWords(Deck, List)} batches the save.</p>
+     *
+     * @param word     headword
+     * @param ipa      IPA pronunciation, null-tolerant
+     * @param vi       Vietnamese meaning
+     * @param en       English definition
+     * @param example  example sentence
+     * @param pos      part of speech label
+     * @param level    CEFR level of the word
+     * @param source   provenance tag for the word row
+     * @return a detached vocabulary entity
+     */
     private Vocabulary createVocab(String word, String ipa, String vi, String en, String example, String pos, String level, DeckSource source) {
         return Vocabulary.builder()
                 .word(word)
@@ -233,6 +281,16 @@ public class VocabularyDataSeeder implements CommandLineRunner {
                 .build();
     }
 
+    /**
+     * Persists a word list and links every word to its deck in order.
+     *
+     * <p>Words are saved first so the join rows can reference their ids.
+     * {@code orderIndex} restarts at 1 for each deck, which is what the SRS
+     * scheduler uses to decide study order within a deck.</p>
+     *
+     * @param deck   deck the words belong to
+     * @param vocabs vocabulary entities to persist and link
+     */
     private void saveDeckWords(Deck deck, List<Vocabulary> vocabs) {
         vocabularyRepository.saveAll(vocabs);
         int index = 1;

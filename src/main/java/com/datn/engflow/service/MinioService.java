@@ -17,7 +17,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 /**
- * class MinioService.
+ * Stores the media blobs that recordings produce (speaking uploads, video
+ * lesson assets) in MinIO and hands back presigned read URLs. The bucket is
+ * private; nothing is served without a URL minted here. Talks to two clients —
+ * {@code minioWriteClient} for uploads, {@code minioReadClient} for reads — so
+ * a deployment can write and read through different endpoints.
  */
 public class MinioService {
 
@@ -33,6 +37,12 @@ public class MinioService {
     @Value("${minio.public-url:${minio.url}}")
     private String publicUrl;
 
+    /**
+     * @param writeClient client used for uploads, injected as
+     *                    {@code minioWriteClient}
+     * @param readClient  client used for presigned URLs and object reads,
+     *                    injected as {@code minioReadClient}
+     */
     public MinioService(
             @Qualifier("minioWriteClient") MinioClient writeClient,
             @Qualifier("minioReadClient") MinioClient readClient) {
@@ -46,6 +56,18 @@ public class MinioService {
             "video/webm", "video/mp4"
     );
 
+    /**
+     * Stores a learner recording under a fresh UUID-prefixed key after checking
+     * size and MIME type. The original filename is kept only as a sanitised
+     * suffix, so a user-supplied name can never steer the object key outside
+     * the {@code speaking/} prefix.
+     *
+     * @param file the uploaded audio or video part
+     * @return the object key to persist on the submission row
+     * @throws BadRequestException   when the file is empty, over 50 MB, or not
+     *                               an allowed media type
+     * @throws Exception            when MinIO rejects the upload
+     */
     public String uploadVideo(MultipartFile file) throws Exception {
         validateSpeakingMedia(file);
         String originalName = file.getOriginalFilename() == null ? "recording" : file.getOriginalFilename();
@@ -70,6 +92,15 @@ public class MinioService {
         return objectName;
     }
 
+    /**
+     * Mints a one-hour presigned GET URL so a browser can play a stored
+     * recording. The generated URL may point at the in-network MinIO host, so
+     * it is rewritten to the host the browser can actually reach. Fails soft:
+     * callers get null and render the row without playable media.
+     *
+     * @param objectKey the key previously returned by an upload method
+     * @return the presigned URL, or null for a blank key or a MinIO error
+     */
     public String createReadUrl(String objectKey) {
         if (objectKey == null || objectKey.isBlank()) {
             return null;
@@ -93,6 +124,16 @@ public class MinioService {
         }
     }
 
+    /**
+     * Stores a file at a caller-chosen key. Unlike {@link #uploadVideo} this
+     * path applies no size or MIME check — it is used for curated content
+     * (video lesson assets), not for user recordings.
+     *
+     * @param objectKey the full key to write, including any prefix
+     * @param file      the content to store
+     * @return {@code objectKey}, echoed back for call-site convenience
+     * @throws RuntimeException when MinIO rejects the upload
+     */
     public String uploadMedia(String objectKey, MultipartFile file) {
         try {
             boolean found = writeClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
@@ -114,6 +155,16 @@ public class MinioService {
         return objectKey;
     }
 
+    /**
+     * Trust-boundary check for anything a learner uploads. The declared MIME
+     * type is client-controlled, so it is a filter, not proof — it is applied
+     * anyway to keep obviously wrong content out of the bucket and to reject
+     * oversized recordings before the body is buffered.
+     *
+     * @param file the uploaded part
+     * @throws BadRequestException when the file is null, empty, over 50 MB, or
+     *                             its content type is outside the allow-list
+     */
     private void validateSpeakingMedia(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new BadRequestException("Tệp ghi âm không được để trống");
@@ -126,6 +177,13 @@ public class MinioService {
         }
     }
 
+    /**
+     * Opens a stored object for streaming back to a client. Used by the media
+     * proxy so a private object is never exposed directly.
+     *
+     * @param objectKey the key to read
+     * @return a resource wrapping the object stream, or null when MinIO fails
+     */
     public InputStreamResource getObject(String objectKey) {
         try {
             var response = readClient.getObject(

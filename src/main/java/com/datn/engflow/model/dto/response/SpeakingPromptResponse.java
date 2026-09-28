@@ -32,6 +32,10 @@ public record SpeakingPromptResponse(
     /**
      * Maps the persistence model to a stable response contract.
      *
+     * <p>Lesson có thể null nên lessonId/lessonTitle trả null thay vì NPE;
+     * referenceMediaUrl được đổi host {@code minio:9000} sang {@code localhost:9000}
+     * vì media lưu trong MinIO nội bộ.
+     *
      * @param entity prompt entity
      * @return public response
      */

@@ -2,7 +2,16 @@ package com.datn.engflow.config;
 
 import java.time.Duration;
 
-/** Tập trung TTL, prefix và giới hạn liên quan Redis — tránh hardcode rải rác. */
+/**
+ * Central table of every Redis key prefix, TTL and cap used by the platform,
+ * so no service hardcodes them.
+ *
+ * <p>Each block below is owned by exactly one consumer: streak and reminder keys
+ * by {@code StreakReminderScheduler} and {@code StudyActivityService}, game keys by
+ * {@code GameService}, auth and OTP keys by {@code UserService}, and the
+ * rate-limit prefix by {@code security.RateLimitFilter}. The class is
+ * non-instantiable.</p>
+ */
 public final class RedisConstants {
     private RedisConstants() {}
 

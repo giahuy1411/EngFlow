@@ -19,7 +19,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 /**
- * class ProgressService.
+ * Tổng hợp tiến độ học của một người dùng: số bài đã publish, số bài đã hoàn thành và điểm tích lũy.
+ *
+ * <p>Tầng service, được gọi từ {@code ProgressController}. Đọc user, bài học và bản ghi tiến độ
+ * lần lượt qua {@link UserRepository}, {@link LessonRepository}, {@link ProgressRepository}.
  */
 public class ProgressService {
 
@@ -27,6 +30,13 @@ public class ProgressService {
     private final LessonRepository lessonRepository;
     private final ProgressRepository progressRepository;
 
+    /**
+     * Tổng kết tiến độ học cho người dùng đang đăng nhập.
+     *
+     * @param userEmail email người dùng
+     * @return DTO gồm tổng bài đã publish, số bài hoàn thành và tổng điểm
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     */
     @Transactional(readOnly = true)
     public ProgressResponse getProgressSummary(String userEmail) {
         log.info("L\u1ea5y th\u00f4ng tin t\u1ed5ng k\u1ebft ti\u1ebfn \u0111\u1ed9 cho user: {}", userEmail);

@@ -45,6 +45,27 @@ public class AdminUploadController {
 
     private final CloudinaryService cloudinaryService;
 
+    /**
+     * Upload ảnh/audio của bài tập, lưu xuống đĩa và trả URL nội bộ — CHỈ ADMIN.
+     *
+     * <p><b>ĐÂY LÀ SURFACE BẢO MẬT.</b> File lưu vào {@code uploads/} và được phục vụ lại qua
+     * {@code GET /api/resources/**} — route đó là {@code permitAll} và CÙNG ORIGIN với SPA, nên
+     * một file mà trình duyệt render được ({@code .html}/{@code .svg}/{@code .js}) sẽ là stored
+     * XSS đọc JWT trong localStorage. Vì vậy:</p>
+     * <ul>
+     *   <li>Tên ghi xuống đĩa đi qua {@link SafeUploadNames#extensionOf}: chỉ nhận extension
+     *       nằm trong allowlist (ảnh/audio/video + text), tên file đổi thành UUID nên không
+     *       ghi đè/không điều khiển đường dẫn.</li>
+     *   <li>Khi phục vụ, {@link #getResource} mới là chỗ chốt content-type
+     *       ({@link SafeUploadNames#contentTypeFor}) và ép tải về
+     *       ({@link SafeUploadNames#forceDownload}).</li>
+     * </ul>
+     * <p>Thêm writer mới phải đi qua đúng hai hàm đó — xem {@code SafeUploadNames} và AGENTS.md
+     * mục "Boundaries".</p>
+     *
+     * @param file file multipart cần lưu
+     * @return map {@code {url}} trỏ tới {@code /api/resources/<uuid>.<ext>}
+     */
     @PostMapping("/api/admin/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
@@ -63,6 +84,25 @@ public class AdminUploadController {
         }
     }
 
+    /**
+     * Phục vụ file first-party trong {@code uploads/} — {@code permitAll} (khách cũng tải được).
+     *
+     * <p><b>SURFACE BẢO MẬT — chốt chặn thứ hai của đường upload.</b> Hai lớp phòng thủ:</p>
+     * <ol>
+     *   <li><b>Path traversal:</b> tên bị từ chối nếu chứa {@code /} hoặc {@code ..} (sau khi
+     *       chuẩn hoá {@code \} → {@code /}); đường dẫn còn được {@code normalize()} lại.</li>
+     *   <li><b>Stored XSS:</b> content-type được GHIM theo extension allowlist
+     *       ({@link SafeUploadNames#contentTypeFor}) chứ KHÔNG dò từ nội dung file; file không
+     *       nằm trong allowlist ảnh/audio/video trả {@code application/octet-stream} và bị ép
+     *       {@code Content-Disposition: attachment} ({@link SafeUploadNames#forceDownload}). Nhờ
+     *       vậy một {@code .html}/{@code .svg}/{@code .js} đã lỡ nằm trên đĩa vẫn không thể
+     *       render như document first-party (audit-v8 F81).</li>
+     * </ol>
+     *
+     * @param filename tên file trong {@code uploads/} (đã chặn traversal ở trên)
+     * @return file kèm content-type/Content-Disposition an toàn, 400 nếu tên không hợp lệ,
+     *         404 nếu không tồn tại, 500 nếu lỗi đọc
+     */
     @GetMapping("/api/resources/{filename:.+}")
     public ResponseEntity<Resource> getResource(@PathVariable String filename) {
         try {
@@ -94,6 +134,16 @@ public class AdminUploadController {
         }
     }
 
+    /**
+     * Upload audio lên Cloudinary và trả URL công khai — CHỈ ADMIN.
+     *
+     * <p>Đây là đường sinh listening audio của MCP Antigravity. Khác {@link #uploadFile}, file
+     * KHÔNG lưu local mà đẩy sang Cloudinary; vì vậy không đi qua allowlist
+     * {@code SafeUploadNames}. Lỗi upload trả 400 kèm message của exception.</p>
+     *
+     * @param file file audio multipart
+     * @return map {@code {url}} là URL Cloudinary, hoặc 400 kèm {@code error} nếu upload lỗi
+     */
     @PostMapping("/api/admin/audio-upload")
     public ResponseEntity<Map<String, String>> uploadAudio(@RequestParam("file") MultipartFile file) {
         try {

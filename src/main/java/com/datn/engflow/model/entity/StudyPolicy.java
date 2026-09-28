@@ -13,6 +13,10 @@ import java.time.LocalDate;
 /**
  * Mốc áp dụng được khởi tạo một lần bởi SQL triển khai, không bởi mỗi lần boot.
  *
+ * <p>Tầng entity. {@link StudyActivityService} đọc hàng {@code id = 1} để biết từ
+ * ngày nào bắt đầu ghi {@link StudyDay}; không có hàng này thì nó ném lỗi cấu hình
+ * thay vì âm thầm bỏ qua. Bảng là singleton nhờ CHECK {@code id = 1}.
+ *
  * <p>audit-v13 F-13-07: the singleton CHECK was missing in the live DB because
  * {@code tasks/streak-study/deploy.sql} declared it inside the table-existence guard,
  * and Hibernate creates the table first, so the guard was skipped — the same bug class

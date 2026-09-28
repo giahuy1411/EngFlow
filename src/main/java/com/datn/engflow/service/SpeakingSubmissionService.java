@@ -29,12 +29,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Owns the speaking-attempt lifecycle: media upload, automated assessment, manual
+ * grading, and signed playback URLs.
+ *
+ * <p>Layer: called by {@code SpeakingSubmissionController} for both the
+ * {@code /speaking-submissions} and legacy {@code /video-submissions} route families.
+ * Uploaded media goes to MinIO via {@link MinioService} and is stored as a relative
+ * object key; reads are re-signed on the fly by {@code MediaSigner} so the private proxy
+ * accepts them. Grading runs through {@link SpeakingAssessmentService} (Whisper +
+ * alignment + LLM rubric) and a completed assessment records a study day through
+ * {@link StudyActivityService}.</p>
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
-/**
- * class SpeakingSubmissionService.
- */
 public class SpeakingSubmissionService {
 
     private static final long MAX_SPEAKING_MEDIA_BYTES = 50L * 1024 * 1024;
@@ -50,6 +59,20 @@ public class SpeakingSubmissionService {
     private final ObjectMapper objectMapper;
     private final StudyActivityService studyActivityService;
 
+    /**
+     * Stores a learner's recording and opens a SUBMITTED row for it. Nothing is
+     * transcribed here; that happens later in {@link #assessSubmission}.
+     *
+     * <p>The 50 MB ceiling and the {@code audio/}+{@code video/} prefix check are the
+     * trust boundary for the upload — the multipart body is untrusted input, and MinIO
+     * has no per-request size limit of its own.</p>
+     *
+     * @param file     tệp media do người học tải lên
+     * @param promptId mã đề nói
+     * @param user     người học đã xác thực
+     * @return bài nộp ở trạng thái SUBMITTED
+     * @throws BadRequestException nếu tệp rỗng, quá 50 MB, sai định dạng, hoặc không tìm thấy đề bài
+     */
     @Transactional
     public SpeakingSubmission uploadSubmission(MultipartFile file, Long promptId, User user) {
         if (file == null || file.isEmpty()) {
@@ -136,6 +159,13 @@ public class SpeakingSubmissionService {
         return saved;
     }
 
+    /**
+     * Serializes the Whisper-alignment numbers into the JSON blob stored on
+     * {@code pronunciationDetailsJson}; the admin console renders it read-only.
+     *
+     * @param outcome kết quả chấm tự động
+     * @return chuỗi JSON chi tiết, hoặc null nếu serialize lỗi
+     */
     private String buildDetailsJson(SpeakingAssessmentOutcome outcome) {
         TranscriptAlignmentMetrics.AlignmentResult alignment = outcome.alignment();
         ObjectNode node = objectMapper.createObjectNode();
@@ -156,6 +186,14 @@ public class SpeakingSubmissionService {
         }
     }
 
+    /**
+     * Clamps a message to a column width. The error text can come from a third-party
+     * pipeline (Whisper sidecar, LLM) and would otherwise overflow the DB column.
+     *
+     * @param value chuỗi cắt, có thể null
+     * @param max   độ dài tối đa
+     * @return chuỗi đã cắt, hoặc null nếu đầu vào null
+     */
     private static String truncate(String value, int max) {
         if (value == null) {
             return null;
@@ -163,24 +201,66 @@ public class SpeakingSubmissionService {
         return value.length() <= max ? value : value.substring(0, max);
     }
 
+    /**
+     * Paged history of one learner's attempts, newest first by id.
+     *
+     * @param userId   mã người học
+     * @param pageable phân trang
+     * @return trang bài nộp của người học
+     */
     public Page<SpeakingSubmission> getUserSubmissions(Long userId, Pageable pageable) {
         return repository.findByUserId(userId, pageable);
     }
 
+    /**
+     * Paged history of one learner's attempts on a single prompt.
+     *
+     * @param userId   mã người học
+     * @param promptId mã đề nói
+     * @param pageable phân trang
+     * @return trang bài nộp lọc theo đề
+     */
     public Page<SpeakingSubmission> getUserPromptSubmissions(Long userId, Long promptId, Pageable pageable) {
         return repository.findByUserIdAndPromptId(userId, promptId, pageable);
     }
 
+    /**
+     * Admin queue, optionally narrowed to one status (SUBMITTED is the review worklist).
+     *
+     * @param status   trạng thái lọc, null thì trả về tất cả
+     * @param pageable phân trang
+     * @return trang bài nộp cho quản trị viên
+     */
     public Page<SpeakingSubmission> getAllSubmissionsForAdmin(SpeakingSubmissionStatus status, Pageable pageable) {
         return status == null
                 ? repository.findAll(pageable)
                 : repository.findByStatus(status, pageable);
     }
 
+    /**
+     * Unpaged submissions for one prompt, most recently submitted first — used by the
+     * admin detail panel of a prompt.
+     *
+     * @param promptId mã đề nói
+     * @return danh sách bài nộp của đề đó
+     */
     public List<SpeakingSubmission> getPromptSubmissions(Long promptId) {
         return repository.findByPromptIdOrderBySubmittedAtDesc(promptId);
     }
 
+    /**
+     * Applies a teacher's manual grade, overwriting any AI scores and marking the row
+     * GRADED. The admin flag is re-checked here, not only in the controller, so the
+     * check holds for any future caller.
+     *
+     * @param submissionId mã bài nộp
+     * @param graderId     mã giáo viên chấm
+     * @param request      điểm, nhận xét công khai và ghi chú riêng
+     * @return bài nộp sau khi chấm
+     * @throws BadRequestException          nếu điểm ngoài 0-10 hoặc thiếu nhận xét
+     * @throws ResourceNotFoundException    nếu giáo viên hoặc bài nộp không tồn tại
+     * @throws org.springframework.security.access.AccessDeniedException nếu grader không phải admin
+     */
     @Transactional
     public SpeakingSubmission gradeSubmission(Long submissionId, Long graderId, GradeSpeakingSubmissionRequest request) {
         if (request.score() == null || request.score().compareTo(BigDecimal.ZERO) < 0
@@ -207,6 +287,14 @@ public class SpeakingSubmissionService {
         return repository.save(submission);
     }
 
+    /**
+     * Builds the URL the frontend uses to play a recording: a relative, signed
+     * {@code /api/v1/media/...} link. Rows predating the object-key column fall back to
+     * the stored {@code videoUrl}, signed only when it still points at MinIO.
+     *
+     * @param submission bài nộp cần nghe
+     * @return URL tương đối đã ký, hoặc null nếu bài nộp không có media
+     */
     public String createMediaReadUrl(SpeakingSubmission submission) {
         // audit-v6 F28: relative media URL — frontend resolves against API base
         // audit-v7 F55: signed so the proxy accepts it (see MediaSigner).
@@ -221,10 +309,19 @@ public class SpeakingSubmissionService {
         return signedMediaUrl(submission.getMediaObjectKey());
     }
 
+    /** Relative, exp+sig signed media URL the private proxy accepts. */
     private String signedMediaUrl(String objectKey) {
         return "/api/v1/media/" + objectKey + "?" + mediaSigner.paramsForObject(objectKey);
     }
 
+    /**
+     * Recovers the object key from a legacy absolute MinIO URL, stripping the
+     * {@code video-uploads/} prefix older rows prepended. URLs without that prefix are
+     * returned unchanged.
+     *
+     * @param storedUrl URL đã lưu, có thể null
+     * @return object key tương ứng
+     */
     private static String extractObjectKey(String storedUrl) {
         if (storedUrl == null) return "";
         int idx = storedUrl.indexOf("video-uploads/");
@@ -232,6 +329,16 @@ public class SpeakingSubmissionService {
         return storedUrl;
     }
 
+    /**
+     * Loads a submission for a viewer, allowing the owner or an admin only.
+     *
+     * @param submissionId mã bài nộp
+     * @param viewerId     mã người xem
+     * @param isAdmin      người xem có quyền admin hay không
+     * @return bài nộp
+     * @throws ResourceNotFoundException nếu bài nộp không tồn tại
+     * @throws AccessDeniedException    nếu người xem không phải chủ bài và không phải admin
+     */
     public SpeakingSubmission getSubmissionForViewer(Long submissionId, Long viewerId, boolean isAdmin) {
         SpeakingSubmission submission = getSubmission(submissionId);
         if (!isAdmin && !submission.getUser().getId().equals(viewerId)) {
@@ -240,6 +347,14 @@ public class SpeakingSubmissionService {
         return submission;
     }
 
+    /**
+     * Loads a submission by id without any permission check; access-controlled callers
+     * should go through {@link #getSubmissionForViewer}.
+     *
+     * @param id mã bài nộp
+     * @return bài nộp
+     * @throws ResourceNotFoundException nếu bài nộp không tồn tại
+     */
     public SpeakingSubmission getSubmission(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SpeakingSubmission", "id", id));

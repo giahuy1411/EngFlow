@@ -12,6 +12,10 @@ import jakarta.mail.internet.MimeMessage;
 
 /**
  * Gửi mail qua Gmail SMTP.
+ *
+ * <p>Tầng service hạ tầng, được gọi từ {@link StreakReminderScheduler} (mail nhắc streak)
+ * và {@link UserService} (OTP đặt lại mật khẩu). Nội dung HTML được dựng trong file này;
+ * mọi giá trị do người dùng kiểm soát đều escape qua {@link HtmlUtils} trước khi ghép.
  * <ul>
  *   <li>{@link #sendOtpEmail} là fail-soft cho UX (không gãy request khi SMTP lag).</li>
  *   <li>{@link #sendStreakReminder} / {@link #sendStreakComebackReminder} ném exception khi gửi lỗi
@@ -35,6 +39,10 @@ public class EmailService {
    * Mail nhắc học cho user còn streak (học yesterday, chưa học hôm nay):
    * "đừng để mất chuỗi N ngày" với N = streak hiệu lực.
    * Ném RuntimeException khi gửi lỗi — caller quyết định retry.
+   *
+   * @param toEmail địa chỉ người nhận
+   * @param fullName tên hiển thị trong lời chào; null sẽ thay bằng "bạn"
+   * @param currentStreak số ngày streak hiệu lực, hiển thị trong tiêu đề và nội dung
    */
   public void sendStreakReminder(String toEmail, String fullName, int currentStreak) {
     String subject = "🔥 Đừng để mất chuỗi " + currentStreak + " ngày học liên tục!";
@@ -45,6 +53,10 @@ public class EmailService {
   /**
    * Mail mời quay lại cho user đã bỏ học ≥ 2 ngày (streak đã gãy).
    * Ném RuntimeException khi gửi lỗi.
+   *
+   * @param toEmail địa chỉ người nhận
+   * @param fullName tên hiển thị trong lời chào; null sẽ thay bằng "bạn"
+   * @param lastStreak chuỗi ngày dài nhất user từng đạt trước khi gãy
    */
   public void sendStreakComebackReminder(String toEmail, String fullName, int lastStreak) {
     String subject = "📚 Chuỗi học đã tạm dừng — quay lại EngFlow nhé!";
@@ -55,6 +67,10 @@ public class EmailService {
   /**
    * Send a password-reset OTP email (6-digit code, valid 10 minutes).
    * Fail-soft: chỉ log lỗi để request không ném 5xx làm lộ trạng thái email.
+   *
+   * @param toEmail địa chỉ người nhận
+   * @param fullName tên hiển thị trong lời chào; null sẽ thay bằng "bạn"
+   * @param otp mã 6 số, hiển thị trong tiêu đề và phần thân
    */
   public void sendOtpEmail(String toEmail, String fullName, String otp) {
     String subject = "🔐 Mã đặt lại mật khẩu EngFlow: " + otp;
@@ -106,6 +122,18 @@ public class EmailService {
     send(toEmail, subject, html, "password-reset OTP", false);
   }
 
+  /**
+   * Dựng thân HTML cho cả hai loại mail streak.
+   *
+   * <p>{@code variant} chọn lời dẫn: {@code "streak-intro"} là mail cảnh báo sắp mất chuỗi,
+   * mọi giá trị khác là mail mời quay lại. Khi {@code streak} bằng 0 (người chưa từng học)
+   * phần đếm số ngày được thay bằng lời mời bắt đầu.
+   *
+   * @param fullName tên người nhận; null sẽ thay bằng "bạn"
+   * @param variant loại mail, quyết định lời dẫn và chú thích bộ đếm
+   * @param streak số ngày dùng cho bộ đếm lớn
+   * @return chuỗi HTML hoàn chỉnh, đã escape phần do người dùng kiểm soát
+   */
   private String buildStreakEmailBody(String fullName, String variant, int streak) {
     boolean atRisk = "streak-intro".equals(variant);
     String intro;
@@ -183,6 +211,15 @@ public class EmailService {
     return frontendUrl.replaceAll("/+$", "") + path;
   }
 
+  /**
+   * Gửi một mail HTML và ghi log kết quả.
+   *
+   * @param toEmail địa chỉ người nhận
+   * @param subject tiêu đề mail
+   * @param html thân mail dạng HTML
+   * @param purpose nhãn ngắn dùng cho log
+   * @param throwOnFailure true để ném {@link IllegalStateException} khi gửi lỗi, false để chỉ log
+   */
   private void send(String toEmail, String subject, String html, String purpose, boolean throwOnFailure) {
     try {
       MimeMessage message = mailSender.createMimeMessage();

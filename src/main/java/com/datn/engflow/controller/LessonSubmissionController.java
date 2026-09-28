@@ -43,6 +43,19 @@ public class LessonSubmissionController {
                 && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 
+    /**
+     * Nộp bài theo kỹ năng (writing/speaking/reading) cho một bài học — yêu cầu đăng nhập.
+     *
+     * <p>Trước khi nộp phải qua {@code assertLessonVisible}: người thường KHÔNG được nộp cho
+     * bài nháp (chỉ admin thấy bài nháp). Đây là mắt nối của chuỗi guard chống lộ bài nháp
+     * (audit-v10 F115: F88 chặn đường đọc, F105 chặn đường nộp bài tập, F115 bịt nốt đường
+     * nộp theo kỹ năng).</p>
+     *
+     * @param request        dữ liệu bài nộp, đã validate
+     * @param authentication thông tin xác thực, null → 401
+     * @return bài nộp dạng {@link LessonSubmissionDTO}
+     * @throws com.datn.engflow.exception.ResourceNotFoundException nếu bài học không tồn tại hoặc không khả kiến
+     */
     @PostMapping("/submit")
     public ResponseEntity<LessonSubmissionDTO> submitLessonSkill(@Valid @RequestBody LessonSubmissionRequest request,
                                                                  Authentication authentication) {
@@ -55,6 +68,17 @@ public class LessonSubmissionController {
         return ResponseEntity.ok(dto);
     }
 
+    /**
+     * Tải file ghi âm của học viên lên — yêu cầu đăng nhập.
+     *
+     * <p>File rỗng bị từ chối 400 kèm thông báo tiếng Việt; lưu file do
+     * {@link LessonSubmissionService#saveAudioFile} đảm nhiệm (đi qua allowlist tên tệp để
+     * chặn stored XSS — xem {@code SafeUploadNames}). Response chỉ trả URL, không trả nội dung.</p>
+     *
+     * @param file           file ghi âm multipart
+     * @param authentication thông tin xác thực, null → 401
+     * @return map {@code {audioUrl}} hoặc 400 nếu file trống
+     */
     @PostMapping("/upload-audio")
     public ResponseEntity<Map<String, String>> uploadAudio(@RequestParam("file") MultipartFile file,
                                                            Authentication authentication) {
@@ -74,6 +98,18 @@ public class LessonSubmissionController {
         return ResponseEntity.ok(res);
     }
 
+    /**
+     * Lấy bài nộp của CHÍNH người dùng cho một bài học + kỹ năng — yêu cầu đăng nhập.
+     *
+     * <p>Cũng qua {@code assertLessonVisible} (audit-v10 F115) để bài nháp không lộ gián tiếp
+     * qua bài đã nộp. Nếu chưa có bài nộp nào thì trả 200 kèm body null (không phải 404) để
+     * client dễ xử lý trạng thái "chưa nộp".</p>
+     *
+     * @param lessonId       id bài học
+     * @param skillType      kỹ năng (enum {@link SkillType})
+     * @param authentication thông tin xác thực, null → 401
+     * @return bài nộp của chính user, hoặc body null nếu chưa nộp
+     */
     @GetMapping("/my/lesson/{lessonId}/skill/{skillType}")
     public ResponseEntity<LessonSubmissionDTO> getMySubmission(@PathVariable Long lessonId,
                                                                @PathVariable SkillType skillType,

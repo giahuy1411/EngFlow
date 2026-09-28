@@ -9,14 +9,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Bản đầy đủ của một bài học, dùng khi mở chi tiết hoặc khi admin ghi.
+ *
+ * <p>Tầng response của {@code GET /api/lessons/{id}}, {@code POST} và {@code PUT}
+ * cùng {@code /api/lessons}. Khác {@link LessonListItemResponse} ở chỗ có
+ * {@code content} và {@link #getVocabularies()}. Ở đường quản trị hai trường
+ * {@code isCompleted}/{@code completionPercentage} được đặt cứng vì không có
+ * người dùng ngữ cảnh để tra tiến độ.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class LessonResponse.
- */
 public class LessonResponse {
     private Long id;
     private String title;

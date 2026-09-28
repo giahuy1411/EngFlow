@@ -43,7 +43,16 @@ import com.datn.engflow.service.LessonContentService.LessonContentInfo;
 @Service
 @RequiredArgsConstructor
 /**
- * class ExerciseService.
+ * Nghiệp vụ bài tập: đọc/CRUD cho admin, chấm điểm bài nộp của học sinh và lưu lịch sử làm bài.
+ *
+ * <p>Tầng service, được gọi từ {@code ExerciseController}, {@code AdminExerciseController} và
+ * {@code LessonController}. Truy cập dữ liệu qua {@link ExerciseRepository},
+ * {@link LessonRepository}, {@link ExerciseAttemptRepository}, {@link UserRepository}; dọn nội
+ * dung bài học qua {@link LessonContentService}; ghi ngày học cho streak qua
+ * {@link StudyActivityService}.
+ *
+ * <p>Điểm cần lưu ý: các đường đọc danh sách dùng projection (không kéo cột LOB của lesson),
+ * và bài MATCHING có luật chấm riêng dựa trên {@code options} chứ không dùng {@code correct_answer}.
  */
 public class ExerciseService {
 
@@ -58,6 +67,16 @@ public class ExerciseService {
 
     // --- CRUD ---
 
+    /**
+     * Danh sách bài tập của một bài học, có thể ẩn đáp án.
+     *
+     * <p>Dùng projection phẳng để không kéo {@code lesson.content}/{@code content_original}
+     * (LOB) theo từng dòng.
+     *
+     * @param lessonId id bài học
+     * @param includeAnswers true để trả cả correctAnswer/explanation (đường admin)
+     * @return danh sách bài tập theo thứ tự orderIndex
+     */
     public List<ExerciseResponse> getExercisesByLesson(Long lessonId, boolean includeAnswers) {
         // audit-v9 F108: read path only. The JOIN FETCH entity variant is kept for
         // the grading path (it needs managed entities, not a read model) but the
@@ -68,6 +87,13 @@ public class ExerciseService {
     }
 
     /** audit-v9 F108: mapping from the flat list projection (no lesson LOBs). */
+    /**
+     * Map projection danh sách sang DTO; đáp án bị null hóa khi {@code includeAnswers} false.
+     *
+     * @param p projection một dòng bài tập (không kèm LOB của lesson)
+     * @param includeAnswers true để giữ correctAnswer/explanation
+     * @return DTO bài tập
+     */
     private ExerciseResponse toResponse(ExerciseLessonProjection p, boolean includeAnswers) {
         return ExerciseResponse.builder()
                 .id(p.getId())
@@ -85,10 +111,18 @@ public class ExerciseService {
                 .build();
     }
 
+    /** Nạp entity bài tập của một bài học (đường chấm điểm cần entity managed). */
     private List<Exercise> findExercisesForLesson(Long lessonId) {
         return exerciseRepository.findByLessonIdOrderByOrderIndexAsc(lessonId);
     }
 
+    /**
+     * Đọc một bài tập kèm đáp án cho màn hình sửa của admin.
+     *
+     * @param id id bài tập
+     * @return DTO bài tập có correctAnswer/explanation
+     * @throws EntityNotFoundException nếu không tìm thấy bài tập
+     */
     public ExerciseResponse getExercise(Long id) {
         Exercise ex = exerciseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Exercise not found: " + id));
@@ -96,6 +130,17 @@ public class ExerciseService {
         return toResponse(ex, true);
     }
 
+    /**
+     * Tạo bài tập mới cho một bài học.
+     *
+     * <p>Với bài MULTIPLE_CHOICE mới, {@code options} phải có nội dung thật (xem
+     * {@link #assertNewChoiceOptionsUsable}); đáp án được trả về cho admin vừa tạo.
+     *
+     * @param request dữ liệu bài tập
+     * @return DTO bài tập đã lưu (kèm đáp án)
+     * @throws EntityNotFoundException nếu lessonId không tồn tại
+     * @throws BadRequestException nếu options của bài MULTIPLE_CHOICE không dùng được
+     */
     @Transactional
     public ExerciseResponse createExercise(ExerciseRequest request) {
         Lesson lesson = lessonRepository.findById(request.getLessonId())
@@ -122,6 +167,19 @@ public class ExerciseService {
         return toResponse(exercise, true);
     }
 
+    /**
+     * Cập nhật bài tập theo kiểu patch: chỉ trường khác null trong request mới được ghi đè.
+     *
+     * <p>Validation options chỉ chạy khi request CÓ gửi options, và xét theo type mà dòng sẽ
+     * mang sau khi lưu — cố ý không kiểm dòng cũ, vì hàng loạt bài MULTIPLE_CHOICE legacy có
+     * {@code options IS NULL} sẽ bị chặn sửa oan.
+     *
+     * @param id id bài tập cần sửa
+     * @param request dữ liệu mới (trường null = giữ nguyên)
+     * @return DTO bài tập đã lưu (kèm đáp án)
+     * @throws EntityNotFoundException nếu không tìm thấy bài tập
+     * @throws BadRequestException nếu options gửi lên không dùng được cho type hiệu lực
+     */
     @Transactional
     public ExerciseResponse updateExercise(Long id, ExerciseRequest request) {
         Exercise exercise = exerciseRepository.findById(id)
@@ -154,6 +212,12 @@ public class ExerciseService {
         return toResponse(exercise, true);
     }
 
+    /**
+     * Xóa một bài tập theo id.
+     *
+     * @param id id bài tập cần xóa
+     * @throws EntityNotFoundException nếu không tìm thấy bài tập
+     */
     @Transactional
     public void deleteExercise(Long id) {
         if (!exerciseRepository.existsById(id)) {
@@ -228,6 +292,22 @@ public class ExerciseService {
 
     // --- Grading ---
 
+    /**
+     * Chấm điểm một lượt làm bài nhưng KHÔNG lưu lịch sử — dùng cho luồng xem trước/kiểm tra.
+     *
+     * <p>Nạp entity bài tập qua {@link #findExercisesForLesson} (đường cần entity managed), rồi so
+     * khớp từng câu trả lời. Hai loại bài bị coi là <b>không chấm được</b> ({@code ungradeable=true})
+     * và bị loại khỏi CẢ tử số lẫn mẫu số (không tính là sai):
+     * <ul>
+     *   <li>bài thiếu {@code correct_answer} (rỗng) — so {@code ""} với {@code ""} sẽ báo đúng oan;</li>
+     *   <li>bài MATCHING có {@code options} hỏng, không sinh ra cặp nào (audit-v10 F127).</li>
+     * </ul>
+     * {@code percentage} tính trên mẫu số {@code total} (số câu chấm được), làm tròn 2 chữ số.
+     *
+     * @param lessonId id bài học
+     * @param request  danh sách câu trả lời; nếu {@code answers == null} trả về kết quả rỗng 0/0
+     * @return kết quả chấm (từng câu + điểm + tổng + phần trăm)
+     */
     @Transactional
     public GradeResponse gradeExercises(Long lessonId, GradeRequest request) {
         List<Exercise> exercises = findExercisesForLesson(lessonId);
@@ -415,6 +495,21 @@ public class ExerciseService {
     // filter xuống SQL qua findAdminPage). Giữ lại đường không phân trang là
     // tái introducing worst-scaling-query.
 
+    /**
+     * Trang danh sách bài tập cho admin, có filter lesson/type/difficulty/search.
+     *
+     * <p><b>Tối ưu hiệu năng:</b> dùng {@code findAdminPage} đẩy filter xuống SQL (phân trang), và
+     * KHÔNG hydrate entity Lesson theo từng dòng — tên lesson lấy bằng một query batch riêng
+     * ({@code findTitlesById}) để tránh kéo hai cột {@code NVARCHAR(MAX)} của lesson
+     * (audit-v8 perf: từng ~95k logical reads/trang). Lưu ý {@code search} là LIKE {@code %kw%}.
+     *
+     * @param lessonId   filter theo lesson (null = tất cả)
+     * @param type       filter theo loại bài tập (chuỗi, null = tất cả)
+     * @param difficulty filter theo độ khó (chuỗi, null = tất cả)
+     * @param search     từ khóa tìm trong câu hỏi (null/rỗng = bỏ qua)
+     * @param pageable   thông tin phân trang
+     * @return trang DTO bài tập cho admin
+     */
     public Page<ExerciseResponse> getAdminExercisePage(Long lessonId, String type, String difficulty, String search, Pageable pageable) {
         ExerciseType exerciseType = parseEnum(type, ExerciseType.class);
         ExerciseDifficulty exerciseDifficulty = parseEnum(difficulty, ExerciseDifficulty.class);
@@ -469,6 +564,25 @@ public class ExerciseService {
 
     // --- Exercise Attempts ---
 
+    /**
+     * Nộp bài của học sinh: chấm điểm rồi lưu lịch sử làm bài và ghi nhận ngày học cho streak.
+     *
+     * <p>Luồng: gọi {@link #gradeExercises} → tra user theo email → nạp một lượt các entity bài tập
+     * theo id ({@code findAllById}, tránh N+1) → dựng {@code detailsJson} (câu hỏi, đáp án người
+     * dùng, đáp án đúng, đúng/sai, giải thích) → lưu {@link ExerciseAttempt} kèm thời điểm
+     * {@code LocalDateTime.now()} (giờ VN naive, xem quy ước timezone ở AGENTS.md).
+     *
+     * <p><b>Ghi {@code study_days}:</b> chỉ gọi {@link StudyActivityService#recordStudy} khi có ÍT
+     * NHẤT một câu trả lời không rỗng — nộp bài trắng không tính là một ngày học. Lưu ý guard draft
+     * lesson nằm ở tầng controller ({@code LessonController}) chặn học viên nộp bài vào lesson chưa
+     * publish, nên service này không kiểm lại trạng thái publish.
+     *
+     * @param lessonId  id bài học
+     * @param request   danh sách câu trả lời
+     * @param userEmail email người nộp (lấy từ JWT)
+     * @return kết quả chấm điểm
+     * @throws EntityNotFoundException nếu không tìm thấy user
+     */
     @Transactional
     public GradeResponse submitExercises(Long lessonId, GradeRequest request, String userEmail) {
         GradeResponse grade = gradeExercises(lessonId, request);
@@ -532,6 +646,14 @@ public class ExerciseService {
                 .replace("\t", "\\t") + "\"";
     }
 
+    /**
+     * Lịch sử các lượt nộp bài của một user cho một lesson, mới nhất trước.
+     *
+     * @param lessonId  id bài học
+     * @param userEmail email người học
+     * @return danh sách tóm tắt lượt làm (điểm, tổng, phần trăm, thời điểm)
+     * @throws EntityNotFoundException nếu không tìm thấy user
+     */
     public List<AttemptHistoryResponse> getAttemptHistory(Long lessonId, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + userEmail));
@@ -547,6 +669,21 @@ public class ExerciseService {
                 .toList();
     }
 
+    /**
+     * Chi tiết một lượt làm bài (từng câu, đáp án người dùng, đáp án đúng, đúng/sai, giải thích).
+     *
+     * <p><b>Chống IDOR:</b> lượt làm được tra bằng {@code findByIdAndUserId} nên user chỉ xem được
+     * lượt của chính mình, không xem được lượt của người khác dù biết {@code attemptId}.
+     *
+     * <p>Cột {@code details} chứa JSON mảng các object được dựng thủ công ở {@link #submitExercises};
+     * ở đây parse bằng tay (không qua Jackson) vì tin định dạng do chính app ghi ra.
+     *
+     * @param lessonId  id bài học
+     * @param attemptId id lượt làm
+     * @param userEmail email người học (lấy từ JWT)
+     * @return chi tiết lượt làm
+     * @throws EntityNotFoundException nếu không tìm thấy user hoặc lượt làm không thuộc user này
+     */
     public AttemptDetailResponse getAttemptDetail(Long lessonId, Long attemptId, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + userEmail));
@@ -662,6 +799,17 @@ public class ExerciseService {
                 .build();
     }
 
+    /**
+     * Nội dung bài học đã được làm sạch/làm gọn để hiển thị cho người học.
+     *
+     * <p>Nội dung trong DB hầu hết đã được xử lý sẵn, nhưng vẫn chạy một lượt
+     * {@link LessonContentService#wrapAnswerSections} ở runtime để bọc các khối "ĐÁP ÁN" thành dạng
+     * thu gọn — kể cả 58 lesson cũ được tạo trước bộ chuyển đổi offline (audit-v7 F53).
+     *
+     * @param lessonId id bài học
+     * @return thông tin nội dung đã làm sạch
+     * @throws EntityNotFoundException nếu không tìm thấy lesson
+     */
     public LessonContentInfo getCleanContent(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new EntityNotFoundException("Lesson not found: " + lessonId));

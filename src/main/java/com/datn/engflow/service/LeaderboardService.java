@@ -21,7 +21,11 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 /**
- * class LeaderboardService.
+ * Xếp hạng người học theo điểm tích lũy.
+ *
+ * <p>Tầng service, được gọi từ {@code LeaderboardController}. Đọc user qua
+ * {@link UserRepository} theo thứ tự điểm giảm dần rồi gắn streak hiệu lực lấy từ
+ * {@link StreakService} (một query cho cả trang, tránh N+1).
  */
 public class LeaderboardService {
 
@@ -34,6 +38,16 @@ public class LeaderboardService {
     private final UserRepository userRepository;
     private final StreakService streakService;
 
+    /**
+     * Trang xếp hạng, sắp theo điểm giảm dần rồi id tăng dần để thứ tự ổn định khi bằng điểm.
+     *
+     * <p>Hạng được tính từ vị trí tuyệt đối ({@code rankOffset + index + 1}) nên đúng cả khi
+     * yêu cầu trang giữa. Streak của cả trang đọc trong một query; trang rỗng bỏ qua tầng streak.
+     *
+     * @param page chỉ số trang, 0-based
+     * @param size số dòng mỗi trang, bị chặn trong khoảng 1..100
+     * @return trang các mục xếp hạng
+     */
     @Transactional(readOnly = true)
     public Page<LeaderboardEntryDTO> getLeaderboard(int page, int size) {
         int safePage = Math.max(page, 0);
@@ -56,12 +70,19 @@ public class LeaderboardService {
         return new PageImpl<>(entries, pageable, users.getTotalElements());
     }
 
+    /**
+     * Lấy N người đứng đầu bảng xếp hạng.
+     *
+     * @param limit số mục cần lấy, bị chặn trong khoảng 1..100
+     * @return danh sách mục xếp hạng từ hạng 1
+     */
     @Transactional(readOnly = true)
     public List<LeaderboardEntryDTO> getLeaderboard(int limit) {
         int safeLimit = Math.min(Math.max(limit, 1), MAX_PAGE_SIZE);
         return getLeaderboard(0, safeLimit).getContent();
     }
 
+    /** Map entity User + hạng + streak sang DTO; level null mặc định là ELEMENTARY. */
     private LeaderboardEntryDTO toEntry(User user, long rank, int currentStreak) {
         return LeaderboardEntryDTO.builder()
                 .rank(Math.toIntExact(rank))

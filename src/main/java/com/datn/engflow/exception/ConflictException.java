@@ -7,6 +7,11 @@ package com.datn.engflow.exception;
  */
 public class ConflictException extends RuntimeException {
 
+    /**
+     * Tạo lỗi 409 với thông điệp mô tả xung đột trạng thái.
+     *
+     * @param message thông điệp tiếng Việt sẽ nằm ở trường {@code detail} của ProblemDetail
+     */
     public ConflictException(String message) {
         super(message);
     }

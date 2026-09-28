@@ -20,16 +20,41 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Bộ lọc dựng {@code SecurityContext} từ access token cho mọi request HTTP.
+ *
+ * <p>Tầng bảo mật: chạy trước {@code UsernamePasswordAuthenticationFilter} (ghép trong
+ * {@code SecurityConfig}) nên {@code @AuthenticationPrincipal UserPrincipal} ở controller
+ * luôn có sẵn. Luồng: đọc header {@code Authorization: Bearer} → {@link JwtTokenProvider}
+ * kiểm chữ ký/hạn → {@link CustomUserDetailsService} nạp hàng user từ DB (JWT là
+ * stateless, không cache principal) → dựng {@code UsernamePasswordAuthenticationToken}
+ * với authorities lấy từ hàng đó.
+ *
+ * <p>Filter có ba đường trả 401 ngay, không cho request đi tiếp: token hết hạn, token
+ * hỏng/chữ ký sai, và tài khoản bị admin vô hiệu hoá. Request không có header Bearer
+ * đơn giản là chạy tiếp không có principal — {@code SecurityConfig} quyết định endpoint
+ * nào chấp nhận điều đó.
+ */
 @Component
 @RequiredArgsConstructor
-/**
- * class JwtAuthenticationFilter.
- */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * Xác thực bearer token rồi chuyển request xuống chuỗi filter kế tiếp.
+     *
+     * <p>Ba nhánh trả 401 kèm JSON ngay (không gọi {@code filterChain.doFilter}): token hết
+     * hạn, token hỏng, và user bị vô hiệu hoá. Nhánh catch-all cuối chỉ ghi log rồi đi
+     * tiếp không có principal, để endpoint permitAll vẫn phục vụ được thay vì 500.
+     *
+     * @param request request hiện tại, dùng để đọc header và ghi log đường dẫn
+     * @param response response hiện tại, ghi 401 + body JSON ở các nhánh chặn
+     * @param filterChain chuỗi filter còn lại, chỉ chạy khi request được phép đi tiếp
+     * @throws ServletException nếu chuỗi filter phía sau lỗi
+     * @throws IOException nếu đọc request hoặc ghi response lỗi
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,

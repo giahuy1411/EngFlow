@@ -53,11 +53,28 @@ public class StreakReminderScheduler {
     @Value("${engflow.scheduler.catchup.enabled:false}")
     private boolean catchUpEnabled;
 
+    /**
+     * Job theo lịch: chạy lúc <b>20:00 hằng ngày theo giờ Việt Nam</b> (cron {@code 0 0 20 * * *},
+     * zone {@code Asia/Ho_Chi_Minh}) để gửi mail nhắc giữ chuỗi học tập.
+     *
+     * <p>Chỉ là lớp vỏ gọi {@link #runReminderJob} với trigger {@code "scheduled"}; toàn bộ logic
+     * chống trùng/chống lỡ nằm trong hàm đó.
+     */
     @Scheduled(cron = "0 0 20 * * *", zone = "Asia/Ho_Chi_Minh")
     public void sendDailyStreakReminders() {
         runReminderJob("scheduled");
     }
 
+    /**
+     * Chạy bù job khi app khởi động muộn (đã qua 20:00 giờ VN mà job hôm đó chưa chạy).
+     *
+     * <p>Lắng nghe {@link ApplicationReadyEvent}. <b>Có gate:</b> chỉ chạy khi
+     * {@code engflow.scheduler.catchup.enabled=true} (mặc định tắt), và chỉ khi giờ hiện tại
+     * &ge; {@link RedisConstants#REMINDER_HOUR}. Đồng hồ được ghim zone VN
+     * ({@code clock.withZone(SCHEDULER_ZONE)}) vì clock bean là system default — nếu container
+     * thiếu TZ thì so giờ UTC sẽ sớm 7h, khiến catch-up không nổ quanh 00:00–07:00 VN và lệch ngày
+     * marker/sent key. Việc chống gửi trùng đã do marker trong {@link #runReminderJob} đảm nhiệm.
+     */
     @EventListener(ApplicationReadyEvent.class)
     public void catchUpIfMissed() {
         if (!catchUpEnabled) {

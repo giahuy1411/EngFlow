@@ -16,13 +16,17 @@ import java.nio.charset.StandardCharsets;
  * Expands the SQL Server check constraint for video submission statuses.
  * The migration is safe to run on every startup because it skips databases
  * whose constraint already supports the manual-grading states.
+ *
+ * <p>Hibernate's {@code ddl-auto=update} cannot widen a CHECK constraint, so a
+ * database created before manual grading existed would reject every
+ * {@code UNDER_REVIEW} or {@code GRADED} write. The runner probes
+ * {@code sys.check_constraints} first and only applies the SQL in
+ * {@code db/migration/V4__expand_video_submission_status.sql} when the current
+ * definition is missing one of the three states.</p>
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-/**
- * class SpeakingSubmissionStatusMigration.
- */
 public class SpeakingSubmissionStatusMigration implements ApplicationRunner {
 
     static final String TABLE_EXISTS_SQL = """
@@ -69,11 +73,27 @@ public class SpeakingSubmissionStatusMigration implements ApplicationRunner {
         log.info("Expanded video submission status constraint for manual grading");
     }
 
+    /**
+     * Runs a scalar {@code SELECT COUNT(*)} and normalises the nullable result.
+     *
+     * @param sql counting query to execute
+     * @return the count, or {@code 0} when the query returned no value
+     */
     private int queryCount(String sql) {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
         return count == null ? 0 : count;
     }
 
+    /**
+     * Loads the migration SQL from the classpath.
+     *
+     * <p>Wrapped in {@link UncheckedIOException} so the caller is not forced to
+     * declare a checked exception it cannot act on — a missing resource here
+     * means a broken build artifact, and the runner should abort loudly.</p>
+     *
+     * @return the file contents as a UTF-8 string
+     * @throws UncheckedIOException if the resource is absent or unreadable
+     */
     private String readMigrationSql() {
         try {
             return new ClassPathResource(MIGRATION_RESOURCE)

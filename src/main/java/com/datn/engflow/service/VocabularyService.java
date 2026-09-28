@@ -18,7 +18,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 /**
- * class VocabularyService.
+ * Ghi một từ vào từ điển dùng chung và liên kết nó vào deck của người học.
+ *
+ * <p>Tầng service, là đường ghi duy nhất cho từ vựng của người học
+ * ({@code VideoLessonController} và {@code AiVocabController} đều gọi
+ * {@link #createScoped}). Chỉ còn một class này viết vào bảng
+ * {@code vocabulary} ngoài đường admin.
  *
  * <p>audit-v12 F147: {@code vocabulary} is a SHARED dictionary — it has no owner column,
  * and ownership of a saved word lives in {@code decks.owner_id} + {@code deck_words}. The
@@ -50,6 +55,11 @@ public class VocabularyService {
      * @param userId    the authenticated user (null for anonymous — rejected upstream)
      * @param isAdmin   admins may add to the shared dictionary without a deck
      * @return the persisted (or reused) vocabulary row
+     * @throws BadRequestException nếu tài khoản thường không truyền {@code deckId},
+     *         hoặc truyền {@code lessonId} (chỉ admin được gắn từ vào bài học)
+     * @throws ResourceNotFoundException nếu {@code lessonId} không tồn tại
+     * @throws BadRequestException (từ {@link DeckService#addWordToDeck}) nếu
+     *         {@code deckId} không thuộc sở hữu của người gọi
      */
     @Transactional
     public Vocabulary createScoped(VocabularyRequest request, Long deckId, Long userId, boolean isAdmin) {
@@ -87,6 +97,10 @@ public class VocabularyService {
      * Reuse an existing dictionary row when the same word is already there. Only rows that
      * are NOT attached to a lesson are reused: a lesson-scoped word is curriculum content
      * and must not be silently borrowed by a learner's deck.
+     *
+     * @param request dữ liệu từ vựng
+     * @return row cũ nếu từ khớp tuyệt đối (bỏ khoảng trắng, không phân biệt hoa thường)
+     *         và không gắn bài học; {@link java.util.Optional#empty()} nếu phải tạo mới
      */
     private java.util.Optional<Vocabulary> findReusable(VocabularyRequest request) {
         String word = request.getWord() == null ? null : request.getWord().trim();
@@ -100,6 +114,13 @@ public class VocabularyService {
                 .findFirst();
     }
 
+    /**
+     * Dựng entity {@link Vocabulary} từ request, gồm cả liên kết bài học nếu có.
+     *
+     * @param request dữ liệu từ vựng
+     * @return entity chưa lưu, {@code lesson} null nếu request không có lessonId
+     * @throws ResourceNotFoundException nếu {@code lessonId} không tồn tại
+     */
     private Vocabulary build(VocabularyRequest request) {
         // audit-v12 F147: the old controller ignored lessonId entirely (a comment said
         // "skipped for simplicity"), so a caller that supplied one silently got a

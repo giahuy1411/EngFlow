@@ -26,7 +26,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** Ghi ngày học cùng transaction của kết quả đã được backend xác thực. */
+/**
+ * Ghi ngày học cùng transaction của kết quả đã được backend xác thực.
+ *
+ * <p>Tầng service, là nguồn sự thật DUY NHẤT cho streak: mọi ngày học nằm trong
+ * bảng {@code study_days} ({@link StudyDayRepository}) và được đọc lại qua đây.
+ * {@link StreakService} chỉ là facade mỏng; không có đường nào khác tự đếm ngày.
+ *
+ * <p>Hai quy ước ràng buộc mọi caller: (1) {@link #recordStudy} khai báo
+ * {@link Propagation#MANDATORY} nên phải được gọi từ trong một transaction đang
+ * lưu kết quả học tập — nhờ đó ngày học không bao giờ tồn tại cho một lượt làm bài
+ * đã rollback; (2) mọi phép so sánh ngày đều đi qua {@link #today()} (múi giờ
+ * {@code Asia/Ho_Chi_Minh}, đọc từ {@link Clock} bean) chứ không dùng
+ * {@code LocalDate.now()} trần, để test cuốn được thời gian.
+ *
+ * <p>Ngưỡng tính streak không nằm trong class mà đọc từ row {@code study_policy}
+ * ({@link StudyPolicyRepository}) — xem {@link #effectiveFrom()}.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -50,6 +66,13 @@ public class StudyActivityService {
      * ngày hiệu lực" là một trạng thái cấu hình hợp lệ (streak đang ngủ), không phải
      * sự cố; còn thiếu hẳn row policy vẫn phải ném để lộ lỗi cấu hình (xem
      * {@link #effectiveFrom()}).
+     *
+     * @param userId user vừa hoàn thành một hoạt động học tập đã xác thực
+     * @throws java.util.NoSuchElementException nếu không tìm thấy user theo id
+     * @throws IllegalStateException nếu user đã bị vô hiệu hóa, hoặc thiếu row
+     *         {@code study_policy} (mốc cutover chưa được deploy)
+     * @throws org.springframework.transaction.IllegalTransactionStateException
+     *         nếu được gọi ngoài transaction (propagation MANDATORY)
      */
     @Transactional(propagation = Propagation.MANDATORY)
     public void recordStudy(Long userId) {
@@ -67,6 +90,21 @@ public class StudyActivityService {
         }
     }
 
+    /**
+     * Lịch học của user trong một cửa sổ N ngày, kèm streak và cờ hôm nay đã học.
+     *
+     * <p>Trả về cả ngày ghi trong bảng {@code study_days} lẫn ngày legacy còn nằm
+     * trong Redis (key {@code user:login_days:&lt;id&gt;}) để lịch không bị trống trước
+     * ngày cutover. Ngày legacy đọc lỗi hoặc sai định dạng chỉ làm hỏng phần
+     * legacy, không làm hỏng lịch chính — cờ {@code legacyAvailable} báo cho UI biết
+     * có nên render phần đó không.
+     *
+     * @param userId user cần tra
+     * @param window độ rộng cửa sổ tính ngược từ hôm nay, 1..366
+     * @return snapshot gồm hôm nay, streak, lịch ngày và ngày cutover
+     * @throws IllegalArgumentException nếu {@code window} nằm ngoài 1..366
+     * @throws IllegalStateException nếu thiếu row {@code study_policy}
+     */
     @Transactional(readOnly = true)
     public StudySnapshot snapshot(Long userId, int window) {
         if (window < 1 || window > 366) {
@@ -102,6 +140,16 @@ public class StudyActivityService {
                 start, visibleDays, List.copyOf(legacyDays), legacyAvailable);
     }
 
+    /**
+     * Chuỗi ngày học liên tiếp đang hiệu lực của một user.
+     *
+     * <p>Chuỗi được tính từ hôm nay lùi về quá khứ; nếu hôm nay chưa học thì xuất
+     * phát từ hôm qua, nên chuỗi vẫn sống cho tới hết ngày hôm.
+     *
+     * @param userId user cần tra
+     * @return độ dài chuỗi; 0 nếu user chưa có ngày học nào
+     * @throws IllegalStateException nếu thiếu row {@code study_policy}
+     */
     @Transactional(readOnly = true)
     public int currentStreak(Long userId) {
         LocalDate today = today();
@@ -116,7 +164,9 @@ public class StudyActivityService {
      * trong bộ nhớ — và vẫn đi qua đúng hàm {@link #currentStreak(List, LocalDate)}
      * để hai đường không bao giờ lệch luật.</p>
      *
+     * @param userIds các user cần tra; null hoặc rỗng trả về map rỗng
      * @return userId → streak hiệu lực; user không có ngày học nào nhận 0.
+     * @throws IllegalStateException nếu thiếu row {@code study_policy}
      */
     @Transactional(readOnly = true)
     public Map<Long, Integer> currentStreaks(Collection<Long> userIds) {
@@ -135,6 +185,15 @@ public class StudyActivityService {
         return streaks;
     }
 
+    /**
+     * Ngày học tập "hôm nay" theo múi giờ Việt Nam.
+     *
+     * <p>Mọi so sánh ngày trong class này dùng hàm này thay vì
+     * {@code LocalDate.now()} trần: container có thể chạy ở UTC, lệch 7 giờ so với
+     * giờ VN, và streak sẽ đóng/mở sai ngày.
+     *
+     * @return ngày hiện tại theo {@code Asia/Ho_Chi_Minh}
+     */
     public LocalDate today() {
         return LocalDate.now(clock.withZone(STUDY_ZONE));
     }
@@ -147,6 +206,13 @@ public class StudyActivityService {
      *
      * <p>Window semantics match {@link #snapshot(Long, int)}: "last 7 days" means today and
      * the six days before it (inclusive), i.e. {@code today - (windowDays - 1)} .. today.
+     *
+     * <p>Khác {@link #snapshot(Long, int)}, hàm này KHÔNG lọc theo mốc cutover: nó
+     * đếm trực tiếp trên {@code study_days} nên trước ngày hiệu lực vẫn trả về số
+     * thật, và không phụ thuộc row {@code study_policy}.
+     *
+     * @param windowDays độ rộng cửa sổ, tính cả hôm nay
+     * @return số user phân biệt được có ít nhất một ngày học trong cửa sổ
      */
     @Transactional(readOnly = true)
     public long countActiveLearnersInLastDays(int windowDays) {
@@ -154,6 +220,18 @@ public class StudyActivityService {
         return days.countDistinctUsersBetween(end.minusDays(windowDays - 1L), end);
     }
 
+    /**
+     * Danh sách user ứng viên nhận mail nhắc, theo nhánh at-risk hay broken.
+     *
+     * <p>Cả hai nhánh đều yêu cầu user ĐÃ TỪNG học (có ít nhất một ngày trong
+     * {@code study_days}) và đã học lần cuối vào đúng hôm qua; khác nhau ở chỗ nhánh
+     * at-risk chấp nhận "học hôm qua, chưa học hôm nay" còn nhánh broken yêu cầu
+     * ngày học cuối NỘT hơn hôm qua. Người chưa từng học không thuộc tập nào.
+     *
+     * @param atRisk {@code true} lấy nhánh at-risk, {@code false} lấy nhánh broken
+     * @return danh sách user ứng viên
+     * @throws IllegalStateException nếu thiếu row {@code study_policy}
+     */
     @Transactional(readOnly = true)
     public List<com.datn.engflow.model.entity.User> reminderCandidates(boolean atRisk) {
         LocalDate today = today();
@@ -162,6 +240,18 @@ public class StudyActivityService {
                 : users.findStudyReminderBroken(start, today, today.minusDays(1));
     }
 
+    /**
+     * Kiểm tra lại điều kiện nhắc cho MỘT user, dùng để chặn cuối ngay trước lúc gửi.
+     *
+     * <p>Tách riêng khỏi {@link #reminderCandidates} vì giữa lúc quét danh sách và
+     * lúc gửi mail user có thể đã học — nếu gửi cả mail at-risk lẫn comeback cho
+     * cùng một người thì cả hai vẫn "đúng" theo danh sách cũ.
+     *
+     * @param userId user cần tra
+     * @param atRisk {@code true} cho nhánh at-risk, {@code false} cho nhánh broken
+     * @return {@code true} nếu user còn đúng trạng thái cần nhắc
+     * @throws IllegalStateException nếu thiếu row {@code study_policy}
+     */
     @Transactional(readOnly = true)
     public boolean reminderEligible(Long userId, boolean atRisk) {
         var user = users.findById(userId).orElse(null);
@@ -173,6 +263,17 @@ public class StudyActivityService {
         return atRisk ? last.equals(today.minusDays(1)) : last.isBefore(today.minusDays(1));
     }
 
+    /**
+     * Độ dài chuỗi đã đóng tại ngày học cuối cùng — số liệu đưa vào mail mời quay lại.
+     *
+     * <p>Tính lại từ ngày học CUỐI, không phải từ hôm nay: nếu tính từ hôm nay thì
+     * chuỗi của một người đã bỏ học 5 ngày luôn bằng 0 và mail mời quay lại mất
+     * hết thông tin.
+     *
+     * @param userId user cần tra
+     * @return độ dài chuỗi tính tới ngày học cuối; 0 nếu chưa từng học
+     * @throws IllegalStateException nếu thiếu row {@code study_policy}
+     */
     @Transactional(readOnly = true)
     public int lastCompletedStreak(Long userId) {
         var dates = days.findDates(userId, effectiveFrom(), today());
@@ -185,6 +286,9 @@ public class StudyActivityService {
      * vì ngày hiệu lực phải là một quyết định được review chứ không phải giá trị mặc
      * định lúc boot. Vì vậy ở đây ném thay vì đoán — nhưng thông báo phải nói rõ file
      * cần chạy, nếu không người trực ca chỉ thấy một IllegalStateException trần.
+     *
+     * @return ngày hiệu lực đã duyệt, mọi ngày học trước ngày này bị bỏ qua
+     * @throws IllegalStateException nếu bảng {@code study_policy} không có row id=1
      */
     private LocalDate effectiveFrom() {
         return policies.findById(1).orElseThrow(() -> {
@@ -197,6 +301,18 @@ public class StudyActivityService {
         }).getEffectiveFrom();
     }
 
+    /**
+     * Thuật toán tính streak dùng chung cho cả một user lẫn nhiều user.
+     *
+     * <p>Chấp nhận {@code today} làm tham số thay vì tự gọi {@link #today()} để hai
+     * đường đọc (đơn lẻ và theo trang) không thể lệch nhau và để test truyền được
+     * mốc thời gian. Ngày trùng lặp bị khử bằng {@code HashSet} trước khi đếm.
+     *
+     * @param dates các ngày đã học
+     * @param today mốc "hôm nay" để tính ngược
+     * @return độ dài chuỗi tính từ {@code today} (hoặc từ hôm qua nếu hôm nay
+     *         chưa học) lùi về quá khứ
+     */
     private int currentStreak(List<LocalDate> dates, LocalDate today) {
         var uniqueDates = new java.util.HashSet<>(dates);
         LocalDate cursor = uniqueDates.contains(today) ? today : today.minusDays(1);

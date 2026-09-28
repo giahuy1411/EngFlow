@@ -15,7 +15,12 @@ import java.util.regex.Pattern;
 
 @Service
 /**
- * class AnswerKeyService.
+ * Loads the answer keys of the imported {@code tienganh_nangcao_lessons.json}
+ * corpus into memory at startup and serves them by lesson and skill code
+ * ("vcb", "gra", "lis", "rea"). The keys are scraped out of the lesson HTML
+ * with regexes rather than shipped as data, because the source file carries
+ * answers only as visible text inside each skill's content. Read by the
+ * data seeder; a corpus that is missing simply means no answers are available.
  */
 public class AnswerKeyService {
 
@@ -24,11 +29,21 @@ public class AnswerKeyService {
     private static final Pattern ANSWER_PATTERN = Pattern.compile("result(\\d+)\\s*=\\s*['\"]?([^'\";,]+?)['\"]?\\s*[;,]");
     private static final Pattern ARR_RESULT_PATTERN = Pattern.compile("arr_result\\[\\d+]\\[\\d+]\\s*=\\s*['\"]?([^'\";]+?)['\"]?\\s*[;,]");
 
+    /**
+     * Spring lifecycle hook: loads the corpus once, after the bean is
+     * constructed but before it serves any request.
+     */
     @PostConstruct
     public void init() {
         loadFromJson();
     }
 
+    /**
+     * Reads the corpus JSON and fills {@link #keys}. Tries the filesystem
+     * first, then the classpath, so a development checkout can override the
+     * bundled copy without a rebuild. Never throws: a missing or malformed
+     * corpus is logged and leaves the service answering empty maps.
+     */
     private void loadFromJson() {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -83,6 +98,16 @@ public class AnswerKeyService {
         }
     }
 
+    /**
+     * Extracts the numbered answer map from one skill's HTML content. Two
+     * shapes exist in the corpus: {@code resultN = 'x';} assignments and
+     * {@code arr_result[i][j] = 'x';} entries, whose rows are numbered by
+     * arrival order because the index does not match the visible question
+     * number.
+     *
+     * @param html the skill's content HTML
+     * @return question number to answer text, possibly empty
+     */
     private Map<Integer, String> parseAnswers(String html) {
         Map<Integer, String> answers = new HashMap<>();
         if (html == null || html.isEmpty()) return answers;
@@ -100,20 +125,41 @@ public class AnswerKeyService {
         return answers;
     }
 
+    /**
+     * Re-reads the corpus into memory, replacing whatever was loaded before.
+     * Exposed so a long-running instance can pick up an edited corpus file
+     * without a restart.
+     */
     public void loadAllAnswerKeys() {
         loadFromJson();
     }
 
+    /**
+     * Looks up the answer key for one lesson and skill.
+     *
+     * @param lessonId  the lesson (unit) id
+     * @param skillType the skill code: "vcb", "gra", "lis" or "rea"
+     * @return question number to answer text; empty when unknown, never null
+     */
     public Map<Integer, String> getAnswers(long lessonId, String skillType) {
         Map<Long, Map<Integer, String>> byLesson = keys.get(skillType);
         if (byLesson == null) return Collections.emptyMap();
         return byLesson.getOrDefault(lessonId, Collections.emptyMap());
     }
 
+    /**
+     * @param lessonId  the lesson (unit) id
+     * @param skillType the skill code: "vcb", "gra", "lis" or "rea"
+     * @return true when at least one answer was loaded for that pair
+     */
     public boolean hasAnswers(long lessonId, String skillType) {
         return !getAnswers(lessonId, skillType).isEmpty();
     }
 
+    /**
+     * @return the total number of individual answers across every loaded skill,
+     *         used only for the startup log line
+     */
     private int countKeys() {
         return keys.values().stream()
             .mapToInt(m -> m.values().stream().mapToInt(Map::size).sum())

@@ -3,6 +3,13 @@ package com.datn.engflow.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Dòng nối giữa một {@link Deck} và một {@link Vocabulary}, kèm thứ tự hiển thị.
+ *
+ * <p>Tầng entity. Cặp {@code (deck_id, vocab_id)} là duy nhất ở mức DB nên một từ
+ * không thể nằm hai lần trong cùng một deck. Thứ tự được đọc bằng
+ * {@code findByDeckIdOrderByOrderIndexAsc} trong {@link GameService}.
+ */
 @Entity
 @Table(name = "deck_words", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"deck_id", "vocab_id"})
@@ -13,9 +20,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-/**
- * class DeckWord.
- */
 public class DeckWord {
 
     @Id

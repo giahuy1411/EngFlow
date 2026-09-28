@@ -13,7 +13,13 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 /**
- * class AiPromptService.
+ * Generates speaking-practice prompts with the configured chat-completions
+ * backend (OpenRouter, or the local Ollama that {@code openrouter.base-url}
+ * points at by default). Serves the admin "generate by AI" button through
+ * {@link #generateFullPrompt} and the smaller {@link #generateSpeakingPrompt}
+ * variant. Every output goes through the same salvage path, because a small
+ * local model answers with prose or fenced JSON about as often as with clean
+ * JSON.
  */
 public class AiPromptService {
 
@@ -21,6 +27,12 @@ public class AiPromptService {
     private final ObjectMapper objectMapper;
     private final String model;
 
+    /**
+     * @param apiKey       bearer token for the chat-completions endpoint
+     * @param baseUrl      base URL of that endpoint
+     * @param model        model name to request
+     * @param objectMapper the shared mapper used to read the response
+     */
     public AiPromptService(
             @Value("${openrouter.api-key}") String apiKey,
             @Value("${openrouter.base-url}") String baseUrl,
@@ -35,6 +47,14 @@ public class AiPromptService {
                 .build();
     }
 
+    /**
+     * Asks the model for a single speaking prompt, in Vietnamese, and returns
+     * the raw model text — the caller parses it.
+     *
+     * @param topic the practice topic
+     * @param level the learner's level
+     * @return a {@link Mono} emitting the raw completion text
+     */
     public Mono<String> generateSpeakingPrompt(String topic, String level) {
         String promptText = String.format(
                 "Tạo một bài tập luyện nói tiếng Anh với chủ đề: \"%s\" ở trình độ %s. " +
@@ -48,7 +68,13 @@ public class AiPromptService {
     /**
      * Full speaking-prompt draft for the admin "tạo đề bằng AI" button:
      * one LLM call returns JSON with every field the admin form needs.
+     * The call blocks, so a slow local model shows up as a long admin request
+     * rather than a reactive pipeline the caller has to thread.
      *
+     * @param topic the practice topic
+     * @param level the CEFR level, or null to fall back to A2
+     * @param mode  the prompt mode; "READ_ALOUD" asks for a sample paragraph,
+     *              anything else asks for free speaking
      * @return parsed map of title/description/prompt/referenceText/level,
      *         with missing fields left out
      */
@@ -80,7 +106,17 @@ public class AiPromptService {
         return parseFullPrompt(raw, topic, level);
     }
 
-    /** Visible for tests: parses the LLM JSON into form fields with salvage. */
+    /**
+     * Parses the LLM JSON into the admin form's fields, always seeding topic
+     * and level from the request so a failed or partial reply still yields a
+     * usable draft. Non-JSON output is not thrown away — it becomes the
+     * reference text.
+     *
+     * @param raw           the raw completion text
+     * @param fallbackTopic topic to seed the result with
+     * @param fallbackLevel level to seed the result with
+     * @return the form fields, never null
+     */
     java.util.Map<String, String> parseFullPrompt(String raw, String fallbackTopic, String fallbackLevel) {
         java.util.Map<String, String> result = new java.util.HashMap<>();
         result.put("topic", fallbackTopic == null ? "" : fallbackTopic);
@@ -110,6 +146,10 @@ public class AiPromptService {
      * Small local models often wrap JSON in markdown fences or emit prose;
      * this strips fences, prefers the JSON {@code referenceText} (then
      * {@code prompt}) field, and falls back to the cleaned raw text.
+     *
+     * @param rawAiOutput the raw completion text
+     * @return the reference text to show the learner, never null for
+     *         non-null input
      */
     public String extractReferenceText(String rawAiOutput) {
         String clean = stripMarkdownFences(rawAiOutput);
@@ -130,6 +170,14 @@ public class AiPromptService {
         return clean;
     }
 
+    /**
+     * Removes a leading {@code ```} fence and its closing counterpart, which
+     * models add even when told not to. Only strips a fence that opens the
+     * text, so a fence appearing mid-answer is left alone.
+     *
+     * @param text the raw text
+     * @return the trimmed text without its outer fence
+     */
     private static String stripMarkdownFences(String text) {
         if (text == null) {
             return null;
@@ -148,6 +196,14 @@ public class AiPromptService {
         return t;
     }
 
+    /**
+     * Single chat-completions round trip, unwrapped from the
+     * {@code choices[0].message.content} envelope.
+     *
+     * @param prompt the user message to send
+     * @return a {@link Mono} emitting the assistant message content, or null
+     *         when the envelope cannot be parsed
+     */
     private Mono<String> callOpenRouter(String prompt) {
         var body = java.util.Map.of(
                 "model", model,

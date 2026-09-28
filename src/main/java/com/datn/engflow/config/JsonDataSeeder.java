@@ -30,14 +30,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Imports lesson JSON captured by the crawler into the {@code lessons} and
+ * {@code exercises} tables.
+ *
+ * <p>Runs on every startup by default ({@code engflow.seed-json-data} matches
+ * when missing) and is idempotent: a lesson is only inserted when its title is
+ * absent, but exercises are parsed for both new and pre-existing lessons, so a
+ * restart can backfill exercises without duplicating lessons. {@code @Order(2)}
+ * places it after {@link DatabaseSeeder} so the base tables exist.
+ * {@code JdbcTemplate} is injected but unused in the current body — it is kept
+ * for the crawler's bulk-insert path.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 @Order(2)
 @ConditionalOnProperty(name = "engflow.seed-json-data", havingValue = "true", matchIfMissing = true)
-/**
- * class JsonDataSeeder.
- */
 public class JsonDataSeeder implements CommandLineRunner {
 
     private final LessonRepository lessonRepository;
@@ -47,6 +56,20 @@ public class JsonDataSeeder implements CommandLineRunner {
     private final HtmlParserService htmlParserService;
     private final ExerciseRepository exerciseRepository;
 
+    /**
+     * Reads every crawler JSON file and imports its units as lessons.
+     *
+     * <p>For each unit the seven {@code skills} keys are mapped onto
+     * {@link SkillType} constants in the same order, and each non-empty
+     * {@code content} is sanitised with Jsoup before being stored. Known
+     * scraper widgets (ads, shortcodes, social triggers) are removed and a
+     * safelist is applied. An exercise is saved only when no existing exercise of
+     * that lesson has the same question text. Answer keys are loaded once at the
+     * end, with failures logged rather than thrown.</p>
+     *
+     * @param args command-line arguments supplied to the application
+     * @throws Exception if a JSON file cannot be read or parsed
+     */
     @Override
     public void run(String... args) throws Exception {
         // Try reading from the crawler/data/ directory first, then fallback to single file
@@ -186,6 +209,17 @@ public class JsonDataSeeder implements CommandLineRunner {
         }
     }
 
+    /**
+     * Maps a crawler level string onto a {@link LessonLevel} constant.
+     *
+     * <p>Accepts both CEFR letters and the enum's own names. Anything
+     * unrecognised — including {@code null} and the empty string — falls back to
+     * {@code ELEMENTARY} rather than failing the whole import, because a single
+     * odd level string in the corpus should not abort seeding.</p>
+     *
+     * @param level raw level value from the JSON, possibly {@code null}
+     * @return the matching level, defaulting to {@code ELEMENTARY}
+     */
     private LessonLevel mapLevel(String level) {
         if (level == null || level.isEmpty()) return LessonLevel.ELEMENTARY;
         return switch (level.toUpperCase()) {

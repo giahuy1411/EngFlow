@@ -47,6 +47,11 @@ public class SubtitleTranslationService {
      * {@code textVi} filled in. Lines already having a Vietnamese translation
      * are kept as-is. On total LLM failure the original lines are returned
      * unchanged (fail-soft — the admin can retry or translate by hand).
+     *
+     * @param lines the transcript lines, each with at least a start, end and
+     *              English text
+     * @return a new list carrying the same lines with the blanks filled in;
+     *         the input list is not modified
      */
     public List<TranscriptLine> translate(List<TranscriptLine> lines) {
         if (lines == null || lines.isEmpty()) {
@@ -83,6 +88,14 @@ public class SubtitleTranslationService {
         return result;
     }
 
+    /**
+     * Collects the English text of the lines that still need translating,
+     * capped at {@link #MAX_LINES_PER_BATCH}.
+     *
+     * @param lines   the full transcript
+     * @param indexes the positions of the lines needing translation
+     * @return their English texts, in transcript order
+     */
     private List<String> indexLines(List<TranscriptLine> lines, List<Integer> indexes) {
         List<String> texts = new ArrayList<>();
         for (int idx : indexes) {
@@ -99,6 +112,9 @@ public class SubtitleTranslationService {
      * Translates in {@link #CHUNK_SIZE} chunks (audit-v6 F30). Returns a list
      * aligned with {@code texts}; a failed chunk yields nulls for its slice so
      * the caller keeps those lines untranslated.
+     *
+     * @param texts the English lines to translate
+     * @return one entry per input line, null where translation failed
      */
     private List<String> translateBatchChunked(List<String> texts) {
         List<String> out = new ArrayList<>();
@@ -119,6 +135,12 @@ public class SubtitleTranslationService {
     }
 
     /**
+     * Runs one numbered-batch LLM call. The model is asked for a bare JSON
+     * array, and the array is cut out of the response by bracket position so
+     * surrounding prose is tolerated. A parse failure or a non-array reply
+     * returns null and the caller drops this batch's lines.
+     *
+     * @param texts the English lines of one chunk
      * @return translated strings aligned with the input, or {@code null} on failure
      */
     private List<String> translateBatch(List<String> texts) {

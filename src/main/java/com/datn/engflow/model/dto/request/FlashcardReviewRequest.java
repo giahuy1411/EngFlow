@@ -6,10 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 /**
- * class FlashcardReviewRequest.
+ * DTO chấm một thẻ flashcard, bind từ body của {@code POST /api/flashcards/review} và được
+ * {@code FlashcardService.reviewFlashcard} chuyển thẳng cho {@code SrsService.reviewWord}.
  *
  * <p>audit-v12 F148: this used to carry a binary {@code isKnown} flag, which collapsed the
  * UI's three rating buttons ("Lại" / "Tiếp theo" / "Dễ") into two values — "Dễ" and
@@ -17,6 +16,8 @@ import lombok.Setter;
  * away. It now carries the SM-2 quality (0-5) that {@code SrsService.reviewWord} consumes,
  * so all three buttons mean something different.
  */
+@Getter
+@Setter
 public class FlashcardReviewRequest {
     @NotNull(message = "ID từ vựng không được để trống")
     private Long vocabularyId;

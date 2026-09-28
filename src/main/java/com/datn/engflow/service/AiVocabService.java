@@ -25,7 +25,13 @@ import java.util.Map;
 @Service
 @Slf4j
 /**
- * class AiVocabService.
+ * AI vocabulary generation: asks the configured chat-completions backend for a
+ * batch of words on a topic or for the detail of a single word, then maps the
+ * reply onto {@link Vocabulary} rows for the vocabulary admin screens. Also
+ * persists approved batches. Every reply from the small local model goes
+ * through two defences first — a lenient JSON reader and a CJK gloss guard —
+ * because that model intermittently returns malformed JSON and writes
+ * Vietnamese definitions in Chinese.
  */
 public class AiVocabService {
 
@@ -54,6 +60,16 @@ public class AiVocabService {
     private static final ObjectMapper LENIENT_MAPPER = new ObjectMapper()
             .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
 
+    /**
+     * @param apiKey               bearer token for the chat-completions endpoint
+     * @param baseUrl              base URL of that endpoint
+     * @param model                model name to request
+     * @param timeoutSeconds       per-request timeout, from
+     *                             {@code ai.vocab.timeout-seconds}
+     * @param objectMapper         the shared mapper, used for the strict first
+     *                             parse and to serialise the request
+     * @param vocabularyRepository store for {@link #saveVocabBatch}
+     */
     public AiVocabService(
             @Value("${openrouter.api-key}") String apiKey,
             @Value("${openrouter.base-url}") String baseUrl,
@@ -72,6 +88,18 @@ public class AiVocabService {
                 .build();
     }
 
+    /**
+     * Generates a batch of vocabulary cards for a topic. Items whose gloss
+     * comes back in Chinese are dropped rather than returned, so a bad batch
+     * shrinks instead of carrying unusable cards into the deck editor.
+     *
+     * @param topic     the topic to generate about
+     * @param cefrLevel the level stamped on every generated card
+     * @param count     how many words to ask for
+     * @return a {@link Mono} emitting the accepted cards, unsaved
+     * @throws RuntimeException when the reply cannot be parsed as a JSON array
+     *                          of vocab objects
+     */
     public Mono<List<Vocabulary>> generateVocabByTopic(String topic, String cefrLevel, int count) {
         String prompt = String.format(
             "Generate %d English vocabulary words for topic: \"%s\" at CEFR level %s. " +
@@ -173,6 +201,18 @@ public class AiVocabService {
         return false;
     }
 
+    /**
+     * Generates the full detail of one word. Unlike the batch path a bad gloss
+     * is fatal here — there is nothing to drop it in favour of, so the CJK
+     * case surfaces as a 400 telling the admin to retry.
+     *
+     * @param word the English word to describe
+     * @return a {@link Mono} emitting the unsaved card
+     * @throws com.datn.engflow.exception.BadRequestException when a definition
+     *         field comes back containing CJK characters
+     * @throws RuntimeException                                when the reply
+     *         cannot be parsed as a vocab object
+     */
     public Mono<Vocabulary> enrichWord(String word) {
         String prompt = String.format(
             "Provide detailed vocabulary information for the English word: \"%s\". " +
@@ -225,6 +265,15 @@ public class AiVocabService {
         });
     }
 
+    /**
+     * Single chat-completions round trip with a shared, configurable timeout.
+     * HTTP failures are translated into a {@link RuntimeException} carrying a
+     * message written for the end user, because the raw status alone tells an
+     * admin nothing about whether to wait, pay, or fix the config.
+     *
+     * @param prompt the user message to send
+     * @return a {@link Mono} emitting the assistant message content
+     */
     private Mono<String> callOpenRouter(String prompt) {
         Map<String, Object> requestBodyMap = Map.of(
             "model", model,
@@ -278,6 +327,13 @@ public class AiVocabService {
                 .doOnError(e -> log.error("OpenRouter request failed", e));
     }
 
+    /**
+     * Persists a reviewed batch of generated cards in one transaction, so a
+     * failure part-way through leaves none of them behind.
+     *
+     * @param requests the reviewed cards to store
+     * @return the saved entities, in request order
+     */
     @Transactional
     public List<Vocabulary> saveVocabBatch(List<VocabularyRequest> requests) {
         List<Vocabulary> vocabularies = new ArrayList<>();

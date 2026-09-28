@@ -7,11 +7,15 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+/**
+ * Một dòng trong danh sách bài học đã publish.
+ *
+ * <p>Tầng response của {@code GET /api/lessons}. Cố tình không mang cột
+ * {@code content} (NVARCHAR(MAX)) — {@code LessonService} đọc qua projection nhẹ
+ * cho danh sách; bản đầy đủ nằm ở {@link LessonResponse}.
+ */
 @Data
 @Builder
-/**
- * class LessonListItemResponse.
- */
 public class LessonListItemResponse {
     private Long id;
     private String title;

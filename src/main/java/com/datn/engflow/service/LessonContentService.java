@@ -18,7 +18,11 @@ import org.jsoup.nodes.TextNode;
 @Slf4j
 @Service
 /**
- * class LessonContentService.
+ * Cleans scraped lesson HTML. The source corpus is Divi/WordPress pages full of
+ * layout divs, inline styles, ad iframes and answer accordions; this turns them
+ * into semantic HTML the learner UI can render, and converts the "Answer"
+ * accordions into native {@code <details>} elements. Runs both as an offline
+ * migration over the stored corpus and live when a lesson is (re)imported.
  */
 public class LessonContentService {
 
@@ -427,6 +431,11 @@ public class LessonContentService {
     /**
      * Strip Answer sections, Related Posts, ads, scripts, empty wrappers from lesson HTML.
      * Unwraps unnecessary Divi container divs so content renders cleanly.
+     * The lighter sibling of {@link #deepCleanHtml}: the answers are removed
+     * rather than converted to a collapsed {@code <details>}.
+     *
+     * @param rawHtml the original scraped HTML
+     * @return the cleaned HTML, or the input unchanged when it is null or empty
      */
     public String stripAnswersAndJunk(String rawHtml) {
         if (rawHtml == null || rawHtml.isEmpty()) return rawHtml;
@@ -493,6 +502,9 @@ public class LessonContentService {
 
     /**
      * Strip only ads, scripts, social junk — keep everything else (including answers).
+     *
+     * @param rawHtml the original scraped HTML
+     * @return the cleaned HTML, or the input unchanged when it is null or empty
      */
     public String stripJunkOnly(String rawHtml) {
         if (rawHtml == null || rawHtml.isEmpty()) return rawHtml;
@@ -504,8 +516,11 @@ public class LessonContentService {
         return body != null ? body.html() : doc.html();
     }
 
-/**
- * record LessonContentInfo.
- */
+    /**
+     * Cleaned lesson content, wrapped so a migration step can return the
+     * single field without exposing a bare string.
+     *
+     * @param cleanHtml the cleaned semantic HTML
+     */
     public record LessonContentInfo(String cleanHtml) {}
 }

@@ -6,6 +6,16 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Tiến độ của một user với một {@link Lesson}: mở bài lần cuối, đã hoàn thành hay chưa.
+ *
+ * <p>Tầng entity. Cặp {@code (user_id, lesson_id)} là duy nhất, nên mỗi user chỉ có
+ * một dòng mỗi bài. {@link LessonService} tạo dòng lúc mở bài và cập nhật
+ * {@link #lastAccessed}; {@link ProgressService} và {@link DashboardService} tổng
+ * hợp từ đây. Lưu ý {@link #completionPercentage} và {@link #isCompleted} được
+ * đọc rất nhiều nhưng hiện chưa có service nào ghi giá trị khác 0/false — điểm
+ * hoàn thành thật sự đến từ {@link ExerciseAttempt}.
+ */
 @Entity
 @Table(name = "user_progress", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"user_id", "lesson_id"})
@@ -15,9 +25,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class Progress.
- */
 public class Progress {
 
     @Id

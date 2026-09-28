@@ -18,7 +18,12 @@ import java.io.IOException;
 import java.time.Duration;
 
 /**
- * class RateLimitFilter.
+ * Chặn theo tần suất (rate limiting) ở tầng filter, chạy trước cả chuỗi xác thực nhờ {@code @Order(1)}.
+ *
+ * <p>Mục đích: bảo vệ các endpoint dễ bị lạm dụng — đăng nhập/đăng ký (chống dò mật khẩu), gửi mail
+ * (chống spam), pipeline AI local và upload (tốn tài nguyên), tạo đơn thanh toán — bằng bộ đếm Redis
+ * dùng chung giữa các instance. Cơ chế chi tiết (INCR + EXPIRE, chọn bucket, fail-open) xem
+ * {@link #doFilterInternal}. Định danh client (IP) xem {@link #getClientIP}.</p>
  */
 @Slf4j
 @Component
@@ -120,6 +125,28 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return false;
     }
 
+    /**
+     * Chặn theo tần suất cho mọi request, dùng Redis làm bộ đếm dùng chung giữa các instance.
+     *
+     * <p><b>Cơ chế:</b> mỗi request được gán vào một bucket theo loại endpoint, khoá Redis có dạng
+     * {@code <prefix>:<IP>:<bucket>}. Bộ đếm được tăng bằng {@code INCR}; khi là request đầu tiên
+     * của cửa sổ ({@code count == 1}) thì đặt luôn TTL {@link #RATE_LIMIT_TTL} = 1 phút bằng
+     * {@code EXPIRE} — hết 1 phút khoá tự bay, cửa sổ trượt đơn giản theo phút. Nếu vượt ngưỡng,
+     * trả thẳng 429 kèm JSON và dừng chain (không đi tiếp vào controller).</p>
+     *
+     * <p><b>Chọn bucket</b> theo thứ tự ưu tiên (khớp đầu tiên thắng): {@code :auth} 20/phút
+     * (login/register), {@code :mail} 5/phút (forgot/reset password), {@code :ai} 10/phút (các
+     * endpoint thật sự gọi pipeline Ollama), {@code :upload} 15/phút (multipart ghi MinIO/Cloudinary),
+     * {@code :order} 10/phút (tạo đơn thanh toán), mặc định còn lại là {@code :global} 100/phút.
+     * Các bucket hẹp hơn tồn tại vì endpoint đắt tài nguyên không được phép tiêu chung hạn mức 100
+     * với request thường.</p>
+     *
+     * <p><b>Fail-open:</b> nếu Redis chết hoặc {@code INCR} lỗi, filter ghi log cảnh báo rồi cho
+     * request đi tiếp thay vì chặn — thà mất lớp rate-limit còn hơn sập cả API khi Redis sự cố.
+     * Riêng trường hợp {@code EXPIRE} lỗi sau khi {@code INCR} đã thành công, khoá sẽ kẹt không TTL
+     * (IP+bucket đó bị 429 vĩnh viễn); filter xoá best-effort khoá đó để tự hồi phục, và request
+     * hiện tại vẫn fail-open.</p>
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -189,6 +216,21 @@ public class RateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Xác định IP thật của client để làm khoá đếm rate-limit.
+     *
+     * <p><b>X-Forwarded-For chỉ được tin khi {@code TRUSTED_PROXY_ENABLED=true}</b> (đọc từ biến
+     * môi trường, mặc định {@code false}). Khi chạy trực tiếp không qua proxy, tôn trọng header này
+     * sẽ cho phép client tự khai IP giả để né rate-limit, nên mặc định bỏ qua và dùng
+     * {@code request.getRemoteAddr()}. Khi bật cờ, lấy phần tử đầu tiên của chuỗi XFF — đúng client
+     * gốc mà proxy ghi thêm vào (các hop sau là proxy trung gian).</p>
+     *
+     * <p>IPv6 loopback ({@code ::1} / {@code 0:0:0:0:0:0:0:1}) được chuẩn hoá về {@code 127.0.0.1}
+     * để một máy không bị tách thành hai khoá đếm khác nhau.</p>
+     *
+     * @param request request cần lấy IP
+     * @return IP client đã chuẩn hoá, dùng làm phần định danh trong khoá Redis
+     */
     private String getClientIP(HttpServletRequest request) {
         // Only trust X-Forwarded-For when behind a configured proxy (e.g. nginx).
         // In direct deployments, honoring XFF lets clients spoof the header and bypass limits.

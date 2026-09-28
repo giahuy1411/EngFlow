@@ -20,19 +20,32 @@ import java.util.List;
  *
  * <p>Enabled by setting {@code engflow.html-cleanup.enabled=true} in application.properties.
  * After running successfully, set it back to {@code false} to prevent re-running.</p>
+ *
+ * <p>Like {@link ExerciseFixRunner} this rewrites the {@code lessons} table, but
+ * unlike it the bean is only created when the property is present, so a default
+ * configuration never even instantiates the runner. Cleaning itself is delegated
+ * to {@link LessonContentService#deepCleanHtml(String)}.</p>
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "engflow.html-cleanup.enabled", havingValue = "true")
-/**
- * class HtmlCleanupMigration.
- */
 public class HtmlCleanupMigration implements ApplicationRunner {
 
     private final LessonRepository lessonRepository;
     private final LessonContentService lessonContentService;
 
+    /**
+     * Deep-cleans every lesson's content, saving in batches.
+     *
+     * <p>Source is {@code contentOriginal} when present, otherwise
+     * {@code content}; the original is copied into {@code contentOriginal} only
+     * the first time, so a second run keeps the truly untouched text. Writes go
+     * out every 50 lessons so an abort keeps earlier progress. The final log line
+     * reports the total character reduction.</p>
+     *
+     * @param args application startup arguments
+     */
     @Override
     @Transactional
     public void run(ApplicationArguments args) {

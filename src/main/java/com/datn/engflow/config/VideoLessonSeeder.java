@@ -10,8 +10,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * class VideoLessonSeeder — seeds one demo video lesson (transcript authored
- * by the teacher, YouTube embedded only) so the feature is testable out of the box.
+ * Seeds one demo video lesson so the video-learning feature is testable out of
+ * the box.
+ *
+ * <p>The transcript is authored by the teacher as inline bilingual JSON
+ * ({@code textEn}/{@code textVi} with start and end seconds) and the lesson only
+ * embeds a YouTube video — no media is uploaded. Seeding is guarded by a
+ * {@code count() == 0} check, so an existing video-lesson row suppresses it.
+ * {@code @Order(3)} runs it after the lesson seeders.</p>
  */
 @Slf4j
 @Component
@@ -38,6 +44,14 @@ public class VideoLessonSeeder implements CommandLineRunner {
 
     private final VideoLessonRepository videoLessonRepository;
 
+    /**
+     * Inserts the demo video lesson when the table is empty.
+     *
+     * <p>Does nothing once any video lesson exists, so an admin who deletes the
+     * demo and adds their own does not get it back on the next restart.</p>
+     *
+     * @param args command-line arguments supplied to the application
+     */
     @Override
     public void run(String... args) {
         if (videoLessonRepository.count() == 0) {

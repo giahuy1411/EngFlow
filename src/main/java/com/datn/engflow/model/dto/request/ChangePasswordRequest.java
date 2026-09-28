@@ -5,11 +5,16 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * DTO đổi mật khẩu khi đã đăng nhập, bind từ body của {@code POST /api/auth/change-password}
+ * và được {@code UserService.changePassword} xử lý.
+ *
+ * <p>Hai trường đều bắt buộc: dịch vụ kiểm tra {@code passwordEncoder.matches(oldPassword, ...)}
+ * trước khi ghi, nên người dùng phải cung cấp mật khẩu hiện tại. Đây là đường đổi mật khẩu
+ * khác {@link ResetPasswordRequest}, vốn dùng OTP gửi qua email và không cần mật khẩu cũ.
+ */
 @Getter
 @Setter
-/**
- * class ChangePasswordRequest.
- */
 public class ChangePasswordRequest {
     @NotBlank(message = "Mật khẩu cũ không được để trống")
     private String oldPassword;

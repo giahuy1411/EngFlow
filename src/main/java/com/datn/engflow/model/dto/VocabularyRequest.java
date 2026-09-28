@@ -7,13 +7,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO nhận dữ liệu một từ vựng, dùng chung cho ba entry point: quản trị
+ * ({@code POST/PUT /api/admin/vocabulary}), tra cứu của người dùng
+ * ({@code POST /api/vocabulary}) và lưu hàng loạt từ do AI sinh
+ * ({@code POST /api/ai/save-vocab}, body là {@code List<@Valid VocabularyRequest>}).
+ *
+ * <p>{@code AdminService.createVocabulary} và {@code updateVocabulary} chuyển nó thành
+ * entity {@code Vocabulary}; ở endpoint AI, {@code AiVocabController} tự cap tối đa 50 từ
+ * mỗi lần gọi trước khi ghi.
+ *
+ * <p>{@code lessonId} là con trỏ tuỳ chọn, không phải bắt buộc: {@code AdminService} chỉ
+ * tìm bài học khi nó khác null, và {@code updateVocabulary} coi null là gỡ liên kết.
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * class VocabularyRequest.
- */
 public class VocabularyRequest {
 
     private Long lessonId;

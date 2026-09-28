@@ -10,7 +10,12 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**
- * record GradeSpeakingSubmissionRequest.
+ * DTO chấm điểm thủ công một bài nộp nói, bind từ body của
+ * {@code PATCH /api/v1/admin/speaking-submissions/{id}/grade} (và đường dẫn
+ * {@code /video-submissions/{id}/grade} tương ứng).
+ *
+ * <p>Là record nên các ràng buộc validation nằm ngay trên component. Lưu ý chấm điểm
+ * kiểu tay chỉ chấp nhận tối đa một chữ số thập phân, khác với điểm AI tự chấm.
  */
 public record GradeSpeakingSubmissionRequest(
         @NotNull(message = "Điểm không được để trống")

@@ -5,11 +5,15 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Tóm tắt một bộ thẻ từ vựng cho màn hình danh sách deck.
+ *
+ * <p>Tầng response của {@code /api/decks} (deck public và deck của người dùng).
+ * {@code DeckService.toSummary} dựng DTO với {@code wordCount} để null, rồi
+ * {@code attachWordCounts} gắn số từ bằng một query gộp theo danh sách id.
+ */
 @Data
 @Builder
-/**
- * class DeckSummaryResponse.
- */
 public class DeckSummaryResponse {
     private Long id;
     private String name;

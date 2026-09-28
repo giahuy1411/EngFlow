@@ -33,6 +33,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jakarta.annotation.PreDestroy;
 
+/**
+ * Backfill đáp án ({@code correct_answer}) cho các bài tập cũ còn để trống.
+ *
+ * <p>Chạy theo từng lesson, xử lý tuần tự trên MỘT thread nền ({@code answer-backfill}, daemon) và
+ * báo tiến độ in-memory qua {@code progressMap} (chỉ đúng trong mô hình single-container). Một batch
+ * được định danh bằng {@code batchId} (UUID) để client poll.
+ *
+ * <p><b>Nguồn đáp án theo thứ tự ưu tiên:</b>
+ * <ol>
+ *   <li>Answer-key nhúng trong lesson HTML ({@code <details><summary>ANSWER</summary>…}): khớp theo
+ *       số gap dán liền câu hỏi → theo vị trí (positional) → theo số thứ tự đầu dòng.</li>
+ *   <li>Ollama (model local) cho phần còn lại — CHỈ khi {@code deterministicOnly == false}.</li>
+ * </ol>
+ * Câu nào không suy ra được đáp án thì bị đếm là {@code unfillable} và ĐỂ TRỐNG (không nhét key rác):
+ * đa số là mảnh MC/answer-key scrape lỗi, vốn không phải prompt thật nên "ungradeable-by-design".
+ *
+ * <p><b>Idempotent:</b> ứng viên luôn là các bài đang trống đáp án, nên chạy lại nhiều lần không ghi
+ * đè đáp án đã có. <b>Checkpoint:</b> con trỏ {@code checkpointLessonId} = lesson-id lớn nhất đã xử
+ * lý; {@code restart=true} để bắt đầu lại từ 0, còn dry-run và run-scoped (chỉ 1 lesson) KHÔNG đẩy
+ * checkpoint (nếu đẩy sẽ bỏ sót lesson chưa xử lý ở lần chạy thật sau — bug (b)/(c)).
+ *
+ * <p>{@code mode=deterministic} (gate 3.4-B) chỉ dùng tầng answer-key, không gọi AI — vì đáp án AI
+ * chưa kiểm chứng (đo được model 1.5b trả key rác {@code "1. a"} cho gap ngữ pháp) sẽ biến một câu
+ * "chấm được sau này" thành câu chấm SAI. {@code mode=full} bật thêm tầng Ollama.
+ */
 @Service
 @Slf4j
 public class AiAnswerBackfillService {
@@ -82,14 +107,43 @@ public class AiAnswerBackfillService {
 
     // ── Public API ──
 
+    /** @return {@code true} nếu đang có một batch backfill chạy. */
     public boolean isRunning() { return runningFlag.get(); }
+
+    /**
+     * @return lesson-id lớn nhất đã xử lý xong (con trỏ bền giữa các lần chạy), {@code 0} nếu chưa
+     *         chạy lần nào; dùng làm điểm bắt đầu khi không {@code restart}.
+     */
     public long getCheckpointLessonId() { return checkpointLessonId; }
+
+    /**
+     * @param batchId id batch trả về từ {@link #startBackfill}
+     * @return tiến độ hiện tại của batch, hoặc {@code null} nếu batchId không tồn tại (map in-memory
+     *         bị xoá khi JVM restart)
+     */
     public BackfillProgress getProgress(String batchId) { return progressMap.get(batchId); }
 
+    /**
+     * Tiện ích khởi động backfill không giới hạn lesson (chạy trên toàn bộ ứng viên).
+     *
+     * @param dryRun  chỉ đo lường, KHÔNG ghi DB
+     * @param limit   ngân sách theo trần lesson (0 = tất cả)
+     * @param restart bỏ qua checkpoint, bắt đầu từ lesson-id 0
+     * @return batchId để poll tiến độ
+     */
     public synchronized String startBackfill(boolean dryRun, int limit, boolean restart) {
         return startBackfill(dryRun, limit, restart, null, false);
     }
 
+    /**
+     * Tiện ích khởi động backfill giới hạn trong MỘT lesson (chế độ AI đầy đủ).
+     *
+     * @param dryRun          chỉ đo lường, KHÔNG ghi DB
+     * @param limit           ngân sách theo trần lesson (0 = tất cả)
+     * @param restart         bỏ qua checkpoint, bắt đầu từ lesson-id 0
+     * @param lessonIdInScope khi khác {@code null} chỉ xử lý đúng lesson này và KHÔNG đẩy checkpoint
+     * @return batchId để poll tiến độ
+     */
     public synchronized String startBackfill(boolean dryRun, int limit, boolean restart, Long lessonIdInScope) {
         return startBackfill(dryRun, limit, restart, lessonIdInScope, false);
     }

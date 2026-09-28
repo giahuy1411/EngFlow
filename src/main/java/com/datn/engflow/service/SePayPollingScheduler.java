@@ -31,6 +31,11 @@ public class SePayPollingScheduler {
 
     private final PaymentService paymentService;
 
+    /**
+     * Runs one sweep every {@code sepay.polling.interval-ms} (default 60s), 15s after
+     * boot to let the datasource and SePay token warm up. Any failure is logged and
+     * swallowed so the schedule survives a transient SePay or database error.
+     */
     @Scheduled(fixedDelayString = "${sepay.polling.interval-ms:60000}", initialDelay = 15000)
     public void sweepPendingPayments() {
         try {

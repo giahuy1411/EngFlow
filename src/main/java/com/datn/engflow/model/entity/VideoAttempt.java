@@ -7,6 +7,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Một lần luyện shadowing: người học đọc theo một dòng transcript của
+ * {@link VideoLesson} rồi gửi đoạn quay lên.
+ *
+ * <p>Tầng entity. {@link VideoLessonService} tạo bản ghi ở {@code SUBMITTED} và cho
+ * admin chấm tay; {@link ShadowingAiGradingService} có thể chấm lại bằng AI nhưng
+ * tôn trọng chấm của admin — nếu bản ghi đã {@code GRADED} kèm
+ * {@link #gradedBy} thì không ghi đè. Media lưu ở MinIO, xem qua
+ * {@link MediaProxyController}.
+ */
 @Entity
 @Table(name = "video_attempts")
 @Getter
@@ -14,9 +24,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class VideoAttempt.
- */
 public class VideoAttempt {
 
     @Id

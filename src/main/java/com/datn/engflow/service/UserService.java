@@ -30,7 +30,26 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 /**
- * class UserService.
+ * Tài khoản người dùng: đăng ký, đăng nhập, hồ sơ, đổi mật khẩu, quên mật khẩu
+ * và hạn mức sinh nội dung bằng AI.
+ *
+ * <p>Tầng service, gọi bởi {@code AuthController} (đăng ký / đăng nhập / OTP) và
+ * {@code UserController} (hồ sơ, đổi mật khẩu, avatar). Phát JWT sau khi đăng
+ * nhập/đăng ký bằng {@link JwtTokenProvider} — không có refresh token, hết hạn
+ * thì đăng nhập lại.
+ *
+ * <p>Hai ranh giới khác nhau đều khai ở đây, đừng viết lại ở nơi gọi:
+ * <ul>
+ *   <li><b>Premium</b> — {@link #hasPremiumAccess} là nguồn sự thật duy nhất; các
+ *       endpoint AI và luyện nói đều hỏi hàm này.</li>
+ *   <li><b>Hạn mức AI</b> — bộ đếm theo ngày lưu trên chính dòng {@code user}
+ *       ({@code ai_quota_date} + {@code ai_generation_count}), nên hạn mức tự
+ *       reset sang ngày mới mà không cần job quét đêm.</li>
+ * </ul>
+ *
+ * <p>Ba bộ khóa Redis ở đây (khóa đăng nhập, bộ đếm OTP, lưu OTP) đều <b>fail-open</b>:
+ * Redis chết thì bỏ qua chặn và vẫn xử lý, vì mất khả năng chống brute-force còn
+ * tốt hơn là biến mọi lần đăng nhập thành 500.
  */
 @Slf4j
 @Service
@@ -52,6 +71,16 @@ public class UserService {
     /** Số lượt sinh từ AI miễn phí mỗi ngày cho tài khoản thường. */
     public static final int AI_GENERATIONS_PER_DAY = 5;
 
+    /**
+     * Nạp entity {@link User} theo id cho các service khác dùng nội bộ.
+     *
+     * <p>Trả về entity chứ không phải DTO, nên chỉ dùng ở tầng service; controller
+     * phải đi qua các hàm trả {@link UserResponse} để không lộ cột nhạy cảm.
+     *
+     * @param userId id user cần tra
+     * @return entity user
+     * @throws ResourceNotFoundException nếu không tồn tại
+     */
     @Transactional(readOnly = true)
     public User findEntityById(Long userId) {
         return userRepository.findById(userId)
@@ -81,7 +110,12 @@ public class UserService {
         return expiry == null || !expiry.isBefore(LocalDate.now(clock));
     }
 
-    /** Premium và admin không bị giới hạn số lượt sinh từ AI. */
+    /**
+     * Premium và admin không bị giới hạn số lượt sinh từ AI.
+     *
+     * @param user thực thể người dùng
+     * @return {@code true} nếu không vướng hạn mức AI
+     */
     public boolean hasUnlimitedAiGeneration(User user) {
         return hasPremiumAccess(user);
     }
@@ -101,7 +135,12 @@ public class UserService {
         return count == null || count < 0 ? 0 : count;
     }
 
-    /** Còn hạn mức sinh AI hôm nay không (premium/admin luôn trả về true). */
+    /**
+     * Còn hạn mức sinh AI hôm nay không (premium/admin luôn trả về true).
+     *
+     * @param user thực thể người dùng
+     * @return {@code true} nếu còn lượt hoặc không bị giới hạn
+     */
     public boolean hasAiGenerationQuota(User user) {
         return hasUnlimitedAiGeneration(user) || aiGenerationsUsedToday(user) < AI_GENERATIONS_PER_DAY;
     }
@@ -109,6 +148,9 @@ public class UserService {
     /**
      * Số lượt còn lại hôm nay, hoặc {@code null} nếu không giới hạn.
      * Dùng cho UI hiển thị "x / 5 lượt còn lại".
+     *
+     * @param user thực thể người dùng
+     * @return số lượt còn lại, hoặc {@code null} cho premium/admin
      */
     public Integer remainingAiGenerations(User user) {
         if (hasUnlimitedAiGeneration(user)) {
@@ -122,6 +164,7 @@ public class UserService {
      * Không tăng cho premium/admin vì họ không giới hạn.
      *
      * @param user thực thể người dùng sẽ được lưu
+     * @see #AI_GENERATIONS_PER_DAY
      */
     @Transactional
     public void consumeAiGenerationQuota(User user) {
@@ -137,6 +180,16 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Tạo tài khoản mới và trả kèm JWT, không cần đăng nhập lại.
+     *
+     * <p>Tài khoản mới luôn bắt đầu ở {@code ELEMENTARY} với 0 điểm và được gán
+     * avatar Dicebear sinh từ username; không có cờ premium nào được bật.
+     *
+     * @param request dữ liệu đăng ký
+     * @return DTO người dùng kèm token vừa cấp
+     * @throws ConflictException nếu email hoặc username đã tồn tại
+     */
     @Transactional
     public UserResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -161,6 +214,21 @@ public class UserService {
         return mapToUserResponse(savedUser, jwt);
     }
 
+    /**
+     * Xác thực email/mật khẩu và cấp JWT, kèm chống đoán mật khẩu bằng bộ đếm Redis.
+     *
+     * <p>Sai mắt thứ N ({@code MAX_LOGIN_FAILS}) thì khoá tài khoản
+     * {@code LOGIN_LOCKOUT_MINUTES} phút; đúng mật khẩu thì xoá bộ đếm. Cả đọc
+     * khoá lẫn tăng bộ đếm đều fail-open khi Redis chết.
+     *
+     * @param request email + mật khẩu
+     * @return DTO người dùng kèm token vừa cấp
+     * @throws BadRequestException nếu tài khoản đang bị khoá tạm, hoặc vừa chạm
+     *         ngưỡng sai mật khẩu
+     * @throws BadCredentialsException nếu thông tin đăng nhập sai
+     * @throws ResourceNotFoundException nếu xác thực thành công nhưng không tìm
+     *         thấy user theo email
+     */
     @Transactional
     public UserResponse login(LoginRequest request) {
         log.info("Bắt đầu đăng nhập cho email: {}", request.getEmail());
@@ -219,6 +287,14 @@ public class UserService {
         }
     }
 
+    /**
+     * Hồ sơ của user đang đăng nhập, kèm streak và hạn mức AI còn lại.
+     *
+     * @param email email user
+     * @return DTO hồ sơ, {@code token} null vì đã đăng nhập rồi
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     * @throws BadRequestException nếu tài khoản đã bị vô hiệu hóa
+     */
     @Transactional
     public UserResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
@@ -229,6 +305,14 @@ public class UserService {
         return mapToUserResponse(user, null);
     }
 
+    /**
+     * Đổi mật khẩu khi đã đăng nhập, bắt buộc xác nhận mật khẩu cũ.
+     *
+     * @param email email user
+     * @param request cặp mật khẩu cũ/mới
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     * @throws BadRequestException nếu mật khẩu cũ không khớp
+     */
     @Transactional
     public void changePassword(String email, ChangePasswordRequest request) {
         User user = userRepository.findByEmail(email)
@@ -243,6 +327,11 @@ public class UserService {
     /**
      * Sinh OTP 6 số lưu Redis 10 phút rồi gửi qua email.
      * Trả về message chung chung cho mọi email (không leak user tồn tại).
+     *
+     * @param email email được yêu cầu gửi mã
+     * @return câu trả lời giống nhau dù email có tồn tại hay không
+     * @throws BadRequestException nếu vượt {@code OTP_MAX_PER_WINDOW} lần gọi
+     *         trong cửa sổ {@code OTP_RATE_TTL}
      */
     public String requestPasswordReset(String email) {
         var userOpt = userRepository.findByEmail(email);
@@ -275,7 +364,15 @@ public class UserService {
         return "Nếu email tồn tại, mã OTP đã được gửi. Kiểm tra hộp thư.";
     }
 
-    /** Xác thực OTP rồi đặt mật khẩu mới. Xóa OTP sau khi dùng (one-time). */
+    /**
+     * Xác thực OTP rồi đặt mật khẩu mới. Xóa OTP sau khi dùng (one-time).
+     *
+     * @param email email cần đặt lại mật khẩu
+     * @param otp mã 6 số người dùng nhận được
+     * @param newPassword mật khẩu mới ở dạng rõ
+     * @throws BadRequestException nếu OTP không khớp, đã hết hạn, hoặc Redis lỗi
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     */
     @Transactional
     public void resetPassword(String email, String otp, String newPassword) {
         String key = RedisConstants.OTP_RESET_PREFIX + email;
@@ -300,6 +397,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Lưu URL avatar mới của user (đã upload lên Cloudinary ở tầng controller).
+     *
+     * @param email email user
+     * @param avatarUrl URL ảnh mới
+     * @return DTO người dùng sau khi cập nhật, {@code token} null
+     * @throws ResourceNotFoundException nếu không tìm thấy user theo email
+     */
     @Transactional
     public UserResponse updateAvatar(String email, String avatarUrl) {
         User user = userRepository.findByEmail(email)
@@ -309,6 +414,13 @@ public class UserService {
         return mapToUserResponse(user, null);
     }
 
+    /**
+     * Dựng DTO trả về cho client, gộp thêm streak, quyền premium và hạn mức AI.
+     *
+     * @param user entity nguồn
+     * @param token JWT cấp kèm, hoặc null cho các đường không cấp lại token
+     * @return DTO người dùng đã làm phẳng, không chứa mật khẩu hay cột admin
+     */
     private UserResponse mapToUserResponse(User user, String token) {
         return UserResponse.builder()
                 .id(user.getId())

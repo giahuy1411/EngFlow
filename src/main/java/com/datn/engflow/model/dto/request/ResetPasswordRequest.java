@@ -10,14 +10,16 @@ import lombok.NoArgsConstructor;
 
 /**
  * Data Transfer Object for reset password request with OTP.
+ *
+ * <p>Bind từ body của {@code POST /api/auth/reset-password} — bước sau
+ * {@code POST /api/auth/forgot-password} đã gửi mã OTP. Ba trường phải khớp với nhau:
+ * email nhận OTP, otp sinh ra, và mật khẩu mới cần ít nhất 6 ký tự. Trường mật khẩu ở đây là
+ * bản rõ chưa mã hoá, đối lập với {@link ChangePasswordRequest} vốn yêu cầu mật khẩu cũ.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * class ResetPasswordRequest.
- */
 public class ResetPasswordRequest {
 
     /**

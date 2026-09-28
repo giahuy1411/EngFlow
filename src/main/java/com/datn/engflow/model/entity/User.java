@@ -10,6 +10,16 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Tài khoản người học hoặc quản trị viên, giữ thông tin đăng nhập, quyền premium
+ * và điểm tích luỹ.
+ *
+ * <p>Tầng entity. {@link UserService} là nơi duy nhất quyết định quyền premium
+ * qua {@code hasPremiumAccess}, {@link PaymentService} bật cờ đó khi SePay báo
+ * thành công, {@link GameService} cộng {@link #totalPoints} và
+ * {@link LeaderboardService} đọc điểm để xếp hạng. Quan hệ ngược (bài đã nộp,
+ * tiến độ, bài học đã làm) không khai báo ở đây — luôn truy vấn từ phía entity con.
+ */
 @Entity
 @Table(name = "users")
 @Getter
@@ -17,9 +27,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class User.
- */
 public class User {
 
     @Id

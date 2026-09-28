@@ -31,12 +31,20 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Backs the "learn English through video" flow: video lessons, their per-line subtitle
+ * transcript, and the shadowing attempts learners record against a single line.
+ *
+ * <p>Layer: called by {@code VideoLessonController} for both the public and the
+ * {@code /admin} route families. The transcript lives as JSON on the lesson row and is
+ * validated on write; attempt audio goes to MinIO via {@link MinioService} and is played
+ * back through a URL signed by {@code MediaSigner}. AI grading of an attempt lives
+ * separately in {@link ShadowingAiGradingService}, which reads the transcript through
+ * {@link #readTranscript}.</p>
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
-/**
- * class VideoLessonService.
- */
 public class VideoLessonService {
 
     private static final Pattern YOUTUBE_ID = Pattern.compile(
@@ -52,6 +60,13 @@ public class VideoLessonService {
 
     // ---------------------------------------------------------------- queries
 
+    /**
+     * Public catalogue of published lessons, optionally narrowed to one level.
+     *
+     * @param level    trình độ lọc, null thì lấy mọi trình độ
+     * @param pageable phân trang
+     * @return trang tóm tắt bài học
+     */
     @Transactional(readOnly = true)
     public Page<VideoLessonSummary> listPublished(LessonLevel level, Pageable pageable) {
         Page<VideoLesson> page = level == null
@@ -60,11 +75,28 @@ public class VideoLessonService {
         return page.map(this::toSummary);
     }
 
+    /**
+     * Admin catalogue including drafts.
+     *
+     * @param pageable phân trang
+     * @return trang tóm tắt bài học
+     */
     @Transactional(readOnly = true)
     public Page<VideoLessonSummary> listAll(Pageable pageable) {
         return lessonRepository.findAll(pageable).map(this::toSummary);
     }
 
+    /**
+     * Full lesson payload for the player: transcript lines plus the line indexes this
+     * user already shadowed. A draft lesson is reported as not found to anyone but an
+     * admin, matching the published-only catalogue.
+     *
+     * @param id              mã bài học
+     * @param userId          mã người xem, null nếu khách
+     * @param requesterIsAdmin người xem có quyền admin hay không
+     * @return chi tiết bài học kèm danh sách dòng đã hoàn thành
+     * @throws ResourceNotFoundException nếu bài học không tồn tại, hoặc là bản nháp mà người xem không phải admin
+     */
     @Transactional(readOnly = true)
     public VideoLessonDetail getDetail(Long id, Long userId, boolean requesterIsAdmin) {
         VideoLesson lesson = getLesson(id);
@@ -90,6 +122,14 @@ public class VideoLessonService {
 
     // ------------------------------------------------------------ admin CRUD
 
+    /**
+     * Creates a lesson, deriving the YouTube id, validating the transcript and computing
+     * the duration from it.
+     *
+     * @param request dữ liệu bài học từ form admin
+     * @return tóm tắt bài học vừa tạo
+     * @throws BadRequestException nếu link YouTube, trình độ hoặc transcript không hợp lệ
+     */
     @Transactional
     public VideoLessonSummary create(VideoLessonRequest request) {
         VideoLesson lesson = new VideoLesson();
@@ -97,6 +137,16 @@ public class VideoLessonService {
         return toSummary(lessonRepository.save(lesson));
     }
 
+    /**
+     * Updates a lesson. An empty {@code category} or {@code transcript} in the request is
+     * read as "keep the stored value" so the trimmed admin form cannot wipe them.
+     *
+     * @param id      mã bài học
+     * @param request dữ liệu cập nhật
+     * @return tóm tắt bài học sau khi lưu
+     * @throws ResourceNotFoundException nếu bài học không tồn tại
+     * @throws BadRequestException      nếu link YouTube, trình độ hoặc transcript không hợp lệ
+     */
     @Transactional
     public VideoLessonSummary update(Long id, VideoLessonRequest request) {
         VideoLesson lesson = getLesson(id);
@@ -116,11 +166,25 @@ public class VideoLessonService {
         return toSummary(lessonRepository.save(lesson));
     }
 
+    /**
+     * Deletes a lesson row. {@link VideoAttempt} has no owning collection on
+     * {@link VideoLesson}, so there is no JPA cascade here — a lesson that still has
+     * attempts is rejected by the {@code video_lesson_id} foreign key.
+     *
+     * @param id mã bài học
+     * @throws ResourceNotFoundException nếu bài học không tồn tại
+     */
     @Transactional
     public void delete(Long id) {
         lessonRepository.delete(getLesson(id));
     }
 
+    /**
+     * Copies a validated request onto the entity: title is trimmed, the YouTube URL is
+     * reduced to its 11-character id, the transcript is stored as JSON, and the
+     * duration is derived from the last transcript line rather than trusted from the
+     * client.
+     */
     private void apply(VideoLesson lesson, VideoLessonRequest request) {
         lesson.setTitle(request.title().trim());
         lesson.setDescription(request.description());
@@ -134,6 +198,19 @@ public class VideoLessonService {
 
     // ------------------------------------------------------------- attempts
 
+    /**
+     * Stores a shadowing recording for one transcript line and opens a SUBMITTED
+     * attempt. The 20 MB ceiling and the {@code audio/} prefix check are the trust
+     * boundary for the untrusted multipart body.
+     *
+     * @param lessonId  mã bài học
+     * @param lineIndex chỉ số dòng phụ đề được shadowing
+     * @param file      tệp ghi âm
+     * @param user      người học đã xác thực
+     * @return bài nộp ở trạng thái SUBMITTED kèm URL media đã ký
+     * @throws ResourceNotFoundException nếu bài học không tồn tại
+     * @throws BadRequestException      nếu dòng phụ đề không hợp lệ, tệp rỗng, quá 20 MB hoặc không phải audio
+     */
     @Transactional
     public VideoAttemptResponse submitAttempt(Long lessonId, Integer lineIndex, MultipartFile file, User user) {
         VideoLesson lesson = getLesson(lessonId);
@@ -165,11 +242,26 @@ public class VideoLessonService {
         return toResponse(attemptRepository.save(attempt));
     }
 
+    /**
+     * Paged history of one learner's shadowing attempts.
+     *
+     * @param userId   mã người học
+     * @param pageable phân trang
+     * @return trang bài nộp của người học
+     */
     @Transactional(readOnly = true)
     public Page<VideoAttemptResponse> listAttemptsForUser(Long userId, Pageable pageable) {
         return attemptRepository.findByUserId(userId, pageable).map(this::toResponse);
     }
 
+    /**
+     * Admin queue of attempts, optionally narrowed to one status (SUBMITTED is the
+     * review worklist).
+     *
+     * @param status   trạng thái lọc, null/blank thì trả về tất cả
+     * @param pageable phân trang
+     * @return trang bài nộp cho quản trị viên
+     */
     @Transactional(readOnly = true)
     public Page<VideoAttemptResponse> listAttemptsForAdmin(String status, Pageable pageable) {
         Page<VideoAttempt> page = status == null || status.isBlank()
@@ -178,6 +270,18 @@ public class VideoLessonService {
         return page.map(this::toResponse);
     }
 
+    /**
+     * Applies a teacher's manual grade to a shadowing attempt, marking it GRADED. The
+     * grader is stored as a detached {@link User} holding only the id — no
+     * {@code UserRepository} lookup, so the FK reference is written without loading the row.
+     *
+     * @param attemptId mã bài nộp
+     * @param graderId  mã giáo viên chấm
+     * @param request   điểm 0-10 và nhận xét
+     * @return bài nộp sau khi chấm
+     * @throws BadRequestException       nếu điểm ngoài khoảng 0-10
+     * @throws ResourceNotFoundException nếu bài nộp không tồn tại
+     */
     @Transactional
     public VideoAttemptResponse grade(Long attemptId, Long graderId, GradeVideoAttemptRequest request) {
         if (request.score() == null || request.score() < 0 || request.score() > 10) {
@@ -197,11 +301,27 @@ public class VideoLessonService {
 
     // -------------------------------------------------------------- helpers
 
+    /**
+     * Loads a lesson by id without any permission check; {@link #getDetail} applies the
+     * published/admin rule on top of it.
+     *
+     * @param id mã bài học
+     * @return bài học
+     * @throws ResourceNotFoundException nếu bài học không tồn tại
+     */
     public VideoLesson getLesson(Long id) {
         return lessonRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("VideoLesson", "id", id));
     }
 
+    /**
+     * Extracts the 11-character YouTube id from a watch/embed/shorts/live URL, from a
+     * {@code youtu.be} short link, or from a bare id the admin typed directly.
+     *
+     * @param url link YouTube hoặc video id thô
+     * @return video id
+     * @throws BadRequestException nếu thiếu link hoặc không khớp mẫu nào
+     */
     static String extractVideoId(String url) {
         if (url == null) {
             throw new BadRequestException("Thiếu link YouTube");
@@ -217,6 +337,13 @@ public class VideoLessonService {
         throw new BadRequestException("Không nhận diện được video ID từ link YouTube");
     }
 
+    /**
+     * Parses the admin form's free-text level into the enum, case-insensitively.
+     *
+     * @param level chuỗi trình độ, ví dụ {@code "beginner"}
+     * @return trình độ tương ứng
+     * @throws BadRequestException nếu không phải tên trình độ hợp lệ
+     */
     static LessonLevel parseLevel(String level) {
         try {
             return LessonLevel.valueOf(level.trim().toUpperCase());
@@ -225,6 +352,15 @@ public class VideoLessonService {
         }
     }
 
+    /**
+     * Rejects a transcript the player could not use: fewer than two lines (a lesson
+     * needs at least one shadowable line plus context), a line with no English text, or
+     * a non-positive duration.
+     *
+     * @param transcript danh sách dòng phụ đề, có thể null
+     * @return chính danh sách đã truyền vào
+     * @throws BadRequestException nếu transcript không hợp lệ
+     */
     static List<TranscriptLine> validateTranscript(List<TranscriptLine> transcript) {
         if (transcript == null || transcript.size() < 2) {
             throw new BadRequestException("Transcript cần ít nhất 2 dòng");
@@ -240,6 +376,7 @@ public class VideoLessonService {
         return transcript;
     }
 
+    /** Length of the lesson in seconds: the {@code end} of the last transcript line, rounded up, 0 when empty. */
     static Integer computeDuration(List<TranscriptLine> transcript) {
         return transcript.stream()
                 .mapToInt(line -> (int) Math.ceil(line.end()))
@@ -247,6 +384,13 @@ public class VideoLessonService {
                 .orElse(0);
     }
 
+    /**
+     * Serializes a validated transcript for storage in {@code transcript_json}.
+     *
+     * @param transcript danh sách dòng phụ đề
+     * @return chuỗi JSON
+     * @throws BadRequestException nếu không serialize được
+     */
     String writeTranscript(List<TranscriptLine> transcript) {
         try {
             return objectMapper.writeValueAsString(transcript);
@@ -255,6 +399,13 @@ public class VideoLessonService {
         }
     }
 
+    /**
+     * Parses a stored {@code transcript_json}. Fails soft: a corrupt row yields an empty
+     * list (and an error log) so one bad lesson cannot break the catalogue page.
+     *
+     * @param json chuỗi JSON đã lưu
+     * @return danh sách dòng phụ đề, rỗng nếu dữ liệu hỏng
+     */
     public List<TranscriptLine> readTranscript(String json) {
         try {
             return objectMapper.readValue(json, new TypeReference<List<TranscriptLine>>() {
@@ -265,6 +416,10 @@ public class VideoLessonService {
         }
     }
 
+    /**
+     * Projects a lesson into the list-row shape, including the transcript line count the
+     * catalogue shows as "N câu".
+     */
     private VideoLessonSummary toSummary(VideoLesson lesson) {
         return new VideoLessonSummary(
                 lesson.getId(),
@@ -278,6 +433,10 @@ public class VideoLessonService {
                 lesson.getIsPublished());
     }
 
+    /**
+     * Projects an attempt into the response shape, swapping the stored object key for a
+     * signed relative media URL and formatting the timestamp.
+     */
     private VideoAttemptResponse toResponse(VideoAttempt attempt) {
         // audit-v6 F28: relative media URL — the frontend resolves it against
         // VITE_API_BASE_URL, so deploys behind another host/port (Tailscale

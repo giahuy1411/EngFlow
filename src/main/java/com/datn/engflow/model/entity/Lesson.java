@@ -11,6 +11,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bài học chính của hệ thống: nội dung đọc, từ vựng đi kèm và danh sách
+ * {@link Exercise} người học làm.
+ *
+ * <p>Tầng entity. {@link LessonService} đọc/tạo/sửa qua {@code LessonRepository};
+ * {@link AdminService} quản lý nội dung; {@link DeckService} và {@link SrsService}
+ * dùng bộ từ gắn với lesson. {@link #vocabularies} được đánh dấu {@code @JsonIgnore}
+ * nên bài học luôn được đọc qua projection nhẹ, tránh kéo theo cả list từ.
+ */
 @Entity
 @Table(name = "lessons")
 @Getter
@@ -18,9 +27,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class Lesson.
- */
 public class Lesson {
 
     @Id
@@ -38,6 +44,9 @@ public class Lesson {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String content;
 
+    // Bản gốc chỉ đọc trước khi HtmlCleanupMigration dọn HTML: migration lấy
+    // contentOriginal làm nguồn, dọn rồi ghi đè content, nên mỗi lần chạy lại không
+    // dọc chồng lên bản đã sạch. Không có writer nào khác đụng tới cột này.
     @Column(name = "content_original", columnDefinition = "NVARCHAR(MAX)")
     private String contentOriginal;
 

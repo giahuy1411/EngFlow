@@ -7,11 +7,18 @@ import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * DTO tạo và sửa bài học, dùng chung cho phía quản trị ({@code POST/PUT
+ * /api/admin/lessons}) và phía người dùng đã đăng nhập
+ * ({@code LessonController.createLesson} / {@code updateLesson}); cả hai đều nhận
+ * {@code @Valid @RequestBody}.
+ *
+ * <p>{@code level} là enum {@code LessonLevel} chứ không phải chuỗi, nên JSON phải gửi đúng
+ * tên hằng; cùng quy ước đó, {@code skillType} ở đây lại là chuỗi tự do chứ không phải
+ * {@code SkillType}.
+ */
 @Getter
 @Setter
-/**
- * class LessonRequest.
- */
 public class LessonRequest {
     @NotBlank(message = "Title is required")
     private String title;

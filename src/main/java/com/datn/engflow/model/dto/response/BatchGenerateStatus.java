@@ -7,7 +7,13 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * class BatchGenerateStatus.
+ * Trạng thái tiến trình sinh câu hỏi hàng loạt.
+ *
+ * <p>Tầng response của {@code /api/admin/exercises/ai/generate-batch} và
+ * {@code /status}: {@code AdminAiExerciseController} map thẳng từ
+ * {@code AiExerciseService.BatchProgress}, nên tên trường khớp 1-1 với bản ghi
+ * tiến trình phía service. Dùng cho cả lúc chạy ({@code running=true}) và sau khi
+ * kết thúc.
  */
 @Data
 @Builder

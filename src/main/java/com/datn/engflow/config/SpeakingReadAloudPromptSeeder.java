@@ -17,14 +17,17 @@ import java.util.List;
  * Seeds READ_ALOUD prompts with reference text so the automatic assessment pipeline
  * has scripted material to align transcripts against. Idempotent: runs only when no
  * READ_ALOUD prompt exists yet.
+ *
+ * <p>Without a {@code referenceText} there is nothing for
+ * {@link TranscriptAlignmentMetrics#compute} to compare against, so read-aloud
+ * submissions could only ever be graded by the LLM rubric. {@code @Order(20)}
+ * deliberately places this late so the base prompt data from
+ * {@link DatabaseSeeder} is already committed when the check runs.</p>
  */
 @Slf4j
 @Component
 @Order(20)
 @RequiredArgsConstructor
-/**
- * class SpeakingReadAloudPromptSeeder.
- */
 public class SpeakingReadAloudPromptSeeder implements ApplicationRunner {
 
     private static final List<SpeakingPrompt> SEEDS = List.of(

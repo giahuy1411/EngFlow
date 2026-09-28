@@ -25,6 +25,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import java.util.Arrays;
 
+/**
+ * Central HTTP security policy: JWT authentication, CORS, per-endpoint
+ * authorization rules, and response security headers.
+ *
+ * <p>This is the outer perimeter for the whole API. {@link JwtAuthenticationFilter}
+ * is inserted before {@code UsernamePasswordAuthenticationFilter} so every request
+ * carries its bearer token's principal, and the rules below decide whether that
+ * principal is required and which role it needs. Premium access is deliberately
+ * not enforced here — that check lives in the services via
+ * {@code hasPremiumAccess()} so the same rule survives path refactors.</p>
+ */
 @Configuration
 @EnableWebSecurity
 // audit-v5: @PreAuthorize("hasRole('ADMIN')") annotations exist across admin
@@ -32,9 +43,6 @@ import java.util.Arrays;
 // defense-in-depth so a future path refactor cannot silently drop protection.
 @EnableMethodSecurity
 @RequiredArgsConstructor
-/**
- * class SecurityConfig.
- */
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -42,17 +50,39 @@ public class SecurityConfig {
     @Value("${cors.allowed-origins:http://localhost:5173}")
     private String allowedOrigins;
 
+    /**
+     * Hashes and verifies user passwords with BCrypt.
+     *
+     * @return the encoder used by registration and password-reset flows
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Exposes the authentication manager used by the login endpoint.
+     *
+     * @param authenticationConfiguration Spring Security's own configuration
+     * @return the configured authentication manager
+     * @throws Exception if Spring cannot build the manager from the configuration
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    /**
+     * Builds the CORS policy applied to every path.
+     *
+     * <p>Origins come from {@code cors.allowed-origins} as a comma-separated list,
+     * so the Vite dev server and any deployed frontend can both be whitelisted
+     * without a code change. Credentials are allowed because the browser sends the
+     * JWT on the {@code Authorization} header.</p>
+     *
+     * @return a source registered for all request paths
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -66,6 +96,21 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Builds the single filter chain that governs every HTTP request.
+     *
+     * <p>Sessions are stateless (JWT only), CSRF is disabled because no cookie is
+     * used for auth, and authorization is decided by first-match-wins URL rules.
+     * The rules are ordered narrow-before-broad; the comment at the attempts
+     * matcher records why reversing them previously opened history endpoints.
+     * Response headers add a CSP, same-origin framing, and a strict referrer
+     * policy; the exception handlers return ProblemDetail-shaped JSON rather than
+     * an HTML error page.</p>
+     *
+     * @param http the Spring Security builder to configure
+     * @return the assembled filter chain
+     * @throws Exception if the chain cannot be built (e.g. a filter class is missing)
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

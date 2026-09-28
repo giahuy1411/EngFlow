@@ -6,6 +6,14 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Một mục từ vựng, dùng chung cho bài học và cho các bộ từ.
+ *
+ * <p>Tầng entity. Liên kết {@link #lesson} là tuỳ chọn: từ nằm trong bài học thì có
+ * liên kết, từ chỉ thuộc {@link Deck} thì để null (không nên đọc {@code lesson} mà
+ * không kiểm tra null). {@link AiVocabService} sinh từ bằng LLM, {@link SrsService}
+ * dùng từ làm đơn vị ôn tập, {@link GameService} dựng câu đố từ cùng bộ từ.
+ */
 @Entity
 @Table(name = "vocabulary")
 @Getter
@@ -14,9 +22,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-/**
- * class Vocabulary.
- */
 public class Vocabulary {
 
     @Id

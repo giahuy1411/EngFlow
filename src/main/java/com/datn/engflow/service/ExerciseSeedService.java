@@ -16,7 +16,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 /**
- * class ExerciseSeedService.
+ * Sinh bài tập hàng loạt cho mọi bài học bằng cách phân tích nội dung HTML của bài.
+ *
+ * <p>Tầng service, chạy như công cụ seed (thường qua endpoint admin). Đọc bài học từ
+ * {@link LessonRepository}, giao việc bóc tách HTML cho {@link HtmlParserService} rồi lưu
+ * kết quả qua {@link ExerciseRepository}. Bỏ qua bài đã có bài tập (trừ khi {@code force}).
  */
 public class ExerciseSeedService {
 
@@ -27,6 +31,8 @@ public class ExerciseSeedService {
     /**
      * Parse ALL lessons' HTML content and generate Exercise entities.
      * Skips lessons that already have exercises.
+     *
+     * @return tổng hợp số bài tập đã sinh/bỏ qua/lỗi
      */
     @Transactional
     public SeedResult seedAllLessons() {
@@ -35,7 +41,9 @@ public class ExerciseSeedService {
 
     /**
      * Parse ALL lessons' HTML content and generate Exercise entities.
+     *
      * @param force if true, deletes all existing exercise data first
+     * @return tổng hợp số bài tập đã sinh/bỏ qua/lỗi
      */
     @Transactional
     public SeedResult seedAllLessons(boolean force) {
@@ -85,8 +93,14 @@ public class ExerciseSeedService {
         return new SeedResult(totalParsed, totalSkipped, totalErrors, errors);
     }
 
-/**
- * record SeedResult.
- */
+    /**
+     * Tổng hợp kết quả một lượt seed: số bài tập sinh được, số bài bỏ qua, số bài lỗi và
+     * danh sách thông điệp lỗi theo từng bài.
+     *
+     * @param totalParsed tổng số bài tập đã sinh
+     * @param totalSkipped số bài học bị bỏ qua (đã có bài tập, rỗng nội dung, hoặc không bóc được)
+     * @param totalErrors số bài học gặp lỗi khi xử lý
+     * @param errors thông điệp lỗi tương ứng từng bài
+     */
     public record SeedResult(int totalParsed, int totalSkipped, int totalErrors, List<String> errors) {}
 }

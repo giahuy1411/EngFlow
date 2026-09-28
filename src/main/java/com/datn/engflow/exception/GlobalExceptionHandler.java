@@ -19,14 +19,30 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Central exception handler returning RFC 7807 ProblemDetail responses.
  * Consistent error contract across the API (AGENTS.md rule).
+ *
+ * <p>Tầng trên cùng của luồng lỗi: {@code @RestControllerAdvice} để mọi
+ * controller chia sẻ một hợp đồng lỗi. Ba lớp exception nghiệp vụ
+ * ({@link BadRequestException}, {@link ResourceNotFoundException},
+ * {@link ConflictException}) ánh xạ thẳng sang 400/404/409; các lỗi hạ tầng
+ * của Spring (validation, JSON, media type, multipart) có handler riêng; và
+ * {@link #handleGlobalException} là lưới an toàn cuối trả 500.
+ *
+ * <p>Quy ước bên trong: thông điệp trả về luôn tiếng Việt để hiển thị thẳng,
+ * còn {@code title} giữ tiếng Anh theo reason phrase chuẩn của RFC 7807.
+ * Handler nào cần phân biệt "lỗi phía server" với "upstream chết" thì dựng
+ * ProblemDetail qua các helper ở cuối lớp.
  */
 @Slf4j
 @RestControllerAdvice
-/**
- * class GlobalExceptionHandler.
- */
 public class GlobalExceptionHandler {
 
+    /**
+     * Ánh xạ {@link ResourceNotFoundException} sang 404, giữ nguyên thông điệp
+     * đã ghép sẵn của exception.
+     *
+     * @param ex lỗi không tìm thấy bản ghi do tầng service ném ra
+     * @return ResponseEntity chứa ProblemDetail 404
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -34,6 +50,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
+    /**
+     * Ánh xạ {@link BadRequestException} sang 400, giữ nguyên thông điệp tiếng
+     * Việt do service ném ra.
+     *
+     * @param ex lỗi đầu vào không hợp lệ do tầng service ném ra
+     * @return ResponseEntity chứa ProblemDetail 400
+     */
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ProblemDetail> handleBadRequestException(BadRequestException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
@@ -44,6 +67,9 @@ public class GlobalExceptionHandler {
     /**
      * State conflicts (duplicate email/username on register) must return 409,
      * not fall through to the 500 catch-all.
+     *
+     * @param ex lỗi trùng lặp dữ liệu do {@code UserService} ném ra
+     * @return ResponseEntity chứa ProblemDetail 409
      */
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ProblemDetail> handleConflictException(ConflictException ex) {
@@ -56,6 +82,9 @@ public class GlobalExceptionHandler {
      * audit-v7 F62: `Level.valueOf("FOO")` (query/body enum params) threw
      * IllegalArgumentException and fell through to the 500 catch-all. Bad input
      * is a client error → 400 with the Vietnamese message the frontend shows.
+     *
+     * @param ex lỗi tham số sai kiểu, ví dụ giá trị enum không khớp hằng số nào
+     * @return ResponseEntity chứa ProblemDetail 400
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -80,6 +109,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
+    /**
+     * Bean Validation trên {@code @RequestBody}: gom mọi lỗi trường vào thuộc tính
+     * {@code errors} của ProblemDetail để frontend tô đỏ đúng các ô input.
+     *
+     * @param ex lỗi ràng buộc dữ liệu trên thân yêu cầu
+     * @return ResponseEntity chứa ProblemDetail 400 kèm bản đồ lỗi theo trường
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> validationErrors = new HashMap<>();
@@ -99,6 +135,9 @@ public class GlobalExceptionHandler {
      * {@code @Valid} đặt trên chính tham số không cascade vào phần tử List.
      * Spring 6.1+ ném loại này (không phải MethodArgumentNotValidException);
      * nếu không có handler riêng nó rơi vào catch-all và trả 500 thay vì 400.
+     *
+     * @param ex lỗi ràng buộc trên tham số phương thức handler
+     * @return ResponseEntity chứa ProblemDetail 400 kèm bản đồ lỗi theo mã ràng buộc
      */
     @ExceptionHandler(org.springframework.web.method.annotation.HandlerMethodValidationException.class)
     public ResponseEntity<ProblemDetail> handleHandlerMethodValidationException(
@@ -117,6 +156,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 
+    /**
+     * Đăng nhập sai thông tin: trả 401 với thông điệp chung chung, không tiết lộ
+     * tài khoản có tồn tại hay không.
+     *
+     * @param ex lỗi xác thực do Spring Security ném ra
+     * @return ResponseEntity chứa ProblemDetail 401
+     */
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ProblemDetail> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
@@ -125,6 +171,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
     }
 
+    /**
+     * Thân JSON không đọc được (thiếu ngoặc, sai kiểu trường): lỗi client nên
+     * trả 400 kèm thông điệp riêng thay vì thông điệp validation chung.
+     *
+     * @param ex lỗi deserialize thân yêu cầu
+     * @return ResponseEntity chứa ProblemDetail 400
+     */
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
     public ResponseEntity<ProblemDetail> handleHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException ex) {
         log.warn("JSON Parse Error: {}", ex.getMessage());
@@ -133,6 +186,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 
+    /**
+     * Client gửi {@code Content-Type} mà endpoint không nhận, ví dụ đẩy JSON tới
+     * một endpoint multipart.
+     *
+     * @param ex lỗi media type không được hỗ trợ
+     * @return ResponseEntity chứa ProblemDetail 415
+     */
     @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ProblemDetail> handleHttpMediaTypeNotSupportedException(org.springframework.web.HttpMediaTypeNotSupportedException ex) {
         log.warn("Unsupported media type: {}", ex.getMessage());
@@ -145,6 +205,9 @@ public class GlobalExceptionHandler {
     /**
      * JSON body posted to a multipart endpoint (e.g. video shadowing attempts)
      * must be a 4xx client error, not fall through to the catch-all 500.
+     *
+     * @param ex lỗi multipart hoặc thiếu tham số bắt buộc của yêu cầu
+     * @return ResponseEntity chứa ProblemDetail 400
      */
     @ExceptionHandler({org.springframework.web.multipart.MultipartException.class,
             org.springframework.web.multipart.support.MissingServletRequestPartException.class,
@@ -188,6 +251,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(problem);
     }
 
+    /**
+     * URL không khớp handler nào (sai đường dẫn, endpoint đã bị gỡ): trả 404
+     * chuẩn thay vì để rơi xuống catch-all 500.
+     *
+     * @param ex lỗi không phân giải được tài nguyên tĩnh
+     * @return ResponseEntity chứa ProblemDetail 404
+     */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ProblemDetail> handleNoResourceFoundException(NoResourceFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Không tìm thấy tài nguyên yêu cầu.");
@@ -195,6 +265,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
+    /**
+     * Gọi đúng URL nhưng sai HTTP method, ví dụ {@code GET} lên endpoint chỉ
+     * nhận {@code POST}.
+     *
+     * @param ex lỗi phương thức HTTP không được hỗ trợ
+     * @return ResponseEntity chứa ProblemDetail 405
+     */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ProblemDetail> handleMethodNotAllowedException(HttpRequestMethodNotSupportedException ex) {
         log.warn("Method not allowed: {}", ex.getMessage());
@@ -204,6 +281,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(problem);
     }
 
+    /**
+     * Tham số trên query/path không ép kiểu được, ví dụ {@code ?lessonId=abc}:
+     * nêu tên tham số và giá trị gốc để người dùng sửa lại được.
+     *
+     * @param ex lỗi ép kiểu tham số phương thức
+     * @return ResponseEntity chứa ProblemDetail 400 nêu tên và giá trị tham số
+     */
     @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ProblemDetail> handleMethodArgumentTypeMismatchException(
             org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex) {
@@ -217,22 +301,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * audit-v8 F93: AI endpoints (e.g. {@code POST /api/ai/enrich-word}) run the
-     * reactive WebClient call to the local Ollama with a bare 30s timeout. Under
-     * GPU contention (a concurrent AI sweep) the model can exceed that budget and
-     * {@code .block()} leaks a {@code reactor.core.Exceptions$ReactiveException}
-     * (package-private, extends RuntimeException) wrapping
-     * {@code java.util.concurrent.TimeoutException} — the catch-all used to turn
-     * that into a generic 500. A timeout is a transient upstream condition, not a
-     * server fault: map ONLY the TimeoutException cause chain to 504 Gateway
-     * Timeout with a retryable message; every other error keeps the 500 path.
-     */
-    /**
      * audit-v13 F-13-11: an unknown {@code ?sort=} property on a paged endpoint used to
      * surface as an unhandled {@code PropertyReferenceException} inside Spring Data's
      * pageable resolution and fall through to the catch-all 500.
      * Measured: {@code GET /api/vocabulary?sort=nonexistentProperty} -> HTTP 500.
      * A bad client-supplied query parameter is a 400, not a server fault.
+     *
+     * @param ex lỗi phân giải thuộc tính sắp xếp của {@code Pageable}
+     * @return ResponseEntity chứa ProblemDetail 400
      */
     @ExceptionHandler(org.springframework.data.core.PropertyReferenceException.class)
     public ResponseEntity<ProblemDetail> handlePropertyReferenceException(
@@ -244,6 +320,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 
+    /**
+     * Chốt chặn cho mọi {@link RuntimeException} chưa được handler chuyên biệt nào
+     * bắt: phân biệt lỗi tạm thời của upstream AI với lỗi nội bộ thật sự.
+     *
+     * <p>audit-v8 F93: AI endpoints (e.g. {@code POST /api/ai/enrich-word}) run the
+     * reactive WebClient call to the local Ollama with a bare 30s timeout. Under
+     * GPU contention (a concurrent AI sweep) the model can exceed that budget and
+     * {@code .block()} leaks a {@code reactor.core.Exceptions$ReactiveException}
+     * (package-private, extends RuntimeException) wrapping
+     * {@code java.util.concurrent.TimeoutException} — the catch-all used to turn
+     * that into a generic 500. A timeout is a transient upstream condition, not a
+     * server fault: map ONLY the TimeoutException cause chain to 504 Gateway
+     * Timeout with a retryable message; every other error keeps the 500 path.
+     *
+     * @param ex lỗi runtime chưa được phân loại
+     * @return ResponseEntity 504 khi chuỗi nguyên nhân có timeout, 503 khi upstream
+     *         không kết nối được, 500 cho lỗi nội bộ còn lại
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ProblemDetail> handleRuntimeTimeout(RuntimeException ex) {
         if (containsTimeout(ex)) {
@@ -264,6 +358,9 @@ public class GlobalExceptionHandler {
      * problem, not an internal error. Spring's WebClient raises WebClientRequestException when
      * the connect fails; measured live this session with Ollama stopped:
      * {@code POST /api/ai/generate-vocab -> HTTP 500}. This handler returns 503 instead.
+     *
+     * @param ex lỗi kết nối tới upstream WebClient
+     * @return ResponseEntity chứa ProblemDetail 503
      */
     @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientRequestException.class)
     public ResponseEntity<ProblemDetail> handleWebClientRequestException(
@@ -272,12 +369,27 @@ public class GlobalExceptionHandler {
         return serviceUnavailableProblem();
     }
 
+    /**
+     * Timeout ném trực tiếp (không bọc trong RuntimeException nào): cùng đường
+     * 504 với {@link #handleRuntimeTimeout}.
+     *
+     * @param ex lỗi hết thời gian chờ
+     * @return ResponseEntity chứa ProblemDetail 504
+     */
     @ExceptionHandler(java.util.concurrent.TimeoutException.class)
     public ResponseEntity<ProblemDetail> handleTimeoutException(java.util.concurrent.TimeoutException ex) {
         log.warn("Timeout: {}", ex.getMessage());
         return timeoutProblem();
     }
 
+    /**
+     * Dò toàn bộ chuỗi nguyên nhân xem có {@link java.util.concurrent.TimeoutException}
+     * không — {@code .block()} của Reactor bọc lỗi này trong một RuntimeException
+     * package-private nên phải đi theo {@code getCause()}.
+     *
+     * @param t lỗi gốc cần truy vết
+     * @return true nếu chuỗi nguyên nhân chứa timeout
+     */
     private static boolean containsTimeout(Throwable t) {
         Throwable cur = t;
         while (cur != null) {
@@ -292,6 +404,9 @@ public class GlobalExceptionHandler {
     /**
      * True when the cause chain carries a connection-level failure (refused / unreachable /
      * unknown host). Used to distinguish "upstream is down" (503) from a generic 500.
+     *
+     * @param t lỗi gốc cần truy vết
+     * @return true nếu chuỗi nguyên nhân chứa lỗi kết nối mức socket hoặc DNS
      */
     private static boolean containsConnectionRefused(Throwable t) {
         Throwable cur = t;
@@ -311,6 +426,12 @@ public class GlobalExceptionHandler {
         return false;
     }
 
+    /**
+     * Dựng sẵn ProblemDetail 503 dùng chung cho mọi nhánh "upstream AI không
+     * sẵn sàng", giữ một thông điệp nhất quán cho frontend.
+     *
+     * @return ResponseEntity chứa ProblemDetail 503
+     */
     private ResponseEntity<ProblemDetail> serviceUnavailableProblem() {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
                 "Dịch vụ AI tạm thời không sẵn sàng. Vui lòng thử lại sau ít phút.");
@@ -318,6 +439,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(problem);
     }
 
+    /**
+     * Dựng sẵn ProblemDetail 504 cho các nhánh chờ upstream quá hạn.
+     *
+     * @return ResponseEntity chứa ProblemDetail 504
+     */
     private ResponseEntity<ProblemDetail> timeoutProblem() {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.GATEWAY_TIMEOUT,
                 "AI đang chậm phản hồi hoặc quá tải. Vui lòng thử lại sau.");
@@ -325,11 +451,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(problem);
     }
 
+    /**
+     * Lưới an toàn cuối: bất kỳ {@link Exception} nào chưa được handler nào bắt.
+     * Chi tiết nội bộ chỉ ghi log, không lộ ra ngoài.
+     *
+     * @param ex lỗi chưa được phân loại
+     * @return ResponseEntity chứa ProblemDetail 500
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGlobalException(Exception ex) {
         return problem500(ex);
     }
 
+    /**
+     * Thân chung cho mọi nhánh trả 500: ghi log đầy đủ stack trace, trả ngoài
+     * chỉ thông điệp chung.
+     *
+     * @param ex lỗi nội bộ cần ghi log
+     * @return ResponseEntity chứa ProblemDetail 500
+     */
     private ResponseEntity<ProblemDetail> problem500(Exception ex) {
         log.error("Internal server error", ex);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,

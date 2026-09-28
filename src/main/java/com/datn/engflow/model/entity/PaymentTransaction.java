@@ -8,6 +8,17 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Dòng giao dịch thanh toán qua SePay: vừa là "đơn chờ" vừa là "bằng chứng đã
+ * thanh toán" của cùng một đơn.
+ *
+ * <p>Tầng entity, chỉ {@link PaymentService} ghi. Một đơn bắt đầu ở
+ * {@code status = PENDING} (chưa có {@code transaction_id}); khi webhook hoặc
+ * poll SePay khớp, chính dòng đó được cập nhật thành {@code SUCCESS} thay vì
+ * chèn dòng thứ hai — nhờ vậy {@code order_code} không bao giờ có hai dòng cùng
+ * trạng thái thành công. {@link #webhookRaw} lưu nguyên body đã kiểm chữ ký để
+ * đối chiếu khi có khiếu nại.
+ */
 @Entity
 @Table(name = "payment_transactions")
 @Getter
@@ -15,9 +26,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-/**
- * class PaymentTransaction.
- */
 public class PaymentTransaction {
 
     @Id
