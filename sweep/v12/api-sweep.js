@@ -34,16 +34,12 @@ function vnDate(when) {
 const VN_RUN_DATE = vnDate();
 
 // audit-v15 L3-h: default the output beside the CURRENT audit, not into audit-v12's dir.
-// audit-v20 F-20-02b: default phải trỏ vòng MỚI NHẤT. v19 từng sửa CẢ HAI nơi
-// (`_config.js` + file này) nhưng v20 chỉ sửa `_config.js` → nơi này lệch lại.
-// `assert-harness.js` check 7 chỉ soi literal path `.specify/specs/audit-vN-full`,
-// KHÔNG soi default `arg("audit", ...)` → đây là khe hở guard (finding riêng).
-function arg(name, def) {
-  const i = process.argv.indexOf("--" + name);
-  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
-}
-const AUDIT = arg("audit", "audit-v21-full");
-const OUT_DIR = arg("out", path.join(__dirname, "..", "..", ".specify", "specs", AUDIT, "evidence"));
+// audit-v21 (root-cause fix for F-17-16/F-20-02b/F-21-01): file này TỪNG khai báo default
+// thứ hai `arg("audit", "audit-vN-full")` → mỗi vòng phải sửa default ở HAI nơi, và nếu quên
+// một nơi thì `assert-harness.js` check 8 chỉ *phát hiện sau* (không ngăn được). Nay nó
+// IMPORT `_config.js` — nguồn sự thật duy nhất — nên chỉ còn MỘT chỗ để bump, và check 8
+// vẫn giữ để bắt bất kỳ harness nào tái phạm kiểu khai báo default trùng.
+const { OUT: OUT_DIR } = require("../harness/_config.js");
 
 const R = { pass: 0, fail: 0, blocked: 0, n_a: 0, findings: [], areas: {}, probed: [] };
 let area = "init";

@@ -1221,7 +1221,7 @@ bài học (JSON) · Lỗi: không (tham số xấu được kẹp về hợp l�
 **Tóm lại:** Hai "van an toàn" ở đây: kẹp `size` (1..100) và chặn `page` âm. Hội đồng rất hay hỏi
 "nếu người dùng truyền size khổng lồ thì sao?" — đây là câu trả lời.
 
-#### b) Câu truy vấn danh sách — `src/main/java/com/datn/engflow/repository/LessonRepository.java:62-81`
+#### b) Câu truy vấn danh sách — `src/main/java/com/datn/engflow/repository/LessonRepository.java:103-123`
 
 **Hợp đồng:** Nhận: keyword (có thể null), level (có thể null), thông tin trang · Trả: trang projection
 (chỉ cột cần dùng) · Lỗi: không.
@@ -2567,7 +2567,7 @@ Hãy hình dung **mục lục của một thư viện**:
 1. Gõ từ khoá → sau 350ms giao diện gọi `GET /api/lessons?q=present&page=0&size=12` — `Lessons.vue:178-192`.
 2. `LessonController` kẹp `size`, đặt thứ tự **cố định** `orderIndex` tăng dần — `LessonController.java:42-54`.
 3. `LessonRepository.findPublishedPageProjection` chạy câu JPQL: tìm trong 3 cột (tiêu đề, mô tả, danh mục),
-   không phân biệt hoa thường, chỉ bài đã xuất bản — `LessonRepository.java:66-81`.
+   không phân biệt hoa thường, chỉ bài đã xuất bản — `LessonRepository.java:108-123`.
 4. Trả về trang kết quả; **tham số `sort` nếu client có gửi cũng bị bỏ qua** (không có trong code).
 
 **Luồng B — Tra từ (đường chính qua máy chủ):**
@@ -2773,7 +2773,7 @@ Lỗi: **không bao giờ ném** (fail-soft hoàn toàn).
 lỗi tạm thời thì quên**; (3) mọi thao tác với Redis đều bọc `try/catch` — Redis chết cũng không làm sập tra từ.
 Đây là chương dễ ghi điểm nhất khi hội đồng hỏi về "xử lý lỗi".
 
-#### d) Cấu hình hai kho đệm — `src/main/java/com/datn/engflow/config/RedisConfig.java:52-87`
+#### d) Cấu hình hai kho đệm — `src/main/java/com/datn/engflow/config/RedisConfig.java:55-90`
 
 ```java
     @org.springframework.beans.factory.annotation.Value("${cache.ttl-hours:1}")
@@ -3004,7 +3004,7 @@ máy chủ **bỏ qua im lặng**.
 ```
 
 ```java
-    // UserRepository.java:42-50 (trích)
+    // UserRepository.java:72-81 (trích)
     @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :kw, '%')) "
             + "OR LOWER(u.username) LIKE LOWER(CONCAT('%', :kw, '%')) "
             + "OR LOWER(COALESCE(u.fullName, '')) LIKE LOWER(CONCAT('%', :kw, '%'))")
@@ -3299,7 +3299,7 @@ phát triển nhanh. Đổi lại **thiếu versioning** — thay đổi lớn p
 
 **Câu 11 — Vì sao dùng projection thay vì lấy cả entity?**
 Bảng `lessons` có 2 cột nội dung `NVARCHAR(MAX)` rất nặng. Đo được: lấy cả entity = **320 lượt đọc LOB**,
-chỉ lấy cột cần = **0 lượt** cho một trang 20 dòng (`LessonRepository.java:42-49`). Danh sách chỉ cần tiêu đề
+chỉ lấy cột cần = **0 lượt** cho một trang 20 dòng (`LessonRepository.java:78-85`). Danh sách chỉ cần tiêu đề
 + mô tả, không cần nội dung đầy đủ.
 
 ### Bảo mật (câu 12–17)

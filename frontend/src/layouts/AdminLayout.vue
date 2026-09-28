@@ -1,6 +1,8 @@
+<!-- audit-v5: inline font-family removed — body already inherits Be Vietnam Pro
+     via --geo-font (main.css); the literal bypassed the token.
+     audit-v21 F-21-03: comment này TỪNG nằm trong <template> ngay trước root <div>,
+     tức là root node thứ hai → Vue coi component là fragment. Đã dời ra ngoài <template>. -->
 <template>
-  <!-- audit-v5: inline font-family removed — body already inherits Be Vietnam Pro
-       via --geo-font (main.css); the literal bypassed the token. -->
   <div class="flex h-screen bg-geo-bg overflow-hidden">
     <!-- audit-v7 F67: sidebar w-72 cứng + h-screen overflow-hidden làm admin
          không dùng được trên mobile (375px không còn chỗ cho content, không có
