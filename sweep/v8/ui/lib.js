@@ -106,9 +106,15 @@ const VN_RUN_DATE = vnDate();
  *
  * Update this when the DB legitimately changes, and update AGENTS.md in the same
  * commit (it documents the same baseline).
+ *
+ * audit-v20 (2026-09-28): payments 12 -> 13. The extra row is a REAL SePay bank
+ * transfer (`ENG73E2D3AA2DF6`, verified end-to-end in audit-v19 W4) that the V9
+ * decision deliberately keeps. It is NOT harness residue: PENDING_PAYMENTS=0 and
+ * STUDY_DAYS=4 both still match, so no sweep left anything behind. The baseline
+ * moved because the DATA legitimately changed, not because the guard broke.
  */
-const PARITY_BASELINE = "1470|43738|5|118|29|4|3|12|10";
-const PAYMENTS_BASELINE = 12;
+const PARITY_BASELINE = "1470|43738|5|118|29|4|3|13|10";
+const PAYMENTS_BASELINE = 13;
 const STUDY_DAYS_BASELINE = 4;
 // audit-v17 F-17-07 (round 2, F-17-21): PROBE-ACCOUNT rows only — the same two emails
 // cleanupExerciseAttempts deletes for. The first version counted the whole table, so a REAL
@@ -287,7 +293,7 @@ function dbParity() {
     const out = execFileSync("python", ["sweep/v8/sqlrun.py", "sweep/v8/p16-parity.sql"],
       { cwd: ROOT, encoding: "utf8" });
     // The data line is the one made only of digits and pipes, e.g.
-    // "1470|43738|5|118|29|4|3|12|10". The header and the dashes rule are
+    // "1470|43738|5|118|29|4|3|13|10". The header and the dashes rule are
     // not, so anchor on that instead of guessing a line index.
     const line = out.split(/\r?\n/).find(l => /^\s*\d+(\|\d+)+\s*$/.test(l));
     return line ? line.trim() : "UNPARSED";

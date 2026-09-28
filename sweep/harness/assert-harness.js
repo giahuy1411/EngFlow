@@ -205,5 +205,38 @@ function suiteFiles() {
     hits.length === 0, hits.slice(0, 8).join(" ; "));
 }
 
+// ── 8. no harness may default `--audit` to a STALE round (F-20-02b) ──────────
+{
+  // Check 7 closes the `.specify/specs/audit-vN-full` LITERAL, but a harness can also
+  // write `arg("audit", "audit-v19-full")` — a bare round NAME with no path — and slip
+  // through. That is exactly what happened in audit-v20: `_config.js` was bumped to v20
+  // but `sweep/v12/api-sweep.js` kept `arg("audit", "audit-v19-full")`, so an api-sweep
+  // run without `--audit` would have written its evidence into the v19 folder — the very
+  // F-17-16 defect, one layer over. Guard the DEFAULT ARGUMENT, not just the path literal.
+  const specs = path.join(ROOT, ".specify", "specs");
+  const rounds = fs.existsSync(specs)
+    ? fs.readdirSync(specs)
+        .map((n) => /^audit-v(\d+)-full$/.exec(n))
+        .filter(Boolean)
+        .map((r) => ({ name: r[0], num: +r[1] }))
+    : [];
+  const latest = rounds.sort((a, b) => b.num - a.num)[0];
+  const stale = [];
+  for (const f of suiteFiles()) {
+    const base = path.basename(f);
+    if (base === "_config.js") continue;                          // the single source of truth
+    const src = fs.readFileSync(f, "utf8");
+    src.split("\n").forEach((text, i) => {
+      if (/^\s*(\/\/|\*|--)/.test(text)) return;                  // a comment may explain history
+      const m = /arg\(\s*["']audit["']\s*,\s*["'](audit-v\d+-full)["']\s*\)/.exec(text);
+      if (m && latest && m[1] !== latest.name) {
+        stale.push(base + ":" + (i + 1) + " default=" + m[1] + " latest=" + latest.name);
+      }
+    });
+  }
+  check("no harness defaults --audit to a stale round outside _config.js",
+    stale.length === 0, stale.slice(0, 8).join(" ; "));
+}
+
 console.log("\n=== assert-harness: " + (problems.length === 0 ? "ALL CLEAN" : problems.length + " PROBLEM(S)") + " ===");
 process.exit(problems.length === 0 ? 0 : 1);

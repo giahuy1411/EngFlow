@@ -34,11 +34,15 @@ function vnDate(when) {
 const VN_RUN_DATE = vnDate();
 
 // audit-v15 L3-h: default the output beside the CURRENT audit, not into audit-v12's dir.
+// audit-v20 F-20-02b: default phải trỏ vòng MỚI NHẤT. v19 từng sửa CẢ HAI nơi
+// (`_config.js` + file này) nhưng v20 chỉ sửa `_config.js` → nơi này lệch lại.
+// `assert-harness.js` check 7 chỉ soi literal path `.specify/specs/audit-vN-full`,
+// KHÔNG soi default `arg("audit", ...)` → đây là khe hở guard (finding riêng).
 function arg(name, def) {
   const i = process.argv.indexOf("--" + name);
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
-const AUDIT = arg("audit", "audit-v19-full");
+const AUDIT = arg("audit", "audit-v20-full");
 const OUT_DIR = arg("out", path.join(__dirname, "..", "..", ".specify", "specs", AUDIT, "evidence"));
 
 const R = { pass: 0, fail: 0, blocked: 0, n_a: 0, findings: [], areas: {}, probed: [] };

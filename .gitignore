@@ -74,6 +74,14 @@ logs/
 !.specify/specs/audit-v19-full/evidence/*.md
 !.specify/specs/audit-v19-full/evidence/*.txt
 !.specify/specs/audit-v19-full/evidence/shots/**
+# audit-v20-full evidence is committed too (secret-scanned 2026-09-28, 0 secrets).
+# NOTE: the harness writes scratch files named `_*` (remap/stale/gap dumps) — those are
+# intentionally NOT unignored, so run-time scratch never enters the repo.
+!.specify/specs/audit-v20-full/evidence/*.log
+!.specify/specs/audit-v20-full/evidence/*.json
+!.specify/specs/audit-v20-full/evidence/*.md
+!.specify/specs/audit-v20-full/evidence/*.txt
+!.specify/specs/audit-v20-full/evidence/shots/**
 
 # Runtime / scratch
 *.pid

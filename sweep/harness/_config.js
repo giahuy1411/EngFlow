@@ -11,19 +11,19 @@
  * harness was rebuilt from an old snapshot and re-introduced fixed bugs".
  *
  * Now the namespace is DATA, not code:
- *   node sweep/harness/<probe>.js [--audit audit-v19-full] [--out <dir>]
+ *   node sweep/harness/<probe>.js [--audit audit-v20-full] [--out <dir>]
  *
- * Defaults point at the current audit (`audit-v19-full`). A later round passes
- * `--audit audit-v20-full` and every path/marker follows — no edits, nothing lost.
+ * Defaults point at the current audit (`audit-v20-full`). A later round passes
+ * `--audit audit-v21-full` and every path/marker follows — no edits, nothing lost.
  *
  * NOTE: the default is ALSO asserted by assert-harness.js (F-17-16). It must name an audit
  * directory that exists under .specify/specs/, so a stale default fails the static suite rather
  * than silently writing evidence into a previous round's folder.
  *
  * Exports:
- *   AUDIT   "audit-v19-full"      audit name (drives evidence dir)
- *   VER     "V19"                 short version tag
- *   MARKER  "AUDIT-V19"           prefix for every row this suite writes
+ *   AUDIT   "audit-v20-full"      audit name (drives evidence dir)
+ *   VER     "V20"                 short version tag
+ *   MARKER  "AUDIT-V20"           prefix for every row this suite writes
  *   ROOT    <repo root>
  *   OUT     <evidence dir>        `.specify/specs/<AUDIT>/evidence`
  *   arg(name, def)                read a `--name value` CLI arg
@@ -35,7 +35,7 @@ function arg(name, def) {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 }
 
-const AUDIT = arg("audit", "audit-v19-full");
+const AUDIT = arg("audit", "audit-v20-full");
 const ROOT = path.join(__dirname, "..", "..");
 const OUT = arg("out", path.join(ROOT, ".specify", "specs", AUDIT, "evidence"));
 
