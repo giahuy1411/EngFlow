@@ -35,6 +35,7 @@ Nền tảng học tiếng Anh (capstone). Giao tiếp với người dùng bằ
 - Vue: `<script setup>`, services module trong `frontend/src/services/*.js` gọi qua `api` instance. Test colocate: `Foo.js` → `Foo.test.js` (hoặc `__tests__/`).
 - Java: package `com.datn.engflow`, pattern Controller → Service → Repository, DTO request/response tách riêng, Lombok.
 - Git: Conventional Commits (`feat:`, `fix:`, `refactor:`, `chore:`) có scope (`feat(speaking): ...`), tiếng Anh, author `giahuy1411`.
+- **GIT AN TOÀN (audit-v21, sự cố thật 2026-09-28)**: một thao tác git bị ngắt (dấu hiệu `stash`) từng **ghi hỏng `.git/refs/heads/audit-v15-full`** (file ref thành rỗng) ⇒ `git log`/`git status` báo "branch appears to be broken" và toàn bộ repo hiện như file mới. **Object KHÔNG mất** — chỉ mất con trỏ. Cách khôi phục: `git fsck` xác nhận object còn → lấy SHA cuối từ **reflog** (`.git/logs/refs/heads/<branch>`) → ghi lại ref → xoá `.git/index.stash.*.lock`. **KHÔNG bao giờ `git init` lại** (mất lịch sử). Phòng ngừa: **không `git stash`** khi chưa commit; **backup `.git`** (`cp -r .git ~/engflow-git-backup`) trước thao tác git rủi ro; commit sớm và thường xuyên.
 - UI text tiếng Việt; class style theo design system hiện có (border-2 border-foreground, shadow-pop-*).
 
 ## Boundaries
